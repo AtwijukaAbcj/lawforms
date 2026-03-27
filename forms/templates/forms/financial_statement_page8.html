@@ -1,0 +1,586 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+    --amber:245,158,11;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1240px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 520px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 460px at 100% 0%, rgba(var(--green),.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(var(--green),.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-title{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .panel-sub{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    max-width: 980px;
+  }
+  .panel-pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .ui-input{
+    width:100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 10px 12px !important;
+    font-size: .95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .ui-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+  .ui-input.sm{ height: 42px; border-radius: 8px !important; }
+
+  .money-input{
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table-wrap{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  }
+  .modern-table{
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: .93rem;
+  }
+  .modern-table thead th{
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.55);
+  }
+
+  .note{
+    border: 1px solid rgba(var(--amber), .28);
+    background: rgba(var(--amber), .08);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #7c2d12;
+    box-shadow: 0 10px 28px rgba(2,6,23,.05);
+  }
+  .note strong{ font-weight: 950; }
+  .note p{ margin: 0; color:#7c2d12; font-weight: 600; font-size: 13px; line-height: 1.35; }
+
+  .totals-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  @media (max-width: 992px){
+    .totals-grid{ grid-template-columns: 1fr; }
+  }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--green), .35);
+    background: linear-gradient(135deg, rgba(var(--green),.95), rgba(16,185,129,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(16,185,129,.22);
+  }
+  .btn-primary-modern:hover{ filter: brightness(1.03); color:#fff; }
+
+  .btn-secondary-modern{
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+  }
+
+  .inline-check{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 12px 12px;
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.75);
+    border-radius: 8px;
+    margin-top: 12px;
+  }
+  .inline-check input[type="checkbox"]{ margin-top: 3px; }
+  .inline-check label{
+    margin:0;
+    font-weight: 900;
+    color: var(--text);
+  }
+  .inline-check .sub{
+    margin-top: 6px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Schedule C - Special or Extraordinary Expenses</h1>
+        <p>For the child(ren) - amounts are annual unless otherwise noted.</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if statement.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ statement.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Schedule C</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div id="autosave-indicator" style="position:fixed; top:10px; right:10px; padding:8px 16px; background:rgba(34,197,94,.9); color:#fff; border-radius:8px; font-weight:700; font-size:13px; display:none; z-index:9999;">Saved</div>
+
+        <script>
+        (function(){
+          function parseNum(val) {
+            if (!val) return 0;
+            val = (''+val).replace(/[^\d.\-]/g, '');
+            var n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+          }
+          function updateScheduleCTotals() {
+            // Sum all expense amounts (schedule_c_amount_*)
+            var sum = 0;
+            document.querySelectorAll('.schedule-c-amount').forEach(function(inp) {
+              sum += parseNum(inp.value);
+            });
+            var totalAnnual = document.getElementsByName('schedule_c_total_annual')[0];
+            var totalMonthly = document.getElementsByName('schedule_c_total_monthly')[0];
+            if (totalAnnual) totalAnnual.value = sum.toFixed(2);
+            if (totalMonthly) totalMonthly.value = (sum / 12).toFixed(2);
+          }
+
+          // --- AUTOSAVE LOGIC ---
+          var autosaveTimeout = null;
+          var indicator = null;
+          function showIndicator(text, color) {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              indicator.textContent = text;
+              indicator.style.background = color;
+              indicator.style.display = 'block';
+            }
+          }
+          function hideIndicator() {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) indicator.style.display = 'none';
+          }
+          function autosaveForm() {
+            var form = document.querySelector('form');
+            if (!form) return;
+            showIndicator('Saving...', 'rgba(99,102,241,.9)');
+            var formData = new FormData(form);
+            var csrfToken = formData.get('csrfmiddlewaretoken');
+            fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+              },
+              body: formData
+            })
+            .then(function(response) {
+              if (response.ok) {
+                showIndicator('Saved', 'rgba(34,197,94,.9)');
+                setTimeout(hideIndicator, 1500);
+              } else {
+                showIndicator('Error', 'rgba(239,68,68,.9)');
+                setTimeout(hideIndicator, 2000);
+              }
+            })
+            .catch(function() {
+              showIndicator('Error', 'rgba(239,68,68,.9)');
+              setTimeout(hideIndicator, 2000);
+            });
+          }
+          function scheduleAutosave() {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(function(){
+              updateScheduleCTotals();
+              autosaveForm();
+            }, 800);
+          }
+
+          // Listen for input changes
+          document.addEventListener('input', function(e){
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+              updateScheduleCTotals();
+              scheduleAutosave();
+            }
+          });
+          document.addEventListener('change', function(e){
+            if (e.target.type === 'checkbox' || e.target.type === 'radio') {
+              scheduleAutosave();
+            }
+          });
+          // Initial calculation on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            updateScheduleCTotals();
+          });
+        })();
+        </script>
+
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Schedule C: Special or Extraordinary Expenses for the Child(ren)</h3>
+              <div class="panel-sub">
+                Enter the child's name, the type of expense, the annual amount, and any available tax credits/deductions.
+              </div>
+            </div>
+            <div class="panel-pill">Annual expenses</div>
+          </div>
+
+          <style>
+            .btn-delete-row {
+              background: #ef4444;
+              color: white;
+              border: none;
+              border-radius: 50%;
+              width: 28px;
+              height: 28px;
+              font-size: 18px;
+              font-weight: bold;
+              cursor: pointer;
+              line-height: 1;
+              padding: 0;
+              transition: all 0.15s ease;
+            }
+            .btn-delete-row:hover {
+              background: #dc2626;
+              transform: scale(1.1);
+            }
+          </style>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table" id="schedule-c-table">
+                <thead>
+                  <tr>
+                    <th style="width: 200px;">Child's name</th>
+                    <th>Expense</th>
+                    <th style="width: 150px;">Amount / yr.</th>
+                    <th style="width: 200px;">Tax credits / deductions*</th>
+                    <th style="width: 50px;"></th>
+                  </tr>
+                </thead>
+                <tbody id="schedule-c-tbody">
+                  {% for row in schedule_c_rows %}
+                  <tr class="schedule-c-row">
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_child_name_{{ forloop.counter }}" value="{{ row.child_name }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_expense_{{ forloop.counter }}" value="{{ row.expense }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-amount" type="number" step="0.01" name="schedule_c_amount_{{ forloop.counter }}" value="{{ row.amount }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-tax" type="number" step="0.01" name="schedule_c_tax_credits_{{ forloop.counter }}" value="{{ row.tax_credits }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteScheduleCRow(this)" title="Delete row">&times;</button></td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div style="text-align:right; margin-top:8px;">
+            <button type="button" id="add-schedule-c-row" class="btn-modern btn-secondary-modern" style="min-width:180px; width:auto;">+ Add Row</button>
+          </div>
+
+          <script>
+          function deleteScheduleCRow(btn) {
+            var row = btn.closest('tr');
+            var rows = document.querySelectorAll('.schedule-c-row');
+            if (rows.length <= 1) {
+              alert('At least one row must remain.');
+              return;
+            }
+            row.remove();
+            renumberScheduleCRows();
+          }
+          
+          function renumberScheduleCRows() {
+            var rows = document.querySelectorAll('.schedule-c-row');
+            rows.forEach(function(row, idx) {
+              var inputs = row.querySelectorAll('input');
+              inputs.forEach(function(input) {
+                var name = input.name;
+                if (name.includes('schedule_c_child_name_')) {
+                  input.name = 'schedule_c_child_name_' + (idx + 1);
+                } else if (name.includes('schedule_c_expense_')) {
+                  input.name = 'schedule_c_expense_' + (idx + 1);
+                } else if (name.includes('schedule_c_amount_')) {
+                  input.name = 'schedule_c_amount_' + (idx + 1);
+                } else if (name.includes('schedule_c_tax_credits_')) {
+                  input.name = 'schedule_c_tax_credits_' + (idx + 1);
+                }
+              });
+            });
+          }
+          
+          (function(){
+            var scheduleCRowCount = {{ schedule_c_rows|length }};
+            
+            function addScheduleCRow(childName, expense, amount, taxCredits) {
+              scheduleCRowCount++;
+              var idx = scheduleCRowCount;
+              var tbody = document.getElementById('schedule-c-tbody');
+              var tr = document.createElement('tr');
+              tr.className = 'schedule-c-row';
+              tr.innerHTML = '<td><input class="form-control ui-input sm" type="text" name="schedule_c_child_name_'+idx+'" value="'+(childName||'')+'" placeholder="Child name"></td>'+
+                '<td><input class="form-control ui-input sm" type="text" name="schedule_c_expense_'+idx+'" value="'+(expense||'')+'" placeholder="Expense type"></td>'+
+                '<td><input class="form-control ui-input sm money-input schedule-c-amount" type="number" step="0.01" name="schedule_c_amount_'+idx+'" value="'+(amount||'')+'" placeholder="0.00"></td>'+
+                '<td><input class="form-control ui-input sm money-input schedule-c-tax" type="number" step="0.01" name="schedule_c_tax_credits_'+idx+'" value="'+(taxCredits||'')+'" placeholder="0.00"></td>'+
+                '<td><button type="button" class="btn-delete-row" onclick="deleteScheduleCRow(this)" title="Delete row">&times;</button></td>';
+              tbody.appendChild(tr);
+            }
+            
+            document.getElementById('add-schedule-c-row').addEventListener('click', function(){
+              addScheduleCRow('', '', '', '');
+            });
+            
+            // Load extra rows from server (rows beyond initial 2)
+            {% for row in extra_schedule_c_rows %}
+            addScheduleCRow('{{ row.child_name|escapejs }}', '{{ row.expense|escapejs }}', '{{ row.amount|escapejs }}', '{{ row.tax_credits|escapejs }}');
+            {% endfor %}
+          })();
+          </script>
+
+          <!-- Totals -->
+          <div class="totals-grid">
+            <div>
+              <label for="total_net_annual_amount" class="panel-sub" style="margin:0 0 6px;">Total net annual amount</label>
+              <input class="form-control ui-input money-input"
+                     type="number" step="0.01"
+                     name="schedule_c_total_annual"
+                     id="total_net_annual_amount"
+                     value="{{ statement.schedule_c_total_annual|default:'' }}"
+                     placeholder="0.00">
+            </div>
+            <div>
+              <label for="total_net_monthly_amount" class="panel-sub" style="margin:0 0 6px;">Total net monthly amount</label>
+              <input class="form-control ui-input money-input"
+                     type="number" step="0.01"
+                     name="schedule_c_total_monthly"
+                     id="total_net_monthly_amount"
+                     value="{{ statement.schedule_c_total_monthly|default:'' }}"
+                     placeholder="0.00">
+            </div>
+            <div>
+              <label class="panel-sub" style="margin:0 0 6px;">Share (if applicable)</label>
+              <div class="inline-check" style="margin:0;">
+                <div style="width:100%;">
+                  <label>Use my annual income to determine my share</label>
+                  <div class="sub">
+                    I earn $
+                    <input class="form-control ui-input sm money-input d-inline-block"
+                           style="max-width: 180px; display:inline-block; margin: 6px 0 0;"
+                           type="number" step="0.01"
+                           name="schedule_c_my_income_for_share"
+                           value="{{ statement.schedule_c_my_income_for_share|default:'' }}"
+                           placeholder="0.00">
+                    per year.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- NOTE -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Note</h3>
+              <div class="panel-sub">Examples of expenses that may be included in this schedule.</div>
+            </div>
+            <div class="panel-pill">Guidance</div>
+          </div>
+
+          <div class="note">
+            <p><strong>Examples include:</strong></p>
+            <ul style="margin:10px 0 0 18px; color:#7c2d12; font-weight:600;">
+              <li>Necessary childcare expenses;</li>
+              <li>Medical insurance premiums and certain health-related expenses for the child that cost more than $100 annually;</li>
+              <li>Extraordinary expenses for the child's education;</li>
+              <li>Post-secondary school expenses; and</li>
+              <li>Extraordinary expenses for extracurricular activities.</li>
+            </ul>
+            <p style="margin-top:10px;">
+              Some expenses can be claimed on a parent's income tax return as a tax credit or deduction (for example, childcare costs).
+              Those credits or deductions should be shown above.
+            </p>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          {% if statement.pk %}
+            <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
+          {% endif %}
+          <button type="submit" class="btn-modern btn-primary-modern">Submit &amp; Finish</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

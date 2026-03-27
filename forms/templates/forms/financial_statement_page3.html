@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+    --amber:245,158,11;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1200px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  /* Panels */
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-title{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .panel-sub{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    max-width: 920px;
+    line-height: 1.35;
+  }
+  .panel-pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  /* Inputs */
+  .ui-input{
+    width:100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 10px 12px !important;
+    font-size: .95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .ui-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+  .ui-input.sm{ height: 42px; border-radius: 8px !important; }
+
+  /* Table */
+  .table-wrap{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  }
+  .modern-table{
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: .93rem;
+  }
+  .modern-table thead th{
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.55);
+  }
+  .money-cell{
+    width: 180px;
+  }
+  .money-input{
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Two-column layout for expenses */
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 992px){
+    .grid-2{ grid-template-columns: 1fr; }
+  }
+
+  .group-title{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    margin: 0 0 10px;
+  }
+  .group-title h3{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .group-title span{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .mini-note{
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 8px;
+  }
+
+  /* Buttons */
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{ filter: brightness(1.03); color:#fff; }
+  .btn-secondary-modern{
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+
+    <div class="page-header">
+      <div>
+        <h1>Financial Statement (Support Claims)</h1>
+        <p>Page 3 • Other Benefits • Expenses (Part 2)</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if statement.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ statement.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Page 3</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div id="autosave-indicator" style="position:fixed; top:10px; right:10px; padding:8px 16px; background:rgba(34,197,94,.9); color:#fff; border-radius:8px; font-weight:700; font-size:13px; display:none; z-index:9999;">Saved</div>
+
+        <script>
+        (function(){
+          function parseNum(val) {
+            if (!val) return 0;
+            val = (''+val).replace(/[^\d.\-]/g, '');
+            var n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+          }
+          function sumInputs(names) {
+            return names.reduce(function(sum, name){
+              var inp = document.getElementsByName(name)[0];
+              return sum + (inp ? parseNum(inp.value) : 0);
+            }, 0);
+          }
+          function updateSubtotals() {
+            // Automatic deductions
+            var autoNames = [
+              'cpp_contributions','ei_premiums','income_taxes','employee_pension_contributions','union_dues'
+            ];
+            var autoSum = sumInputs(autoNames);
+            var autoSub = document.getElementsByName('automatic_deductions_subtotal')[0];
+            if (autoSub) autoSub.value = autoSum.toFixed(2);
+
+            // Housing
+            var housingNames = [
+              'rent_or_mortgage','property_taxes','property_insurance','condo_fees','repairs_maintenance'
+            ];
+            var housingSum = sumInputs(housingNames);
+            var housingSub = document.getElementsByName('housing_subtotal')[0];
+            if (housingSub) housingSub.value = housingSum.toFixed(2);
+
+            // Transportation
+            var transNames = [
+              'public_transit_taxis','gas_oil','car_insurance_license','car_repairs_maintenance','parking','car_loan_lease_payments'
+            ];
+            var transSum = sumInputs(transNames);
+            var transSub = document.getElementsByName('transportation_subtotal')[0];
+            if (transSub) transSub.value = transSum.toFixed(2);
+
+            // Health
+            var healthNames = [
+              'health_insurance_premiums','dental_expenses','medicine_drugs','eye_care'
+            ];
+            var healthSum = sumInputs(healthNames);
+            var healthSub = document.getElementsByName('health_subtotal')[0];
+            if (healthSub) healthSub.value = healthSum.toFixed(2);
+          }
+
+          // --- AUTOSAVE LOGIC ---
+          var autosaveTimeout = null;
+          var indicator = null;
+          function showIndicator(text, color) {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              indicator.textContent = text;
+              indicator.style.background = color;
+              indicator.style.display = 'block';
+            }
+          }
+          function hideIndicator() {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) indicator.style.display = 'none';
+          }
+          function autosaveForm() {
+            var form = document.querySelector('form');
+            if (!form) return;
+            showIndicator('Saving...', 'rgba(99,102,241,.9)');
+            var formData = new FormData(form);
+            var csrfToken = formData.get('csrfmiddlewaretoken');
+            fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+              },
+              body: formData
+            })
+            .then(function(response) {
+              if (response.ok) {
+                showIndicator('Saved', 'rgba(34,197,94,.9)');
+                setTimeout(hideIndicator, 1500);
+              } else {
+                showIndicator('Error', 'rgba(239,68,68,.9)');
+                setTimeout(hideIndicator, 2000);
+              }
+            })
+            .catch(function() {
+              showIndicator('Error', 'rgba(239,68,68,.9)');
+              setTimeout(hideIndicator, 2000);
+            });
+          }
+          function scheduleAutosave() {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(function(){
+              updateSubtotals();
+              autosaveForm();
+            }, 800);
+          }
+
+          // Listen for input changes
+          document.addEventListener('input', function(e){
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+              updateSubtotals();
+              scheduleAutosave();
+            }
+          });
+          // Initial calculation on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            updateSubtotals();
+          });
+        })();
+        </script>
+
+        <!-- 14. Other Benefits -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">14. Other benefits</h3>
+              <div class="panel-sub">
+                Provide details of any non-cash benefits that your employer provides to you or are paid for by your business
+                (e.g., medical insurance, company car, room and board).
+              </div>
+            </div>
+            <div class="panel-pill">Annual value</div>
+          </div>
+
+          <style>
+            .btn-delete-row {
+              background: #ef4444;
+              color: white;
+              border: none;
+              border-radius: 50%;
+              width: 28px;
+              height: 28px;
+              font-size: 18px;
+              font-weight: bold;
+              cursor: pointer;
+              line-height: 1;
+              padding: 0;
+              transition: all 0.15s ease;
+            }
+            .btn-delete-row:hover {
+              background: #dc2626;
+              transform: scale(1.1);
+            }
+          </style>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table">
+                <thead>
+                  <tr>
+                    <th style="width:20%">Item</th>
+                    <th style="width:50%">Details</th>
+                    <th style="width:20%">Yearly market value</th>
+                    <th style="width:10%"></th>
+                  </tr>
+                </thead>
+                <tbody id="benefits-table-body">
+                  <tr class="benefit-row">
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_1" value="{{ statement.benefit_item_1 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_1" value="{{ statement.benefit_details_1 }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_1" value="{{ statement.benefit_value_1 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr class="benefit-row">
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_2" value="{{ statement.benefit_item_2 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_2" value="{{ statement.benefit_details_2 }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_2" value="{{ statement.benefit_value_2 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr class="benefit-row">
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_3" value="{{ statement.benefit_item_3 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_3" value="{{ statement.benefit_details_3 }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_3" value="{{ statement.benefit_value_3 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr class="benefit-row">
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_4" value="{{ statement.benefit_item_4 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_4" value="{{ statement.benefit_details_4 }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_4" value="{{ statement.benefit_value_4 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div style="text-align:right; margin-top:8px;">
+            <button type="button" id="add-benefit-row" class="btn-modern btn-secondary-modern" style="min-width:180px; width:auto;">+ Add Row</button>
+          </div>
+
+          <script>
+          function deleteBenefitRow(btn) {
+            var row = btn.closest('tr');
+            var rows = document.querySelectorAll('.benefit-row');
+            if (rows.length <= 1) {
+              alert('At least one row must remain.');
+              return;
+            }
+            row.remove();
+            renumberBenefitRows();
+          }
+          
+          function renumberBenefitRows() {
+            var rows = document.querySelectorAll('.benefit-row');
+            rows.forEach(function(row, idx) {
+              var inputs = row.querySelectorAll('input');
+              inputs.forEach(function(input) {
+                var name = input.name;
+                if (name.includes('benefit_item_')) {
+                  input.name = 'benefit_item_' + (idx + 1);
+                } else if (name.includes('benefit_details_')) {
+                  input.name = 'benefit_details_' + (idx + 1);
+                } else if (name.includes('benefit_value_')) {
+                  input.name = 'benefit_value_' + (idx + 1);
+                }
+              });
+            });
+          }
+          
+          (function(){
+            var benefitRowCount = 4;
+            
+            function addBenefitRow(item, details, value) {
+              benefitRowCount++;
+              var idx = benefitRowCount;
+              var tbody = document.getElementById('benefits-table-body');
+              var tr = document.createElement('tr');
+              tr.className = 'benefit-row';
+              tr.innerHTML = '<td><input class="form-control ui-input sm" type="text" name="benefit_item_'+idx+'" value="'+(item||'')+'" placeholder="Item"></td>'+
+                '<td><input class="form-control ui-input sm" type="text" name="benefit_details_'+idx+'" value="'+(details||'')+'" placeholder="Details"></td>'+
+                '<td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_'+idx+'" value="'+(value||'')+'" placeholder="0.00"></td>'+
+                '<td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>';
+              tbody.appendChild(tr);
+            }
+            
+            document.getElementById('add-benefit-row').addEventListener('click', function(){
+              addBenefitRow('', '', '');
+            });
+            
+            // Load extra benefits from server
+            {% for benefit in extra_benefits %}
+            addBenefitRow('{{ benefit.item|escapejs }}', '{{ benefit.details|escapejs }}', '{{ benefit.value|escapejs }}');
+            {% endfor %}
+          })();
+          </script>
+
+          <div class="mini-note">Tip: If a benefit is shared with others (e.g., family plan), use your best estimate of the portion attributable to you.</div>
+        </div>
+
+        <!-- PART 2: EXPENSES -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Part 2 — Expenses</h3>
+              <div class="panel-sub">Enter monthly amounts. Use 0 if an item doesn’t apply.</div>
+            </div>
+            <div class="panel-pill">Monthly</div>
+          </div>
+
+          <div class="grid-2">
+
+            <!-- LEFT COLUMN -->
+            <div class="panel" style="margin:0;">
+              <div class="group-title">
+                <h3>Automatic deductions</h3>
+                <span>Subtotal included</span>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead>
+                      <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>CPP contributions</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="cpp_contributions" value="{{ statement.cpp_contributions }}"></td></tr>
+                      <tr><td>EI premiums</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="ei_premiums" value="{{ statement.ei_premiums }}"></td></tr>
+                      <tr><td>Income taxes</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="income_taxes" value="{{ statement.income_taxes }}"></td></tr>
+                      <tr><td>Employee pension contributions</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="employee_pension_contributions" value="{{ statement.employee_pension_contributions }}"></td></tr>
+                      <tr><td>Union dues</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="union_dues" value="{{ statement.union_dues }}"></td></tr>
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="automatic_deductions_subtotal" value="{{ statement.automatic_deductions_subtotal }}"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="group-title" style="margin-top:14px;">
+                <h3>Housing</h3>
+                <span>Subtotal included</span>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead>
+                      <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Rent or mortgage</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="rent_or_mortgage" value="{{ statement.rent_or_mortgage }}"></td></tr>
+                      <tr><td>Property taxes</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="property_taxes" value="{{ statement.property_taxes }}"></td></tr>
+                      <tr><td>Property insurance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="property_insurance" value="{{ statement.property_insurance }}"></td></tr>
+                      <tr><td>Condominium fees</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="condo_fees" value="{{ statement.condo_fees }}"></td></tr>
+                      <tr><td>Repairs and maintenance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="repairs_maintenance" value="{{ statement.repairs_maintenance }}"></td></tr>
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="housing_subtotal" value="{{ statement.housing_subtotal }}"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="group-title" style="margin-top:14px;">
+                <h3>Utilities</h3>
+                <span>Continue on next page if needed</span>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead>
+                      <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Water</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="water" value="{{ statement.water }}"></td></tr>
+                      <tr><td>Heat</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="heat" value="{{ statement.heat }}"></td></tr>
+                      <tr><td>Electricity</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="electricity" value="{{ statement.electricity }}"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="panel" style="margin:0;">
+              <div class="group-title">
+                <h3>Transportation</h3>
+                <span>Subtotal included</span>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead>
+                      <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Public transit, taxis</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="public_transit_taxis" value="{{ statement.public_transit_taxis }}"></td></tr>
+                      <tr><td>Gas and oil</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="gas_oil" value="{{ statement.gas_oil }}"></td></tr>
+                      <tr><td>Car insurance and license</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_insurance_license" value="{{ statement.car_insurance_license }}"></td></tr>
+                      <tr><td>Repairs and maintenance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_repairs_maintenance" value="{{ statement.car_repairs_maintenance }}"></td></tr>
+                      <tr><td>Parking</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="parking" value="{{ statement.parking }}"></td></tr>
+                      <tr><td>Car loan or lease payments</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_loan_lease_payments" value="{{ statement.car_loan_lease_payments }}"></td></tr>
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="transportation_subtotal" value="{{ statement.transportation_subtotal }}"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="group-title" style="margin-top:14px;">
+                <h3>Health</h3>
+                <span>Subtotal included</span>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead>
+                      <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Health insurance premiums</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="health_insurance_premiums" value="{{ statement.health_insurance_premiums }}"></td></tr>
+                      <tr><td>Dental expenses</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="dental_expenses" value="{{ statement.dental_expenses }}"></td></tr>
+                      <tr><td>Medicine and drugs</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="medicine_drugs" value="{{ statement.medicine_drugs }}"></td></tr>
+                      <tr><td>Eye care</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="eye_care" value="{{ statement.eye_care }}"></td></tr>
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="health_subtotal" value="{{ statement.health_subtotal }}"></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="group-title" style="margin-top:14px;">
+                <h3>Personal</h3>
+                <span>Continue on next page if needed</span>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead>
+                      <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Clothing</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="clothing" value="{{ statement.clothing }}"></td></tr>
+                      <tr><td>Hair care and beauty</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="hair_care_beauty" value="{{ statement.hair_care_beauty }}"></td></tr>
+                      <tr><td>Alcohol and tobacco</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="alcohol_tobacco" value="{{ statement.alcohol_tobacco }}"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          {% if statement.pk %}
+            <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
+          {% endif %}
+          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

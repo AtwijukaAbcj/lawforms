@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Delete{% endblock %}
+
+{% block content %}
+<style>
+  .delete-card {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    overflow: hidden;
+  }
+  
+  .delete-header {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    padding: 20px 24px;
+  }
+  
+  .delete-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .delete-body {
+    padding: 24px;
+  }
+  
+  .delete-body p {
+    margin: 0 0 20px;
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  
+  .delete-body .warning {
+    background: #fef3c7;
+    border: 1px solid #f59e0b;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    color: #92400e;
+    font-size: 14px;
+  }
+  
+  .delete-body .object-name {
+    font-weight: 700;
+    color: #111827;
+    background: #f3f4f6;
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  
+  .delete-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  
+  .btn-cancel {
+    padding: 10px 20px;
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #374151;
+    border-radius: 8px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  
+  .btn-cancel:hover {
+    background: #f3f4f6;
+    color: #111827;
+    text-decoration: none;
+  }
+  
+  .btn-delete {
+    padding: 10px 20px;
+    border: none;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-delete:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
+  }
+</style>
+
+<div class="delete-card">
+  <div class="delete-header">
+    <h2>⚠️ Confirm Delete</h2>
+  </div>
+  
+  <div class="delete-body">
+    <p>
+      Are you sure you want to delete <span class="object-name">{{ object_name }}</span>?
+    </p>
+    
+    <div class="warning">
+      <strong>Warning:</strong> This action cannot be undone. All data associated with this form will be permanently deleted.
+    </div>
+    
+    <form method="post">
+      {% csrf_token %}
+      <div class="delete-actions">
+        <a href="{{ cancel_url }}" class="btn-cancel">Cancel</a>
+        <button type="submit" class="btn-delete">Yes, Delete</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

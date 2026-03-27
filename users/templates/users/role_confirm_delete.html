@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Role{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">⚠️ Confirm Delete</h5>
+                </div>
+                <div class="card-body">
+                    <p>Are you sure you want to delete the role <strong>"{{ role.name }}"</strong>?</p>
+                    
+                    {% if role.users.count > 0 %}
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> This role is currently assigned to {{ role.users.count }} user(s). 
+                        They will lose this role's permissions.
+                    </div>
+                    {% endif %}
+                    
+                    <p class="text-muted small mb-0">This action cannot be undone.</p>
+                </div>
+                <div class="card-footer d-flex gap-2">
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Yes, Delete Role</button>
+                    </form>
+                    <a href="{% url 'users:role_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

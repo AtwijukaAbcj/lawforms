@@ -1,0 +1,854 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --soft:rgba(2,6,23,.06);
+    --radius:18px;
+    --indigo:99,102,241;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1180px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{ background: #fff; overflow: hidden; }
+
+  .page-header{
+    padding: 18px 18px;
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+  }
+  .page-header h4{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.01em;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.25;
+  }
+  .page-header .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .page-body{ padding: 18px; }
+
+  .section-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    margin: 18px 0 10px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .section-label:before,
+  .section-label:after{
+    content:"";
+    height: 1px;
+    background: var(--line);
+    flex: 1;
+  }
+  .section-label span{
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    letter-spacing: .02em;
+    text-transform:none;
+    font-weight: 900;
+    font-size: 13px;
+  }
+
+  .table-shell{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, .05);
+    background: #fff;
+  }
+
+  .pdf-table{
+    table-layout: fixed;
+    width: 100%;
+    font-size: 0.92rem;
+    margin: 0;
+  }
+
+  .pdf-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: rgba(248,250,252,.98);
+    backdrop-filter: blur(8px);
+  }
+
+  .pdf-table th{
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    vertical-align: middle;
+    border-color: var(--line) !important;
+    padding: 10px 10px;
+  }
+
+  .pdf-table td{
+    vertical-align: middle;
+    border-color: var(--line) !important;
+    padding: 10px 10px;
+    background: #fff;
+  }
+
+  .pdf-table thead tr:nth-child(2) th{
+    font-size: 10px;
+    letter-spacing: .08em;
+    color: #94a3b8;
+    background: rgba(255,255,255,.98);
+  }
+
+  .pdf-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.70);
+  }
+  .pdf-table tbody tr:hover td{
+    background: rgba(var(--indigo), .06);
+    transition: background .12s ease;
+  }
+
+  .divider-left{
+    border-left: 3px solid rgba(15, 23, 42, .25) !important;
+  }
+
+  .pdf-input{
+    width: 100%;
+    height: 40px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 8px 10px !important;
+    font-size: 0.92rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .pdf-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+
+  .del-cell{ text-align:center; }
+  .del-cell input[type="checkbox"]{
+    display: none !important;
+  }
+  .delete-checkbox-hidden {
+    display: none !important;
+  }
+  .btn-delete-row {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.15s ease;
+  }
+  .btn-delete-row:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+
+  .totals-row td{
+    background: rgba(15,23,42,.04) !important;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .totals-box{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: rgba(248,250,252,.75);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    margin: 14px 0 18px;
+  }
+  .totals-box .title{
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .02em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+  .totals-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration: none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color: #fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 40px rgba(79,70,229,.28);
+    color:#fff;
+  }
+
+  .btn-ghost{
+    border: 1px dashed var(--line2);
+    background: rgba(255,255,255,.9);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 900;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .btn-ghost:hover{
+    border-color: rgba(var(--indigo), .55);
+    box-shadow: 0 10px 24px rgba(2,6,23,.08);
+  }
+
+  .land-controls{ margin-top: 10px; }
+
+  .col-doc{ width: 140px; }
+  .col-del{ width: 70px; }
+  .col-money{ width: 120px; }
+
+  @media (max-width: 992px){
+    .totals-grid{ grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 576px){
+    .totals-grid{ grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+    <div class="page-header">
+      <h4>Form 13C: Comparison of Net Family Property Statements — Page 3</h4>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if comparison.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ comparison.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Totals &amp; Debts</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+
+        <!-- (f) MONEY OWED TO YOU -->
+        <div class="section-label"><span>(f) Money Owed to You</span></div>
+        {{ money_owed_formset.management_form }}
+        <div class="table-responsive mb-4">
+          <div class="table-shell">
+            <table id="{{ money_owed_formset.prefix }}-table" class="table table-bordered pdf-table">
+              <thead>
+                <tr>
+                  <th>DETAILS</th>
+                  <th>COMMENTS</th>
+                  <th class="col-doc">Document Number</th>
+                  <th colspan="2">Applicant's Position</th>
+                  <th colspan="2" class="divider-left">Respondent's Position</th>
+                  <th class="col-del">Delete?</th>
+                </tr>
+                <tr>
+                  <th></th><th></th><th></th>
+                  <th class="col-money">APPLICANT</th><th class="col-money">RESPONDENT</th>
+                  <th class="col-money divider-left">APPLICANT</th><th class="col-money">RESPONDENT</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in money_owed_formset %}
+                {{ form.id }}
+                <tr>
+                  <td>{{ form.details|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.comments|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.document_number|add_class:'form-control pdf-input' }}</td>
+
+                  <td>{{ form.applicant_position_applicant|add_class:'form-control pdf-input money_owed-money' }}</td>
+                  <td>{{ form.applicant_position_respondent|add_class:'form-control pdf-input money_owed-money' }}</td>
+
+                  <td class="divider-left">{{ form.respondent_position_applicant|add_class:'form-control pdf-input money_owed-money' }}</td>
+                  <td>{{ form.respondent_position_respondent|add_class:'form-control pdf-input money_owed-money' }}</td>
+
+                  <td class="del-cell">{% if form.DELETE %}<div class="delete-checkbox-hidden">{{ form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="totals-row">
+                  <td colspan="3">(F) TOTALS: Money Owed to You</td>
+                  <td>$<span id="f_total_app_pos_app">0.00</span></td>
+                  <td>$<span id="f_total_app_pos_resp">0.00</span></td>
+                  <td class="divider-left">$<span id="f_total_resp_pos_app">0.00</span></td>
+                  <td>$<span id="f_total_resp_pos_resp">0.00</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="land-controls">
+            <button type="button"
+                    class="btn-ghost js-add-row"
+                    data-prefix="{{ money_owed_formset.prefix }}">
+              + Add Row
+            </button>
+          </div>
+
+          <template class="js-empty-form" data-prefix="{{ money_owed_formset.prefix }}">
+            <tr>
+              {{ money_owed_formset.empty_form.id }}
+              <td>{{ money_owed_formset.empty_form.details|add_class:'form-control pdf-input' }}</td>
+              <td>{{ money_owed_formset.empty_form.comments|add_class:'form-control pdf-input' }}</td>
+              <td>{{ money_owed_formset.empty_form.document_number|add_class:'form-control pdf-input' }}</td>
+
+              <td>{{ money_owed_formset.empty_form.applicant_position_applicant|add_class:'form-control pdf-input money_owed-money' }}</td>
+              <td>{{ money_owed_formset.empty_form.applicant_position_respondent|add_class:'form-control pdf-input money_owed-money' }}</td>
+
+              <td class="divider-left">{{ money_owed_formset.empty_form.respondent_position_applicant|add_class:'form-control pdf-input money_owed-money' }}</td>
+              <td>{{ money_owed_formset.empty_form.respondent_position_respondent|add_class:'form-control pdf-input money_owed-money' }}</td>
+
+              <td class="del-cell">{% if money_owed_formset.empty_form.DELETE %}<div class="delete-checkbox-hidden">{{ money_owed_formset.empty_form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+            </tr>
+          </template>
+        </div>
+
+        <!-- (g) OTHER PROPERTY -->
+        <div class="section-label"><span>(g) Other Property</span></div>
+        {{ other_property_formset.management_form }}
+        <div class="table-responsive mb-4">
+          <div class="table-shell">
+            <table id="{{ other_property_formset.prefix }}-table" class="table table-bordered pdf-table">
+              <thead>
+                <tr>
+                  <th>CATEGORY</th>
+                  <th>DETAILS</th>
+                  <th>COMMENTS</th>
+                  <th class="col-doc">Document Number</th>
+                  <th colspan="2">Applicant's Position</th>
+                  <th colspan="2" class="divider-left">Respondent's Position</th>
+                  <th class="col-del">Delete?</th>
+                </tr>
+                <tr>
+                  <th></th><th></th><th></th><th></th>
+                  <th class="col-money">APPLICANT</th><th class="col-money">RESPONDENT</th>
+                  <th class="col-money divider-left">APPLICANT</th><th class="col-money">RESPONDENT</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in other_property_formset %}
+                {{ form.id }}
+                <tr>
+                  <td>{{ form.category|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.details|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.comments|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.document_number|add_class:'form-control pdf-input' }}</td>
+
+                  <td>{{ form.applicant_position_applicant|add_class:'form-control pdf-input other_property-money' }}</td>
+                  <td>{{ form.applicant_position_respondent|add_class:'form-control pdf-input other_property-money' }}</td>
+
+                  <td class="divider-left">{{ form.respondent_position_applicant|add_class:'form-control pdf-input other_property-money' }}</td>
+                  <td>{{ form.respondent_position_respondent|add_class:'form-control pdf-input other_property-money' }}</td>
+
+                  <td class="del-cell">{% if form.DELETE %}<div class="delete-checkbox-hidden">{{ form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="totals-row">
+                  <td colspan="4">(G) TOTALS: Value of Other Property</td>
+                  <td>$<span id="g_total_app_pos_app">0.00</span></td>
+                  <td>$<span id="g_total_app_pos_resp">0.00</span></td>
+                  <td class="divider-left">$<span id="g_total_resp_pos_app">0.00</span></td>
+                  <td>$<span id="g_total_resp_pos_resp">0.00</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="land-controls">
+            <button type="button"
+                    class="btn-ghost js-add-row"
+                    data-prefix="{{ other_property_formset.prefix }}">
+              + Add Row
+            </button>
+          </div>
+
+          <template class="js-empty-form" data-prefix="{{ other_property_formset.prefix }}">
+            <tr>
+              {{ other_property_formset.empty_form.id }}
+              <td>{{ other_property_formset.empty_form.category|add_class:'form-control pdf-input' }}</td>
+              <td>{{ other_property_formset.empty_form.details|add_class:'form-control pdf-input' }}</td>
+              <td>{{ other_property_formset.empty_form.comments|add_class:'form-control pdf-input' }}</td>
+              <td>{{ other_property_formset.empty_form.document_number|add_class:'form-control pdf-input' }}</td>
+
+              <td>{{ other_property_formset.empty_form.applicant_position_applicant|add_class:'form-control pdf-input other_property-money' }}</td>
+              <td>{{ other_property_formset.empty_form.applicant_position_respondent|add_class:'form-control pdf-input other_property-money' }}</td>
+
+              <td class="divider-left">{{ other_property_formset.empty_form.respondent_position_applicant|add_class:'form-control pdf-input other_property-money' }}</td>
+              <td>{{ other_property_formset.empty_form.respondent_position_respondent|add_class:'form-control pdf-input other_property-money' }}</td>
+
+              <td class="del-cell">{% if other_property_formset.empty_form.DELETE %}<div class="delete-checkbox-hidden">{{ other_property_formset.empty_form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+            </tr>
+          </template>
+        </div>
+
+        <!-- VALUE OF PROPERTY OWNED ON THE VALUATION DATE, (TOTAL 1) -->
+        <div class="totals-box">
+            <!-- Hidden totals for A-E from previous pages (populated from Django context if available) -->
+            <span id="a_total_app_pos_app" style="display:none;">{{ a_total_app_pos_app|default:"0.00" }}</span>
+            <span id="a_total_app_pos_resp" style="display:none;">{{ a_total_app_pos_resp|default:"0.00" }}</span>
+            <span id="a_total_resp_pos_app" style="display:none;">{{ a_total_resp_pos_app|default:"0.00" }}</span>
+            <span id="a_total_resp_pos_resp" style="display:none;">{{ a_total_resp_pos_resp|default:"0.00" }}</span>
+            <span id="b_total_app_pos_app" style="display:none;">{{ b_total_app_pos_app|default:"0.00" }}</span>
+            <span id="b_total_app_pos_resp" style="display:none;">{{ b_total_app_pos_resp|default:"0.00" }}</span>
+            <span id="b_total_resp_pos_app" style="display:none;">{{ b_total_resp_pos_app|default:"0.00" }}</span>
+            <span id="b_total_resp_pos_resp" style="display:none;">{{ b_total_resp_pos_resp|default:"0.00" }}</span>
+            <span id="c_total_app_pos_app" style="display:none;">{{ c_total_app_pos_app|default:"0.00" }}</span>
+            <span id="c_total_app_pos_resp" style="display:none;">{{ c_total_app_pos_resp|default:"0.00" }}</span>
+            <span id="c_total_resp_pos_app" style="display:none;">{{ c_total_resp_pos_app|default:"0.00" }}</span>
+            <span id="c_total_resp_pos_resp" style="display:none;">{{ c_total_resp_pos_resp|default:"0.00" }}</span>
+            <span id="d_total_app_pos_app" style="display:none;">{{ d_total_app_pos_app|default:"0.00" }}</span>
+            <span id="d_total_app_pos_resp" style="display:none;">{{ d_total_app_pos_resp|default:"0.00" }}</span>
+            <span id="d_total_resp_pos_app" style="display:none;">{{ d_total_resp_pos_app|default:"0.00" }}</span>
+            <span id="d_total_resp_pos_resp" style="display:none;">{{ d_total_resp_pos_resp|default:"0.00" }}</span>
+            <span id="e_total_app_pos_app" style="display:none;">{{ e_total_app_pos_app|default:"0.00" }}</span>
+            <span id="e_total_app_pos_resp" style="display:none;">{{ e_total_app_pos_resp|default:"0.00" }}</span>
+            <span id="e_total_resp_pos_app" style="display:none;">{{ e_total_resp_pos_app|default:"0.00" }}</span>
+            <span id="e_total_resp_pos_resp" style="display:none;">{{ e_total_resp_pos_resp|default:"0.00" }}</span>
+          <div class="title">Value of Property Owned on the Valuation Date (TOTAL 1)</div>
+          <div class="totals-grid">
+            <div class="form-control pdf-input" style="background:#f8fafc;font-weight:bold;">$<span id="total1_app_pos_app">0.00</span></div>
+            <div class="form-control pdf-input" style="background:#f8fafc;font-weight:bold;">$<span id="total1_app_pos_resp">0.00</span></div>
+            <div class="form-control pdf-input divider-left" style="background:#f8fafc;font-weight:bold;">$<span id="total1_resp_pos_app">0.00</span></div>
+            <div class="form-control pdf-input" style="background:#f8fafc;font-weight:bold;">$<span id="total1_resp_pos_resp">0.00</span></div>
+          </div>
+        </div>
+
+        <!-- 2. VALUE OF DEBTS AND OTHER LIABILITIES ON VALUATION DATE -->
+        <div class="section-label"><span>2. Value of Debts and Other Liabilities on Valuation Date</span></div>
+        {{ debt_liability_formset.management_form }}
+
+        <div class="table-responsive mb-2">
+          <div class="table-shell">
+            <table id="{{ debt_liability_formset.prefix }}-table" class="table table-bordered pdf-table">
+              <thead>
+                <tr>
+                  <th>CATEGORY</th>
+                  <th>DETAILS</th>
+                  <th>COMMENTS</th>
+                  <th class="col-doc">Document Number</th>
+                  <th colspan="2">Applicant's Position</th>
+                  <th colspan="2" class="divider-left">Respondent's Position</th>
+                  <th class="col-del">Delete?</th>
+                </tr>
+                <tr>
+                  <th></th><th></th><th></th><th></th>
+                  <th class="col-money">APPLICANT</th><th class="col-money">RESPONDENT</th>
+                  <th class="col-money divider-left">APPLICANT</th><th class="col-money">RESPONDENT</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in debt_liability_formset %}
+                {{ form.id }}
+                <tr>
+                  <td>{{ form.category|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.details|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.comments|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.document_number|add_class:'form-control pdf-input' }}</td>
+
+                  <td>{{ form.applicant_position_applicant|add_class:'form-control pdf-input debt_liability-money' }}</td>
+                  <td>{{ form.applicant_position_respondent|add_class:'form-control pdf-input debt_liability-money' }}</td>
+
+                  <td class="divider-left">{{ form.respondent_position_applicant|add_class:'form-control pdf-input debt_liability-money' }}</td>
+                  <td>{{ form.respondent_position_respondent|add_class:'form-control pdf-input debt_liability-money' }}</td>
+
+                  <td class="del-cell">{% if form.DELETE %}<div class="delete-checkbox-hidden">{{ form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="totals-row">
+                  <td colspan="4">TOTALS: Value of Debts and Other Liabilities (TOTAL 2)</td>
+                  <td>$<span id="debt_total_app_pos_app">0.00</span></td>
+                  <td>$<span id="debt_total_app_pos_resp">0.00</span></td>
+                  <td class="divider-left">$<span id="debt_total_resp_pos_app">0.00</span></td>
+                  <td>$<span id="debt_total_resp_pos_resp">0.00</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="land-controls">
+            <button type="button"
+                    class="btn-ghost js-add-row"
+                    data-prefix="{{ debt_liability_formset.prefix }}">
+              + Add Row
+            </button>
+          </div>
+
+          <template class="js-empty-form" data-prefix="{{ debt_liability_formset.prefix }}">
+            <tr>
+              {{ debt_liability_formset.empty_form.id }}
+              <td>{{ debt_liability_formset.empty_form.category|add_class:'form-control pdf-input' }}</td>
+              <td>{{ debt_liability_formset.empty_form.details|add_class:'form-control pdf-input' }}</td>
+              <td>{{ debt_liability_formset.empty_form.comments|add_class:'form-control pdf-input' }}</td>
+              <td>{{ debt_liability_formset.empty_form.document_number|add_class:'form-control pdf-input' }}</td>
+
+              <td>{{ debt_liability_formset.empty_form.applicant_position_applicant|add_class:'form-control pdf-input debt_liability-money' }}</td>
+              <td>{{ debt_liability_formset.empty_form.applicant_position_respondent|add_class:'form-control pdf-input debt_liability-money' }}</td>
+
+              <td class="divider-left">{{ debt_liability_formset.empty_form.respondent_position_applicant|add_class:'form-control pdf-input debt_liability-money' }}</td>
+              <td>{{ debt_liability_formset.empty_form.respondent_position_respondent|add_class:'form-control pdf-input debt_liability-money' }}</td>
+
+              <td class="del-cell">{% if debt_liability_formset.empty_form.DELETE %}<div class="delete-checkbox-hidden">{{ debt_liability_formset.empty_form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+            </tr>
+          </template>
+        </div>
+
+        <div class="actions">
+          <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
+
+          <button type="submit" name="save_draft" class="btn-modern">Save Draft</button>
+
+          <button type="submit" name="next" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Delete formset row function
+  function deleteFormsetRow(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
+    const checkbox = row.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      checkbox.checked = true;
+      row.style.display = 'none';
+      // Trigger recalculation
+      if (typeof updateTotals === 'function') {
+        updateTotals();
+      }
+    }
+  }
+
+  function parseMoney(v) {
+    if (!v) return 0;
+    v = ("" + v).replace(/,/g, "").trim();
+    const n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
+  }
+
+  function updateTotals() {
+    console.debug('updateTotals() called');
+    console.debug('money_owed count', document.querySelectorAll('.money_owed-money').length);
+    console.debug('other_property count', document.querySelectorAll('.other_property-money').length);
+    console.debug('debt_liability count', document.querySelectorAll('.debt_liability-money').length);
+    // (f) Money Owed
+    let f1 = 0, f2 = 0, f3 = 0, f4 = 0;
+    document.querySelectorAll('.money_owed-money').forEach(input => {
+      if (input.closest('tr').style.display === 'none') return;
+      const idx = Array.from(input.parentNode.parentNode.children).indexOf(input.parentNode);
+      if (idx === 3) f1 += parseMoney(input.value);
+      if (idx === 4) f2 += parseMoney(input.value);
+      if (idx === 5) f3 += parseMoney(input.value);
+      if (idx === 6) f4 += parseMoney(input.value);
+    });
+    document.getElementById('f_total_app_pos_app').textContent = f1.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('f_total_app_pos_resp').textContent = f2.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('f_total_resp_pos_app').textContent = f3.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('f_total_resp_pos_resp').textContent = f4.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    // (g) Other Property
+    let g1 = 0, g2 = 0, g3 = 0, g4 = 0;
+    document.querySelectorAll('.other_property-money').forEach(input => {
+      if (input.closest('tr').style.display === 'none') return;
+      const idx = Array.from(input.parentNode.parentNode.children).indexOf(input.parentNode);
+      if (idx === 4) g1 += parseMoney(input.value);
+      if (idx === 5) g2 += parseMoney(input.value);
+      if (idx === 6) g3 += parseMoney(input.value);
+      if (idx === 7) g4 += parseMoney(input.value);
+    });
+    document.getElementById('g_total_app_pos_app').textContent = g1.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('g_total_app_pos_resp').textContent = g2.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('g_total_resp_pos_app').textContent = g3.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('g_total_resp_pos_resp').textContent = g4.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    // Persist F and G section totals
+    try{
+      const existing = JSON.parse(localStorage.getItem('nfp_section_totals') || '{}');
+      existing.f = [f1, f2, f3, f4];
+      existing.g = [g1, g2, g3, g4];
+      localStorage.setItem('nfp_section_totals', JSON.stringify(existing));
+    }catch(e){ console.error('persist f/g', e); }
+
+    // Debts
+    let d1 = 0, d2 = 0, d3 = 0, d4 = 0;
+    document.querySelectorAll('.debt_liability-money').forEach(input => {
+      if (input.closest('tr').style.display === 'none') return;
+      const idx = Array.from(input.parentNode.parentNode.children).indexOf(input.parentNode);
+      if (idx === 4) d1 += parseMoney(input.value);
+      if (idx === 5) d2 += parseMoney(input.value);
+      if (idx === 6) d3 += parseMoney(input.value);
+      if (idx === 7) d4 += parseMoney(input.value);
+    });
+    document.getElementById('debt_total_app_pos_app').textContent = d1.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('debt_total_app_pos_resp').textContent = d2.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('debt_total_resp_pos_app').textContent = d3.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('debt_total_resp_pos_resp').textContent = d4.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    // persist debt totals (TOTAL 2) for page5
+    try{
+      const existing = JSON.parse(localStorage.getItem('nfp_section_totals') || '{}');
+      existing.total2 = [d1, d2, d3, d4];
+      localStorage.setItem('nfp_section_totals', JSON.stringify(existing));
+    }catch(e){ console.error('persist total2', e); }
+
+    // (TOTAL 1) - sum A-G (A-E from page 2, F-G from this page)
+    // These IDs must exist in the DOM for this to work. If not, fallback to 0.
+    function getSpanVal(id) {
+      const el = document.getElementById(id);
+      if (!el) return 0;
+      return parseMoney(el.textContent);
+    }
+    // A-E: page 2, F-G: this page
+    const total1_app_pos_app = getSpanVal('a_total_app_pos_app') + getSpanVal('b_total_app_pos_app') + getSpanVal('c_total_app_pos_app') + getSpanVal('d_total_app_pos_app') + getSpanVal('e_total_app_pos_app') + f1 + g1;
+    const total1_app_pos_resp = getSpanVal('a_total_app_pos_resp') + getSpanVal('b_total_app_pos_resp') + getSpanVal('c_total_app_pos_resp') + getSpanVal('d_total_app_pos_resp') + getSpanVal('e_total_app_pos_resp') + f2 + g2;
+    const total1_resp_pos_app = getSpanVal('a_total_resp_pos_app') + getSpanVal('b_total_resp_pos_app') + getSpanVal('c_total_resp_pos_app') + getSpanVal('d_total_resp_pos_app') + getSpanVal('e_total_resp_pos_app') + f3 + g3;
+    const total1_resp_pos_resp = getSpanVal('a_total_resp_pos_resp') + getSpanVal('b_total_resp_pos_resp') + getSpanVal('c_total_resp_pos_resp') + getSpanVal('d_total_resp_pos_resp') + getSpanVal('e_total_resp_pos_resp') + f4 + g4;
+    document.getElementById('total1_app_pos_app').textContent = total1_app_pos_app.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('total1_app_pos_resp').textContent = total1_app_pos_resp.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('total1_resp_pos_app').textContent = total1_resp_pos_app.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    document.getElementById('total1_resp_pos_resp').textContent = total1_resp_pos_resp.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+    // persist TOTAL1 (valuation date) now that it's computed
+    try{
+      const existing = JSON.parse(localStorage.getItem('nfp_section_totals') || '{}');
+      existing.total1 = [total1_app_pos_app, total1_app_pos_resp, total1_resp_pos_app, total1_resp_pos_resp];
+      localStorage.setItem('nfp_section_totals', JSON.stringify(existing));
+    }catch(e){ console.error('persist total1', e); }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    // If previous pages saved subtotals to localStorage, populate hidden A-E spans
+    try{
+      const stored = JSON.parse(localStorage.getItem('nfp_section_totals') || '{}');
+      ['a','b','c','d','e'].forEach((k)=>{
+        if (!stored[k]) return;
+        const ids = [
+          `${k}_total_app_pos_app`,
+          `${k}_total_app_pos_resp`,
+          `${k}_total_resp_pos_app`,
+          `${k}_total_resp_pos_resp`
+        ];
+        stored[k].forEach((val, i)=>{
+          const el = document.getElementById(ids[i]);
+          if (el) el.textContent = Number(val).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+        });
+      });
+    }catch(e){ console.error('load stored totals', e); }
+    // Add row: ALWAYS uses the real formset prefix from data-prefix
+    document.querySelectorAll(".js-add-row").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const prefix = btn.dataset.prefix;
+        if (!prefix) return;
+
+        const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+        const table = document.getElementById(`${prefix}-table`);
+        const tpl = document.querySelector(`template.js-empty-form[data-prefix="${prefix}"]`);
+
+        if (!totalForms || !table || !tpl) {
+          console.error("Add row failed", {
+            prefix,
+            hasTotalForms: !!totalForms,
+            hasTable: !!table,
+            hasTpl: !!tpl
+          });
+          return;
+        }
+
+        const idx = parseInt(totalForms.value || "0", 10);
+        const html = tpl.innerHTML.replace(/__prefix__/g, idx);
+
+        const totalsRow = table.querySelector("tbody .totals-row");
+        if (totalsRow) totalsRow.insertAdjacentHTML("beforebegin", html);
+        else table.querySelector("tbody").insertAdjacentHTML("beforeend", html);
+
+        totalForms.value = idx + 1;
+        updateTotals();
+      });
+    });
+
+    // Delete: if Django DELETE exists, check it and hide row
+    document.addEventListener("change", (e) => {
+      if (!e.target.matches('input[type="checkbox"][name$="-DELETE"]')) return;
+      const row = e.target.closest("tr");
+      if (!row) return;
+      row.style.display = e.target.checked ? "none" : "";
+      updateTotals();
+    });
+
+    // Update totals on input or change (covers typing, paste, blur)
+    const moneyHandler = function(e){
+      const el = e.target;
+      if (!el || !el.classList) return;
+      if (el.classList.contains('money_owed-money') || el.classList.contains('other_property-money') || el.classList.contains('debt_liability-money')){
+        updateTotals();
+      }
+    };
+    document.addEventListener('input', moneyHandler);
+    document.addEventListener('change', moneyHandler);
+
+    // Initial totals
+    updateTotals();
+  });
+</script>
+
+<script>
+  (function(){
+    const pk = '{{ pk|default:"" }}';
+    const key = 'comparison_nfp_draft_' + (pk ? pk : 'temp');
+    const form = document.querySelector('form');
+    if (!form) return;
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    async function saveDraft(){
+      try{
+        const data = {};
+        form.querySelectorAll('input, textarea, select').forEach(el=>{
+          if (!el.name) return;
+          if (el.type === 'checkbox' || el.type === 'radio'){
+            if (el.checked) data[el.name] = el.value;
+          } else {
+            data[el.name] = el.value;
+          }
+        });
+        localStorage.setItem(key, JSON.stringify(data));
+
+        if (pk){
+          try{
+            await fetch(`/forms/comparison-nfp/${pk}/draft/`, {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+              },
+              body: JSON.stringify(data),
+            });
+          }catch(err){ console.warn('server draft save failed', err); }
+        }
+      }catch(e){ console.error('save draft page3', e); }
+    }
+
+    try{
+      const raw = localStorage.getItem(key);
+      if (raw){
+        const data = JSON.parse(raw);
+        for (const name in data){
+          const el = form.querySelector('[name="'+name+'"]');
+          if (!el) continue;
+          if (!el.value) el.value = data[name];
+          if ((el.type === 'checkbox' || el.type === 'radio') && data[name] !== undefined){ el.checked = true; }
+        }
+      }
+    }catch(e){ /* ignore */ }
+
+    let t = null;
+    form.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(saveDraft, 600); });
+    window.addEventListener('beforeunload', saveDraft);
+  })();
+</script>
+
+{% endblock %}

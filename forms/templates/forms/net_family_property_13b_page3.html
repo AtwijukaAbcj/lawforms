@@ -1,0 +1,903 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1180px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header .left h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header .left p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  /* ===== header row ===== */
+  .topbar{
+    display:grid;
+    grid-template-columns: 1fr auto 300px;
+    gap: 12px;
+    align-items:start;
+    margin-bottom: 14px;
+  }
+  .topbar .left{
+    font-weight: 950;
+    color: var(--text);
+    font-size: 15px;
+    letter-spacing: -.01em;
+  }
+  .topbar .center{
+    font-weight: 900;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+    text-align:center;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    border-radius: 8px;
+    height: fit-content;
+  }
+  .court-file{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 12px;
+  }
+  .court-file label{
+    display:block;
+    font-size: 12px;
+    font-weight: 950;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .fake{
+    height: 42px;
+    border: 1px dashed var(--line2);
+    border-radius: 8px;
+    background: rgba(248,250,252,.85);
+  }
+  .court-file-value{
+    min-height: 42px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  /* ===== section title ===== */
+  .section-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    margin: 16px 0 10px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .section-label:before,
+  .section-label:after{
+    content:"";
+    height: 1px;
+    background: var(--line);
+    flex: 1;
+  }
+  .section-label span{
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+    letter-spacing: .02em;
+    text-transform:none;
+    font-weight: 950;
+    font-size: 13px;
+    text-align:center;
+  }
+
+  .table-sub{
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: -2px;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  /* ===== inputs ===== */
+  .pdf-input{
+    width: 100%;
+    height: 42px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background:#fff;
+    padding: 8px 12px !important;
+    font-size: 0.95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .pdf-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+  .money .input-group-text{
+    border-radius: 8px 0 0 12px !important;
+    border: 1px solid var(--line2) !important;
+    background: rgba(248,250,252,.95);
+    font-weight: 900;
+    color: var(--muted);
+  }
+  .money .form-control{
+    border-left: 0 !important;
+    border-radius: 0 12px 12px 0 !important;
+  }
+
+  /* ===== table shell ===== */
+  .table-shell{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+  }
+
+  table.pdf-table{
+    width:100%;
+    margin:0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .95rem;
+  }
+
+  table.pdf-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgba(248,250,252,.98);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line) !important;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 12px 12px;
+    white-space: nowrap;
+  }
+
+  table.pdf-table td{
+    border-bottom: 1px solid var(--line) !important;
+    padding: 12px 12px;
+    vertical-align: middle;
+    color: var(--text);
+  }
+
+  table.pdf-table tbody tr:nth-child(odd) td{ background: rgba(248,250,252,.65); }
+  table.pdf-table tbody tr:hover td{ background: rgba(var(--indigo), .06); transition: background .12s ease; }
+
+  .total-row td{
+    background: rgba(15,23,42,.04) !important;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: 12px;
+  }
+
+  /* ===== Summary cards ===== */
+  .summary-grid{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 16px;
+  }
+
+  .summary-card{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    overflow:hidden;
+  }
+  .summary-head{
+    padding: 12px 14px;
+    background: rgba(248,250,252,.95);
+    border-bottom: 1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+  }
+  .summary-head h4{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .01em;
+  }
+  .summary-head .pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .summary-body{ padding: 12px 14px; }
+
+  .summary-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .summary-row:last-child{ border-bottom: 0; }
+
+  .summary-row .label{
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .summary-row .label em{
+    font-style: normal;
+    font-weight: 800;
+    text-transform:none;
+    letter-spacing: 0;
+    color: var(--muted);
+    opacity: .9;
+    margin-left: 6px;
+  }
+
+  .summary-row .vals{
+    display:flex;
+    gap: 10px;
+  }
+  .money-pill{
+    min-width: 92px;
+    text-align:center;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    font-weight: 950;
+    color: var(--text);
+    font-size: 12px;
+  }
+
+  .summary-strong{
+    background: rgba(var(--indigo), .08);
+    border-radius: 8px;
+    padding: 10px 12px;
+    border: 1px solid rgba(var(--indigo), .18);
+  }
+  .summary-strong .label{ color: var(--text); }
+
+  /* ===== final totals form ===== */
+  .final-card{
+    margin-top: 16px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(248,250,252,.75);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+  }
+
+  /* ===== signatures ===== */
+  .sign-row{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 22px;
+  }
+  .sign-box{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+  }
+  .sign-line{
+    border-top: 2px dashed var(--line2);
+    margin-top: 22px;
+  }
+  .sign-label{
+    text-align:center;
+    color: var(--muted);
+    font-weight: 800;
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  /* Buttons */
+  /* Delete button styling */
+  .btn-delete-row {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.15s ease;
+  }
+  .btn-delete-row:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+  .delete-checkbox-hidden {
+    display: none !important;
+  }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 40px rgba(79,70,229,.28);
+    color:#fff;
+  }
+  .btn-success-modern{
+    border: 1px solid rgba(var(--green), .35);
+    background: linear-gradient(135deg, rgba(var(--green),.92), rgba(22,163,74,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(22,163,74,.18);
+  }
+  .btn-success-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 40px rgba(22,163,74,.22);
+    color:#fff;
+  }
+
+  /* Footer */
+  .footer{
+    display:flex;
+    justify-content:space-between;
+    margin-top: 18px;
+    padding-top: 12px;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  @media (max-width: 992px){
+    .topbar{ grid-template-columns: 1fr; }
+    .topbar .center{ justify-self:start; text-align:left; }
+    .summary-grid{ grid-template-columns: 1fr; }
+    .sign-row{ grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+    <div class="page-header">
+      <div class="left">
+        <h1>Form 13B — Net Family Property Statement</h1>
+        <p>Excluded property (Table 4), summary totals, and signature.</p>
+      </div>
+      <div class="badge-soft">Page 3</div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Header -->
+        <div class="topbar">
+          <div class="left">Form 13B: Net Family Property Statement</div>
+          <div class="center">(page 3)</div>
+          <div class="court-file">
+            <label>Court File Number</label>
+            <div class="court-file-value">{{ statement.court_file_number|default:"—" }}</div>
+          </div>
+        </div>
+
+        <!-- TABLE 4 -->
+        <div class="section-label">
+          <span>Table 4 — Property excluded under subsection 4(2) of the Family Law Act</span>
+        </div>
+        <div class="table-sub">(List in the order of the categories in the financial statement.)</div>
+
+        {{ excluded_formset.management_form }}
+
+        <div class="table-shell">
+          <div class="table-responsive">
+            <table class="pdf-table" id="excluded-table">
+              <thead>
+                <tr>
+                  <th style="width:70%">Item</th>
+                  <th style="width:13%" class="text-center">Applicant</th>
+                  <th style="width:13%" class="text-center">Respondent</th>
+                  <th style="width:4%" class="text-center">X</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for excl_form in excluded_formset %}
+                <tr>
+                  {{ excl_form.id }}
+
+                  <td>{{ excl_form.item|add_class:"form-control pdf-input" }}</td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ excl_form.applicant_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ excl_form.respondent_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    {% if excluded_formset.can_delete %}
+                    <div class="delete-checkbox-hidden">{{ excl_form.DELETE }}</div>
+                    <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+
+                <tr class="total-row">
+                  <td class="text-end">Total 4</td>
+                  <td class="text-center">${{ totals.total4_app|floatformat:2|default:"0.00" }}</td>
+                  <td class="text-center">${{ totals.total4_resp|floatformat:2|default:"0.00" }}</td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ADD ROW BUTTON -->
+        <div style="margin-top: 12px;">
+          <button type="button" class="btn-modern" id="excluded-add-row">+ Add Row</button>
+        </div>
+
+        <!-- EMPTY FORM TEMPLATE -->
+        <template id="excluded-empty-form-template">
+          <tr>
+            {{ excluded_formset.empty_form.id }}
+
+            <td>{{ excluded_formset.empty_form.item|add_class:"form-control pdf-input" }}</td>
+            <td class="money">
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ excluded_formset.empty_form.applicant_value|add_class:"form-control pdf-input text-end" }}
+              </div>
+            </td>
+            <td class="money">
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ excluded_formset.empty_form.respondent_value|add_class:"form-control pdf-input text-end" }}
+              </div>
+            </td>
+            <td class="text-center">
+              {% if excluded_formset.can_delete %}
+              <div class="delete-checkbox-hidden">{{ excluded_formset.empty_form.DELETE }}</div>
+              <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+              {% endif %}
+            </td>
+          </tr>
+        </template>
+
+        <!-- Summary totals -->
+        <div class="summary-grid">
+          <!-- Block 1 -->
+          <div class="summary-card">
+            <div class="summary-head">
+              <h4>Totals 2–4 → Total 5</h4>
+              <div class="pill">Summary</div>
+            </div>
+            <div class="summary-body">
+              <div class="summary-row">
+                <div class="label">Total 2 <em>(from page 2)</em></div>
+                <div class="vals">
+                  <div class="money-pill">${{ totals.total2_app|floatformat:2|default:"0.00" }}</div>
+                  <div class="money-pill">${{ totals.total2_resp|floatformat:2|default:"0.00" }}</div>
+                </div>
+              </div>
+
+              <div class="summary-row">
+                <div class="label">Total 3 <em>(from page 2)</em></div>
+                <div class="vals">
+                  <div class="money-pill">${{ totals.total3_app|floatformat:2|default:"0.00" }}</div>
+                  <div class="money-pill">${{ totals.total3_resp|floatformat:2|default:"0.00" }}</div>
+                </div>
+              </div>
+
+              <div class="summary-row">
+                <div class="label">Total 4 <em>(from page 3)</em></div>
+                <div class="vals">
+                  <div class="money-pill">${{ totals.total4_app|floatformat:2|default:"0.00" }}</div>
+                  <div class="money-pill">${{ totals.total4_resp|floatformat:2|default:"0.00" }}</div>
+                </div>
+              </div>
+
+              <div class="summary-row summary-strong">
+                <div class="label">Total 5 <em>(Total 2 + Total 3 + Total 4)</em></div>
+                <div class="vals">
+                  <div class="money-pill">${{ totals.total5_app|floatformat:2|default:"0.00" }}</div>
+                  <div class="money-pill">${{ totals.total5_resp|floatformat:2|default:"0.00" }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Block 2 -->
+          <div class="summary-card">
+            <div class="summary-head">
+              <h4>Total 1–5 → Net Family Property</h4>
+              <div class="pill">Summary</div>
+            </div>
+            <div class="summary-body">
+              <div class="summary-row">
+                <div class="label">Total 1 <em>(from page 1)</em></div>
+                <div class="vals">
+                  <div class="money-pill">${{ totals.total1_app|floatformat:2|default:"0.00" }}</div>
+                  <div class="money-pill">${{ totals.total1_resp|floatformat:2|default:"0.00" }}</div>
+                </div>
+              </div>
+
+              <div class="summary-row">
+                <div class="label">Total 5 <em>(from above)</em></div>
+                <div class="vals">
+                  <div class="money-pill">${{ totals.total5_app|floatformat:2|default:"0.00" }}</div>
+                  <div class="money-pill">${{ totals.total5_resp|floatformat:2|default:"0.00" }}</div>
+                </div>
+              </div>
+
+              <div class="summary-row summary-strong">
+                <div class="label">Total 6 — Net family property <em>(Total 1 − Total 5)</em></div>
+                <div class="vals">
+                  <div class="money-pill">${{ totals.total6_app|floatformat:2|default:"0.00" }}</div>
+                  <div class="money-pill">${{ totals.total6_resp|floatformat:2|default:"0.00" }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Final Totals form -->
+        <div class="final-card">
+          {{ final_totals_form.non_field_errors }}
+          <div class="row g-3">
+            {% for field in final_totals_form.visible_fields %}
+              <div class="col-md-6">
+                <label class="form-label fw-bold">{{ field.label }}</label>
+                {{ field|add_class:"form-control pdf-input" }}
+                {% for error in field.errors %}
+                  <div class="text-danger small">{{ error }}</div>
+                {% endfor %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Signature lines -->
+        <div class="sign-row">
+          <div class="sign-box">
+            <div class="sign-line"></div>
+            <div class="sign-label">Date of signature</div>
+          </div>
+          <div class="sign-box">
+            <div class="sign-line"></div>
+            <div class="sign-label">Signature</div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div class="actions">
+          <button type="submit" name="prev" class="btn-modern">&larr; Previous</button>
+          <button type="submit" class="btn-modern btn-success-modern">Submit</button>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+          <div>FLR 13B (May 15, 2009)</div>
+          <div>Page 3 of 3</div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Delete formset row function (accessible globally)
+function deleteFormsetRow(btn) {
+  const row = btn.closest('tr');
+  if (!row) return;
+  const checkbox = row.querySelector('input[type="checkbox"]');
+  if (checkbox) {
+    checkbox.checked = true;
+    row.style.display = 'none';
+    // Trigger recalculation
+    if (typeof calculateTotal4 === 'function') {
+      calculateTotal4();
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  // ===== Add Row for Excluded Formset =====
+  const prefix = "{{ excluded_formset.prefix }}";
+  const addBtn = document.getElementById("excluded-add-row");
+  const table = document.getElementById("excluded-table");
+  const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+  const template = document.getElementById("excluded-empty-form-template");
+
+  if (addBtn && table && totalFormsInput && template) {
+    addBtn.addEventListener("click", () => {
+      const idx = parseInt(totalFormsInput.value || "0", 10);
+      const html = template.innerHTML.replace(/__prefix__/g, idx);
+
+      const tbody = table.querySelector("tbody");
+      const totalRow = tbody.querySelector(".total-row");
+      if (totalRow) totalRow.insertAdjacentHTML("beforebegin", html);
+      else tbody.insertAdjacentHTML("beforeend", html);
+
+      totalFormsInput.value = idx + 1;
+      // Recalculate Total 4 after adding row
+      setTimeout(calculateTotal4, 100);
+    });
+  } else {
+    console.warn("Excluded add-row missing element(s):", {
+      addBtn: !!addBtn,
+      table: !!table,
+      totalFormsInput: !!totalFormsInput,
+      template: !!template,
+      prefix
+    });
+  }
+
+  // ===== Calculate Total 4 from Excluded Property rows =====
+  function calculateTotal4() {
+    let totalApp = 0;
+    let totalResp = 0;
+    
+    const tbody = document.getElementById('excluded-table')?.querySelector('tbody');
+    if (!tbody) return;
+    
+    const rows = tbody.querySelectorAll('tr:not(.total-row)');
+    rows.forEach(row => {
+      // Skip deleted/hidden rows
+      const deleteCheck = row.querySelector('input[type="checkbox"]');
+      if (deleteCheck && deleteCheck.checked) return;
+      if (row.style.display === 'none') return;
+      
+      // Get inputs by position: item(0), app(1), resp(2), delete(3)
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 3) {
+        const appInput = cells[1].querySelector('input[type="number"], input[type="text"]');
+        const respInput = cells[2].querySelector('input[type="number"], input[type="text"]');
+        
+        if (appInput && appInput.value) {
+          totalApp += parseFloat(appInput.value) || 0;
+        }
+        if (respInput && respInput.value) {
+          totalResp += parseFloat(respInput.value) || 0;
+        }
+      }
+    });
+    
+    // Update Total 4 in table
+    const total4Row = tbody.querySelector('.total-row');
+    if (total4Row) {
+      const cells = total4Row.querySelectorAll('td');
+      if (cells[1]) cells[1].textContent = '$' + totalApp.toFixed(2);
+      if (cells[2]) cells[2].textContent = '$' + totalResp.toFixed(2);
+    }
+    
+    // Update all summary totals
+    updateSummaryTotals(totalApp, totalResp);
+  }
+  
+  function updateSummaryTotals(total4App, total4Resp) {
+    // Get values from the server-rendered totals (already calculated)
+    // Total 2, Total 3 are from server
+    const total2AppEl = document.querySelector('.summary-row:nth-child(1) .money-pill:nth-child(1)');
+    const total2RespEl = document.querySelector('.summary-row:nth-child(1) .money-pill:nth-child(2)');
+    const total3AppEl = document.querySelector('.summary-row:nth-child(2) .money-pill:nth-child(1)');
+    const total3RespEl = document.querySelector('.summary-row:nth-child(2) .money-pill:nth-child(2)');
+    const total1AppEl = document.querySelector('.summary-card:nth-child(2) .summary-row:nth-child(1) .money-pill:nth-child(1)');
+    const total1RespEl = document.querySelector('.summary-card:nth-child(2) .summary-row:nth-child(1) .money-pill:nth-child(2)');
+    
+    const parseValue = (el) => {
+      if (!el) return 0;
+      const text = el.textContent.replace('$', '').trim();
+      return parseFloat(text) || 0;
+    };
+    
+    const total2App = parseValue(total2AppEl);
+    const total2Resp = parseValue(total2RespEl);
+    const total3App = parseValue(total3AppEl);
+    const total3Resp = parseValue(total3RespEl);
+    const total1App = parseValue(total1AppEl);
+    const total1Resp = parseValue(total1RespEl);
+    
+    // Update Total 4 in summary
+    const summaryBlock1 = document.querySelector('.summary-card:nth-child(1) .summary-body');
+    if (summaryBlock1) {
+      const total4Row = summaryBlock1.querySelector('.summary-row:nth-child(3) .vals');
+      if (total4Row) {
+        const pills = total4Row.querySelectorAll('.money-pill');
+        if (pills[0]) pills[0].textContent = '$' + total4App.toFixed(2);
+        if (pills[1]) pills[1].textContent = '$' + total4Resp.toFixed(2);
+      }
+      
+      // Calculate Total 5
+      const total5App = total2App + total3App + total4App;
+      const total5Resp = total2Resp + total3Resp + total4Resp;
+      
+      const total5Row = summaryBlock1.querySelector('.summary-strong .vals');
+      if (total5Row) {
+        const pills = total5Row.querySelectorAll('.money-pill');
+        if (pills[0]) pills[0].textContent = '$' + total5App.toFixed(2);
+        if (pills[1]) pills[1].textContent = '$' + total5Resp.toFixed(2);
+      }
+      
+      // Update Block 2 - Total 5 display and Total 6
+      const summaryBlock2 = document.querySelector('.summary-card:nth-child(2) .summary-body');
+      if (summaryBlock2) {
+        const block2Total5Row = summaryBlock2.querySelector('.summary-row:nth-child(2) .vals');
+        if (block2Total5Row) {
+          const pills = block2Total5Row.querySelectorAll('.money-pill');
+          if (pills[0]) pills[0].textContent = '$' + total5App.toFixed(2);
+          if (pills[1]) pills[1].textContent = '$' + total5Resp.toFixed(2);
+        }
+        
+        // Calculate Total 6
+        const total6App = total1App - total5App;
+        const total6Resp = total1Resp - total5Resp;
+        
+        const total6Row = summaryBlock2.querySelector('.summary-strong .vals');
+        if (total6Row) {
+          const pills = total6Row.querySelectorAll('.money-pill');
+          if (pills[0]) pills[0].textContent = '$' + total6App.toFixed(2);
+          if (pills[1]) pills[1].textContent = '$' + total6Resp.toFixed(2);
+        }
+      }
+    }
+  }
+
+  // ===== Recalculate on input changes =====
+  document.addEventListener('input', (e) => {
+    if (e.target.closest && e.target.closest('#excluded-table')) {
+      calculateTotal4();
+    }
+  });
+
+  // ===== Hide row when DELETE checked =====
+  document.addEventListener("change", (e) => {
+    if (!e.target.matches('input[type="checkbox"]')) return;
+    const row = e.target.closest("tr");
+    if (!row) return;
+    if (e.target.name && e.target.name.includes('-DELETE')) {
+      row.style.display = e.target.checked ? "none" : "";
+      calculateTotal4();
+    }
+  });
+
+  // Initial calculation
+  calculateTotal4();
+
+});
+</script>
+
+{% endblock %}

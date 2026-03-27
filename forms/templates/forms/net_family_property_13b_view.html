@@ -1,0 +1,521 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --paper: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --indigo: 99,102,241;
+    --emerald: 16,185,129;
+  }
+  
+  body { background: var(--bg); }
+  
+  .print-container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 0 14px;
+  }
+  
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+  }
+  
+  .print-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  
+  .print-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .btn-action {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 800;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  
+  .btn-action:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+    transform: translateY(-1px);
+  }
+  
+  .btn-print {
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color: #fff;
+    border: none;
+  }
+  
+  .page {
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    padding: 30px;
+    margin-bottom: 24px;
+    page-break-after: always;
+  }
+  
+  .page:last-child {
+    page-break-after: auto;
+  }
+  
+  .page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--text);
+  }
+  
+  .page-title h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: .5px;
+  }
+  
+  .page-title .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  
+  .ontario-header {
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: .2em;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .info-box {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: #fafbfc;
+  }
+  
+  .info-box h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+  }
+  
+  .info-row:last-child {
+    border-bottom: none;
+  }
+  
+  .info-row .label {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  
+  .info-row .value {
+    color: var(--text);
+    font-weight: 700;
+  }
+  
+  .section-title {
+    background: linear-gradient(135deg, rgba(var(--indigo),.1), rgba(var(--emerald),.08));
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 20px 0 12px;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text);
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .data-table th {
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  
+  .data-table td {
+    border: 1px solid var(--line);
+    padding: 8px;
+    vertical-align: middle;
+  }
+  
+  .data-table .text-right {
+    text-align: right;
+  }
+  
+  .data-table .text-center {
+    text-align: center;
+  }
+  
+  .data-table .total-row {
+    background: #f1f5f9;
+    font-weight: 800;
+  }
+  
+  .data-table .total-row td {
+    border-top: 2px solid var(--text);
+  }
+  
+  .grand-total {
+    background: linear-gradient(135deg, rgba(var(--indigo),.15), rgba(var(--emerald),.1));
+    border: 2px solid rgba(var(--indigo),.3);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+  }
+  
+  .grand-total h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  
+  .total-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .total-cell {
+    text-align: center;
+    padding: 10px;
+    background: var(--paper);
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+  
+  .total-cell .label {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  
+  .total-cell .value {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  
+  @media print {
+    .no-print { display: none !important; }
+    .print-container { max-width: 100%; margin: 0; padding: 0; }
+    .print-header { display: none; }
+    .page { 
+      box-shadow: none; 
+      border-radius: 0; 
+      margin: 0;
+      padding: 20px;
+    }
+    body { background: #fff; }
+  }
+</style>
+
+<div class="print-container">
+  <div class="print-header no-print">
+    <h2>Form 13B — Net Family Property Statement</h2>
+    <div class="print-actions">
+      <button class="btn-action btn-print" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print Form</button>
+      <a class="btn-action" href="{% url 'net_family_property_13b_page1_edit' pk %}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</a>
+      <a class="btn-action" href="{% url 'net_family_property_13b_list' %}">← Back to List</a>
+    </div>
+  </div>
+
+  <!-- PAGE 1: Header & Parties -->
+  <div class="page">
+    <div class="ontario-header">ONTARIO</div>
+    <div class="page-title">
+      <h3>Form 13B: Net Family Property Statement</h3>
+      <div class="subtitle">Family Law Rules, O. Reg. 114/99</div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Court Information</h4>
+        <div class="info-row"><span class="label">Court Name:</span><span class="value">{{ statement.court_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Court Address:</span><span class="value">{{ statement.court_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">File Number:</span><span class="value">{{ statement.court_file_number|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Important Information</h4>
+        <div class="info-row"><span class="label">My Name:</span><span class="value">{{ statement.my_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Valuation Date:</span><span class="value">{{ statement.valuation_date|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Applicant</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.applicant_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Applicant's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.applicant_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Respondent</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.respondent_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Respondent's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.respondent_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: Assets & Debts -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13B — Page 2</h3>
+      <div class="subtitle">Value of Assets & Debts on Valuation Date</div>
+    </div>
+
+    <!-- Assets Table -->
+    <div class="section-title">1. VALUE OF ASSETS OWNED ON VALUATION DATE</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Applicant's Value</th>
+          <th>Respondent's Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in assets %}
+        <tr>
+          <td>{{ asset.item|default:"—" }}</td>
+          <td class="text-right">${{ asset.applicant_value|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ asset.respondent_value|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">No assets recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td class="text-right"><strong>TOTAL 1: VALUE OF ASSETS</strong></td>
+          <td class="text-right">${{ totals.total1_app|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total1_resp|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Debts Table -->
+    <div class="section-title">2. DEBTS AND OTHER LIABILITIES ON VALUATION DATE</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Applicant's Value</th>
+          <th>Respondent's Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for debt in debts %}
+        <tr>
+          <td>{{ debt.item|default:"—" }}</td>
+          <td class="text-right">${{ debt.applicant_value|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ debt.respondent_value|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">No debts recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td class="text-right"><strong>TOTAL 2: DEBTS & LIABILITIES</strong></td>
+          <td class="text-right">${{ totals.total2_app|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total2_resp|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 3: Marriage Property, Excluded Property, Final Totals -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13B — Page 3</h3>
+      <div class="subtitle">Property at Date of Marriage & Excluded Property</div>
+    </div>
+
+    <!-- Marriage Property -->
+    <div class="section-title">3. NET VALUE OF PROPERTY OWNED ON DATE OF MARRIAGE</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Applicant's Value</th>
+          <th>Respondent's Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in marriage_properties %}
+        <tr>
+          <td>{{ item.item|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_value|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_value|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">No marriage property recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td class="text-right"><strong>TOTAL 3: MARRIAGE PROPERTY</strong></td>
+          <td class="text-right">${{ totals.total3_app|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total3_resp|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Marriage Debts -->
+    <div class="section-title">Debts at Date of Marriage</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Applicant's Value</th>
+          <th>Respondent's Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in marriage_debts %}
+        <tr>
+          <td>{{ item.item|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_value|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_value|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">No marriage debts recorded</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Excluded Property -->
+    <div class="section-title">4. VALUE OF EXCLUDED PROPERTY</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Applicant's Value</th>
+          <th>Respondent's Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in excluded_properties %}
+        <tr>
+          <td>{{ item.item|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_value|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_value|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3" class="text-center">No excluded property recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td class="text-right"><strong>TOTAL 4: EXCLUDED PROPERTY</strong></td>
+          <td class="text-right">${{ totals.total4_app|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total4_resp|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Final Totals -->
+    <div class="grand-total">
+      <h4>TOTAL 5: DEDUCTIONS (Total 2 + Total 3 + Total 4)</h4>
+      <div class="total-grid">
+        <div class="total-cell">
+          <div class="label">Applicant</div>
+          <div class="value">${{ totals.total5_app|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Respondent</div>
+          <div class="value">${{ totals.total5_resp|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grand-total" style="background: linear-gradient(135deg, rgba(var(--emerald),.15), rgba(34,197,94,.1)); border-color: rgba(var(--emerald),.3);">
+      <h4>TOTAL 6: NET FAMILY PROPERTY (Total 1 − Total 5)</h4>
+      <div class="total-grid">
+        <div class="total-cell">
+          <div class="label">Applicant</div>
+          <div class="value">${{ totals.total6_app|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Respondent</div>
+          <div class="value">${{ totals.total6_resp|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    {% if final_totals %}
+    <div class="info-box" style="margin-top: 20px;">
+      <h4>Signature</h4>
+      <div class="info-row"><span class="label">Date of Signature:</span><span class="value">{{ final_totals.date_of_signature|default:"—" }}</span></div>
+      <div class="info-row"><span class="label">Signature:</span><span class="value">{{ final_totals.signature|default:"—" }}</span></div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'users:module_list' %}" class="btn btn-outline-secondary">← Back to Modules</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Module Name <span class="text-danger">*</span></label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="text-danger small">{{ form.name.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Code <span class="text-danger">*</span></label>
+                                {{ form.code }}
+                                <small class="text-muted">Used internally (e.g., financial_statement)</small>
+                                {% if form.code.errors %}
+                                <div class="text-danger small">{{ form.code.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-2">
+                                <label class="form-label">Icon</label>
+                                {{ form.icon }}
+                            </div>
+                            <div class="col-md-10">
+                                <label class="form-label">Description</label>
+                                {{ form.description }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label ms-2">Active</label>
+                            </div>
+                        </div>
+
+                        {% if not module %}
+                        <div class="alert alert-info">
+                            <strong>Note:</strong> Default permissions (View, Create, Edit, Delete, Print, Export) will be automatically created for this module.
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">{{ action }} Module</button>
+                            <a href="{% url 'users:module_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Help</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2"><strong>Name:</strong> Display name shown in the UI.</p>
+                    <p class="small text-muted mb-2"><strong>Code:</strong> Unique identifier used in code (lowercase, underscores).</p>
+                    <p class="small text-muted mb-0"><strong>Icon:</strong> Emoji or symbol for visual identification.</p>
+                </div>
+            </div>
+
+            {% if module %}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h6 class="mb-0">Current Permissions</h6>
+                </div>
+                <div class="card-body">
+                    {% for perm in module.permissions.all %}
+                    <span class="badge bg-primary me-1 mb-1">{{ perm.get_permission_type_display }}</span>
+                    {% empty %}
+                    <span class="text-muted">No permissions</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

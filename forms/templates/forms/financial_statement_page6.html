@@ -1,0 +1,768 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+    --amber:245,158,11;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1240px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 520px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 460px at 100% 0%, rgba(var(--green),.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(var(--green),.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-title{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .panel-sub{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    max-width: 980px;
+  }
+  .panel-pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .ui-input{
+    width:100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 10px 12px !important;
+    font-size: .95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .ui-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+  .ui-input.sm{ height: 42px; border-radius: 8px !important; }
+
+  .money-input{
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table-wrap{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  }
+  .modern-table{
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: .93rem;
+  }
+  .modern-table thead th{
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.55);
+  }
+
+  .radio-pill{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--line2);
+    border-radius: 8px;
+    background: rgba(248,250,252,.85);
+    font-weight: 800;
+    color: var(--text);
+    margin-right: 8px;
+    user-select:none;
+  }
+  .radio-pill input{ margin:0; transform: translateY(1px); }
+  .radio-wrap{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+
+  .kpi{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px dashed var(--line2);
+    border-radius: 8px;
+    background: rgba(248,250,252,.8);
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .kpi strong{ font-weight: 950; }
+  .kpi span{ color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+
+  .grid-3{
+    display:grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 992px){
+    .grid-3{ grid-template-columns: 1fr; }
+  }
+
+  .note{
+    border: 1px solid rgba(var(--amber), .28);
+    background: rgba(var(--amber), .08);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #7c2d12;
+    box-shadow: 0 10px 28px rgba(2,6,23,.05);
+  }
+  .note strong{ font-weight: 950; }
+  .note p{ margin: 0; color:#7c2d12; font-weight: 600; font-size: 13px; line-height: 1.35; }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{ filter: brightness(1.03); color:#fff; }
+  .btn-secondary-modern{
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+  }
+
+  /* Compact on smaller screens */
+  @media (max-width: 576px){
+    .page-header{ padding: 14px; }
+    .page-body{ padding: 14px; }
+    .panel{ padding: 12px; }
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+
+    <div class="page-header">
+      <div>
+        <h1>Financial Statement (Support Claims)</h1>
+        <p>Page 6 • Part 4: Debts • Part 5: Summary • Sworn/Affirmed</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if statement.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ statement.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Page 6</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div id="autosave-indicator" style="position:fixed; top:10px; right:10px; padding:8px 16px; background:rgba(34,197,94,.9); color:#fff; border-radius:8px; font-weight:700; font-size:13px; display:none; z-index:9999;">Saved</div>
+
+        <script>
+        (function(){
+          function parseNum(val) {
+            if (!val) return 0;
+            val = (''+val).replace(/[^\d.\-]/g, '');
+            var n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+          }
+          function autofillTotalAssets() {
+            var totalAssetsInput = document.getElementsByName('total_assets')[0];
+            if (totalAssetsInput) {
+              var val = parseNum(totalAssetsInput.value);
+              // Only autofill if empty or zero
+              if (!val || val === 0) {
+                var assetVal = 0;
+                // Try localStorage first
+                try {
+                  var stored = localStorage.getItem('total_value_all_property');
+                  if (stored) assetVal = parseNum(stored);
+                } catch(e) {}
+                // Fallback: use server-side value if available
+                if (!assetVal) {
+                  {% if statement.total_value_all_property %}
+                  assetVal = parseNum('{{ statement.total_value_all_property }}');
+                  {% endif %}
+                }
+                if (assetVal) {
+                  totalAssetsInput.value = assetVal.toFixed(2);
+                }
+              }
+            }
+          }
+          function updateTotals() {
+            // Sum all debt amounts (fields containing _amount_)
+            var debtSum = 0;
+            document.querySelectorAll('input[name*="_amount_"').forEach(function(inp){
+              debtSum += parseNum(inp.value);
+            });
+            var totalDebts = document.getElementById('total_debts_outstanding');
+            if (totalDebts) totalDebts.value = debtSum.toFixed(2);
+
+            // Auto-fill summary debts field
+            var subtractDebtsInput = document.getElementsByName('subtract_total_debts')[0];
+            if (subtractDebtsInput) subtractDebtsInput.value = debtSum.toFixed(2);
+
+            // Calculate net worth
+            var totalAssets = parseNum(document.getElementsByName('total_assets')[0]?.value || 0);
+            var subtractDebts = debtSum;
+            var netWorth = document.getElementsByName('net_worth')[0];
+            if (netWorth) netWorth.value = (totalAssets - subtractDebts).toFixed(2);
+          }
+
+          // --- AUTOSAVE LOGIC ---
+          var autosaveTimeout = null;
+          var indicator = null;
+          function showIndicator(text, color) {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              indicator.textContent = text;
+              indicator.style.background = color;
+              indicator.style.display = 'block';
+            }
+          }
+          function hideIndicator() {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) indicator.style.display = 'none';
+          }
+          function autosaveForm() {
+            var form = document.querySelector('form');
+            if (!form) return;
+            showIndicator('Saving...', 'rgba(99,102,241,.9)');
+            var formData = new FormData(form);
+            var csrfToken = formData.get('csrfmiddlewaretoken');
+            fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+              },
+              body: formData
+            })
+            .then(function(response) {
+              if (response.ok) {
+                showIndicator('Saved', 'rgba(34,197,94,.9)');
+                setTimeout(hideIndicator, 1500);
+              } else {
+                showIndicator('Error', 'rgba(239,68,68,.9)');
+                setTimeout(hideIndicator, 2000);
+              }
+            })
+            .catch(function() {
+              showIndicator('Error', 'rgba(239,68,68,.9)');
+              setTimeout(hideIndicator, 2000);
+            });
+          }
+          function scheduleAutosave() {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(function(){
+              updateTotals();
+              autosaveForm();
+            }, 800);
+          }
+
+          // Listen for input changes
+          document.addEventListener('input', function(e){
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+              updateTotals();
+              scheduleAutosave();
+            }
+          });
+          document.addEventListener('change', function(e){
+            if (e.target.type === 'checkbox' || e.target.type === 'radio') {
+              scheduleAutosave();
+            }
+          });
+          // Initial calculation and autofill on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            autofillTotalAssets();
+            updateTotals();
+          });
+        })();
+        </script>
+
+        <!-- PART 4: DEBTS -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Part 4: Debts</h3>
+              <div class="panel-sub">Enter each debt, creditor details, amount owing, monthly payments, and whether payments are being made.</div>
+            </div>
+            <div class="panel-pill">Outstanding</div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table">
+                <thead>
+                  <tr>
+                    <th style="width:30%;">Type of debt</th>
+                    <th style="width:26%;">Creditor (name & address)</th>
+                    <th style="width:14%;">Full amount owing</th>
+                    <th style="width:14%;">Monthly payments</th>
+                    <th style="width:16%;" class="text-center">Payments being made?</th>
+                  </tr>
+                </thead>
+                <tbody>
+
+                  <!-- Mortgages 1-4 (static fields) -->
+                  <tr>
+                    <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_1" value="{{ mortgage_creditor_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_1" value="{{ mortgage_amount_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_1" value="{{ mortgage_monthly_1 }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_1" value="yes" {% if mortgage_payment_1 == 'yes' %}checked{% endif %}> Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_1" value="no" {% if mortgage_payment_1 == 'no' %}checked{% endif %}> No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_2" value="{{ mortgage_creditor_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_2" value="{{ mortgage_amount_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_2" value="{{ mortgage_monthly_2 }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_2" value="yes" {% if mortgage_payment_2 == 'yes' %}checked{% endif %}> Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_2" value="no" {% if mortgage_payment_2 == 'no' %}checked{% endif %}> No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_3" value="{{ mortgage_creditor_3 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_3" value="{{ mortgage_amount_3 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_3" value="{{ mortgage_monthly_3 }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_3" value="yes" {% if mortgage_payment_3 == 'yes' %}checked{% endif %}> Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_3" value="no" {% if mortgage_payment_3 == 'no' %}checked{% endif %}> No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_4" value="{{ mortgage_creditor_4 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_4" value="{{ mortgage_amount_4 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_4" value="{{ mortgage_monthly_4 }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_4" value="yes" {% if mortgage_payment_4 == 'yes' %}checked{% endif %}> Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="mortgage_payment_4" value="no" {% if mortgage_payment_4 == 'no' %}checked{% endif %}> No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Credit cards 1-2 (static fields) -->
+                  <tr>
+                    <td>Outstanding credit card balances</td>
+                    <td><input class="form-control ui-input sm" type="text" name="credit_card_creditor_1" value="{{ credit_card_creditor_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_amount_1" value="{{ credit_card_amount_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_monthly_1" value="{{ credit_card_monthly_1 }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="credit_card_payment_1" value="yes" {% if credit_card_payment_1 == 'yes' %}checked{% endif %}> Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="credit_card_payment_1" value="no" {% if credit_card_payment_1 == 'no' %}checked{% endif %}> No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Outstanding credit card balances</td>
+                    <td><input class="form-control ui-input sm" type="text" name="credit_card_creditor_2" value="{{ credit_card_creditor_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_amount_2" value="{{ credit_card_amount_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_monthly_2" value="{{ credit_card_monthly_2 }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="credit_card_payment_2" value="yes" {% if credit_card_payment_2 == 'yes' %}checked{% endif %}> Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="credit_card_payment_2" value="no" {% if credit_card_payment_2 == 'no' %}checked{% endif %}> No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Unpaid support -->
+                  <tr>
+                    <td>Unpaid support amounts</td>
+                    <td><input class="form-control ui-input sm" type="text" name="unpaid_support_creditor" value="{{ unpaid_support_creditor }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="unpaid_support_amount" value="{{ unpaid_support_amount }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="unpaid_support_monthly" value="{{ unpaid_support_monthly }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="unpaid_support_payment" value="yes" {% if unpaid_support_payment == 'yes' %}checked{% endif %}>
+                          Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="unpaid_support_payment" value="no" {% if unpaid_support_payment == 'no' %}checked{% endif %}>
+                          No
+                        </label>
+                      </div>
+                    </td>
+                  </tr>
+
+                  <!-- Other debts (dynamic rows) -->
+                  <tbody id="other-debts-rows">
+                  {% for i in other_debts %}
+                  <tr>
+                    <td>Other debts</td>
+                    <td><input class="form-control ui-input sm" type="text" name="other_debt_creditor_{{ i.index }}" value="{{ i.creditor }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_debt_amount_{{ i.index }}" value="{{ i.amount }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_debt_monthly_{{ i.index }}" value="{{ i.monthly }}"></td>
+                    <td class="text-center">
+                      <div class="radio-wrap">
+                        <label class="radio-pill">
+                          <input type="radio" name="other_debt_payment_{{ i.index }}" value="yes" {% if i.payment == 'yes' %}checked{% endif %}> Yes
+                        </label>
+                        <label class="radio-pill">
+                          <input type="radio" name="other_debt_payment_{{ i.index }}" value="no" {% if i.payment == 'no' %}checked{% endif %}> No
+                        </label>
+                      </div>
+                      <button type="button" class="btn-delete-row" onclick="deleteOtherDebtRow(this)" title="Delete row" style="margin-left:8px; background:#ef4444; color:#fff; border-radius:50%; width:32px; height:32px; border:none; font-size:18px; font-weight:900; cursor:pointer;">&times;</button>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                  </tbody>
+                  <tr>
+                    <td colspan="5" style="background:rgba(248,250,252,.85); text-align:right;">
+                      <button type="button" class="btn-add-row" onclick="addOtherDebtRow()" style="border:2px dashed #64748b; border-radius:8px; padding:8px 18px; font-weight:900; color:#64748b; background:#fff; cursor:pointer;">+ Add Row</button>
+                    </td>
+                  </tr>
+<script>
+// --- Dynamic Other Debts Rows ---
+function addOtherDebtRow() {
+  const tbody = document.getElementById('other-debts-rows');
+  const rowCount = tbody.rows.length;
+  const newIndex = rowCount + 1;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>Other debts</td>
+    <td><input class="form-control ui-input sm" type="text" name="other_debt_creditor_${newIndex}" value=""></td>
+    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_debt_amount_${newIndex}" value=""></td>
+    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_debt_monthly_${newIndex}" value=""></td>
+    <td class="text-center">
+      <div class="radio-wrap">
+        <label class="radio-pill">
+          <input type="radio" name="other_debt_payment_${newIndex}" value="yes"> Yes
+        </label>
+        <label class="radio-pill">
+          <input type="radio" name="other_debt_payment_${newIndex}" value="no"> No
+        </label>
+      </div>
+      <button type="button" class="btn-delete-row" onclick="deleteOtherDebtRow(this)" title="Delete row" style="margin-left:8px; background:#ef4444; color:#fff; border-radius:50%; width:32px; height:32px; border:none; font-size:18px; font-weight:900; cursor:pointer;">&times;</button>
+    </td>
+  `;
+  tbody.appendChild(tr);
+  renumberOtherDebtRows();
+}
+
+function deleteOtherDebtRow(btn) {
+  const tr = btn.closest('tr');
+  tr.remove();
+  renumberOtherDebtRows();
+  document.dispatchEvent(new Event('input')); // trigger autosave/total update
+}
+
+function renumberOtherDebtRows() {
+  const tbody = document.getElementById('other-debts-rows');
+  Array.from(tbody.rows).forEach((tr, idx) => {
+    const index = idx + 1;
+    tr.querySelectorAll('input, select').forEach(inp => {
+      if (inp.name.startsWith('other_debt_creditor_')) inp.name = `other_debt_creditor_${index}`;
+      if (inp.name.startsWith('other_debt_amount_')) inp.name = `other_debt_amount_${index}`;
+      if (inp.name.startsWith('other_debt_monthly_')) inp.name = `other_debt_monthly_${index}`;
+      if (inp.name.startsWith('other_debt_payment_')) inp.name = `other_debt_payment_${index}`;
+    });
+  });
+}
+</script>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="kpi">
+            <div>
+              <span>Total</span><br>
+              <strong>Total amount of debts outstanding</strong>
+            </div>
+            <div style="min-width:260px; width:min(420px, 100%);">
+              <input class="form-control ui-input money-input" type="number" step="0.01"
+                     name="total_debts_outstanding" id="total_debts_outstanding"
+                     value="{{ statement.total_debts_outstanding }}" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <!-- PART 5: SUMMARY -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Part 5: Summary of assets and liabilities</h3>
+              <div class="panel-sub">Use this section to show overall totals.</div>
+            </div>
+            <div class="panel-pill">Summary</div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th style="width:260px;">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>Total assets</strong></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="total_assets" value="{{ statement.total_assets }}"></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Subtract total debts</strong></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="subtract_total_debts" value="{{ statement.subtract_total_debts }}"></td>
+                  </tr>
+                  <tr>
+                    <td><strong>Net worth</strong></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="net_worth" value="{{ statement.net_worth }}" readonly></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- NOTE -->
+        <div class="note">
+          <p>
+            <strong>NOTE:</strong> This financial statement must be updated before any court event if it is:
+            • more than 60 days old by the time of the case conference,
+            • more than 30 days old by the time the motion is heard, or
+            • more than 40 days old by the start of the trial (or start of the trial sitting, whichever comes first).
+            You may update by filing a new statement, or an affidavit (Form 14A) describing minor changes / confirming the information remains correct.
+          </p>
+        </div>
+
+        <!-- SWORN / AFFIRMED -->
+        <div class="panel" style="margin-top:14px;">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Sworn / Affirmed before me at</h3>
+              <div class="panel-sub">Complete these fields and sign in front of an authorized official.</div>
+            </div>
+            <div class="panel-pill">Affidavit</div>
+          </div>
+
+          <div class="grid-3">
+            <div>
+              <label class="panel-sub" style="margin:0 0 6px;">Municipality</label>
+              <input class="form-control ui-input" type="text" name="municipality" id="municipality" value="{{ statement.sworn_municipality }}">
+            </div>
+            <div>
+              <label class="panel-sub" style="margin:0 0 6px;">Province / state / country</label>
+              <input class="form-control ui-input" type="text" name="province" id="province" value="{{ statement.sworn_province_country }}">
+            </div>
+            <div>
+              <label class="panel-sub" style="margin:0 0 6px;">Date</label>
+              <input class="form-control ui-input" type="date" name="date" id="date" value="{{ statement.sworn_date|date:'Y-m-d' }}">
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <label class="panel-sub" style="margin:0 0 6px;">
+                Commissioner for taking affidavits (Type or print name below if signature is legible)
+              </label>
+              <input class="form-control ui-input" type="text" name="commissioner" id="commissioner" value="{{ statement.commissioner_signature }}">
+            </div>
+
+            <div style="grid-column: 1 / -1;">
+              <label class="panel-sub" style="margin:0 0 6px;">
+                Signature (Sign in front of a lawyer, justice of the peace, notary public, or commissioner for taking affidavits)
+              </label>
+              <input class="form-control ui-input" type="text" name="signature" id="signature" value="{{ statement.signature }}">
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="actions">
+          {% if statement.pk %}
+            <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
+          {% endif %}
+          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

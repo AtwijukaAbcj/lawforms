@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+  <h2>Comparison of Net Family Property Details</h2>
+  <a class="btn btn-secondary mb-3" href="/forms/comparison-nfp/">Back to List</a>
+  <table class="table table-striped">
+    <tr><th>ID</th><td>{{ nfp.id }}</td></tr>
+    <tr><th>Court File #</th><td>{{ nfp.court_file_number }}</td></tr>
+    <tr><th>Court Name</th><td>{{ nfp.court_name }}</td></tr>
+    <tr><th>Prepared By</th><td>{{ nfp.prepared_by }}</td></tr>
+    <tr><th>Applicant Name</th><td>{{ nfp.applicant_name }}</td></tr>
+    <tr><th>Applicant Address</th><td>{{ nfp.applicant_address }}</td></tr>
+    <tr><th>Applicant Phone</th><td>{{ nfp.applicant_phone }}</td></tr>
+    <tr><th>Applicant Email</th><td>{{ nfp.applicant_email }}</td></tr>
+    <tr><th>Applicant Lawyer Name</th><td>{{ nfp.applicant_lawyer_name }}</td></tr>
+    <tr><th>Applicant Lawyer Address</th><td>{{ nfp.applicant_lawyer_address }}</td></tr>
+    <tr><th>Applicant Lawyer Phone</th><td>{{ nfp.applicant_lawyer_phone }}</td></tr>
+    <tr><th>Applicant Lawyer Email</th><td>{{ nfp.applicant_lawyer_email }}</td></tr>
+    <tr><th>Respondent Name</th><td>{{ nfp.respondent_name }}</td></tr>
+    <tr><th>Respondent Address</th><td>{{ nfp.respondent_address }}</td></tr>
+    <tr><th>Respondent Phone</th><td>{{ nfp.respondent_phone }}</td></tr>
+    <tr><th>Respondent Email</th><td>{{ nfp.respondent_email }}</td></tr>
+    <tr><th>Respondent Lawyer Name</th><td>{{ nfp.respondent_lawyer_name }}</td></tr>
+    <tr><th>Respondent Lawyer Address</th><td>{{ nfp.respondent_lawyer_address }}</td></tr>
+    <tr><th>Respondent Lawyer Phone</th><td>{{ nfp.respondent_lawyer_phone }}</td></tr>
+    <tr><th>Respondent Lawyer Email</th><td>{{ nfp.respondent_lawyer_email }}</td></tr>
+    <tr><th>Valuation Date</th><td>{{ nfp.valuation_date }}</td></tr>
+    <tr><th>Statement Date</th><td>{{ nfp.statement_date }}</td></tr>
+    <tr><th>Created</th><td>{{ nfp.created_at }}</td></tr>
+    <tr><th>Updated</th><td>{{ nfp.updated_at }}</td></tr>
+  </table>
+{% endblock %}

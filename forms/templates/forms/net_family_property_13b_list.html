@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+  }
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1180px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .shell{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .title-block h2{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .title-block p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+
+  .btn-success-modern{
+    border: 1px solid rgba(var(--green), .35);
+    background: linear-gradient(135deg, rgba(var(--green),.95), rgba(16,185,129,.95));
+    color: #fff;
+    box-shadow: 0 14px 30px rgba(16,185,129,.18);
+  }
+  .btn-success-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 40px rgba(16,185,129,.24);
+    color:#fff;
+  }
+
+  .content{ padding: 16px 18px 18px; }
+
+  .table-shell{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+  }
+
+  table.modern{
+    width:100%;
+    margin:0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .95rem;
+  }
+
+  table.modern thead th{
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgba(248,250,252,.98);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  table.modern tbody td{
+    padding: 12px 12px;
+    border-bottom: 1px solid var(--line);
+    color: var(--text);
+    vertical-align: middle;
+  }
+
+  table.modern tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.70);
+  }
+  table.modern tbody tr:hover td{
+    background: rgba(var(--indigo), .06);
+    transition: background .12s ease;
+  }
+
+  .chip{
+    display:inline-flex;
+    align-items:center;
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--muted);
+  }
+
+  .actions{
+    display:flex;
+    gap: 8px;
+    justify-content:flex-end;
+  }
+
+  .btn-mini{
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-weight: 900;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    text-decoration:none;
+    box-shadow: 0 10px 20px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease;
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .btn-mini:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 14px 28px rgba(2,6,23,.12);
+    color: var(--text);
+    text-decoration:none;
+  }
+
+  .btn-info-modern{
+    border: 1px solid rgba(6,182,212,.35);
+    background: linear-gradient(135deg, rgba(6,182,212,.95), rgba(14,165,233,.95));
+    color:#fff;
+    box-shadow: 0 14px 28px rgba(14,165,233,.18);
+  }
+  .btn-info-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 38px rgba(14,165,233,.22);
+    color:#fff;
+  }
+
+  .btn-edit-modern{
+    border: 1px solid rgba(16,185,129,.35);
+    background: linear-gradient(135deg, rgba(16,185,129,.95), rgba(5,150,105,.95));
+    color:#fff;
+    box-shadow: 0 14px 28px rgba(16,185,129,.18);
+  }
+  .btn-edit-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 38px rgba(16,185,129,.22);
+    color:#fff;
+  }
+
+  .btn-delete-modern{
+    border: 1px solid rgba(239,68,68,.35);
+    background: linear-gradient(135deg, rgba(239,68,68,.95), rgba(220,38,38,.95));
+    color:#fff;
+    box-shadow: 0 14px 28px rgba(239,68,68,.18);
+  }
+  .btn-delete-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 38px rgba(239,68,68,.22);
+    color:#fff;
+  }
+
+  .empty{
+    padding: 22px;
+    text-align:center;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  /* Search box */
+  .search-box{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .search-input{
+    flex: 1;
+    max-width: 400px;
+    padding: 10px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+  .search-input:focus{
+    border-color: rgba(var(--indigo), .5);
+    box-shadow: 0 0 0 3px rgba(var(--indigo), .1);
+  }
+  .search-input::placeholder{
+    color: var(--muted);
+  }
+
+  @media (max-width: 768px){
+    .actions{ justify-content:flex-start; }
+    table.modern thead th, table.modern tbody td{ padding: 10px; }
+    .search-input{ max-width: 100%; }
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="shell">
+    <div class="header">
+      <div class="title-block">
+        <h2>Net Family Property Statements (Form 13B)</h2>
+        <p>Review created statements and continue editing when needed.</p>
+      </div>
+
+      <a href="{% url 'net_family_property_13b_page1' %}" class="btn-modern btn-success-modern">
+        + Add New Form
+      </a>
+    </div>
+
+    <div class="content">
+      <div class="search-box">
+        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search by ID, Court File #, or Applicant...">
+      </div>
+      <div class="table-shell">
+        <div class="table-responsive">
+          <table class="modern">
+            <thead>
+              <tr>
+                <th style="width:80px;">ID</th>
+                <th>Court File Number</th>
+                <th>Applicant Name</th>
+                <th style="width:190px;">Date Created</th>
+                <th style="width:250px; text-align:right;">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {% for form in forms %}
+              <tr>
+                <td><span class="chip">#{{ form.id }}</span></td>
+                <td>{{ form.court_file_number }}</td>
+                <td>{{ form.applicant_name }}</td>
+                <td>{{ form.created_at|date:'Y-m-d H:i' }}</td>
+                <td>
+                  <div class="actions">
+                    <a href="{% url 'net_family_property_13b_view' form.id %}" class="btn-mini btn-info-modern">View</a>
+                    <a href="{% url 'net_family_property_13b_page1_edit' form.id %}" class="btn-mini btn-edit-modern">Edit</a>
+                    <a href="{% url 'net_family_property_13b_print' form.id %}" class="btn-mini" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg></a>
+                    {% if request.user.is_staff or request.user.is_superuser %}
+                    <a href="{% url 'net_family_property_13b_delete' form.id %}" class="btn-mini btn-delete-modern"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></a>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="empty">No forms found.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const rows = document.querySelectorAll('table.modern tbody tr');
+  let visibleCount = 0;
+  
+  rows.forEach(row => {
+    if (row.querySelector('.empty')) return;
+    const text = row.textContent.toLowerCase();
+    const match = text.includes(searchTerm);
+    row.style.display = match ? '' : 'none';
+    if (match) visibleCount++;
+  });
+  
+  let noResultsRow = document.querySelector('.no-results-row');
+  if (!noResultsRow) {
+    noResultsRow = document.createElement('tr');
+    noResultsRow.className = 'no-results-row';
+    noResultsRow.innerHTML = '<td colspan="5" class="empty">No matching records found.</td>';
+    document.querySelector('table.modern tbody').appendChild(noResultsRow);
+  }
+  noResultsRow.style.display = (visibleCount === 0 && searchTerm) ? '' : 'none';
+});
+</script>
+
+{% endblock %}

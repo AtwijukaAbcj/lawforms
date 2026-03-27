@@ -1,0 +1,767 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1180px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2, 6, 23, .08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+  }
+  .page-header h4{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.01em;
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.25;
+  }
+  .page-header .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .page-body{ padding: 18px; }
+
+  .section-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    margin: 18px 0 10px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .section-label:before,
+  .section-label:after{
+    content:"";
+    height: 1px;
+    background: var(--line);
+    flex: 1;
+  }
+  .section-label span{
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    letter-spacing: .02em;
+    text-transform:none;
+    font-weight: 900;
+    font-size: 13px;
+    text-align:center;
+  }
+
+  .table-shell{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(2, 6, 23, .05);
+    background: #fff;
+  }
+  .pdf-table{
+    table-layout: fixed;
+    width: 100%;
+    font-size: 0.92rem;
+    margin: 0;
+  }
+
+  .pdf-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: rgba(248,250,252,.98);
+    backdrop-filter: blur(8px);
+  }
+
+  .pdf-table th{
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: center;
+    vertical-align: middle;
+    border-color: var(--line) !important;
+    padding: 10px 10px;
+  }
+
+  .pdf-table td{
+    vertical-align: middle;
+    border-color: var(--line) !important;
+    padding: 10px 10px;
+    background: #fff;
+  }
+
+  .pdf-table thead tr:nth-child(2) th{
+    font-size: 10px;
+    letter-spacing: .08em;
+    color: #94a3b8;
+    background: rgba(255,255,255,.98);
+  }
+
+  .pdf-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.70);
+  }
+  .pdf-table tbody tr:hover td{
+    background: rgba(var(--indigo), .06);
+    transition: background .12s ease;
+  }
+
+  .pdf-input{
+    width: 100%;
+    height: 40px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 8px 10px !important;
+    font-size: 0.92rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .pdf-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+
+  .totals-row td{
+    background: rgba(15,23,42,.04) !important;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: 12px;
+    color: var(--text);
+  }
+
+  .totals-box{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: rgba(248,250,252,.75);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    margin: 14px 0 18px;
+  }
+  .totals-box .title{
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .02em;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+  .totals-grid{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color: #fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 40px rgba(79,70,229,.28);
+    color:#fff;
+  }
+
+  .btn-ghost{
+    border: 1px dashed var(--line2);
+    background: rgba(255,255,255,.9);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-weight: 900;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .btn-ghost:hover{
+    border-color: rgba(var(--indigo), .55);
+    box-shadow: 0 10px 24px rgba(2,6,23,.08);
+  }
+
+  /* Delete button styling */
+  .del-cell{ text-align: center; }
+  .del-cell input[type="checkbox"]{
+    display: none !important;
+  }
+  .delete-checkbox-hidden {
+    display: none !important;
+  }
+  .btn-delete-row {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.15s ease;
+  }
+  .btn-delete-row:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+
+  .land-controls{ margin-top: 10px; }
+
+  @media (max-width: 992px){
+    .totals-grid{ grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 576px){
+    .totals-grid{ grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+    <div class="page-header">
+      <h4>Form 13C: Comparison of Net Family Property Statements — Page 4</h4>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if comparison.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ comparison.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Marriage &amp; Exclusions</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="section-label">
+          <span>3. Net Value of Property, Debts and Other Liabilities on Date of Marriage</span>
+        </div>
+
+        <div class="table-responsive mb-4">
+          <div class="table-shell">
+
+            <!-- Marriage property items table -->
+            {{ marriage_property_formset.management_form }}
+            <table id="{{ marriage_property_formset.prefix }}-table" class="table table-bordered pdf-table">
+              <thead>
+                 <tr>
+                   <th>Category and Details</th>
+                   <th>Comments</th>
+                   <th>Document Number</th>
+                   <th colspan="2">Applicant's Position</th>
+                   <th colspan="2">Respondent's Position</th>
+                   <th class="col-del">Delete?</th>
+                 </tr>
+                <tr>
+                  <th></th><th></th><th></th>
+                  <th>APPLICANT</th><th>RESPONDENT</th>
+                  <th>APPLICANT</th><th>RESPONDENT</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in marriage_property_formset %}
+                {{ form.id }}
+                <tr>
+                  <td>{{ form.category_details|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.comments|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.document_number|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.applicant_position_applicant|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                  <td>{{ form.applicant_position_respondent|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                  <td>{{ form.respondent_position_applicant|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                  <td>{{ form.respondent_position_respondent|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                  <td class="del-cell">{% if form.DELETE %}<div class="delete-checkbox-hidden">{{ form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="totals-row">
+                  <td colspan="3">Total of Property Items</td>
+                  <td>$<span id="marriage_prop_total_app_pos_app">0.00</span></td>
+                  <td>$<span id="marriage_prop_total_app_pos_resp">0.00</span></td>
+                  <td>$<span id="marriage_prop_total_resp_pos_app">0.00</span></td>
+                  <td>$<span id="marriage_prop_total_resp_pos_resp">0.00</span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="land-controls">
+              <button type="button"
+                      class="btn-ghost js-add-row"
+                      data-prefix="{{ marriage_property_formset.prefix }}">
+                + Add Row
+              </button>
+            </div>
+
+            <template class="js-empty-form" data-prefix="{{ marriage_property_formset.prefix }}">
+              <tr>
+                {{ marriage_property_formset.empty_form.id }}
+                <td>{{ marriage_property_formset.empty_form.category_details|add_class:'form-control pdf-input' }}</td>
+                <td>{{ marriage_property_formset.empty_form.comments|add_class:'form-control pdf-input' }}</td>
+                <td>{{ marriage_property_formset.empty_form.document_number|add_class:'form-control pdf-input' }}</td>
+                <td>{{ marriage_property_formset.empty_form.applicant_position_applicant|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                <td>{{ marriage_property_formset.empty_form.applicant_position_respondent|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                <td>{{ marriage_property_formset.empty_form.respondent_position_applicant|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                <td>{{ marriage_property_formset.empty_form.respondent_position_respondent|add_class:'form-control pdf-input marriage_property-money' }}</td>
+                <td class="del-cell">{% if marriage_property_formset.empty_form.DELETE %}<div class="delete-checkbox-hidden">{{ marriage_property_formset.empty_form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+              </tr>
+            </template>
+
+            <!-- Marriage debts table -->
+            {{ marriage_debt_formset.management_form }}
+            <table id="{{ marriage_debt_formset.prefix }}-table" class="table table-bordered pdf-table" style="margin-top:12px;">
+              <thead>
+                <tr>
+                  <th>Category and Details</th>
+                  <th>Comments</th>
+                  <th>Document Number</th>
+                  <th colspan="2">Applicant's Position</th>
+                  <th colspan="2">Respondent's Position</th>
+                </tr>
+                <tr>
+                  <th></th><th></th><th></th>
+                  <th>APPLICANT</th><th>RESPONDENT</th>
+                  <th>APPLICANT</th><th>RESPONDENT</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in marriage_debt_formset %}
+                {{ form.id }}
+                <tr>
+                  <td>{{ form.category_details|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.comments|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.document_number|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.applicant_position_applicant|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                  <td>{{ form.applicant_position_respondent|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                  <td>{{ form.respondent_position_applicant|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                  <td>{{ form.respondent_position_respondent|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                  <td class="del-cell">{% if form.DELETE %}<div class="delete-checkbox-hidden">{{ form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="totals-row">
+                  <td colspan="3">Total of Debts Items</td>
+                  <td>$<span id="marriage_debt_total_app_pos_app">0.00</span></td>
+                  <td>$<span id="marriage_debt_total_app_pos_resp">0.00</span></td>
+                  <td>$<span id="marriage_debt_total_resp_pos_app">0.00</span></td>
+                  <td>$<span id="marriage_debt_total_resp_pos_resp">0.00</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div class="land-controls">
+              <button type="button"
+                      class="btn-ghost js-add-row"
+                      data-prefix="{{ marriage_debt_formset.prefix }}">
+                + Add Row
+              </button>
+            </div>
+
+            <template class="js-empty-form" data-prefix="{{ marriage_debt_formset.prefix }}">
+              <tr>
+                {{ marriage_debt_formset.empty_form.id }}
+                <td>{{ marriage_debt_formset.empty_form.category_details|add_class:'form-control pdf-input' }}</td>
+                <td>{{ marriage_debt_formset.empty_form.comments|add_class:'form-control pdf-input' }}</td>
+                <td>{{ marriage_debt_formset.empty_form.document_number|add_class:'form-control pdf-input' }}</td>
+                <td>{{ marriage_debt_formset.empty_form.applicant_position_applicant|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                <td>{{ marriage_debt_formset.empty_form.applicant_position_respondent|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                <td>{{ marriage_debt_formset.empty_form.respondent_position_applicant|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                <td>{{ marriage_debt_formset.empty_form.respondent_position_respondent|add_class:'form-control pdf-input marriage_debt-money' }}</td>
+                <td class="del-cell">{% if marriage_debt_formset.empty_form.DELETE %}<div class="delete-checkbox-hidden">{{ marriage_debt_formset.empty_form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+              </tr>
+            </template>
+
+          </div>
+        </div>
+
+        <div class="totals-box">
+          <div class="title">Net Value of Property Owned on Date of Marriage (NET TOTAL 3)</div>
+          <div class="totals-grid">
+            <input id="net3_app_pos_app" type="text" class="form-control pdf-input" placeholder="$" readonly>
+            <input id="net3_app_pos_resp" type="text" class="form-control pdf-input" placeholder="$" readonly>
+            <input id="net3_resp_pos_app" type="text" class="form-control pdf-input" placeholder="$" readonly>
+            <input id="net3_resp_pos_resp" type="text" class="form-control pdf-input" placeholder="$" readonly>
+          </div>
+        </div>
+
+        <div class="section-label">
+          <span>4. Value of Property Excluded Under Subs. 4(2) of "Family Law Act"</span>
+        </div>
+
+        {{ excluded_property_formset.management_form }}
+        <div class="table-responsive mb-2">
+          <div class="table-shell">
+            <table id="{{ excluded_property_formset.prefix }}-table" class="table table-bordered pdf-table">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Comments</th>
+                  <th>Document Number</th>
+                  <th colspan="2">Applicant's Position</th>
+                  <th colspan="2">Respondent's Position</th>
+                </tr>
+                <tr>
+                  <th></th><th></th><th></th>
+                  <th>APPLICANT</th><th>RESPONDENT</th>
+                  <th>APPLICANT</th><th>RESPONDENT</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for form in excluded_property_formset %}
+                {{ form.id }}
+                <tr>
+                  <td>{{ form.item|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.comments|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.document_number|add_class:'form-control pdf-input' }}</td>
+                  <td>{{ form.applicant_position_applicant|add_class:'form-control pdf-input excluded_property-money' }}</td>
+                  <td>{{ form.applicant_position_respondent|add_class:'form-control pdf-input excluded_property-money' }}</td>
+                  <td>{{ form.respondent_position_applicant|add_class:'form-control pdf-input excluded_property-money' }}</td>
+                  <td>{{ form.respondent_position_respondent|add_class:'form-control pdf-input excluded_property-money' }}</td>
+                  <td class="del-cell">{% if form.DELETE %}<div class="delete-checkbox-hidden">{{ form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+                </tr>
+                {% endfor %}
+                <tr class="totals-row">
+                  <td colspan="3">Totals: Value of Excluded Property (TOTAL 4)</td>
+                  <td>$<span id="excluded_total_app_pos_app">0.00</span></td>
+                  <td>$<span id="excluded_total_app_pos_resp">0.00</span></td>
+                  <td>$<span id="excluded_total_resp_pos_app">0.00</span></td>
+                  <td>$<span id="excluded_total_resp_pos_resp">0.00</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="land-controls">
+            <button type="button"
+                    class="btn-ghost js-add-row"
+                    data-prefix="{{ excluded_property_formset.prefix }}">
+              + Add Row
+            </button>
+          </div>
+
+          <template class="js-empty-form" data-prefix="{{ excluded_property_formset.prefix }}">
+            <tr>
+              {{ excluded_property_formset.empty_form.id }}
+              <td>{{ excluded_property_formset.empty_form.item|add_class:'form-control pdf-input' }}</td>
+              <td>{{ excluded_property_formset.empty_form.comments|add_class:'form-control pdf-input' }}</td>
+              <td>{{ excluded_property_formset.empty_form.document_number|add_class:'form-control pdf-input' }}</td>
+              <td>{{ excluded_property_formset.empty_form.applicant_position_applicant|add_class:'form-control pdf-input excluded_property-money' }}</td>
+              <td>{{ excluded_property_formset.empty_form.applicant_position_respondent|add_class:'form-control pdf-input excluded_property-money' }}</td>
+              <td>{{ excluded_property_formset.empty_form.respondent_position_applicant|add_class:'form-control pdf-input excluded_property-money' }}</td>
+              <td>{{ excluded_property_formset.empty_form.respondent_position_respondent|add_class:'form-control pdf-input excluded_property-money' }}</td>
+              <td class="del-cell">{% if excluded_property_formset.empty_form.DELETE %}<div class="delete-checkbox-hidden">{{ excluded_property_formset.empty_form.DELETE }}</div><button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>{% endif %}</td>
+            </tr>
+          </template>
+        </div>
+
+        <div class="actions">
+          <button type="submit" name="prev" class="btn-modern">&larr; Previous</button>
+          <button type="submit" name="save_draft" class="btn-modern">Save Draft</button>
+          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Delete formset row function
+  function deleteFormsetRow(btn) {
+    const row = btn.closest('tr');
+    if (!row) return;
+    const checkbox = row.querySelector('input[type="checkbox"]');
+    if (checkbox) {
+      checkbox.checked = true;
+      row.style.display = 'none';
+      // Trigger recalculation
+      if (typeof updateTotals === 'function') {
+        updateTotals();
+      }
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+
+    function parseMoney(v){
+      if (!v) return 0;
+      v = (''+v).replace(/,/g,'').trim();
+      const n = parseFloat(v.replace(/[^0-9.\-]/g,''));
+      return isNaN(n) ? 0 : n;
+    }
+
+    function formatMoney(n){
+      return Number(n).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    function updatePage4Totals(){
+      // sum marriage property table
+      const propSums = [0,0,0,0];
+      document.querySelectorAll('.marriage_property-money').forEach(input=>{
+        if (input.closest('tr').style.display === 'none') return;
+        const idx = Array.from(input.parentNode.parentNode.children).indexOf(input.parentNode);
+        if (idx === 3) propSums[0] += parseMoney(input.value);
+        if (idx === 4) propSums[1] += parseMoney(input.value);
+        if (idx === 5) propSums[2] += parseMoney(input.value);
+        if (idx === 6) propSums[3] += parseMoney(input.value);
+      });
+      const ppIds = ['marriage_prop_total_app_pos_app','marriage_prop_total_app_pos_resp','marriage_prop_total_resp_pos_app','marriage_prop_total_resp_pos_resp'];
+      ppIds.forEach((id,i)=>{ const el=document.getElementById(id); if (el) el.textContent = formatMoney(propSums[i]); });
+
+      // sum marriage debts table
+      const debtSums = [0,0,0,0];
+      document.querySelectorAll('.marriage_debt-money').forEach(input=>{
+        if (input.closest('tr').style.display === 'none') return;
+        const idx = Array.from(input.parentNode.parentNode.children).indexOf(input.parentNode);
+        if (idx === 3) debtSums[0] += parseMoney(input.value);
+        if (idx === 4) debtSums[1] += parseMoney(input.value);
+        if (idx === 5) debtSums[2] += parseMoney(input.value);
+        if (idx === 6) debtSums[3] += parseMoney(input.value);
+      });
+      const dpIds = ['marriage_debt_total_app_pos_app','marriage_debt_total_app_pos_resp','marriage_debt_total_resp_pos_app','marriage_debt_total_resp_pos_resp'];
+      dpIds.forEach((id,i)=>{ const el=document.getElementById(id); if (el) el.textContent = formatMoney(debtSums[i]); });
+
+      // sum excluded property table (TOTAL 4)
+      const exclSums = [0,0,0,0];
+      document.querySelectorAll('.excluded_property-money').forEach(input=>{
+        if (input.closest('tr').style.display === 'none') return;
+        const idx = Array.from(input.parentNode.parentNode.children).indexOf(input.parentNode);
+        if (idx === 3) exclSums[0] += parseMoney(input.value);
+        if (idx === 4) exclSums[1] += parseMoney(input.value);
+        if (idx === 5) exclSums[2] += parseMoney(input.value);
+        if (idx === 6) exclSums[3] += parseMoney(input.value);
+      });
+      const epIds = ['excluded_total_app_pos_app','excluded_total_app_pos_resp','excluded_total_resp_pos_app','excluded_total_resp_pos_resp'];
+      epIds.forEach((id,i)=>{ const el=document.getElementById(id); if (el) el.textContent = formatMoney(exclSums[i]); });
+
+      // net = property - debts
+      const netIds = ['net3_app_pos_app','net3_app_pos_resp','net3_resp_pos_app','net3_resp_pos_resp'];
+      netIds.forEach((id,i)=>{ const el=document.getElementById(id); if (el) el.value = '$' + formatMoney(propSums[i] - debtSums[i]); });
+
+      // persist totals for page5: total3 (net on marriage), total4 (excluded), total5 (sum)
+      try{
+        const existing = JSON.parse(localStorage.getItem('nfp_section_totals') || '{}');
+        existing.total3 = [
+          propSums[0] - debtSums[0],
+          propSums[1] - debtSums[1],
+          propSums[2] - debtSums[2],
+          propSums[3] - debtSums[3]
+        ];
+        existing.total4 = exclSums.slice();
+        existing.total5 = [
+          existing.total3[0] + existing.total4[0],
+          existing.total3[1] + existing.total4[1],
+          existing.total3[2] + existing.total4[2],
+          existing.total3[3] + existing.total4[3]
+        ];
+        localStorage.setItem('nfp_section_totals', JSON.stringify(existing));
+      }catch(e){ console.error('persist page4 totals', e); }
+    }
+
+    // ADD ROW (works even if your formset prefix is not what you expected)
+    document.querySelectorAll(".js-add-row").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const prefix = btn.dataset.prefix;
+        if (!prefix) return;
+
+        const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+        const table = document.getElementById(`${prefix}-table`);
+        const tpl = document.querySelector(`template.js-empty-form[data-prefix="${prefix}"]`);
+
+        if (!totalForms || !table || !tpl) {
+          console.error("Add row failed", {
+            prefix,
+            hasTotalForms: !!totalForms,
+            hasTable: !!table,
+            hasTpl: !!tpl
+          });
+          return;
+        }
+
+        const idx = parseInt(totalForms.value || "0", 10);
+        const html = tpl.innerHTML.replace(/__prefix__/g, idx);
+
+        const totalsRow = table.querySelector("tbody .totals-row");
+        if (totalsRow) totalsRow.insertAdjacentHTML("beforebegin", html);
+        else table.querySelector("tbody").insertAdjacentHTML("beforeend", html);
+
+        totalForms.value = idx + 1;
+        // after adding a row, recompute page4 totals
+        updatePage4Totals();
+      });
+    });
+
+    // OPTIONAL: If you later add DELETE checkboxes to these formsets,
+    // this will hide rows when DELETE is checked.
+    document.addEventListener("change", (e) => {
+      if (!e.target.matches('input[type="checkbox"][name$="-DELETE"]')) return;
+      const row = e.target.closest("tr");
+      if (!row) return;
+      row.style.display = e.target.checked ? "none" : "";
+      updatePage4Totals();
+    });
+
+    // Update marriage totals on input changes
+    document.addEventListener('input', (e)=>{
+      const el = e.target;
+      if (!el || !el.classList) return;
+      if (
+        el.classList.contains('marriage_property-money') ||
+        el.classList.contains('marriage_debt-money') ||
+        el.classList.contains('excluded_property-money')
+      ){
+        updatePage4Totals();
+      }
+    });
+
+    // initial compute
+    updatePage4Totals();
+
+  });
+</script>
+
+<script>
+  (function(){
+    const pk = '{{ pk|default:"" }}';
+    const key = 'comparison_nfp_draft_' + (pk ? pk : 'temp');
+    const form = document.querySelector('form');
+    if (!form) return;
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    async function saveDraft(){
+      try{
+        const data = {};
+        form.querySelectorAll('input, textarea, select').forEach(el=>{
+          if (!el.name) return;
+          if (el.type === 'checkbox' || el.type === 'radio'){
+            if (el.checked) data[el.name] = el.value;
+          } else {
+            data[el.name] = el.value;
+          }
+        });
+        localStorage.setItem(key, JSON.stringify(data));
+
+        if (pk){
+          try{
+            await fetch(`/forms/comparison-nfp/${pk}/draft/`, {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+              },
+              body: JSON.stringify(data),
+            });
+          }catch(err){ console.warn('server draft save failed', err); }
+        }
+      }catch(e){ console.error('save draft page4', e); }
+    }
+
+    try{
+      const raw = localStorage.getItem(key);
+      if (raw){
+        const data = JSON.parse(raw);
+        for (const name in data){
+          const el = form.querySelector('[name="'+name+'"]');
+          if (!el) continue;
+          if (!el.value) el.value = data[name];
+          if ((el.type === 'checkbox' || el.type === 'radio') && data[name] !== undefined){ el.checked = true; }
+        }
+      }
+    }catch(e){ /* ignore */ }
+
+    let t = null;
+    form.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(saveDraft, 600); });
+    window.addEventListener('beforeunload', saveDraft);
+  })();
+</script>
+
+{% endblock %}

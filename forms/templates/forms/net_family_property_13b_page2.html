@@ -1,0 +1,839 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1180px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header .left h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header .left p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  .topbar{
+    display:grid;
+    grid-template-columns: 1fr auto 300px;
+    gap: 12px;
+    align-items:start;
+    margin-bottom: 14px;
+  }
+  .topbar .left{
+    font-weight: 950;
+    color: var(--text);
+    font-size: 15px;
+    letter-spacing: -.01em;
+  }
+  .topbar .center{
+    font-weight: 900;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    margin-top: 2px;
+    text-align:center;
+    padding: 6px 10px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    border-radius: 8px;
+    height: fit-content;
+  }
+  .court-file{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 12px;
+  }
+  .court-file label{
+    display:block;
+    font-size: 12px;
+    font-weight: 950;
+    color: var(--muted);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .fake{
+    height: 42px;
+    border: 1px dashed var(--line2);
+    border-radius: 8px;
+    background: rgba(248,250,252,.85);
+  }
+  .court-file-value{
+    min-height: 42px;
+    border: 1px solid var(--line2);
+    border-radius: 8px;
+    background: rgba(248,250,252,.85);
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .section-label{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap: 10px;
+    margin: 16px 0 10px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .section-label:before,
+  .section-label:after{
+    content:"";
+    height: 1px;
+    background: var(--line);
+    flex: 1;
+  }
+  .section-label span{
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+    letter-spacing: .02em;
+    text-transform:none;
+    font-weight: 950;
+    font-size: 13px;
+    text-align:center;
+  }
+
+  .table-sub{
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: -2px;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+
+  .pdf-input{
+    width: 100%;
+    height: 42px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background:#fff;
+    padding: 8px 12px !important;
+    font-size: 0.95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .pdf-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+
+  .money .input-group-text{
+    border-radius: 8px 0 0 12px !important;
+    border: 1px solid var(--line2) !important;
+    background: rgba(248,250,252,.95);
+    font-weight: 900;
+    color: var(--muted);
+  }
+  .money .form-control{
+    border-left: 0 !important;
+    border-radius: 0 12px 12px 0 !important;
+  }
+
+  .table-shell{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+  }
+
+  table.pdf-table{
+    width:100%;
+    margin:0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .95rem;
+  }
+
+  table.pdf-table thead th{
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgba(248,250,252,.98);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line) !important;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    padding: 12px 12px;
+    white-space: nowrap;
+  }
+
+  table.pdf-table td{
+    border-bottom: 1px solid var(--line) !important;
+    padding: 12px 12px;
+    vertical-align: middle;
+    color: var(--text);
+  }
+
+  table.pdf-table tbody tr:nth-child(odd) td{ background: rgba(248,250,252,.65); }
+  table.pdf-table tbody tr:hover td{ background: rgba(var(--indigo), .06); transition: background .12s ease; }
+
+  .total-row td{
+    background: rgba(15,23,42,.04) !important;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: 12px;
+  }
+
+  .net-row td{
+    background: rgba(var(--indigo), .10) !important;
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+    font-size: 12px;
+  }
+
+  .form-check input[type="checkbox"]{
+    width: 18px;
+    height: 18px;
+    accent-color: rgb(var(--indigo));
+  }
+
+  /* Delete button styling */
+  .btn-delete-row {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.15s ease;
+  }
+  .btn-delete-row:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+  .delete-checkbox-hidden {
+    display: none !important;
+  }
+
+  /* ✅ Add Row button BELOW tables */
+  .add-row-below{
+    display:flex;
+    justify-content:flex-end;
+    margin-top: 10px;
+  }
+  .btn-add-row{
+    border-radius: 10px;
+    padding: 9px 14px;
+    font-weight: 950;
+    border: 1px solid rgba(var(--indigo), .35);
+    background: rgba(var(--indigo), .08);
+    color: var(--text);
+    box-shadow: 0 10px 22px rgba(2,6,23,.08);
+    cursor: pointer;
+  }
+  .btn-add-row:hover{ filter: brightness(1.02); }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{
+    filter: brightness(1.03);
+    box-shadow: 0 18px 40px rgba(79,70,229,.28);
+    color:#fff;
+  }
+
+  @media (max-width: 992px){
+    .topbar{ grid-template-columns: 1fr; }
+    .topbar .center{ justify-self:start; text-align:left; }
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+    <div class="page-header">
+      <div class="left">
+        <h1>Form 13B — Net Family Property Statement</h1>
+        <p>Debts &amp; liabilities (Table 2) and marriage-date net value (Table 3).</p>
+      </div>
+      <div class="badge-soft">Page 2</div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="topbar">
+          <div class="left">Form 13B: Net Family Property Statement</div>
+          <div class="center">(page 2)</div>
+          <div class="court-file">
+            <label>Court File Number</label>
+            <div class="court-file-value">{{ statement.court_file_number|default:"—" }}</div>
+          </div>
+        </div>
+
+        <!-- TABLE 2 -->
+        <div class="section-label">
+          <span>Table 2 — Value of debts and liabilities on valuation date</span>
+        </div>
+        <div class="table-sub">(List in the order of the categories in the financial statement.)</div>
+
+        {{ debt_formset.management_form }}
+
+        <div class="table-shell">
+          <div class="table-responsive">
+            <table class="pdf-table" id="debt-table">
+              <thead>
+                <tr>
+                  <th style="width:70%">Item</th>
+                  <th style="width:13%" class="text-center">Applicant</th>
+                  <th style="width:13%" class="text-center">Respondent</th>
+                  <th style="width:4%" class="text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="debt-tbody">
+                {% for debt_form in debt_formset %}
+                {{ debt_form.id }}
+                <tr>
+                  <td>{{ debt_form.item|add_class:"form-control pdf-input" }}</td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ debt_form.applicant_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ debt_form.respondent_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    {% if debt_formset.can_delete %}
+                    <div class="delete-checkbox-hidden">
+                      {{ debt_form.DELETE }}
+                    </div>
+                    <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+
+                <tr class="total-row" id="debt-total-row">
+                  <td class="text-end">Total 2</td>
+                  <td class="text-center"><span id="total2-app">${{ totals.total2_app|floatformat:2|default:"0.00" }}</span></td>
+                  <td class="text-center"><span id="total2-resp">${{ totals.total2_resp|floatformat:2|default:"0.00" }}</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ✅ Add Row BELOW Table 2 -->
+        <div class="add-row-below">
+          <button type="button" class="btn-add-row" id="add-debt-row">+ Add Row</button>
+        </div>
+
+        <!-- TABLE 3 -->
+        <div class="section-label" style="margin-top:18px;">
+          <span>Table 3 — Net value on date of marriage of property (other than a matrimonial home)</span>
+        </div>
+        <div class="table-sub">
+          After deducting debts or other liabilities on date of marriage (other than those relating directly
+          to the purchase or significant improvement of a matrimonial home).
+        </div>
+
+        <!-- 3(a) Property items -->
+        <div class="table-shell mb-3">
+          {{ marriage_property_formset.management_form }}
+          <div class="table-responsive">
+            <table class="pdf-table" id="mprop-table">
+              <thead>
+                <tr>
+                  <th style="width:10%">3(a)</th>
+                  <th style="width:60%">Property item</th>
+                  <th style="width:13%" class="text-center">Applicant</th>
+                  <th style="width:13%" class="text-center">Respondent</th>
+                  <th style="width:4%" class="text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="mprop-tbody">
+                {% for prop_form in marriage_property_formset %}
+                {{ prop_form.id }}
+                <tr>
+                  <td></td>
+                  <td>{{ prop_form.item|add_class:"form-control pdf-input" }}</td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ prop_form.applicant_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ prop_form.respondent_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    {% if marriage_property_formset.can_delete %}
+                    <div class="delete-checkbox-hidden">
+                      {{ prop_form.DELETE }}
+                    </div>
+                    <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+
+                <tr class="total-row" id="mprop-total-row">
+                  <td></td>
+                  <td class="text-end">Total of property items</td>
+                  <td class="text-center"><span id="mprop-app">${{ totals.mprop_app|floatformat:2|default:"0.00" }}</span></td>
+                  <td class="text-center"><span id="mprop-resp">${{ totals.mprop_resp|floatformat:2|default:"0.00" }}</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ✅ Add Row BELOW Table 3(a) -->
+        <div class="add-row-below">
+          <button type="button" class="btn-add-row" id="add-mprop-row">+ Add Row (3a)</button>
+        </div>
+
+        <!-- 3(b) Debt items -->
+        <div class="table-shell">
+          {{ marriage_debt_formset.management_form }}
+          <div class="table-responsive">
+            <table class="pdf-table" id="mdebt-table">
+              <thead>
+                <tr>
+                  <th style="width:10%">3(b)</th>
+                  <th style="width:60%">Debt item</th>
+                  <th style="width:13%" class="text-center">Applicant</th>
+                  <th style="width:13%" class="text-center">Respondent</th>
+                  <th style="width:4%" class="text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="mdebt-tbody">
+                {% for mdebt_form in marriage_debt_formset %}
+                {{ mdebt_form.id }}
+                <tr>
+                  <td></td>
+                  <td>{{ mdebt_form.item|add_class:"form-control pdf-input" }}</td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ mdebt_form.applicant_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="money">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ mdebt_form.respondent_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    {% if marriage_debt_formset.can_delete %}
+                    <div class="delete-checkbox-hidden">
+                      {{ mdebt_form.DELETE }}
+                    </div>
+                    <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+
+                <tr class="total-row" id="mdebt-total-row">
+                  <td></td>
+                  <td class="text-end">Total of debt items</td>
+                  <td class="text-center"><span id="mdebt-app">${{ totals.mdebt_app|floatformat:2|default:"0.00" }}</span></td>
+                  <td class="text-center"><span id="mdebt-resp">${{ totals.mdebt_resp|floatformat:2|default:"0.00" }}</span></td>
+                  <td></td>
+                </tr>
+
+                <tr class="net-row" id="mdebt-net-row">
+                  <td></td>
+                  <td class="text-end">Net total 3 (3(a) minus 3(b))</td>
+                  <td class="text-center"><span id="total3-app">${{ totals.total3_app|floatformat:2|default:"0.00" }}</span></td>
+                  <td class="text-center"><span id="total3-resp">${{ totals.total3_resp|floatformat:2|default:"0.00" }}</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ✅ Add Row BELOW Table 3(b) -->
+        <div class="add-row-below">
+          <button type="button" class="btn-add-row" id="add-mdebt-row">+ Add Row (3b)</button>
+        </div>
+
+        <div class="actions">
+          <button type="submit" name="prev" class="btn-modern">&larr; Previous</button>
+          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ✅ Row templates -->
+<template id="tpl-debt">
+  <tr>
+    <td>__ITEM__</td>
+    <td class="money"><div class="input-group"><span class="input-group-text">$</span>__A__</div></td>
+    <td class="money"><div class="input-group"><span class="input-group-text">$</span>__R__</div></td>
+    <td class="text-center">__DEL__</td>
+  </tr>
+</template>
+
+<template id="tpl-mprop">
+  <tr>
+    <td></td>
+    <td>__ITEM__</td>
+    <td class="money"><div class="input-group"><span class="input-group-text">$</span>__A__</div></td>
+    <td class="money"><div class="input-group"><span class="input-group-text">$</span>__R__</div></td>
+    <td class="text-center">__DEL__</td>
+  </tr>
+</template>
+
+<template id="tpl-mdebt">
+  <tr>
+    <td></td>
+    <td>__ITEM__</td>
+    <td class="money"><div class="input-group"><span class="input-group-text">$</span>__A__</div></td>
+    <td class="money"><div class="input-group"><span class="input-group-text">$</span>__R__</div></td>
+    <td class="text-center">__DEL__</td>
+  </tr>
+</template>
+
+<script>
+// Delete row function for formset rows
+function deleteFormsetRow(btn) {
+  var row = btn.closest('tr');
+  var checkbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+  if (checkbox) {
+    checkbox.checked = true;
+  }
+  row.style.display = 'none';
+  if (typeof calculateAllTotals === 'function') calculateAllTotals();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  function hookAddRow({ prefix, btnId, tbodyId, insertBeforeId, templateId, emptyFormId }) {
+    const btn = document.getElementById(btnId);
+    const tbody = document.getElementById(tbodyId);
+    const insertBeforeRow = document.getElementById(insertBeforeId);
+    const totalForms = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+    const tpl = document.getElementById(templateId);
+    const emptyBlock = document.getElementById(emptyFormId);
+
+    if (!btn || !tbody || !insertBeforeRow || !totalForms || !tpl || !emptyBlock) return;
+
+    btn.addEventListener("click", () => {
+      const idx = parseInt(totalForms.value, 10);
+
+      const itemHtml = emptyBlock.querySelector('[data-field="item"]').innerHTML.replace(/__prefix__/g, idx);
+      const aHtml    = emptyBlock.querySelector('[data-field="a"]').innerHTML.replace(/__prefix__/g, idx);
+      const rHtml    = emptyBlock.querySelector('[data-field="r"]').innerHTML.replace(/__prefix__/g, idx);
+      const delHtml  = emptyBlock.querySelector('[data-field="del"]')?.innerHTML.replace(/__prefix__/g, idx) || "";
+
+      const rowHtml = tpl.innerHTML
+        .replace("__ITEM__", itemHtml)
+        .replace("__A__", aHtml)
+        .replace("__R__", rHtml)
+        .replace("__DEL__", delHtml);
+
+      insertBeforeRow.insertAdjacentHTML("beforebegin", rowHtml);
+      totalForms.value = idx + 1;
+      // Recalculate totals after adding row
+      setTimeout(calculateAllTotals, 100);
+    });
+  }
+
+  hookAddRow({
+    prefix: "debt",
+    btnId: "add-debt-row",
+    tbodyId: "debt-tbody",
+    insertBeforeId: "debt-total-row",
+    templateId: "tpl-debt",
+    emptyFormId: "empty-debt-form"
+  });
+
+  hookAddRow({
+    prefix: "mprop",
+    btnId: "add-mprop-row",
+    tbodyId: "mprop-tbody",
+    insertBeforeId: "mprop-total-row",
+    templateId: "tpl-mprop",
+    emptyFormId: "empty-mprop-form"
+  });
+
+  hookAddRow({
+    prefix: "mdebt",
+    btnId: "add-mdebt-row",
+    tbodyId: "mdebt-tbody",
+    insertBeforeId: "mdebt-total-row",
+    templateId: "tpl-mdebt",
+    emptyFormId: "empty-mdebt-form"
+  });
+
+  // Calculate totals from table rows - using position-based approach
+  function sumTableValues(tbodyId) {
+    let totalApp = 0;
+    let totalResp = 0;
+    
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return { app: 0, resp: 0 };
+    
+    const rows = tbody.querySelectorAll('tr:not(.total-row):not(.net-row)');
+    rows.forEach(row => {
+      // Skip deleted/hidden rows
+      const deleteCheck = row.querySelector('input[type="checkbox"]');
+      if (deleteCheck && deleteCheck.checked) return;
+      if (row.style.display === 'none') return;
+      
+      // Get inputs by position in cells (item is first text input, then app value, then resp value)
+      const cells = row.querySelectorAll('td');
+      // For debt table: item(0), app(1), resp(2), delete(3)
+      // For mprop/mdebt: empty(0), item(1), app(2), resp(3), delete(4)
+      let appCell, respCell;
+      
+      if (cells.length === 4) {
+        // debt table structure
+        appCell = cells[1];
+        respCell = cells[2];
+      } else if (cells.length >= 5) {
+        // mprop/mdebt table structure
+        appCell = cells[2];
+        respCell = cells[3];
+      }
+      
+      if (appCell) {
+        const appInput = appCell.querySelector('input[type="number"], input[type="text"]');
+        if (appInput && appInput.value) {
+          totalApp += parseFloat(appInput.value) || 0;
+        }
+      }
+      if (respCell) {
+        const respInput = respCell.querySelector('input[type="number"], input[type="text"]');
+        if (respInput && respInput.value) {
+          totalResp += parseFloat(respInput.value) || 0;
+        }
+      }
+    });
+    
+    return { app: totalApp, resp: totalResp };
+  }
+
+  function calculateAllTotals() {
+    // Total 2 - Debts
+    const total2 = sumTableValues('debt-tbody');
+    const t2app = document.getElementById('total2-app');
+    const t2resp = document.getElementById('total2-resp');
+    if (t2app) t2app.textContent = '$' + total2.app.toFixed(2);
+    if (t2resp) t2resp.textContent = '$' + total2.resp.toFixed(2);
+    
+    // Marriage Property totals
+    const mprop = sumTableValues('mprop-tbody');
+    const mpApp = document.getElementById('mprop-app');
+    const mpResp = document.getElementById('mprop-resp');
+    if (mpApp) mpApp.textContent = '$' + mprop.app.toFixed(2);
+    if (mpResp) mpResp.textContent = '$' + mprop.resp.toFixed(2);
+    
+    // Marriage Debt totals
+    const mdebt = sumTableValues('mdebt-tbody');
+    const mdApp = document.getElementById('mdebt-app');
+    const mdResp = document.getElementById('mdebt-resp');
+    if (mdApp) mdApp.textContent = '$' + mdebt.app.toFixed(2);
+    if (mdResp) mdResp.textContent = '$' + mdebt.resp.toFixed(2);
+    
+    // Total 3 - Net (Property - Debt)
+    const total3App = mprop.app - mdebt.app;
+    const total3Resp = mprop.resp - mdebt.resp;
+    const t3app = document.getElementById('total3-app');
+    const t3resp = document.getElementById('total3-resp');
+    if (t3app) t3app.textContent = '$' + total3App.toFixed(2);
+    if (t3resp) t3resp.textContent = '$' + total3Resp.toFixed(2);
+  }
+
+  // Recalculate on any input change within the form
+  document.addEventListener('input', (e) => {
+    if (e.target.closest && (e.target.closest('#debt-table') || e.target.closest('#mprop-table') || e.target.closest('#mdebt-table'))) {
+      calculateAllTotals();
+    }
+  });
+
+  // Handle delete checkbox changes
+  document.addEventListener('change', (e) => {
+    if (!e.target.matches('input[type="checkbox"]')) return;
+    const row = e.target.closest("tr");
+    if (!row) return;
+    if (e.target.name && e.target.name.includes('-DELETE')) {
+      row.style.display = e.target.checked ? "none" : "";
+      calculateAllTotals();
+    }
+  });
+
+  // Initial calculation
+  calculateAllTotals();
+
+});
+</script>
+
+<!-- ✅ Hidden empty forms -->
+<div style="display:none;">
+  <div id="empty-debt-form">
+    <span data-field="item">{{ debt_formset.empty_form.item|add_class:"form-control pdf-input" }}</span>
+    <span data-field="a">{{ debt_formset.empty_form.applicant_value|add_class:"form-control pdf-input text-end" }}</span>
+    <span data-field="r">{{ debt_formset.empty_form.respondent_value|add_class:"form-control pdf-input text-end" }}</span>
+    <span data-field="del">
+      {% if debt_formset.can_delete %}
+        <div class="delete-checkbox-hidden">
+          {{ debt_formset.empty_form.DELETE }}
+        </div>
+        <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+      {% endif %}
+    </span>
+  </div>
+
+  <div id="empty-mprop-form">
+    <span data-field="item">{{ marriage_property_formset.empty_form.property_item|add_class:"form-control pdf-input" }}</span>
+    <span data-field="a">{{ marriage_property_formset.empty_form.applicant_value|add_class:"form-control pdf-input text-end" }}</span>
+    <span data-field="r">{{ marriage_property_formset.empty_form.respondent_value|add_class:"form-control pdf-input text-end" }}</span>
+    <span data-field="del">
+      {% if marriage_property_formset.can_delete %}
+        <div class="delete-checkbox-hidden">
+          {{ marriage_property_formset.empty_form.DELETE }}
+        </div>
+        <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+      {% endif %}
+    </span>
+  </div>
+
+  <div id="empty-mdebt-form">
+    <span data-field="item">{{ marriage_debt_formset.empty_form.debt_item|add_class:"form-control pdf-input" }}</span>
+    <span data-field="a">{{ marriage_debt_formset.empty_form.applicant_value|add_class:"form-control pdf-input text-end" }}</span>
+    <span data-field="r">{{ marriage_debt_formset.empty_form.respondent_value|add_class:"form-control pdf-input text-end" }}</span>
+    <span data-field="del">
+      {% if marriage_debt_formset.can_delete %}
+        <div class="delete-checkbox-hidden">
+          {{ marriage_debt_formset.empty_form.DELETE }}
+        </div>
+        <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+      {% endif %}
+    </span>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}Confirm Permanent Delete{% endblock %}
+
+{% block content %}
+<style>
+  .confirm-card {
+    max-width: 500px;
+    margin: 40px auto;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  
+  .confirm-header {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    padding: 24px;
+    text-align: center;
+    color: white;
+  }
+  
+  .confirm-header .icon {
+    font-size: 48px;
+    margin-bottom: 12px;
+  }
+  
+  .confirm-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 800;
+  }
+  
+  .confirm-body {
+    padding: 24px;
+  }
+  
+  .warning-text {
+    background: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    color: #991b1b;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  
+  .item-info {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .item-info h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    font-weight: 700;
+  }
+  
+  .item-info p {
+    margin: 8px 0;
+    font-size: 14px;
+    color: #334155;
+  }
+  
+  .item-info p strong {
+    color: #0f172a;
+  }
+  
+  .btn-row {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  
+  .btn-cancel {
+    padding: 12px 24px;
+    background: #f1f5f9;
+    color: #475569;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  
+  .btn-cancel:hover {
+    background: #e2e8f0;
+    color: #334155;
+  }
+  
+  .btn-confirm-delete {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-confirm-delete:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+  }
+</style>
+
+<div class="confirm-card">
+  <div class="confirm-header">
+    <div class="icon">⚠️</div>
+    <h2>Permanently Delete?</h2>
+  </div>
+  
+  <div class="confirm-body">
+    <div class="warning-text">
+      <strong>Warning:</strong> This action cannot be undone. The form and all associated data will be permanently removed from the database.
+    </div>
+    
+    <div class="item-info">
+      <h4>Item Details</h4>
+      <p><strong>Type:</strong> 
+        {% if form_type == 'financial' %}
+          Financial Statement (Form 13)
+        {% elif form_type == '13b' %}
+          Net Family Property (Form 13B)
+        {% elif form_type == 'comparison' %}
+          Comparison of Net Family Property (Form 13C)
+        {% endif %}
+      </p>
+      <p><strong>ID:</strong> #{{ item.id }}</p>
+      {% if item.court_file_number %}
+      <p><strong>Court File #:</strong> {{ item.court_file_number }}</p>
+      {% endif %}
+      {% if item.applicant_name %}
+      <p><strong>Applicant:</strong> {{ item.applicant_name }}</p>
+      {% endif %}
+      {% if item.deleted_at %}
+      <p><strong>Deleted:</strong> {{ item.deleted_at|timesince }} ago</p>
+      {% endif %}
+    </div>
+    
+    <div class="btn-row">
+      <a href="{% url 'recycle_bin' %}" class="btn-cancel">Cancel</a>
+      <form method="post" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="btn-confirm-delete"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>Delete Permanently</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,938 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1200px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(var(--green),.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(var(--green),.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-title{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .panel-sub{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    max-width: 920px;
+    line-height: 1.35;
+  }
+  .panel-pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 992px){
+    .grid-2{ grid-template-columns: 1fr; }
+  }
+
+  .ui-input{
+    width:100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 10px 12px !important;
+    font-size: .95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .ui-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+  .ui-input.sm{ height: 42px; border-radius: 8px !important; }
+
+  .money-input{
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table-wrap{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  }
+  .modern-table{
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: .93rem;
+  }
+  .modern-table thead th{
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.55);
+  }
+
+  .kpi{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px dashed var(--line2);
+    border-radius: 8px;
+    background: rgba(248,250,252,.8);
+    margin-top: 12px;
+    flex-wrap: wrap;
+  }
+  .kpi strong{ font-weight: 950; }
+  .kpi span{ color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{ filter: brightness(1.03); color:#fff; }
+  .btn-secondary-modern{
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+  }
+
+  /* Delete button styling */
+  .btn-delete-row {
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.15s ease;
+  }
+  .btn-delete-row:hover {
+    background: #dc2626;
+    transform: scale(1.1);
+  }
+  .btn-add-row {
+    border: 1px dashed var(--line2);
+    background: rgba(255,255,255,.9);
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 700;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 13px;
+    margin-top: 10px;
+    transition: all 0.15s ease;
+  }
+  .btn-add-row:hover {
+    border-color: rgba(var(--indigo), .55);
+    box-shadow: 0 6px 16px rgba(2,6,23,.08);
+  }
+  .del-col { width: 50px; text-align: center; }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+
+    <div class="page-header">
+      <div>
+        <h1>Financial Statement (Support Claims)</h1>
+        <p>Page 5 • Assets (continued) • Total value of all property</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if statement.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ statement.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Page 5</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div id="autosave-indicator" style="position:fixed; top:10px; right:10px; padding:8px 16px; background:rgba(34,197,94,.9); color:#fff; border-radius:8px; font-weight:700; font-size:13px; display:none; z-index:9999;">Saved</div>
+
+        <script>
+        (function(){
+          function parseNum(val) {
+            if (!val) return 0;
+            val = (''+val).replace(/[^\d.\-]/g, '');
+            var n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+          }
+          function updateTotalPropertyValue() {
+            var sum = 0;
+            // Sum all money-input fields (all asset values)
+            document.querySelectorAll('.money-input').forEach(function(inp){
+              if (inp.name !== 'total_value_all_property') {
+                sum += parseNum(inp.value);
+              }
+            });
+            var total = document.getElementById('total_value_all_property');
+            if (total) {
+              total.value = sum.toFixed(2);
+              // Save to localStorage for page 6 to read
+              try {
+                localStorage.setItem('total_value_all_property', sum.toFixed(2));
+              } catch(e) {}
+            }
+          }
+
+          // --- AUTOSAVE LOGIC ---
+          var autosaveTimeout = null;
+          var indicator = null;
+          function showIndicator(text, color) {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              indicator.textContent = text;
+              indicator.style.background = color;
+              indicator.style.display = 'block';
+            }
+          }
+          function hideIndicator() {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) indicator.style.display = 'none';
+          }
+          function autosaveForm() {
+            var form = document.querySelector('form');
+            if (!form) return;
+            showIndicator('Saving...', 'rgba(99,102,241,.9)');
+            var formData = new FormData(form);
+            var csrfToken = formData.get('csrfmiddlewaretoken');
+            fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+              },
+              body: formData
+            })
+            .then(function(response) {
+              if (response.ok) {
+                showIndicator('Saved', 'rgba(34,197,94,.9)');
+                setTimeout(hideIndicator, 1500);
+              } else {
+                showIndicator('Error', 'rgba(239,68,68,.9)');
+                setTimeout(hideIndicator, 2000);
+              }
+            })
+            .catch(function() {
+              showIndicator('Error', 'rgba(239,68,68,.9)');
+              setTimeout(hideIndicator, 2000);
+            });
+          }
+          function scheduleAutosave() {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(function(){
+              updateTotalPropertyValue();
+              autosaveForm();
+            }, 800);
+          }
+
+          // Listen for input changes
+          document.addEventListener('input', function(e){
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+              updateTotalPropertyValue();
+              scheduleAutosave();
+            }
+          });
+          // Initial calculation on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            updateTotalPropertyValue();
+          });
+        })();
+        </script>
+
+        <div class="grid-2">
+
+          <!-- LEFT COLUMN -->
+          <div>
+
+            <!-- Other possessions -->
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Other possessions of value</h3>
+                  <div class="panel-sub">e.g. computers, jewellery, collections</div>
+                </div>
+                <div class="panel-pill">Value</div>
+              </div>
+
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="possession-table">
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th style="width:220px;">Value</th>
+                        <th class="del-col">X</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="possession_address_1" value="{{ possession_address_1 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="possession_value_1" value="{{ possession_value_1 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'possession')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="possession_address_2" value="{{ possession_address_2 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="possession_value_2" value="{{ possession_value_2 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'possession')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="possession_address_3" value="{{ possession_address_3 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="possession_value_3" value="{{ possession_value_3 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'possession')" title="Delete">&times;</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <button type="button" class="btn-add-row" onclick="addRow('possession')">+ Add Row</button>
+            </div>
+
+            <!-- Investments -->
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Investments</h3>
+                  <div class="panel-sub">e.g. bonds, shares, term deposits, mutual funds</div>
+                </div>
+                <div class="panel-pill">Value</div>
+              </div>
+
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="investment-table">
+                    <thead>
+                      <tr>
+                        <th>Description</th>
+                        <th style="width:220px;">Value</th>
+                        <th class="del-col">X</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="investment_details_1" value="{{ investment_details_1 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="investment_value_1" value="{{ investment_value_1 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'investment')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="investment_details_2" value="{{ investment_details_2 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="investment_value_2" value="{{ investment_value_2 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'investment')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="investment_details_3" value="{{ investment_details_3 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="investment_value_3" value="{{ investment_value_3 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'investment')" title="Delete">&times;</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <button type="button" class="btn-add-row" onclick="addRow('investment')">+ Add Row</button>
+            </div>
+
+            <!-- Bank accounts -->
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Bank accounts</h3>
+                  <div class="panel-sub">Name & address of institution, account number, and current value.</div>
+                </div>
+                <div class="panel-pill">Value</div>
+              </div>
+
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="bank-table">
+                    <thead>
+                      <tr>
+                        <th></th>
+                        <th style="width:240px;">Name & address of institution    Account number</th>
+                        <th style="width:200px;">Value</th>
+                        <th class="del-col">X</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="bank_institution_1" value="{{ bank_institution_1 }}"></td>
+                        <td><input class="form-control ui-input sm" type="text" name="bank_account_number_1" value="{{ bank_account_number_1 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="bank_value_1" value="{{ bank_value_1 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'bank')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="bank_institution_2" value="{{ bank_institution_2 }}"></td>
+                        <td><input class="form-control ui-input sm" type="text" name="bank_account_number_2" value="{{ bank_account_number_2 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="bank_value_2" value="{{ bank_value_2 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'bank')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="bank_institution_3" value="{{ bank_institution_3 }}"></td>
+                        <td><input class="form-control ui-input sm" type="text" name="bank_account_number_3" value="{{ bank_account_number_3 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="bank_value_3" value="{{ bank_value_3 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'bank')" title="Delete">&times;</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <button type="button" class="btn-add-row" onclick="addRow('bank')">+ Add Row</button>
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN -->
+          <div>
+
+            <!-- Savings plans -->
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Savings plans</h3>
+                  <div class="panel-sub">R.R.S.P.s • Pension plans • R.E.S.P.s</div>
+                </div>
+                <div class="panel-pill">Value</div>
+              </div>
+
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="savings-table">
+                    <thead>
+                      <tr>
+                        <th>Type and issuer</th>
+                        <th style="width:240px;">Account number</th>
+                        <th style="width:200px;">Value</th>
+                        <th class="del-col">X</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="savings_type_1" value="{{ savings_type_1 }}"></td>
+                        <td><input class="form-control ui-input sm" type="text" name="savings_account_1" value="{{ savings_account_1 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="savings_value_1" value="{{ savings_value_1 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'savings')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="savings_type_2" value="{{ savings_type_2 }}"></td>
+                        <td><input class="form-control ui-input sm" type="text" name="savings_account_2" value="{{ savings_account_2 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="savings_value_2" value="{{ savings_value_2 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'savings')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="savings_type_3" value="{{ savings_type_3 }}"></td>
+                        <td><input class="form-control ui-input sm" type="text" name="savings_account_3" value="{{ savings_account_3 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="savings_value_3" value="{{ savings_value_3 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'savings')" title="Delete">&times;</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <button type="button" class="btn-add-row" onclick="addRow('savings')">+ Add Row</button>
+            </div>
+
+            <!-- Life insurance -->
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Life insurance</h3>
+                  <div class="panel-sub">Type – Beneficiary – Face amount • Cash surrender value</div>
+                </div>
+                <div class="panel-pill">Value</div>
+              </div>
+
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="insurance-table">
+                    <thead>
+                      <tr>
+                        <th>Policy details</th>
+                        <th style="width:220px;">Cash surrender value</th>
+                        <th class="del-col">X</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="insurance_details_1" value="{{ insurance_details_1 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="insurance_cash_value_1" value="{{ insurance_cash_value_1 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'insurance')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="insurance_details_2" value="{{ insurance_details_2 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="insurance_cash_value_2" value="{{ insurance_cash_value_2 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'insurance')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="insurance_details_3" value="{{ insurance_details_3 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="insurance_cash_value_3" value="{{ insurance_cash_value_3 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'insurance')" title="Delete">&times;</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <button type="button" class="btn-add-row" onclick="addRow('insurance')">+ Add Row</button>
+            </div>
+
+            <!-- Interest in business -->
+            <div class="panel">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Interest in business</h3>
+                  <div class="panel-sub"><em>*Attach separate year-end statement for each business</em></div>
+                </div>
+                <div class="panel-pill">Value</div>
+              </div>
+
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="business-table">
+                    <thead>
+                      <tr>
+                        <th>Name and address of business</th>
+                        <th style="width:220px;">Value</th>
+                        <th class="del-col">X</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="business_name_address_1" value="{{ business_name_address_1 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="business_value_1" value="{{ business_value_1 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'business')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="business_name_address_2" value="{{ business_name_address_2 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="business_value_2" value="{{ business_value_2 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'business')" title="Delete">&times;</button></td>
+                      </tr>
+                      <tr>
+                        <td><input class="form-control ui-input sm" type="text" name="business_name_address_3" value="{{ business_name_address_3 }}"></td>
+                        <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="business_value_3" value="{{ business_value_3 }}"></td>
+                        <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'business')" title="Delete">&times;</button></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <button type="button" class="btn-add-row" onclick="addRow('business')">+ Add Row</button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Money owed to you + Other assets (full width) -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Money owed to you</h3>
+              <div class="panel-sub">e.g. court judgments, estate money, income tax refunds</div>
+            </div>
+            <div class="panel-pill">Value</div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table" id="money_owed-table">
+                <thead>
+                  <tr>
+                    <th>Name and address of debtors</th>
+                    <th style="width:220px;">Value</th>
+                    <th class="del-col">X</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input class="form-control ui-input sm" type="text" name="money_owed_debtor_1" value="{{ money_owed_debtor_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="money_owed_value_1" value="{{ money_owed_value_1 }}"></td>
+                    <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'money_owed')" title="Delete">&times;</button></td>
+                  </tr>
+                  <tr>
+                    <td><input class="form-control ui-input sm" type="text" name="money_owed_debtor_2" value="{{ money_owed_debtor_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="money_owed_value_2" value="{{ money_owed_value_2 }}"></td>
+                    <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'money_owed')" title="Delete">&times;</button></td>
+                  </tr>
+                  <tr>
+                    <td><input class="form-control ui-input sm" type="text" name="money_owed_debtor_3" value="{{ money_owed_debtor_3 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="money_owed_value_3" value="{{ money_owed_value_3 }}"></td>
+                    <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'money_owed')" title="Delete">&times;</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <button type="button" class="btn-add-row" onclick="addRow('money_owed')">+ Add Row</button>
+
+          <div style="height:12px;"></div>
+
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Other assets</h3>
+              <div class="panel-sub">Any other assets not listed above.</div>
+            </div>
+            <div class="panel-pill">Value</div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table" id="other_asset-table">
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th style="width:220px;">Value</th>
+                    <th class="del-col">X</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input class="form-control ui-input sm" type="text" name="other_asset_description_1" value="{{ other_asset_description_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_asset_value_1" value="{{ other_asset_value_1 }}"></td>
+                    <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'other_asset')" title="Delete">&times;</button></td>
+                  </tr>
+                  <tr>
+                    <td><input class="form-control ui-input sm" type="text" name="other_asset_description_2" value="{{ other_asset_description_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_asset_value_2" value="{{ other_asset_value_2 }}"></td>
+                    <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'other_asset')" title="Delete">&times;</button></td>
+                  </tr>
+                  <tr>
+                    <td><input class="form-control ui-input sm" type="text" name="other_asset_description_3" value="{{ other_asset_description_3 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_asset_value_3" value="{{ other_asset_value_3 }}"></td>
+                    <td class="del-col"><button type="button" class="btn-delete-row" onclick="deleteRow(this, 'other_asset')" title="Delete">&times;</button></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <button type="button" class="btn-add-row" onclick="addRow('other_asset')">+ Add Row</button>
+
+          <div class="kpi">
+            <div>
+              <span>Total</span><br>
+              <strong>Total value of all property</strong>
+            </div>
+            <div style="min-width:260px; width: min(420px, 100%);">
+              <input class="form-control ui-input money-input" type="number" step="0.01"
+                     name="total_value_all_property" id="total_value_all_property"
+                     value="{{ statement.total_value_all_property }}" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          {% if statement.pk %}
+            <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
+          {% endif %}
+          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Row configuration for each section
+var rowConfigs = {
+  possession: {
+    tableId: 'possession-table',
+    fields: [
+      {prefix: 'possession_address_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'possession_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  },
+  investment: {
+    tableId: 'investment-table',
+    fields: [
+      {prefix: 'investment_details_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'investment_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  },
+  bank: {
+    tableId: 'bank-table',
+    fields: [
+      {prefix: 'bank_institution_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'bank_account_number_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'bank_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  },
+  savings: {
+    tableId: 'savings-table',
+    fields: [
+      {prefix: 'savings_type_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'savings_account_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'savings_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  },
+  insurance: {
+    tableId: 'insurance-table',
+    fields: [
+      {prefix: 'insurance_details_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'insurance_cash_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  },
+  business: {
+    tableId: 'business-table',
+    fields: [
+      {prefix: 'business_name_address_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'business_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  },
+  money_owed: {
+    tableId: 'money_owed-table',
+    fields: [
+      {prefix: 'money_owed_debtor_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'money_owed_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  },
+  other_asset: {
+    tableId: 'other_asset-table',
+    fields: [
+      {prefix: 'other_asset_description_', type: 'text', class: 'form-control ui-input sm'},
+      {prefix: 'other_asset_value_', type: 'number', class: 'form-control ui-input sm money-input', step: '0.01'}
+    ]
+  }
+};
+
+function addRow(section) {
+  var config = rowConfigs[section];
+  if (!config) return;
+  
+  var table = document.getElementById(config.tableId);
+  if (!table) return;
+  
+  var tbody = table.querySelector('tbody');
+  var rows = tbody.querySelectorAll('tr');
+  var newIndex = rows.length + 1;
+  
+  var tr = document.createElement('tr');
+  config.fields.forEach(function(field) {
+    var td = document.createElement('td');
+    var input = document.createElement('input');
+    input.className = field.class;
+    input.type = field.type;
+    input.name = field.prefix + newIndex;
+    if (field.step) input.step = field.step;
+    td.appendChild(input);
+    tr.appendChild(td);
+  });
+  
+  // Add delete button
+  var delTd = document.createElement('td');
+  delTd.className = 'del-col';
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.className = 'btn-delete-row';
+  btn.innerHTML = '&times;';
+  btn.title = 'Delete';
+  btn.onclick = function() { deleteRow(this, section); };
+  delTd.appendChild(btn);
+  tr.appendChild(delTd);
+  
+  tbody.appendChild(tr);
+}
+
+function deleteRow(btn, section) {
+  var config = rowConfigs[section];
+  if (!config) return;
+  
+  var row = btn.closest('tr');
+  if (!row) return;
+  
+  var table = document.getElementById(config.tableId);
+  if (!table) return;
+  
+  var tbody = table.querySelector('tbody');
+  var rows = tbody.querySelectorAll('tr');
+  
+  // Don't delete if only one row remains
+  if (rows.length <= 1) {
+    alert('Cannot delete the last row.');
+    return;
+  }
+  
+  row.remove();
+  renumberRows(section);
+  
+  // Trigger recalculation
+  if (typeof updateTotalPropertyValue === 'function') {
+    updateTotalPropertyValue();
+  }
+}
+
+function renumberRows(section) {
+  var config = rowConfigs[section];
+  if (!config) return;
+  
+  var table = document.getElementById(config.tableId);
+  if (!table) return;
+  
+  var tbody = table.querySelector('tbody');
+  var rows = tbody.querySelectorAll('tr');
+  
+  rows.forEach(function(row, index) {
+    var newIndex = index + 1;
+    config.fields.forEach(function(field) {
+      var input = row.querySelector('input[name^="' + field.prefix + '"]');
+      if (input) {
+        input.name = field.prefix + newIndex;
+      }
+    });
+  });
+}
+</script>
+
+{% endblock %}

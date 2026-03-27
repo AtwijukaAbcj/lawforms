@@ -1,0 +1,973 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --line-2: #cbd5e1;
+    --radius: 18px;
+    --shadow-lg: 0 18px 50px rgba(2, 6, 23, .08);
+    --shadow-md: 0 10px 30px rgba(2, 6, 23, .06);
+    --indigo: 99,102,241;
+    --emerald: 16,185,129;
+  }
+
+  body { background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1320px; /* organized + readable */
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .pdf-page{
+    background:
+      radial-gradient(1200px 500px at 10% 0%, rgba(var(--indigo),.08), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(var(--emerald),.06), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    padding: 22px;
+    overflow: hidden;
+  }
+
+  /* ===== TOP HEADER: FORCE 2 COLUMNS ONLY (LEFT / RIGHT) ===== */
+  .top-header{
+    display:grid;
+    grid-template-columns: 16fr 7fr; /* <-- ONLY 2 columns */
+    gap: 14px;
+    align-items:start;
+    margin-bottom: 16px;
+  }
+
+  .left-stack{
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255,255,255,.92);
+    box-shadow: var(--shadow-md);
+    padding: 14px;
+  }
+
+  .ontario{
+    text-align:center;
+    font-weight: 950;
+    letter-spacing: .20em;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .line-field{
+    background: rgba(248,250,252,.92);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px;
+  }
+  .line-field + .line-field{ margin-top: 12px; }
+
+  .line-field .label{
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 8px;
+    font-weight: 700;
+  }
+
+  .at-row{
+    display:grid;
+    grid-template-columns: 52px 1fr;
+    gap: 10px;
+    align-items:center;
+    margin-top: 12px;
+  }
+  .at-pill{
+    font-weight: 950;
+    font-size: 14px;
+    color: var(--text);
+    text-align:center;
+    padding: 10px 10px;
+    border-radius: 10px;
+    background: rgba(15,23,42,.05);
+    border: 1px solid var(--line);
+  }
+
+  /* RIGHT COLUMN (stack everything neatly) */
+  .right-col{
+    display:flex;
+    flex-direction:column;
+    gap: 12px;
+  }
+
+  .title-box{
+    text-align:center;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,.92);
+    box-shadow: var(--shadow-md);
+  }
+  .title-box h3{
+    font-weight: 950;
+    margin: 0;
+    font-size: 18px;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .title-box .sub{
+    margin-top: 8px;
+    color: var(--muted);
+    font-weight: 800;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    font-size: 11px;
+  }
+
+  .prep-box{
+    border: 1px dashed var(--line-2);
+    border-radius: 12px;
+    padding: 12px;
+    background: rgba(248,250,252,.92);
+    box-shadow: var(--shadow-md);
+  }
+  .prep-box .subhead{
+    font-weight: 950;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .prep-box small{
+    display:block;
+    margin-top: 10px;
+    color: var(--muted);
+    font-weight: 650;
+  }
+
+  .court-right, .instructions{
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,.92);
+    box-shadow: var(--shadow-md);
+  }
+  .court-right .label{
+    font-size: 12px;
+    font-weight: 950;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+  }
+  .instructions{
+    margin-top: 20px;
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: #111827;
+  }
+
+ /* ===========================
+   Parties (Improved UI)
+   =========================== */
+
+/* Grid layout */
+.block-grid{
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 14px;
+}
+
+/* Each party card */
+.party-block{
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 8px;
+  padding: 1px 10px;
+  overflow: hidden;
+  background: rgba(255,255,255,.96);
+  box-shadow: 0 12px 30px rgba(2,6,23,.06);
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+
+.party-block:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 18px 42px rgba(2,6,23,.09);
+  border-color: rgba(var(--indigo), .25);
+}
+
+/* Header */
+.party-block .head{
+  font-weight: 950;
+  padding: 10px 10px;
+  background: linear-gradient(135deg,
+    rgba(var(--indigo), .14),
+    rgba(var(--emerald), .10)
+  );
+  color: var(--text);
+  border-bottom: 1px solid rgba(226,232,240,.95);
+  letter-spacing: -.01em;
+  font-size: 14px;
+}
+
+/* Rows */
+.party-block .row{
+  display: grid;
+  grid-template-columns: 170px 1fr;
+  border-bottom: 1px solid rgba(226,232,240,.95);
+}
+
+.party-block .row:last-child{
+  border-bottom: none;
+}
+
+/* Left label cell */
+.party-block .k{
+  padding: 12px 12px;
+  font-size: 12px;
+  color: var(--muted);
+  background: rgba(248,250,252,.95);
+  border-right: 1px solid rgba(226,232,240,.95);
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+}
+
+/* Value/input cell */
+.party-block .v{
+  padding: 12px 10px;
+  /* padding-left: 5; */
+  background: rgba(255,255,255,.98);
+  display: flex;
+  align-items: center;
+}
+
+/* Make inputs fit better inside the cell */
+.party-block .v .pdf-input{
+  margin: 0;
+}
+
+/* Responsive: stack into single column rows on small screens */
+@media (max-width: 700px){
+  .block-grid{
+    grid-template-columns: 1fr;
+  }
+
+  .party-block .row{
+    grid-template-columns: 1fr;
+  }
+
+  .party-block .k{
+    border-right: none;
+    border-bottom: 1px solid rgba(226,232,240,.95);
+  }
+
+  .party-block .v{
+    padding-top: 10px;
+  }
+}
+
+
+  /* Inputs */
+  .pdf-input{
+    width: 100%;
+    height: 42px;
+    border-radius: 10px !important;
+    border: 1px solid var(--line-2) !important;
+    background: #fff;
+    padding: 8px 12px !important;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .pdf-input:focus{
+    border-color: rgba(var(--indigo),.65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo),.18);
+  }
+  textarea.pdf-input{ min-height: 96px; height: auto; }
+
+  /* Dates */
+  .dates-row{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 16px;
+  }
+  .date-line{
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    background: rgba(248,250,252,.92);
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    box-shadow: var(--shadow-md);
+  }
+  .date-line label{
+    font-weight: 950;
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    width: 160px;
+  }
+  .date-line input,
+  .date-line select{
+    width: 100%;
+    height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--line-2);
+    padding: 8px 12px;
+    outline: none;
+    background: #fff;
+  }
+  .date-line input:focus,
+  .date-line select:focus{
+    border-color: rgba(var(--indigo),.65);
+    box-shadow: 0 0 0 4px rgba(var(--indigo),.18);
+  }
+
+  /* Section header */
+  .section-bar{
+    margin-top: 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,.95);
+    box-shadow: var(--shadow-md);
+    font-weight: 950;
+    color: var(--text);
+  }
+  .section-bar .subcenter{
+    text-align:center;
+    margin-top: 8px;
+    font-weight: 950;
+    color: var(--muted);
+    letter-spacing: .10em;
+    text-transform: uppercase;
+    font-size: 12px;
+  }
+
+  /* =========================
+     LAND TABLE (FIXED ALIGNMENT)
+     (UNCHANGED)
+     ========================= */
+  .land-table{
+    margin-top: 12px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+    background:#fff;
+    box-shadow: var(--shadow-md);
+  }
+
+  .land-scroll{
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .land-grid{ min-width: auto; }
+
+  .land-cols{
+    display:grid;
+    grid-template-columns:
+      160px
+      110px
+      110px
+      120px
+      120px
+      120px
+      120px
+      120px
+      110px;
+  }
+
+  .land-head1{
+    background: rgba(248,250,252,.95);
+    border-bottom: 1px solid var(--line);
+  }
+  .land-head1 > div{
+    padding: 12px;
+    border-right: 1px solid var(--line);
+    font-weight: 950;
+    font-size: 12px;
+    color: var(--text);
+    display:flex;
+    align-items:center;
+  }
+  .land-head1 > div:last-child{ border-right:none; justify-content:center; }
+
+  .land-head1 .hint{
+    font-weight:650;
+    font-style:italic;
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .land-group{
+    justify-content:center !important;
+    text-align:center;
+  }
+
+  .land-head2{
+    background: #fff;
+    border-bottom: 1px solid var(--line);
+  }
+  .land-head2 > div{
+    padding: 10px 12px;
+    border-right: 1px solid var(--line);
+    font-weight: 950;
+    font-size: 12px;
+    color: var(--muted);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    letter-spacing: .06em;
+  }
+  .land-head2 > div:last-child{ border-right:none; }
+
+  .land-row{
+    border-bottom: 1px solid var(--line);
+    background:#fff;
+  }
+  .land-row .cell{
+    padding: 10px 12px;
+    border-right: 1px solid var(--line);
+    display:flex;
+    align-items:center;
+  }
+  .land-row .cell:last-child{ border-right:none; justify-content:center; }
+
+  .money-input{ text-align:right; font-weight: 850; }
+
+  .del{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    font-weight:950;
+    color:#b91c1c;
+    cursor:pointer;
+    user-select:none;
+  }
+
+  .land-total{
+    background: rgba(248,250,252,.95);
+    border-top: 1px solid var(--line);
+  }
+  .land-total > div{
+    padding: 12px;
+    border-right: 1px solid var(--line);
+    font-weight: 950;
+    color: var(--text);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .land-total > div:last-child{ border-right:none; }
+  .total-label{ justify-content:flex-end !important; padding-right: 14px !important; }
+
+  .currency{ color: var(--muted); font-weight: 950; margin-right: 6px; }
+
+  .land-controls{
+    padding: 12px;
+    display:flex;
+    justify-content:flex-end;
+    background:#fff;
+  }
+
+  .btn-ghost{
+    border: 1px solid var(--line);
+    background: #fff;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-weight: 950;
+    cursor:pointer;
+    transition: transform .08s ease, box-shadow .15s ease;
+  }
+  .btn-ghost:hover{
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  /* Actions */
+  .actions{
+    display:flex;
+    justify-content:flex-end;
+    margin-top: 18px;
+    gap: 10px;
+  }
+  .btn-modern{
+    border: 1px solid rgba(var(--indigo),.35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color: #fff;
+    border-radius: 12px;
+    padding: 11px 18px;
+    font-weight: 950;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+    cursor:pointer;
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    filter: brightness(1.03);
+    box-shadow: 0 16px 38px rgba(79,70,229,.28);
+  }
+
+  .footnote{
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 650;
+  }
+
+  /* Responsive */
+  @media (max-width: 1100px){
+    .top-header{ grid-template-columns: 1fr; } /* stack on small screens */
+  }
+  @media (max-width: 992px){
+    .block-grid{ grid-template-columns: 1fr; }
+    .dates-row{ grid-template-columns: 1fr; }
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="pdf-page">
+    <form method="post">
+      {% csrf_token %}
+
+      {# Display form errors #}
+      {% if form.errors %}
+        <div class="alert alert-danger" style="margin-bottom:18px;">
+          <strong>Form errors:</strong>
+          <ul>
+            {% for field, errors in form.errors.items %}
+              <li><strong>{{ field }}:</strong> {{ errors|join:", " }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {# Display formset errors #}
+      {% if land_formset.non_form_errors %}
+        <div class="alert alert-danger" style="margin-bottom:18px;">
+          <strong>Table errors:</strong>
+          <ul>
+            {% for error in land_formset.non_form_errors %}
+              <li>{{ error }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {# Display per-row errors #}
+      {% for form in land_formset.forms %}
+        {% if form.errors %}
+          <div class="alert alert-danger" style="margin-bottom:10px;">
+            <strong>Row error:</strong>
+            <ul>
+              {% for field, errors in form.errors.items %}
+                <li><strong>{{ field }}:</strong> {{ errors|join:", " }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <!-- ===== TOP PART (2 COLUMNS ONLY) ===== -->
+      <div class="top-header">
+
+        <!-- LEFT COLUMN: Ontario + Court -->
+        <div class="left-stack">
+          <div class="ontario">ONTARIO</div>
+
+          <div class="line-field">
+            {{ form.court_name|add_class:"pdf-input" }}
+            <div class="label">(Name of Court)</div>
+          </div>
+
+          <div class="at-row">
+            <div class="at-pill">at</div>
+            <div class="line-field" style="margin:0; padding:10px;">
+              {{ form.court_office_address|add_class:"pdf-input" }}
+              <div class="label">(Court office address)</div>
+            </div>
+          </div>
+          <div class="instructions">
+            This document must be completed once both parties have completed and exchanged Net Family Property Statements (Form 13B).
+            This document can be completed jointly by the parties and filed with the court six days before the settlement conference.
+            If you and the other party are not able to agree on this document, then you each must prepare one, and serve it on the other
+            party and file it with the court before the settlement conference. If you requested the settlement conference, you must serve
+            and file the document six days before the settlement conference, even if it is a joint statement. If no joint statement has
+            been filed, the other party must serve and file the document four days before the settlement conference.
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: File # + Title + Prepared + Instructions -->
+        <div class="right-col">
+
+          <div class="court-right">
+            <div class="label">Court File Number</div>
+            {{ form.court_file_number|add_class:"pdf-input" }}
+          </div>
+
+          <div class="title-box">
+            <h3>Form 13C: Comparison of<br>Net Family Property Statements</h3>
+            <div class="sub">Family Law Rules</div>
+          </div>
+
+          <div class="prep-box">
+            <div class="subhead">This form is being prepared by</div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              <label style="display:flex; align-items:center; gap:10px; font-weight:800; color:var(--text);">
+                <input type="radio" name="prepared_by" value="applicant"
+                       {% if form.prepared_by.value == 'applicant' %}checked{% endif %}
+                       style="width:18px; height:18px; margin:0;">
+                the Applicant
+              </label>
+
+              <label style="display:flex; align-items:center; gap:10px; font-weight:800; color:var(--text);">
+                <input type="radio" name="prepared_by" value="respondent"
+                       {% if form.prepared_by.value == 'respondent' %}checked{% endif %}
+                       style="width:18px; height:18px; margin:0;">
+                the Respondent
+              </label>
+
+              <label style="display:flex; align-items:center; gap:10px; font-weight:800; color:var(--text);">
+                <input type="radio" name="prepared_by" value="joint"
+                       {% if form.prepared_by.value == 'joint' %}checked{% endif %}
+                       style="width:18px; height:18px; margin:0;">
+                the Applicant and Respondent jointly
+              </label>
+            </div>
+
+            <small>Select one option.</small>
+          </div>
+
+
+
+        </div>
+      </div>
+      <!-- ===== END TOP PART ===== -->
+
+      <!-- Parties blocks -->
+      <div class="block-grid">
+        <div>
+          <div class="party-block" style="margin-bottom:18px;">
+            <div class="head">Applicant(s)</div>
+            <div class="row"><div class="k">Full legal name</div><div class="v">{{ form.applicant_name|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Address</div><div class="v">{{ form.applicant_address|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Phone &amp; fax</div><div class="v">{{ form.applicant_phone|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Email</div><div class="v">{{ form.applicant_email|add_class:"pdf-input" }}</div></div>
+          </div>
+
+          <div class="party-block">
+            <div class="head">Respondent(s)</div>
+            <div class="row"><div class="k">Full legal name</div><div class="v">{{ form.respondent_name|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Address</div><div class="v">{{ form.respondent_address|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Phone &amp; fax</div><div class="v">{{ form.respondent_phone|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Email</div><div class="v">{{ form.respondent_email|add_class:"pdf-input" }}</div></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="party-block" style="margin-bottom:18px;">
+            <div class="head">Applicant(s) Lawyer</div>
+            <div class="row"><div class="k">Full legal name</div><div class="v">{{ form.applicant_lawyer_name|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Address</div><div class="v">{{ form.applicant_lawyer_address|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Phone &amp; fax</div><div class="v">{{ form.applicant_lawyer_phone|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Email</div><div class="v">{{ form.applicant_lawyer_email|add_class:"pdf-input" }}</div></div>
+          </div>
+
+          <div class="party-block">
+            <div class="head">Respondent(s) Lawyer</div>
+            <div class="row"><div class="k">Full legal name</div><div class="v">{{ form.respondent_lawyer_name|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Address</div><div class="v">{{ form.respondent_lawyer_address|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Phone &amp; fax</div><div class="v">{{ form.respondent_lawyer_phone|add_class:"pdf-input" }}</div></div>
+            <div class="row"><div class="k">Email</div><div class="v">{{ form.respondent_lawyer_email|add_class:"pdf-input" }}</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dates -->
+      <div class="dates-row">
+        <div class="date-line">
+          <label>Valuation Date</label>
+          {{ form.valuation_date }}
+        </div>
+        <div class="date-line">
+          <label>Statement Date</label>
+          {{ form.statement_date }}
+        </div>
+      </div>
+
+      <!-- Section header -->
+      <div class="section-bar">
+        1.&nbsp;&nbsp; VALUE OF ASSETS OWNED ON VALUATION DATE
+        <div class="subcenter">(a) Land</div>
+      </div>
+
+      <!-- LAND TABLE (UNCHANGED) -->
+      <div class="land-table">
+        {{ land_formset.management_form }}
+
+        <div class="land-scroll">
+          <div class="land-grid">
+
+            <div class="land-cols land-head1">
+              <div>
+                NATURE &amp; TYPE OF OWNERSHIP
+                <span class="hint">(State percentage interest where relevant)</span>
+              </div>
+              <div>NATURE &amp; ADDRESS OF OWNERSHIP</div>
+              <div>COMMENTS</div>
+              <div>Document Number*</div>
+
+              <div class="land-group" style="grid-column:5 / 7;">Applicant’s Position</div>
+              <div class="land-group" style="grid-column:7 / 9;">Respondent’s Position</div>
+
+              <div style="grid-column:9 / 10; justify-content:center;">Action</div>
+            </div>
+
+            <div class="land-cols land-head2">
+              <div></div><div></div><div></div><div></div>
+              <div>APPLICANT</div>
+              <div>RESPONDENT</div>
+              <div>APPLICANT</div>
+              <div>RESPONDENT</div>
+              <div></div>
+            </div>
+
+            <div id="land-rows">
+              {% for f in land_formset %}
+              <div class="land-cols land-row">
+                {{ f.id }}
+
+                <div class="cell">{{ f.nature_type_of_ownership|add_class:"pdf-input" }}</div>
+                <div class="cell">{{ f.nature_address_of_ownership|add_class:"pdf-input" }}</div>
+                <div class="cell">{{ f.comments|add_class:"pdf-input" }}</div>
+                <div class="cell">{{ f.document_number|add_class:"pdf-input" }}</div>
+
+                <div class="cell">{{ f.applicant_position_applicant|add_class:"pdf-input money-input land-money" }}</div>
+                <div class="cell">{{ f.applicant_position_respondent|add_class:"pdf-input money-input land-money" }}</div>
+                <div class="cell">{{ f.respondent_position_applicant|add_class:"pdf-input money-input land-money" }}</div>
+                <div class="cell">{{ f.respondent_position_respondent|add_class:"pdf-input money-input land-money" }}</div>
+
+                <div class="cell">
+                  <label class="del">{{ f.DELETE }} <span>Remove</span></label>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="land-cols land-total">
+              <div class="total-label" style="grid-column:1 / 5;">(A) TOTALS: Value of Land</div>
+
+              <div><span class="currency">$</span><span id="t1">0.00</span></div>
+              <div><span class="currency">$</span><span id="t2">0.00</span></div>
+              <div><span class="currency">$</span><span id="t3">0.00</span></div>
+              <div><span class="currency">$</span><span id="t4">0.00</span></div>
+
+              <div></div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="land-controls">
+          <button type="button" class="btn-ghost" id="add-land-row">+ Add Land Row</button>
+        </div>
+
+        <template id="land-empty-form">
+          <div class="land-cols land-row">
+            {{ land_formset.empty_form.id }}
+
+            <div class="cell">{{ land_formset.empty_form.nature_type_of_ownership|add_class:"pdf-input" }}</div>
+            <div class="cell">{{ land_formset.empty_form.nature_address_of_ownership|add_class:"pdf-input" }}</div>
+            <div class="cell">{{ land_formset.empty_form.comments|add_class:"pdf-input" }}</div>
+            <div class="cell">{{ land_formset.empty_form.document_number|add_class:"pdf-input" }}</div>
+
+            <div class="cell">{{ land_formset.empty_form.applicant_position_applicant|add_class:"pdf-input money-input land-money" }}</div>
+            <div class="cell">{{ land_formset.empty_form.applicant_position_respondent|add_class:"pdf-input money-input land-money" }}</div>
+            <div class="cell">{{ land_formset.empty_form.respondent_position_applicant|add_class:"pdf-input money-input land-money" }}</div>
+            <div class="cell">{{ land_formset.empty_form.respondent_position_respondent|add_class:"pdf-input money-input land-money" }}</div>
+
+            <div class="cell">
+              <label class="del">{{ land_formset.empty_form.DELETE }} <span>Remove</span></label>
+            </div>
+          </div>
+        </template>
+
+      </div>
+
+      <div class="actions">
+        <button type="submit" name="save_draft" class="btn-modern">Save Draft</button>
+        <button type="submit" class="btn-modern">Save &amp; Next &rarr;</button>
+      </div>
+
+      <div class="footnote">
+        * Please use the number that you used for the document in your Certificate of Financial Disclosure (Form 13A)
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script>
+  function parseMoney(v){
+    if (!v) return 0;
+    v = (""+v).replace(/,/g,"").trim();
+    const n = parseFloat(v);
+    return isNaN(n) ? 0 : n;
+  }
+  function formatMoney(n){
+    return n.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  }
+
+  function updateTotals(){
+    let t1=0,t2=0,t3=0,t4=0;
+
+    document.querySelectorAll("#land-rows .land-row").forEach(row=>{
+      if (row.style.display === 'none') return;
+
+      const money = row.querySelectorAll(".land-money");
+      if (money.length === 4){
+        t1 += parseMoney(money[0].value);
+        t2 += parseMoney(money[1].value);
+        t3 += parseMoney(money[2].value);
+        t4 += parseMoney(money[3].value);
+      }
+    });
+
+    document.getElementById("t1").textContent = formatMoney(t1);
+    document.getElementById("t2").textContent = formatMoney(t2);
+    document.getElementById("t3").textContent = formatMoney(t3);
+    document.getElementById("t4").textContent = formatMoney(t4);
+
+    // Persist section A totals to localStorage for TOTAL 1 aggregation
+    try {
+      const existing = JSON.parse(localStorage.getItem('nfp_section_totals') || '{}');
+      existing.a = [t1, t2, t3, t4];
+      localStorage.setItem('nfp_section_totals', JSON.stringify(existing));
+    } catch (err) { console.error('persist totals a', err); }
+  }
+
+  document.addEventListener("input", function(e){
+    if (e.target.classList && e.target.classList.contains("land-money")) updateTotals();
+  });
+
+  document.getElementById("add-land-row").addEventListener("click", function(){
+    let totalForms = document.getElementById("id_land-TOTAL_FORMS");
+    if (!totalForms) totalForms = document.querySelector('input[name="land-TOTAL_FORMS"]');
+
+    const idx = totalForms
+      ? parseInt(totalForms.value || '0', 10)
+      : document.querySelectorAll('#land-rows .land-row').length;
+
+    const tpl = document.getElementById("land-empty-form").innerHTML.replace(/__prefix__/g, idx);
+    document.getElementById("land-rows").insertAdjacentHTML("beforeend", tpl);
+
+    if (totalForms) totalForms.value = idx + 1;
+    updateTotals();
+  });
+
+  document.addEventListener('click', function(e){
+    const del = e.target.closest('.del');
+    if (!del) return;
+
+    const row = del.closest('.land-row');
+    if (!row) return;
+
+    const deleteInput = row.querySelector('input[name$="-DELETE"]');
+    if (deleteInput) {
+      deleteInput.checked = true;
+      row.style.display = 'none';
+    } else {
+      row.remove();
+      let totalForms = document.getElementById('id_land-TOTAL_FORMS');
+      if (!totalForms) totalForms = document.querySelector('input[name="land-TOTAL_FORMS"]');
+      if (totalForms) totalForms.value = Math.max(0, parseInt(totalForms.value || '0', 10) - 1);
+    }
+
+    updateTotals();
+  });
+
+  updateTotals();
+</script>
+
+<script>
+  (function(){
+    const pk = '{{ pk|default:"" }}';
+    const key = 'comparison_nfp_draft_' + (pk ? pk : 'temp');
+    const form = document.querySelector('form');
+    if (!form) return;
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    async function saveDraft(){
+      try{
+        const data = {};
+        form.querySelectorAll('input, textarea, select').forEach(el=>{
+          if (!el.name) return;
+          if (el.type === 'checkbox' || el.type === 'radio'){
+            if (el.checked) data[el.name] = el.value;
+          } else {
+            data[el.name] = el.value;
+          }
+        });
+        localStorage.setItem(key, JSON.stringify(data));
+
+        // If this draft belongs to a saved comparison (has pk), push to server
+        if (pk){
+          try{
+            await fetch(`/forms/comparison-nfp/${pk}/draft/`, {
+              method: 'POST',
+              credentials: 'same-origin',
+              headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+              },
+              body: JSON.stringify(data),
+            });
+          }catch(err){ console.warn('server draft save failed', err); }
+        }
+      }catch(e){ console.error('save draft page1', e); }
+    }
+
+    try{
+      const raw = localStorage.getItem(key);
+      if (raw){
+        const data = JSON.parse(raw);
+        for (const name in data){
+          const el = form.querySelector('[name="'+name+'"]');
+          if (!el) continue;
+          if (!el.value) el.value = data[name];
+          if ((el.type === 'checkbox' || el.type === 'radio') && data[name] !== undefined){ el.checked = true; }
+        }
+      }
+    }catch(e){ /* ignore */ }
+
+    let t = null;
+    form.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(saveDraft, 600); });
+    window.addEventListener('beforeunload', saveDraft);
+  })();
+</script>
+
+{% endblock %}

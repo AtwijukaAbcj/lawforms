@@ -1,0 +1,976 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+:root{
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+
+  --line: #e5e7eb;
+  --line2:#cbd5e1;
+
+  --radius: 8px;
+  --radius-sm: 12px;
+
+  --shadow-lg: 0 18px 55px rgba(2,6,23,.10);
+  --shadow-md: 0 12px 30px rgba(2,6,23,.08);
+  --shadow-sm: 0 8px 20px rgba(2,6,23,.06);
+
+  --indigo: 99,102,241;
+  --emerald: 16,185,129;
+
+  --focus: rgba(var(--indigo), .22);
+  --focus-border: rgba(var(--indigo), .62);
+}
+
+body{
+  background: radial-gradient(1200px 520px at 12% 0%, rgba(var(--indigo), .10), transparent 60%),
+              radial-gradient(900px 500px at 100% 0%, rgba(var(--emerald), .09), transparent 55%),
+              var(--bg);
+  color: var(--text);
+}
+
+.page-wrap{
+  max-width: 1180px;
+  margin: 22px auto 56px;
+  padding: 0 14px;
+}
+
+.page-card{
+  background: rgba(255,255,255,.86);
+  border: 1px solid rgba(226,232,240,.9);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.page-header{
+  padding: 18px 18px;
+  border-bottom: 1px solid rgba(226,232,240,.95);
+  background: linear-gradient(135deg,
+              rgba(var(--indigo), .14),
+              rgba(var(--emerald), .10));
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.page-header .left h1{
+  margin:0;
+  font-weight: 950;
+  letter-spacing: -.02em;
+  color: var(--text);
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.page-header .left p{
+  margin:6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
+}
+
+.badge-soft{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  background: rgba(255,255,255,.80);
+  border: 1px solid rgba(226,232,240,.95);
+  padding: 7px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  height: fit-content;
+  box-shadow: 0 6px 16px rgba(2,6,23,.06);
+}
+
+.page-body{ padding: 18px; }
+
+/* ===== Top grid ===== */
+.top-grid{
+  display:grid;
+  grid-template-columns: 1fr 330px;
+  gap: 16px;
+  align-items:start;
+  margin-bottom: 16px;
+}
+
+.ontario{
+  text-align:center;
+  font-weight: 950;
+  letter-spacing:.20em;
+  color: var(--muted);
+  font-size: 12px;
+  opacity: .95;
+}
+
+.line-field{ margin-top: 10px; }
+
+.at-row{
+  display:grid;
+  grid-template-columns: 44px 1fr;
+  gap: 10px;
+  align-items:center;
+  margin-top: 10px;
+}
+
+.at-label{
+  font-weight: 950;
+  font-size: 16px;
+  color: var(--text);
+  text-align:center;
+  opacity: .9;
+}
+
+.hint{
+  font-size:12px;
+  color: var(--muted);
+  margin-top: 6px;
+  text-align:center;
+  font-weight: 650;
+}
+
+.line-input,
+.pdf-input,
+input[type="text"],
+input[type="email"],
+input[type="number"],
+input[type="date"],
+textarea,
+select{
+  width:100%;
+  min-height: 44px;
+  border-radius: 8px !important;
+  border: 1px solid rgba(203,213,225,.95) !important;
+  background: rgba(255,255,255,.92);
+  padding: 10px 12px !important;
+  font-size: 0.95rem;
+  outline: none;
+  transition: box-shadow .15s ease, border-color .15s ease, transform .08s ease, background .15s ease;
+}
+
+textarea{ min-height: 96px; resize: vertical; }
+
+.line-input:focus,
+.pdf-input:focus,
+input:focus,
+textarea:focus,
+select:focus{
+  border-color: var(--focus-border) !important;
+  box-shadow: 0 0 0 5px var(--focus) !important;
+  background: #fff;
+}
+
+.right-stack{
+  display:flex;
+  flex-direction:column;
+  gap: 12px;
+  align-items:stretch;
+}
+
+.court-file,
+.form-title{
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 8px;
+  background: rgba(255,255,255,.88);
+  box-shadow: var(--shadow-sm);
+  padding: 12px;
+}
+
+.court-file label{
+  display:block;
+  font-size: 11px;
+  font-weight: 950;
+  color: var(--muted);
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.form-title{
+  text-align:center;
+  font-weight: 950;
+  color: var(--text);
+  line-height: 1.2;
+  background: rgba(248,250,252,.85);
+}
+.form-title small{
+  display:block;
+  margin-top: 6px;
+  font-weight: 850;
+  color: var(--muted);
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+/* ===== Panels grid ===== */
+.box-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.panel{
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,.92);
+  box-shadow: var(--shadow-md);
+}
+
+.panel-head{
+  padding: 12px 14px;
+  background: linear-gradient(180deg, rgba(248,250,252,.95), rgba(255,255,255,.90));
+  border-bottom: 1px solid rgba(226,232,240,.95);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+}
+
+.panel-head .title{
+  font-weight: 950;
+  color: var(--text);
+  letter-spacing: -.01em;
+  font-size: 14px;
+  margin: 0;
+}
+
+.panel-head .tag{
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid rgba(226,232,240,.95);
+  background: rgba(255,255,255,.92);
+  padding: 7px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.panel-body{ padding: 14px; }
+
+.small-italic{
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.45;
+}
+
+/* ✅ PDF-style labeled rows (like your screenshot) */
+.labeled-block{
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,.95);
+}
+
+.field-row{
+  display:grid;
+  grid-template-columns: 180px 1fr;
+  gap: 0;
+  border-bottom: 1px solid rgba(226,232,240,.95);
+}
+
+.field-row:last-child{ border-bottom: 0; }
+
+.field-row .field-label{
+  padding: 10px 12px;
+  background: rgba(248,250,252,.92);
+  font-weight: 850;
+  color: rgba(15,23,42,.85);
+  font-size: 13px;
+  display:flex;
+  align-items:center;
+}
+
+.field-row .field-control{
+  padding: 8px 10px;
+  background: rgba(255,255,255,.95);
+}
+
+.field-row .field-control .pdf-input,
+.field-row .field-control input,
+.field-row .field-control textarea,
+.field-row .field-control select{
+  min-height: 40px;
+  height: 40px;
+  border-radius: 8px !important;
+}
+
+/* Info card */
+.info-card{
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(248,250,252,.82);
+  box-shadow: var(--shadow-sm);
+  margin-top: 16px;
+}
+
+label.form-label,.form-label{
+  font-weight: 850;
+  color: rgba(15,23,42,.92);
+  margin-bottom: 6px;
+}
+
+/* ===== Section label ===== */
+.section-label{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+  margin: 18px 0 12px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--muted);
+}
+.section-label:before,
+.section-label:after{
+  content:"";
+  height: 1px;
+  background: rgba(226,232,240,.95);
+  flex: 1;
+}
+.section-label span{
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(226,232,240,.95);
+  background: rgba(255,255,255,.92);
+  color: rgba(15,23,42,.92);
+  letter-spacing: .04em;
+  text-transform:none;
+  font-weight: 950;
+  font-size: 13px;
+  text-align:center;
+  box-shadow: 0 8px 20px rgba(2,6,23,.06);
+}
+
+/* ===== Tables ===== */
+.table-shell{
+  border: 1px solid rgba(226,232,240,.95);
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(255,255,255,.95);
+  box-shadow: var(--shadow-md);
+}
+.table-responsive{
+  overflow:auto;
+  -webkit-overflow-scrolling: touch;
+}
+table.pdf-table{
+  width: 100%;
+  margin: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: .95rem;
+}
+table.pdf-table thead th{
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: rgba(248,250,252,.98);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(226,232,240,.95) !important;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 12px 12px;
+  white-space: nowrap;
+}
+table.pdf-table td{
+  border-bottom: 1px solid rgba(226,232,240,.95) !important;
+  padding: 12px 12px;
+  vertical-align: middle;
+  color: rgba(15,23,42,.92);
+}
+table.pdf-table tbody tr:nth-child(odd) td{ background: rgba(248,250,252,.60); }
+table.pdf-table tbody tr:hover td{ background: rgba(var(--indigo), .06); transition: background .12s ease; }
+
+.total-row td,
+.totals-row td{
+  background: rgba(15,23,42,.04) !important;
+  font-weight: 950;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-size: 12px;
+}
+
+/* Bootstrap input group tweaks */
+.input-group{ display:flex; align-items:stretch; gap: 0; }
+.input-group-text{
+  border-radius: 8px 0 0 12px !important;
+  border: 1px solid rgba(203,213,225,.95) !important;
+  background: rgba(248,250,252,.95) !important;
+  font-weight: 900;
+  color: rgba(15,23,42,.70);
+  padding: 10px 10px !important;
+}
+.input-group .pdf-input,
+.input-group input{
+  border-left: 0 !important;
+  border-radius: 0 8px 8px 0 !important;
+}
+
+/* Delete checkbox */
+.form-check{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap: 8px;
+}
+.form-check input[type="checkbox"]{
+  width: 18px;
+  height: 18px;
+  accent-color: rgb(var(--indigo));
+  cursor: pointer;
+}
+
+/* Buttons */
+.actions{
+  display:flex;
+  justify-content:space-between;
+  gap: 12px;
+  margin-top: 18px;
+  flex-wrap: wrap;
+}
+.btn-modern{
+  border-radius: 8px;
+  padding: 11px 16px;
+  font-weight: 950;
+  letter-spacing: .01em;
+  border: 1px solid rgba(226,232,240,.95);
+  background: rgba(255,255,255,.95);
+  color: rgba(15,23,42,.92);
+  box-shadow: var(--shadow-sm);
+  transition: transform .08s ease, box-shadow .15s ease, filter .15s ease, background .15s ease;
+  text-decoration: none;
+  display:inline-flex;
+  align-items:center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.btn-modern:hover{
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  text-decoration:none;
+  color: rgba(15,23,42,.92);
+}
+.btn-primary-modern{
+  border: 1px solid rgba(var(--indigo), .35);
+  background: linear-gradient(135deg, rgba(var(--indigo), .95), rgba(79,70,229,.95));
+  color:#fff;
+  box-shadow: 0 16px 35px rgba(79,70,229,.25);
+}
+.btn-primary-modern:hover{
+  filter: brightness(1.03);
+  box-shadow: 0 20px 44px rgba(79,70,229,.30);
+  color:#fff;
+}
+.btn-modern:focus{
+  outline: none;
+  box-shadow: 0 0 0 5px var(--focus), var(--shadow-md);
+}
+
+.text-danger.small{ margin-top: 6px; font-weight: 650; }
+
+@media (max-width: 992px){
+  .top-grid{ grid-template-columns: 1fr; }
+  .box-grid{ grid-template-columns: 1fr; }
+  .field-row{ grid-template-columns: 150px 1fr; }
+}
+@media (max-width: 520px){
+  .page-body{ padding: 14px; }
+  .btn-modern{ width: 100%; justify-content:center; }
+  .actions{ gap: 10px; }
+  .field-row{ grid-template-columns: 1fr; }
+  .field-row .field-label{ border-bottom: 1px solid rgba(226,232,240,.95); }
+}
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+    <div class="page-header">
+      <div class="left">
+        <h1>Form 13B — Net Family Property Statement</h1>
+        <p>Enter court, party, and valuation details, then list assets for the valuation date.</p>
+      </div>
+      <div class="badge-soft">Page 1</div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <!-- Top Header -->
+        <div class="top-grid">
+          <div>
+            <div class="ontario">ONTARIO</div>
+
+            <div class="line-field">
+              <input type="text" class="line-input" placeholder="(Name of court)" name="court_name"
+                     value="{{ form.court_name.value|default_if_none:'' }}">
+              <div class="hint">(Name of court)</div>
+            </div>
+
+            <div class="at-row">
+              <div class="at-label">at</div>
+              <div>
+                <input type="text" class="line-input" placeholder="Court office address" name="court_office_address"
+                       value="{{ form.court_office_address.value|default_if_none:'' }}">
+                <div class="hint">Court office address</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="right-stack">
+            <div class="court-file">
+              <label>Court File Number</label>
+              {{ form.court_file_number|add_class:"form-control pdf-input" }}
+            </div>
+
+            <div class="form-title">
+              Form 13B: Net Family Property Statement
+              <small>Family Law Rules</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Applicant / Respondent Boxes -->
+        <div class="box-grid">
+
+          <!-- Applicant(s) -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="title">Applicant(s)</div>
+              <div class="tag">Service Address</div>
+            </div>
+            <div class="panel-body">
+              <div class="small-italic">
+                Full legal name &amp; address for service — street &amp; number, municipality, postal code,
+                telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+
+              <div class="labeled-block">
+                <div class="field-row">
+                  <div class="field-label">Full legal name:</div>
+                  <div class="field-control">
+                    {{ form.applicant_name|add_class:"form-control pdf-input" }}
+                    {% for error in form.applicant_name.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Address:</div>
+                  <div class="field-control">
+                    {{ form.applicant_address|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Phone &amp; fax:</div>
+                  <div class="field-control">
+                    {{ form.applicant_phone|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Email:</div>
+                  <div class="field-control">
+                    {{ form.applicant_email|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Applicant’s Lawyer -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="title">Applicant(s) Lawyer</div>
+              <div class="tag">Optional</div>
+            </div>
+            <div class="panel-body">
+              <div class="small-italic">
+                Lawyer’s name &amp; address — street &amp; number, municipality, postal code,
+                telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+
+              <div class="labeled-block">
+                <div class="field-row">
+                  <div class="field-label">Full legal name:</div>
+                  <div class="field-control">
+                    {{ form.applicant_lawyer_name|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Address:</div>
+                  <div class="field-control">
+                    {{ form.applicant_lawyer_address|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Phone &amp; fax:</div>
+                  <div class="field-control">
+                    {{ form.applicant_lawyer_phone|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Email:</div>
+                  <div class="field-control">
+                    {{ form.applicant_lawyer_email|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Respondent(s) -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="title">Respondent(s)</div>
+              <div class="tag">Service Address</div>
+            </div>
+            <div class="panel-body">
+              <div class="small-italic">
+                Full legal name &amp; address for service — street &amp; number, municipality, postal code,
+                telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+
+              <div class="labeled-block">
+                <div class="field-row">
+                  <div class="field-label">Full legal name:</div>
+                  <div class="field-control">
+                    {{ form.respondent_name|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Address:</div>
+                  <div class="field-control">
+                    {{ form.respondent_address|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Phone &amp; fax:</div>
+                  <div class="field-control">
+                    {{ form.respondent_phone|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Email:</div>
+                  <div class="field-control">
+                    {{ form.respondent_email|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Respondent’s Lawyer -->
+          <div class="panel">
+            <div class="panel-head">
+              <div class="title">Respondent(s) Lawyer</div>
+              <div class="tag">Optional</div>
+            </div>
+            <div class="panel-body">
+              <div class="small-italic">
+                Lawyer’s name &amp; address — street &amp; number, municipality, postal code,
+                telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+
+              <div class="labeled-block">
+                <div class="field-row">
+                  <div class="field-label">Full legal name:</div>
+                  <div class="field-control">
+                    {{ form.respondent_lawyer_name|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Address:</div>
+                  <div class="field-control">
+                    {{ form.respondent_lawyer_address|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Phone &amp; fax:</div>
+                  <div class="field-control">
+                    {{ form.respondent_lawyer_phone|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+                <div class="field-row">
+                  <div class="field-label">Email:</div>
+                  <div class="field-control">
+                    {{ form.respondent_lawyer_email|add_class:"form-control pdf-input" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Name + Valuation date -->
+        <div class="info-card">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold">My name is (full legal name)</label>
+              {{ form.my_name|add_class:"form-control pdf-input" }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold">Valuation date</label>
+              {{ form.valuation_date|add_class:"form-control pdf-input" }}
+            </div>
+          </div>
+
+          <div class="hint" style="text-align:left; margin-top:10px;">
+            Complete the tables by filling in the columns for both parties, showing your assets, debts, etc., and those of your spouse.
+          </div>
+        </div>
+
+        <!-- TABLE 1 -->
+        <div class="section-label">
+          <span>Table 1 — Value of assets owned on valuation date</span>
+        </div>
+
+        <style>
+          .btn-delete-row {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            transition: all 0.15s ease;
+          }
+          .btn-delete-row:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+          }
+          .delete-checkbox-hidden {
+            display: none !important;
+          }
+        </style>
+
+        {{ asset_formset.management_form }}
+
+        <div class="table-shell">
+          <div class="table-responsive">
+            <table class="pdf-table" id="assets-table">
+              <thead>
+                <tr>
+                  <th style="width:65%">Item</th>
+                  <th style="width:15%" class="text-center">Applicant</th>
+                  <th style="width:15%" class="text-center">Respondent</th>
+                  <th style="width:5%" class="text-center"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for asset_form in asset_formset %}
+                <tr>
+                  {{ asset_form.id }}
+
+                  <td>
+                    {{ asset_form.item|add_class:"form-control pdf-input" }}
+                    {% for error in asset_form.item.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                  </td>
+
+                  <td class="text-center">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ asset_form.applicant_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                    {% for error in asset_form.applicant_value.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                  </td>
+
+                  <td class="text-center">
+                    <div class="input-group">
+                      <span class="input-group-text">$</span>
+                      {{ asset_form.respondent_value|add_class:"form-control pdf-input text-end" }}
+                    </div>
+                    {% for error in asset_form.respondent_value.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                  </td>
+
+                  <td class="text-center">
+                    {% if asset_formset.can_delete %}
+                    <div class="delete-checkbox-hidden">
+                      {{ asset_form.DELETE }}
+                    </div>
+                    <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+
+                <tr class="total-row">
+                  <td class="text-end">Total 1</td>
+                  <td class="text-center"><span id="total1-app">${{ totals.total1_app|floatformat:2|default:"0.00" }}</span></td>
+                  <td class="text-center"><span id="total1-resp">${{ totals.total1_resp|floatformat:2|default:"0.00" }}</span></td>
+                  <td></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Add Row button -->
+        <div style="margin-top: 12px;">
+          <button type="button" class="btn-modern" id="assets-add-row">+ Add Row</button>
+        </div>
+
+        <!-- Empty form template for assets -->
+        <template id="assets-empty-form-template">
+          <tr>
+            {{ asset_formset.empty_form.id }}
+
+            <td>
+              {{ asset_formset.empty_form.item|add_class:"form-control pdf-input" }}
+            </td>
+
+            <td class="text-center">
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ asset_formset.empty_form.applicant_value|add_class:"form-control pdf-input text-end" }}
+              </div>
+            </td>
+
+            <td class="text-center">
+              <div class="input-group">
+                <span class="input-group-text">$</span>
+                {{ asset_formset.empty_form.respondent_value|add_class:"form-control pdf-input text-end" }}
+              </div>
+            </td>
+
+            <td class="text-center">
+              {% if asset_formset.can_delete %}
+              <div class="delete-checkbox-hidden">
+                {{ asset_formset.empty_form.DELETE }}
+              </div>
+              <button type="button" class="btn-delete-row" onclick="deleteFormsetRow(this)" title="Delete row">&times;</button>
+              {% endif %}
+            </td>
+          </tr>
+        </template>
+
+        <!-- Actions -->
+        <div class="actions">
+          <a class="btn-modern" href="{% url 'dashboard' %}"></a>
+          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Delete row function for formset rows
+function deleteFormsetRow(btn) {
+  var row = btn.closest('tr');
+  var checkbox = row.querySelector('input[type="checkbox"][name$="-DELETE"]');
+  if (checkbox) {
+    checkbox.checked = true;
+  }
+  row.style.display = 'none';
+  if (typeof calculateTotal1 === 'function') calculateTotal1();
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+
+  const prefix = "{{ asset_formset.prefix }}";
+  const addBtn = document.getElementById("assets-add-row");
+  const table = document.getElementById("assets-table");
+  const totalFormsInput = document.getElementById(`id_${prefix}-TOTAL_FORMS`);
+  const template = document.getElementById("assets-empty-form-template");
+
+  if (addBtn && table && totalFormsInput && template) {
+    addBtn.addEventListener("click", () => {
+      const idx = parseInt(totalFormsInput.value || "0", 10);
+      const html = template.innerHTML.replace(/__prefix__/g, idx);
+
+      const tbody = table.querySelector("tbody");
+      const totalRow = tbody.querySelector(".total-row");
+      if (totalRow) totalRow.insertAdjacentHTML("beforebegin", html);
+      else tbody.insertAdjacentHTML("beforeend", html);
+
+      totalFormsInput.value = idx + 1;
+      // Recalculate totals after adding row
+      setTimeout(calculateTotal1, 100);
+    });
+  }
+
+  document.addEventListener("change", (e) => {
+    if (!e.target.matches('input[type="checkbox"][name$="-DELETE"]')) return;
+    const row = e.target.closest("tr");
+    if (!row) return;
+    row.style.display = e.target.checked ? "none" : "";
+    calculateTotal1();
+  });
+
+  // Calculate Total 1 from all asset rows
+  function calculateTotal1() {
+    let totalApp = 0;
+    let totalResp = 0;
+    
+    const tbody = document.querySelector('#assets-table tbody');
+    if (!tbody) return;
+    
+    const rows = tbody.querySelectorAll('tr:not(.total-row)');
+    rows.forEach(row => {
+      // Skip deleted rows
+      const deleteCheck = row.querySelector('input[type="checkbox"]');
+      if (deleteCheck && deleteCheck.checked) return;
+      if (row.style.display === 'none') return;
+      
+      // Get all numeric inputs in this row (applicant is 2nd td, respondent is 3rd td)
+      const cells = row.querySelectorAll('td');
+      if (cells.length >= 3) {
+        const appInput = cells[1].querySelector('input[type="number"], input[type="text"]');
+        const respInput = cells[2].querySelector('input[type="number"], input[type="text"]');
+        
+        if (appInput && appInput.value) {
+          totalApp += parseFloat(appInput.value) || 0;
+        }
+        if (respInput && respInput.value) {
+          totalResp += parseFloat(respInput.value) || 0;
+        }
+      }
+    });
+    
+    const appSpan = document.getElementById('total1-app');
+    const respSpan = document.getElementById('total1-resp');
+    if (appSpan) appSpan.textContent = '$' + totalApp.toFixed(2);
+    if (respSpan) respSpan.textContent = '$' + totalResp.toFixed(2);
+  }
+
+  // Recalculate on input changes
+  document.addEventListener('input', (e) => {
+    if (e.target.closest && e.target.closest('#assets-table')) {
+      calculateTotal1();
+    }
+  });
+
+  // Initial calculation
+  calculateTotal1();
+
+});
+</script>
+
+{% endblock %}

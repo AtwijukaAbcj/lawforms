@@ -1,0 +1,705 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --paper: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --indigo: 99,102,241;
+    --emerald: 16,185,129;
+  }
+  
+  body { background: var(--bg); }
+  
+  .print-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 0 14px;
+  }
+  
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+  }
+  
+  .print-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  
+  .print-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .btn-action {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 800;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  
+  .btn-action:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+    transform: translateY(-1px);
+  }
+  
+  .btn-print {
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color: #fff;
+    border: none;
+  }
+  
+  .page {
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    padding: 30px;
+    margin-bottom: 24px;
+    page-break-after: always;
+  }
+  
+  .page:last-child {
+    page-break-after: auto;
+  }
+  
+  .page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--text);
+  }
+  
+  .page-title h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: .5px;
+  }
+  
+  .page-title .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  
+  .ontario-header {
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: .2em;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .info-box {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: #fafbfc;
+  }
+  
+  .info-box h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+  }
+  
+  .info-row:last-child {
+    border-bottom: none;
+  }
+  
+  .info-row .label {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  
+  .info-row .value {
+    color: var(--text);
+    font-weight: 700;
+  }
+  
+  .section-title {
+    background: linear-gradient(135deg, rgba(var(--indigo),.1), rgba(var(--emerald),.08));
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 20px 0 12px;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text);
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .data-table th {
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    padding: 10px 8px;
+    text-align: left;
+    font-weight: 800;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  
+  .data-table td {
+    border: 1px solid var(--line);
+    padding: 8px;
+    vertical-align: middle;
+  }
+  
+  .data-table .text-right {
+    text-align: right;
+  }
+  
+  .data-table .text-center {
+    text-align: center;
+  }
+  
+  .data-table .total-row {
+    background: #f1f5f9;
+    font-weight: 800;
+  }
+  
+  .data-table .total-row td {
+    border-top: 2px solid var(--text);
+  }
+  
+  .grand-total {
+    background: linear-gradient(135deg, rgba(var(--indigo),.15), rgba(var(--emerald),.1));
+    border: 2px solid rgba(var(--indigo),.3);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+  }
+  
+  .grand-total h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  
+  .total-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .total-cell {
+    text-align: center;
+    padding: 10px;
+    background: var(--paper);
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+  
+  .total-cell .label {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  
+  .total-cell .value {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  
+  .blank-line {
+    border-bottom: 1px solid var(--line);
+    min-height: 24px;
+    margin: 8px 0;
+  }
+  
+  .empty-table-row td {
+    height: 32px;
+  }
+
+  .placeholder-text {
+    color: var(--muted);
+    font-style: italic;
+    font-size: 12px;
+  }
+  
+  @media print {
+    .no-print { display: none !important; }
+    .print-container { max-width: 100%; margin: 0; padding: 0; }
+    .print-header { display: none; }
+    .page { 
+      box-shadow: none; 
+      border-radius: 0; 
+      margin: 0;
+      padding: 20px;
+    }
+    body { background: #fff; }
+  }
+</style>
+
+<div class="print-container">
+  <div class="print-header no-print">
+    <h2>Form 13 — Financial Statement (Support Claims)</h2>
+    <div class="print-actions">
+      <button class="btn-action btn-print" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print Form</button>
+      <a class="btn-action" href="{% url 'financial_statement_page1_edit' pk %}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</a>
+      <a class="btn-action" href="{% url 'financial_statement_list' %}">← Back to List</a>
+    </div>
+  </div>
+
+  <!-- PAGE 1: Header & Parties -->
+  <div class="page">
+    <div class="ontario-header">ONTARIO</div>
+    <div class="page-title">
+      <h3>Form 13: Financial Statement (Support Claims)</h3>
+      <div class="subtitle">Family Law Rules, O. Reg. 114/99</div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Court Information</h4>
+        <div class="info-row"><span class="label">Court Name:</span><span class="value">{{ statement.court_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Court Address:</span><span class="value">{{ statement.court_office_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">File Number:</span><span class="value">{{ statement.court_file_number|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Filed By:</span><span class="value">{{ statement.get_prepared_by_display|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Important Dates</h4>
+        <div class="info-row"><span class="label">Valuation Date:</span><span class="value">{{ statement.valuation_date|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Statement Date:</span><span class="value">{{ statement.statement_date|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Applicant</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.applicant_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Applicant's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.applicant_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Respondent</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.respondent_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Respondent's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.respondent_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+
+    <div class="section-title">PART 1: INCOME</div>
+    <div class="info-box">
+      <p style="font-size: 13px; margin: 0;">
+        <strong>1.</strong> I am currently:
+        {% if statement.is_employed %}☑ employed by {{ statement.employer_name_address|default:"—" }}<br>{% else %}☐ employed by —<br>{% endif %}
+        {% if statement.is_self_employed %}☑ self-employed, carrying on business as {{ statement.business_name_address|default:"—" }}<br>{% else %}☐ self-employed, carrying on business as —<br>{% endif %}
+        {% if statement.is_unemployed %}☑ unemployed since {{ statement.unemployed_since|date:"Y-m-d"|default:"—" }}{% else %}☐ unemployed since —{% endif %}
+      </p>
+    </div>
+  </div>
+
+  <!-- PAGE 2: Income Table -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13 — Page 2</h3>
+      <div class="subtitle">Income Proof & Current Income Table</div>
+    </div>
+
+    <div class="section-title">3. Proof of year-to-date income</div>
+    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+      Attach proof of your year-to-date income from all sources, including your most recent:
+      pay cheque stub, social assistance stub, pension stub, workers' compensation stub, employment insurance stub,
+      statement of income and expenses/professional activities for self-employment.
+    </p>
+
+    <div class="section-title">4. Last year's income</div>
+    <div class="info-box">
+      <div class="info-row">
+        <span class="label">My total income last year was:</span>
+        <span class="value" style="border-bottom: 1px solid var(--line); min-width: 120px;">${{ statement.last_year_gross_income|floatformat:2|default:"—" }}</span>
+      </div>
+    </div>
+
+    <div class="section-title">5. My Income (From All Sources)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:70%">Income Source</th>
+          <th style="width:30%">Amount / Month</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>1. Employment income (before deductions)</td><td class="text-right">${{ statement.income_employment|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>2. Commissions, tips and bonuses</td><td class="text-right">${{ statement.income_commissions|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>3. Self-employment income</td><td class="text-right">${{ statement.income_self_employment|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>4. Employment Insurance benefits</td><td class="text-right">${{ statement.income_ei|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>5. Workers' compensation benefits</td><td class="text-right">${{ statement.income_workers_comp|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>6. Social assistance income (Ontario Works/ODSP)</td><td class="text-right">${{ statement.income_social_assistance|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>7. Interest and investment income</td><td class="text-right">${{ statement.income_investment|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>8. Pension income (including CPP and OAS)</td><td class="text-right">${{ statement.income_pension|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>9. Spousal support received from a former spouse/spouse</td><td class="text-right">${{ statement.income_spousal_support|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>10. Child Tax Benefits or credits</td><td class="text-right">${{ statement.income_tax_benefits|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>11. Other income (Specify, if any)</td><td class="text-right">${{ statement.income_other|floatformat:2|default:"—" }}</td></tr>
+        <tr class="total-row"><td><strong>12. Total monthly income</strong></td><td class="text-right"><strong>${{ statement.income_total_monthly|floatformat:2|default:"—" }}</strong></td></tr>
+        <tr class="total-row"><td><strong>13. Total annual income (line 12 × 12)</strong></td><td class="text-right"><strong>${{ statement.income_total_annual|floatformat:2|default:"—" }}</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 3: Other Benefits & Expenses -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13 — Page 3</h3>
+      <div class="subtitle">Other Benefits & Part 2: Expenses</div>
+    </div>
+
+    <div class="section-title">6. Other Benefits</div>
+    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+      In addition to my income listed on page 2, I receive the following benefits:
+    </p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th style="width:25%">Who Provides</th>
+          <th style="width:20%">Value / Month</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Use of vehicle or vehicle allowance</td><td></td><td class="text-right">$________________</td></tr>
+        <tr><td>Room and board</td><td></td><td class="text-right">$________________</td></tr>
+        <tr><td>Accommodations (e.g., house, apartment)</td><td></td><td class="text-right">$________________</td></tr>
+        <tr><td>Other (Specify)</td><td></td><td class="text-right">$________________</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">PART 2: EXPENSES</div>
+    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+      My current monthly expenses are as follows:
+    </p>
+    
+    <div class="info-box">
+      <h4>Automatic Deductions from Pay</h4>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Income tax</td><td class="text-right" style="width:25%;">${{ statement.income_taxes|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>CPP/QPP</td><td class="text-right">${{ statement.cpp_contributions|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>EI</td><td class="text-right">${{ statement.ei_premiums|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Union dues</td><td class="text-right">${{ statement.union_dues|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Group insurance</td><td class="text-right">${{ statement.group_insurance|floatformat:2|default:"—" }}</td></tr>
+          <tr class="total-row"><td><strong>Subtotal</strong></td><td class="text-right"><strong>${{ statement.automatic_deductions_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PAGE 4: Expenses (continued) -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13 — Page 4</h3>
+      <div class="subtitle">Expenses (continued)</div>
+    </div>
+
+    <div class="section-title">Housing</div>
+    <table class="data-table">
+      <tbody>
+        <tr><td>Rent or mortgage</td><td class="text-right" style="width:25%;">${{ statement.rent_or_mortgage|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Property tax and municipal levies</td><td class="text-right">${{ statement.property_taxes|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Condominium fees</td><td class="text-right">${{ statement.condo_fees|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Home insurance</td><td class="text-right">${{ statement.property_insurance|floatformat:2|default:"—" }}</td></tr>
+        <tr class="total-row"><td><strong>Subtotal Housing</strong></td><td class="text-right"><strong>${{ statement.housing_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Utilities</div>
+    <table class="data-table">
+      <tbody>
+        <tr><td>Water</td><td class="text-right" style="width:25%;">${{ statement.water|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Electricity</td><td class="text-right">${{ statement.electricity|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Heat/Gas</td><td class="text-right">${{ statement.heat|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Telephone</td><td class="text-right">${{ statement.telephone|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Cell phone</td><td class="text-right">${{ statement.cell_phone|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Cable TV/Internet</td><td class="text-right">${{ statement.cable|floatformat:2|default:"—" }}</td></tr>
+        <tr class="total-row"><td><strong>Subtotal Utilities</strong></td><td class="text-right"><strong>${{ statement.utilities_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Household Expenses</div>
+    <table class="data-table">
+      <tbody>
+        <tr><td>Food</td><td class="text-right" style="width:25%;">${{ statement.groceries|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Household supplies</td><td class="text-right">${{ statement.household_supplies|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Laundry/dry cleaning</td><td class="text-right">${{ statement.laundry_dry_cleaning|floatformat:2|default:"—" }}</td></tr>
+        <tr class="total-row"><td><strong>Subtotal Household</strong></td><td class="text-right"><strong>${{ statement.household_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 5: Expenses (continued) & Assets -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13 — Page 5</h3>
+      <div class="subtitle">Expenses (continued) & Part 3: Assets</div>
+    </div>
+
+    <div class="section-title">Transportation</div>
+    <table class="data-table">
+      <tbody>
+        <tr><td>Car payment / lease</td><td class="text-right" style="width:25%;">${{ statement.car_loan_lease_payments|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Car insurance</td><td class="text-right">${{ statement.car_insurance_license|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Licence, registration</td><td class="text-right">${{ statement.licence_registration|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Gasoline / Oil</td><td class="text-right">${{ statement.gas_oil|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Repairs, maintenance</td><td class="text-right">${{ statement.repairs_maintenance|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Public transit, taxis</td><td class="text-right">${{ statement.public_transit_taxis|floatformat:2|default:"—" }}</td></tr>
+        <tr class="total-row"><td><strong>Subtotal Transportation</strong></td><td class="text-right"><strong>${{ statement.transportation_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">Personal Expenses</div>
+    <table class="data-table">
+      <tbody>
+        <tr><td>Clothing</td><td class="text-right" style="width:25%;">${{ statement.clothing|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Haircuts, toiletries</td><td class="text-right">${{ statement.hair_care_beauty|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Gifts</td><td class="text-right">${{ statement.gifts|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Entertainment, recreation</td><td class="text-right">${{ statement.entertainment|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Vacation</td><td class="text-right">${{ statement.vacations|floatformat:2|default:"—" }}</td></tr>
+        <tr class="total-row"><td><strong>Subtotal Personal</strong></td><td class="text-right"><strong>${{ statement.personal_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">PART 3: ASSETS</div>
+    <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
+      The following is the value of property I own as of today:
+    </p>
+  </div>
+
+  <!-- PAGE 6: Assets -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13 — Page 6</h3>
+      <div class="subtitle">Part 3: Assets (continued)</div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Type of Asset</th>
+          <th style="width:30%">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Real estate (matrimonial home)</td><td class="text-right">${{ real_estate.0.value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Real estate (other property)</td><td class="text-right">${{ real_estate.1.value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Motor vehicles</td><td class="text-right">${{ vehicles.0.value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Bank accounts</td><td class="text-right">${{ bank_accounts.0.value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Savings, RRSPs, RESPs, TFSAs</td><td class="text-right">${{ savings_plans.0.value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Stocks and bonds</td><td class="text-right">${{ investments.0.value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Life insurance (cash surrender value)</td><td class="text-right">${{ life_insurance.0.cash_surrender_value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Interest in business</td><td class="text-right">${{ interest_in_business.0.value|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Pension assets</td><td class="text-right">${{ statement.pension_assets|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Household contents</td><td class="text-right">${{ statement.household_contents|floatformat:2|default:"—" }}</td></tr>
+        <tr><td>Other (Specify)</td><td class="text-right">${{ other_assets.0.value|floatformat:2|default:"—" }}</td></tr>
+        <tr class="total-row"><td><strong>TOTAL ASSETS</strong></td><td class="text-right"><strong>${{ statement.total_assets|floatformat:2|default:"—" }}</strong></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 7: Debts & Summary -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13 — Page 7</h3>
+      <div class="subtitle">Part 4: Debts & Part 5: Summary</div>
+    </div>
+
+    <div class="section-title">PART 4: DEBTS AND OTHER LIABILITIES</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Creditor</th>
+          <th style="width:20%">Amount Owed</th>
+          <th style="width:18%">Monthly Payment</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for debt in other_debts %}
+        <tr>
+          <td>Other debts</td>
+          <td>{{ debt.creditor|default:"—" }}</td>
+          <td class="text-right">${{ debt.full_amount|floatformat:2|default:"—" }}</td>
+          <td class="text-right">${{ debt.monthly_payment|floatformat:2|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td>Other debts</td><td></td><td class="text-right">$________________</td><td class="text-right">$________________</td></tr>
+        {% endfor %}
+        <tr class="total-row"><td colspan="2"><strong>TOTAL DEBTS</strong></td><td class="text-right"><strong>${{ statement.total_debts|floatformat:2|default:"—" }}</strong></td><td class="text-right"><strong>—</strong></td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">PART 5: SUMMARY OF INCOME AND EXPENSES</div>
+    <div class="grand-total">
+      <h4>Financial Summary</h4>
+      <div class="total-grid">
+        <div class="total-cell">
+          <div class="label">Total Monthly Income</div>
+          <div class="value">${{ statement.income_total_monthly|floatformat:2|default:"—" }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Total Monthly Expenses</div>
+          <div class="value">${{ statement.total_monthly_expenses|floatformat:2|default:"—" }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Total Assets</div>
+          <div class="value">${{ statement.total_assets|floatformat:2|default:"—" }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Total Debts</div>
+          <div class="value">${{ statement.total_debts|floatformat:2|default:"—" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 8: Schedules -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13 — Page 8 (Schedules)</h3>
+      <div class="subtitle">Schedule A, B & C</div>
+    </div>
+
+    <div class="section-title">SCHEDULE A: Additional Sources of Income</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Income Source</th>
+          <th style="width:30%">Annual Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Capital gains or losses</td><td class="text-right">$________________</td></tr>
+        <tr><td>Taxable dividends received</td><td class="text-right">$________________</td></tr>
+        <tr><td>RRSP income or withdrawals</td><td class="text-right">$________________</td></tr>
+        <tr><td>Rental income (net)</td><td class="text-right">$________________</td></tr>
+        <tr><td>Other</td><td class="text-right">$________________</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">SCHEDULE B: Other Income Earners in the Household</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th style="width:30%">Relationship</th>
+          <th style="width:25%">Annual Income</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td></td><td></td><td class="text-right">$________________</td></tr>
+        <tr><td></td><td></td><td class="text-right">$________________</td></tr>
+      </tbody>
+    </table>
+
+    <div class="section-title">SCHEDULE C: Special or Extraordinary Expenses for Child(ren)</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Child's Name</th>
+          <th>Expense</th>
+          <th style="width:20%">Amount/Year</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for expense in schedule_c_expenses %}
+        <tr>
+          <td>{{ expense.child_name|default:"—" }}</td>
+          <td>{{ expense.expense|default:"—" }}</td>
+          <td class="text-right">${{ expense.amount_per_year|default:"—" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td>—</td><td>—</td><td class="text-right">$________________</td></tr>
+        <tr><td>—</td><td>—</td><td class="text-right">$________________</td></tr>
+        <tr><td>—</td><td>—</td><td class="text-right">$________________</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="info-box" style="margin-top: 20px;">
+      <h4>Sworn/Affirmed</h4>
+      <p style="font-size: 13px; line-height: 1.6; margin: 0;">
+        I, <strong>{{ statement.applicant_name|default:"________________" }}</strong>, 
+        SWEAR/AFFIRM that the information given in this financial statement is accurate and complete 
+        to the best of my knowledge, information, and belief.
+      </p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 16px;">
+        <div>
+          <div style="border-bottom: 1px solid var(--text); height: 40px;"></div>
+          <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">Signature</div>
+        </div>
+        <div>
+          <div style="border-bottom: 1px solid var(--text); height: 40px;"></div>
+          <div style="font-size: 11px; color: var(--muted); margin-top: 4px;">Date</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

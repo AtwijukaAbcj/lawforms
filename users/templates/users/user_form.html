@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>{{ title }}</h1>
+        <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">← Back to Users</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Username <span class="text-danger">*</span></label>
+                                {{ form.username }}
+                                {% if form.username.errors %}
+                                <div class="text-danger small">{{ form.username.errors.0 }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name</label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name</label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Password {% if not user_obj %}<span class="text-danger">*</span>{% endif %}</label>
+                                {{ form.password }}
+                                <small class="text-muted">{% if user_obj %}Leave blank to keep current password{% else %}Minimum 8 characters{% endif %}</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Confirm Password</label>
+                                {{ form.confirm_password }}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Role</label>
+                                {{ form.role }}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Department</label>
+                                {{ form.department }}
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Phone</label>
+                                {{ form.phone }}
+                            </div>
+                            <div class="col-md-6 d-flex align-items-end">
+                                <div class="form-check">
+                                    {{ form.is_active }}
+                                    <label class="form-check-label ms-2">Active User</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors.0 }}
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">{{ action }} User</button>
+                            <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0">Help</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted mb-2"><strong>Username:</strong> Must be unique and will be used for login.</p>
+                    <p class="small text-muted mb-2"><strong>Role:</strong> Determines what the user can access in the system.</p>
+                    <p class="small text-muted mb-0"><strong>Active:</strong> Inactive users cannot log in.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

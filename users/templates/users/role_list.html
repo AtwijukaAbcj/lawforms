@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Roles{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Roles</h1>
+        <a href="{% url 'users:role_create' %}" class="btn btn-primary">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M12 5v14M5 12h14"/></svg> Create Role
+        </a>
+    </div>
+
+    <div class="row">
+        {% for role in roles %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>{{ role.name }}
+                        {% if not role.is_active %}
+                        <span class="badge bg-secondary ms-2">Inactive</span>
+                        {% endif %}
+                    </h5>
+                    <div class="btn-group btn-group-sm">
+                        <a href="{% url 'users:role_edit' role.pk %}" class="btn btn-outline-primary">Edit</a>
+                        <a href="{% url 'users:role_delete' role.pk %}" class="btn btn-outline-danger">Delete</a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    {% if role.description %}
+                    <p class="text-muted small">{{ role.description }}</p>
+                    {% endif %}
+                    
+                    <p class="mb-2"><strong>Users:</strong> 
+                        <span class="badge bg-info">{{ role.users.count }} users</span>
+                    </p>
+                    
+                    <p class="mb-1"><strong>Permissions:</strong></p>
+                    {% with perms=role.get_permissions_by_module %}
+                    {% if perms %}
+                    <ul class="list-unstyled small mb-0">
+                        {% for module, permissions in perms.items %}
+                        <li class="mb-1">
+                            <strong>{{ module }}:</strong>
+                            {% for perm in permissions %}
+                            <span class="badge bg-light text-dark">{{ perm }}</span>
+                            {% endfor %}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    {% else %}
+                    <span class="text-muted small">No permissions assigned</span>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+                <div class="card-footer text-muted small">
+                    Created: {{ role.created_at|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                No roles created yet. <a href="{% url 'users:role_create' %}">Create your first role</a>.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

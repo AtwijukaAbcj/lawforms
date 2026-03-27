@@ -1,0 +1,912 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --paper: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --indigo: 99,102,241;
+  }
+  
+  body { background: var(--bg); }
+  
+  .print-container {
+    max-width: 1100px;
+    margin: 20px auto;
+    padding: 0 14px;
+  }
+  
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+  }
+  
+  .print-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  
+  .print-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .btn-action {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 800;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  
+  .btn-action:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+    transform: translateY(-1px);
+  }
+  
+  .btn-print {
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color: #fff;
+    border: none;
+  }
+  
+  .page {
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    padding: 30px;
+    margin-bottom: 24px;
+    page-break-after: always;
+  }
+  
+  .page:last-child {
+    page-break-after: auto;
+  }
+  
+  .page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--text);
+  }
+  
+  .page-title h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: .5px;
+  }
+  
+  .page-title .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  
+  .ontario-header {
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: .2em;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .info-box {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: #fafbfc;
+  }
+  
+  .info-box h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+  }
+  
+  .info-row:last-child {
+    border-bottom: none;
+  }
+  
+  .info-row .label {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  
+  .info-row .value {
+    color: var(--text);
+    font-weight: 700;
+  }
+  
+  .section-title {
+    background: linear-gradient(135deg, rgba(var(--indigo),.1), rgba(16,185,129,.08));
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 20px 0 12px;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text);
+  }
+  
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .data-table th {
+    background: #f8fafc;
+    border: 1px solid var(--line);
+    padding: 10px 8px;
+    text-align: center;
+    font-weight: 800;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  
+  .data-table td {
+    border: 1px solid var(--line);
+    padding: 8px;
+    vertical-align: middle;
+  }
+  
+  .data-table .text-right {
+    text-align: right;
+  }
+  
+  .data-table .text-center {
+    text-align: center;
+  }
+  
+  .data-table .total-row {
+    background: #f1f5f9;
+    font-weight: 800;
+  }
+  
+  .data-table .total-row td {
+    border-top: 2px solid var(--text);
+  }
+  
+  .grand-total {
+    background: linear-gradient(135deg, rgba(var(--indigo),.15), rgba(16,185,129,.1));
+    border: 2px solid rgba(var(--indigo),.3);
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+  }
+  
+  .grand-total h4 {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  
+  .total-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  
+  .total-cell {
+    text-align: center;
+    padding: 10px;
+    background: var(--paper);
+    border-radius: 6px;
+    border: 1px solid var(--line);
+  }
+  
+  .total-cell .label {
+    font-size: 10px;
+    color: var(--muted);
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  
+  .total-cell .value {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  
+  @media print {
+    .no-print { display: none !important; }
+    .print-container { max-width: 100%; margin: 0; padding: 0; }
+    .print-header { display: none; }
+    .page { 
+      box-shadow: none; 
+      border-radius: 0; 
+      margin: 0;
+      padding: 20px;
+    }
+    body { background: #fff; }
+  }
+</style>
+
+<div class="print-container">
+  <div class="print-header no-print">
+    <h2>Form 13C — Comparison of Net Family Property</h2>
+    <div class="print-actions">
+      <button class="btn-action btn-print" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print Form</button>
+      <a class="btn-action" href="{% url 'comparison_nfp_page1_edit' pk %}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</a>
+      <a class="btn-action" href="{% url 'comparison_nfp_list' %}">← Back to List</a>
+    </div>
+  </div>
+
+  <!-- PAGE 1: Header & Parties -->
+  <div class="page">
+    <div class="ontario-header">ONTARIO</div>
+    <div class="page-title">
+      <h3>Form 13C: Comparison of Net Family Property Statements</h3>
+      <div class="subtitle">Family Law Rules</div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Court Information</h4>
+        <div class="info-row"><span class="label">Court Name:</span><span class="value">{{ comparison.court_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Court Address:</span><span class="value">{{ comparison.court_office_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">File Number:</span><span class="value">{{ comparison.court_file_number|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Prepared By:</span><span class="value">{{ comparison.get_prepared_by_display|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Important Dates</h4>
+        <div class="info-row"><span class="label">Valuation Date:</span><span class="value">{{ comparison.valuation_date|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Statement Date:</span><span class="value">{{ comparison.statement_date|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Applicant</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ comparison.applicant_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ comparison.applicant_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ comparison.applicant_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ comparison.applicant_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Applicant's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ comparison.applicant_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ comparison.applicant_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ comparison.applicant_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ comparison.applicant_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Respondent</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ comparison.respondent_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ comparison.respondent_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ comparison.respondent_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ comparison.respondent_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Respondent's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ comparison.respondent_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ comparison.respondent_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ comparison.respondent_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ comparison.respondent_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+
+    <!-- Land Assets Table -->
+    <div class="section-title">1. VALUE OF ASSETS OWNED ON VALUATION DATE — (a) Land</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th rowspan="2">Nature & Type</th>
+          <th rowspan="2">Address</th>
+          <th rowspan="2">Comments</th>
+          <th rowspan="2">Doc #</th>
+          <th colspan="2">Applicant's Position</th>
+          <th colspan="2">Respondent's Position</th>
+        </tr>
+        <tr>
+          <th>Applicant</th>
+          <th>Respondent</th>
+          <th>Applicant</th>
+          <th>Respondent</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for asset in land_assets %}
+        <tr>
+          <td>{{ asset.nature_type_of_ownership|default:"—" }}</td>
+          <td>{{ asset.nature_address_of_ownership|default:"—" }}</td>
+          <td>{{ asset.comments|default:"—" }}</td>
+          <td class="text-center">{{ asset.document_number|default:"—" }}</td>
+          <td class="text-right">${{ asset.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ asset.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ asset.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ asset.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center">No land assets recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="4" class="text-right"><strong>(A) TOTALS: Value of Land</strong></td>
+          <td class="text-right">${{ totals.land.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.land.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.land.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.land.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 2: Household, Bank, Insurance, Business -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13C — Page 2</h3>
+      <div class="subtitle">General Household Items, Bank Accounts, Insurance, Business Interests</div>
+    </div>
+
+    <!-- Household Items -->
+    <div class="section-title">(b) General Household Items</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Description</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in household_items %}
+        <tr>
+          <td>{{ item.item|default:"—" }}</td>
+          <td>{{ item.description|default:"—" }}</td>
+          <td>{{ item.comments|default:"—" }}</td>
+          <td class="text-center">{{ item.document_number|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center">No household items recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="4" class="text-right"><strong>(B) TOTALS</strong></td>
+          <td class="text-right">${{ totals.household.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.household.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.household.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.household.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Bank Accounts -->
+    <div class="section-title">(c) Bank Accounts, Savings, etc.</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Institution</th>
+          <th>Account #</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for acc in bank_accounts %}
+        <tr>
+          <td>{{ acc.category|default:"—" }}</td>
+          <td>{{ acc.institution|default:"—" }}</td>
+          <td>{{ acc.account_number|default:"—" }}</td>
+          <td class="text-center">{{ acc.document_number|default:"—" }}</td>
+          <td class="text-right">${{ acc.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ acc.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ acc.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ acc.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center">No bank accounts recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="4" class="text-right"><strong>(C) TOTALS</strong></td>
+          <td class="text-right">${{ totals.bank.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.bank.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.bank.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.bank.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Insurance -->
+    <div class="section-title">(d) Life & Disability Insurance</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Company/Policy</th>
+          <th>Owner</th>
+          <th>Beneficiary</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ins in insurances %}
+        <tr>
+          <td>{{ ins.company_policy|default:"—" }}</td>
+          <td>{{ ins.owner|default:"—" }}</td>
+          <td>{{ ins.beneficiary|default:"—" }}</td>
+          <td class="text-center">{{ ins.document_number|default:"—" }}</td>
+          <td class="text-right">${{ ins.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ ins.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ ins.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ ins.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center">No insurance policies recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="4" class="text-right"><strong>(D) TOTALS</strong></td>
+          <td class="text-right">${{ totals.insurance.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.insurance.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.insurance.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.insurance.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Business Interests -->
+    <div class="section-title">(e) Business Interests</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Firm Name</th>
+          <th>Interests</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for biz in businesses %}
+        <tr>
+          <td>{{ biz.firm_name|default:"—" }}</td>
+          <td>{{ biz.interests|default:"—" }}</td>
+          <td>{{ biz.comments|default:"—" }}</td>
+          <td class="text-center">{{ biz.document_number|default:"—" }}</td>
+          <td class="text-right">${{ biz.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ biz.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ biz.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ biz.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="8" class="text-center">No business interests recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="4" class="text-right"><strong>(E) TOTALS</strong></td>
+          <td class="text-right">${{ totals.business.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.business.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.business.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.business.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 3: Money Owed, Other Property, Debts -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13C — Page 3</h3>
+      <div class="subtitle">Money Owed, Other Property, Debts & Liabilities</div>
+    </div>
+
+    <!-- Money Owed -->
+    <div class="section-title">(f) Money Owed to You</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Details</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in money_owed %}
+        <tr>
+          <td>{{ item.category_details|default:"—" }}</td>
+          <td>{{ item.comments|default:"—" }}</td>
+          <td class="text-center">{{ item.document_number|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center">No money owed recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="3" class="text-right"><strong>(F) TOTALS</strong></td>
+          <td class="text-right">${{ totals.money_owed.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.money_owed.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.money_owed.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.money_owed.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Other Property -->
+    <div class="section-title">(g) Other Property</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Details</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in other_properties %}
+        <tr>
+          <td>{{ item.category_details|default:"—" }}</td>
+          <td>{{ item.comments|default:"—" }}</td>
+          <td class="text-center">{{ item.document_number|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center">No other property recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="3" class="text-right"><strong>(G) TOTALS</strong></td>
+          <td class="text-right">${{ totals.other.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.other.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.other.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.other.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Grand Total 1 -->
+    <div class="grand-total">
+      <h4>TOTAL 1: VALUE OF ALL PROPERTY ON VALUATION DATE (A+B+C+D+E+F+G)</h4>
+      <div class="total-grid">
+        <div class="total-cell">
+          <div class="label">Applicant's Position / Applicant</div>
+          <div class="value">${{ totals.total1.0|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Applicant's Position / Respondent</div>
+          <div class="value">${{ totals.total1.1|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Respondent's Position / Applicant</div>
+          <div class="value">${{ totals.total1.2|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Respondent's Position / Respondent</div>
+          <div class="value">${{ totals.total1.3|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Debts & Liabilities -->
+    <div class="section-title">2. DEBTS AND OTHER LIABILITIES ON VALUATION DATE</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in debts_liabilities %}
+        <tr>
+          <td>{{ item.category|default:"—" }}</td>
+          <td>{{ item.comments|default:"—" }}</td>
+          <td class="text-center">{{ item.document_number|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center">No debts recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="3" class="text-right"><strong>TOTAL 2: DEBTS</strong></td>
+          <td class="text-right">${{ totals.total2.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total2.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total2.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total2.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 4: Marriage Property, Excluded Property -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13C — Page 4</h3>
+      <div class="subtitle">Property on Date of Marriage & Excluded Property</div>
+    </div>
+
+    <!-- Marriage Property -->
+    <div class="section-title">3. PROPERTY, DEBTS ON DATE OF MARRIAGE</div>
+    
+    <!-- Marriage Property Items -->
+    <p style="font-weight: 700; margin: 10px 0 5px; color: var(--muted);">Property Items:</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Details</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in marriage_properties %}
+        <tr>
+          <td>{{ item.category_details|default:"—" }}</td>
+          <td>{{ item.comments|default:"—" }}</td>
+          <td class="text-center">{{ item.document_number|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center">No marriage property recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="3" class="text-right"><strong>Total Property</strong></td>
+          <td class="text-right">${{ totals.marriage_property.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.marriage_property.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.marriage_property.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.marriage_property.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Marriage Debts -->
+    <p style="font-weight: 700; margin: 16px 0 5px; color: var(--muted);">Debts at Date of Marriage:</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Details</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in marriage_debts %}
+        <tr>
+          <td>{{ item.category_details|default:"—" }}</td>
+          <td>{{ item.comments|default:"—" }}</td>
+          <td class="text-center">{{ item.document_number|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center">No marriage debts recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="3" class="text-right"><strong>Total Debts</strong></td>
+          <td class="text-right">${{ totals.marriage_debt.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.marriage_debt.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.marriage_debt.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.marriage_debt.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Net Total 3 -->
+    <div class="grand-total" style="margin-top: 16px;">
+      <h4>NET TOTAL 3: NET VALUE OF PROPERTY ON DATE OF MARRIAGE (Property − Debts)</h4>
+      <div class="total-grid">
+        <div class="total-cell">
+          <div class="label">App / App</div>
+          <div class="value">${{ totals.total3.0|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">App / Resp</div>
+          <div class="value">${{ totals.total3.1|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Resp / App</div>
+          <div class="value">${{ totals.total3.2|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Resp / Resp</div>
+          <div class="value">${{ totals.total3.3|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Excluded Property -->
+    <div class="section-title">4. VALUE OF EXCLUDED PROPERTY</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Comments</th>
+          <th>Doc #</th>
+          <th>App/App</th>
+          <th>App/Resp</th>
+          <th>Resp/App</th>
+          <th>Resp/Resp</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in excluded_properties %}
+        <tr>
+          <td>{{ item.item|default:"—" }}</td>
+          <td>{{ item.comments|default:"—" }}</td>
+          <td class="text-center">{{ item.document_number|default:"—" }}</td>
+          <td class="text-right">${{ item.applicant_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.applicant_position_respondent|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_applicant|floatformat:2|default:"0.00" }}</td>
+          <td class="text-right">${{ item.respondent_position_respondent|floatformat:2|default:"0.00" }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7" class="text-center">No excluded property recorded</td></tr>
+        {% endfor %}
+        <tr class="total-row">
+          <td colspan="3" class="text-right"><strong>TOTAL 4: EXCLUDED PROPERTY</strong></td>
+          <td class="text-right">${{ totals.total4.0|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total4.1|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total4.2|floatformat:2 }}</td>
+          <td class="text-right">${{ totals.total4.3|floatformat:2 }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- PAGE 5: Final Totals -->
+  <div class="page">
+    <div class="page-title">
+      <h3>Form 13C — Page 5</h3>
+      <div class="subtitle">Net Family Property Calculation</div>
+    </div>
+
+    <div class="grand-total">
+      <h4>TOTAL 5: DEDUCTIONS (Total 2 + Total 3 + Total 4)</h4>
+      <div class="total-grid">
+        <div class="total-cell">
+          <div class="label">App / App</div>
+          <div class="value">${{ totals.total5.0|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">App / Resp</div>
+          <div class="value">${{ totals.total5.1|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Resp / App</div>
+          <div class="value">${{ totals.total5.2|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Resp / Resp</div>
+          <div class="value">${{ totals.total5.3|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grand-total" style="background: linear-gradient(135deg, rgba(16,185,129,.15), rgba(34,197,94,.1)); border-color: rgba(16,185,129,.3);">
+      <h4>TOTAL 6: NET FAMILY PROPERTY (Total 1 − Total 5)</h4>
+      <div class="total-grid">
+        <div class="total-cell">
+          <div class="label">App / App</div>
+          <div class="value">${{ totals.total6.0|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">App / Resp</div>
+          <div class="value">${{ totals.total6.1|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Resp / App</div>
+          <div class="value">${{ totals.total6.2|floatformat:2 }}</div>
+        </div>
+        <div class="total-cell">
+          <div class="label">Resp / Resp</div>
+          <div class="value">${{ totals.total6.3|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    {% if final_totals or equalization %}
+    <div class="section-title">Equalization Payments</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Applicant Pays Respondent (App Position)</th>
+          <th>Respondent Pays Applicant (App Position)</th>
+          <th>Applicant Pays Respondent (Resp Position)</th>
+          <th>Respondent Pays Applicant (Resp Position)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="text-center">${{ equalization.app_pays_resp_app|floatformat:2|default:"0.00" }}</td>
+          <td class="text-center">${{ equalization.resp_pays_app_app|floatformat:2|default:"0.00" }}</td>
+          <td class="text-center">${{ equalization.app_pays_resp_resp|floatformat:2|default:"0.00" }}</td>
+          <td class="text-center">${{ equalization.resp_pays_app_resp|floatformat:2|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

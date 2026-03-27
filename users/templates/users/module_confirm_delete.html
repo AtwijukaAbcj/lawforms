@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Module{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0">⚠️ Confirm Delete</h5>
+                </div>
+                <div class="card-body">
+                    <p>Are you sure you want to delete the module <strong>"{{ module.name }}"</strong>?</p>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Warning:</strong> Deleting this module will also remove all associated permissions. 
+                        Any roles with these permissions will lose access to this module.
+                    </div>
+                    
+                    <p class="text-muted small mb-0">This action cannot be undone.</p>
+                </div>
+                <div class="card-footer d-flex gap-2">
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Yes, Delete Module</button>
+                    </form>
+                    <a href="{% url 'users:module_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,266 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root {
+    --bg: #f6f7fb;
+    --paper: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --indigo: 99,102,241;
+    --emerald: 16,185,129;
+  }
+  
+  body { background: var(--bg); }
+  
+  .print-container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 0 14px;
+  }
+  
+  .print-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+  }
+  
+  .print-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  
+  .print-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .btn-action {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 800;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    background: var(--paper);
+    color: var(--text);
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+  
+  .btn-action:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,.1);
+    transform: translateY(-1px);
+  }
+  
+  .btn-print {
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color: #fff;
+    border: none;
+  }
+  
+  .page {
+    background: var(--paper);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,.06);
+    padding: 30px;
+    margin-bottom: 24px;
+    page-break-after: always;
+  }
+  
+  .page:last-child {
+    page-break-after: auto;
+  }
+  
+  .page-title {
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--text);
+  }
+  
+  .page-title h3 {
+    margin: 0 0 6px;
+    font-size: 18px;
+    font-weight: 900;
+    letter-spacing: .5px;
+  }
+  
+  .page-title .subtitle {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  
+  .ontario-header {
+    text-align: center;
+    font-weight: 900;
+    letter-spacing: .2em;
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  
+  .info-box {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px;
+    background: #fafbfc;
+  }
+  
+  .info-box h4 {
+    margin: 0 0 10px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+  
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--line);
+    font-size: 13px;
+  }
+  
+  .info-row:last-child {
+    border-bottom: none;
+  }
+  
+  .info-row .label {
+    color: var(--muted);
+    font-weight: 600;
+  }
+  
+  .info-row .value {
+    color: var(--text);
+    font-weight: 700;
+  }
+  
+  .section-title {
+    background: linear-gradient(135deg, rgba(var(--indigo),.1), rgba(var(--emerald),.08));
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin: 20px 0 12px;
+    font-weight: 800;
+    font-size: 14px;
+    color: var(--text);
+  }
+  
+  .notice {
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+    text-align: center;
+    font-size: 13px;
+    color: #92400e;
+  }
+  
+  @media print {
+    .no-print { display: none !important; }
+    .print-container { max-width: 100%; margin: 0; padding: 0; }
+    .print-header { display: none; }
+    .page { 
+      box-shadow: none; 
+      border-radius: 0; 
+      margin: 0;
+      padding: 20px;
+    }
+    body { background: #fff; }
+  }
+</style>
+
+<div class="print-container">
+  <div class="print-header no-print">
+    <h2>Form 13 — Financial Statement</h2>
+    <div class="print-actions">
+      <button class="btn-action btn-print" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print Form</button>
+      <a class="btn-action" href="{% url 'financial_statement_page1_edit' pk %}"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>Edit</a>
+      <a class="btn-action" href="{% url 'financial_statement_list' %}">← Back to List</a>
+    </div>
+  </div>
+
+  <!-- PAGE 1: Header & Parties -->
+  <div class="page">
+    <div class="ontario-header">ONTARIO</div>
+    <div class="page-title">
+      <h3>Form 13: Financial Statement</h3>
+      <div class="subtitle">(Support Claims) under the Family Law Act</div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Court Information</h4>
+        <div class="info-row"><span class="label">Court Name:</span><span class="value">{{ statement.court_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Court Address:</span><span class="value">{{ statement.court_office_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">File Number:</span><span class="value">{{ statement.court_file_number|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Prepared By:</span><span class="value">{{ statement.get_prepared_by_display|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Important Dates</h4>
+        <div class="info-row"><span class="label">Valuation Date:</span><span class="value">{{ statement.valuation_date|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Statement Date:</span><span class="value">{{ statement.statement_date|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Applicant</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.applicant_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Applicant's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.applicant_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+    
+    <div class="info-grid">
+      <div class="info-box">
+        <h4>Respondent</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.respondent_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_email|default:"—" }}</span></div>
+      </div>
+      <div class="info-box">
+        <h4>Respondent's Lawyer</h4>
+        <div class="info-row"><span class="label">Name:</span><span class="value">{{ statement.respondent_lawyer_name|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_lawyer_address|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_lawyer_phone|default:"—" }}</span></div>
+        <div class="info-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_lawyer_email|default:"—" }}</span></div>
+      </div>
+    </div>
+
+    <div class="notice">
+      <strong>Note:</strong> This is a simplified view of the Financial Statement (Form 13). 
+      The full form has 8 pages covering Income, Expenses, Assets, Debts, and other financial details. 
+      Click "Edit" to view and complete all sections.
+    </div>
+  </div>
+</div>
+
+{% endblock %}

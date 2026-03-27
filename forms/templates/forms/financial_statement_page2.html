@@ -1,0 +1,643 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+    --amber:245,158,11;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1120px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  /* Panels */
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-title{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .panel-sub{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    max-width: 820px;
+  }
+  .panel-pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  /* Inputs */
+  .ui-label{
+    font-weight: 900;
+    color: var(--text);
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+  .ui-help{
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+    font-weight: 600;
+  }
+  .ui-input{
+    width:100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 10px 12px !important;
+    font-size: .95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .ui-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+
+  /* Check pills */
+  .pill-grid{
+    display:flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .pill-check{
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.9);
+    font-weight: 800;
+    color: var(--text);
+    cursor:pointer;
+    transition: background .12s ease, border-color .12s ease, transform .08s ease;
+    user-select:none;
+  }
+  .pill-check:hover{
+    background: rgba(var(--indigo), .06);
+    border-color: rgba(var(--indigo), .25);
+    transform: translateY(-1px);
+  }
+  .pill-check input{
+    width: 18px;
+    height: 18px;
+    margin: 0;
+  }
+
+  /* Info list */
+  .bullet{
+    margin: 10px 0 0;
+    padding-left: 18px;
+    color: var(--text);
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+  .bullet li{ margin: 6px 0; color: var(--text); }
+  .note{
+    border: 1px solid rgba(var(--amber), .25);
+    background: rgba(var(--amber), .08);
+    border-radius: 8px;
+    padding: 12px;
+    color: var(--text);
+  }
+  .note strong{
+    font-weight: 950;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    font-size: 12px;
+    color: var(--muted);
+    display:block;
+    margin-bottom: 6px;
+  }
+
+  /* Table */
+  .table-wrap{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  }
+  .modern-table{
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: .93rem;
+  }
+  .modern-table thead th{
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.55);
+  }
+  .row-title{
+    color: var(--text);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.3;
+  }
+  .money-input{
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    height: 42px;
+  }
+  .inline-mini{
+    display:inline-block;
+    width: 180px !important;
+    max-width: 100%;
+    vertical-align: middle;
+    margin-left: 8px;
+  }
+  .totals{
+    background: rgba(var(--indigo), .06) !important;
+    font-weight: 950;
+  }
+
+  /* Buttons */
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{ filter: brightness(1.03); color:#fff; }
+  .btn-secondary-modern{
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+    <div class="page-header">
+      <div>
+        <h1>Form 13 — Financial Statement (Support Claims)</h1>
+        <p>Page 2 • Income proof • Prior-year income • Current income table</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if statement.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ statement.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Page 2</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div id="autosave-indicator" style="position:fixed; top:10px; right:10px; padding:8px 16px; background:rgba(34,197,94,.9); color:#fff; border-radius:8px; font-weight:700; font-size:13px; display:none; z-index:9999;">Saved</div>
+
+        <script>
+        (function(){
+          function parseNum(val) {
+            if (!val) return 0;
+            val = (''+val).replace(/[^\d.\-]/g, '');
+            var n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+          }
+          function updateIncomeTotals() {
+            var sum = 0;
+            document.querySelectorAll('.income-field').forEach(function(inp){
+              sum += parseNum(inp.value);
+            });
+            var totalMonthly = document.getElementById('income_total_monthly');
+            var totalAnnual = document.getElementById('income_total_annual');
+            if (totalMonthly) totalMonthly.value = sum.toFixed(2);
+            if (totalAnnual) totalAnnual.value = (sum*12).toFixed(2);
+          }
+
+          // --- AUTOSAVE LOGIC ---
+          var autosaveTimeout = null;
+          var indicator = null;
+          function showIndicator(text, color) {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              indicator.textContent = text;
+              indicator.style.background = color;
+              indicator.style.display = 'block';
+            }
+          }
+          function hideIndicator() {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) indicator.style.display = 'none';
+          }
+          function autosaveForm() {
+            var form = document.querySelector('form');
+            if (!form) return;
+            showIndicator('Saving...', 'rgba(99,102,241,.9)');
+            var formData = new FormData(form);
+            var csrfToken = formData.get('csrfmiddlewaretoken');
+            fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+              },
+              body: formData
+            })
+            .then(function(response) {
+              if (response.ok) {
+                showIndicator('Saved', 'rgba(34,197,94,.9)');
+                setTimeout(hideIndicator, 1500);
+              } else {
+                showIndicator('Error', 'rgba(239,68,68,.9)');
+                setTimeout(hideIndicator, 2000);
+              }
+            })
+            .catch(function() {
+              showIndicator('Error', 'rgba(239,68,68,.9)');
+              setTimeout(hideIndicator, 2000);
+            });
+          }
+          function scheduleAutosave() {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(function(){
+              updateIncomeTotals();
+              autosaveForm();
+            }, 800);
+          }
+
+          // Listen for input changes
+          document.addEventListener('input', function(e){
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+              updateIncomeTotals();
+              scheduleAutosave();
+            }
+          });
+          document.addEventListener('change', function(e){
+            if (e.target.type === 'checkbox' || e.target.type === 'radio') {
+              scheduleAutosave();
+            }
+          });
+          // Initial calculation on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            updateIncomeTotals();
+          });
+        })();
+        </script>
+
+        <!-- Q3: Proof checklist -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">3. Proof of year-to-date income</h3>
+              <div class="panel-sub">
+                Attach proof of your year-to-date income from all sources, including your most recent (attach all that are applicable).
+              </div>
+            </div>
+            <div class="panel-pill">Checklist</div>
+          </div>
+
+          <div class="pill-grid">
+            <label class="pill-check">
+              <input class="form-check-input" type="checkbox" name="pay_cheque_stub" {% if statement.pay_cheque_stub %}checked{% endif %}>
+              pay cheque stub
+            </label>
+
+            <label class="pill-check">
+              <input class="form-check-input" type="checkbox" name="social_assistance_stub" {% if statement.social_assistance_stub %}checked{% endif %}>
+              social assistance stub
+            </label>
+
+            <label class="pill-check">
+              <input class="form-check-input" type="checkbox" name="pension_stub" {% if statement.pension_stub %}checked{% endif %}>
+              pension stub
+            </label>
+
+            <label class="pill-check">
+              <input class="form-check-input" type="checkbox" name="workers_comp_stub" {% if statement.workers_comp_stub %}checked{% endif %}>
+              workers' compensation stub
+            </label>
+
+            <label class="pill-check">
+              <input class="form-check-input" type="checkbox" name="ei_stub" {% if statement.ei_stub %}checked{% endif %}>
+              employment insurance stub + last Record of Employment
+            </label>
+
+            <label class="pill-check">
+              <input class="form-check-input" type="checkbox" name="statement_of_income" {% if statement.statement_of_income %}checked{% endif %}>
+              statement of income/expenses (self-employed)
+            </label>
+
+            <label class="pill-check">
+              <input class="form-check-input" type="checkbox" name="other_income_proof" {% if statement.other_income_proof %}checked{% endif %}>
+              other proof (e.g. employer letter)
+            </label>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="panel">
+          <div class="panel-head">
+            <h3 class="panel-title">4. Last year gross income</h3>
+            <div class="panel-pill">Amount</div>
+          </div>
+          <div class="ui-label">Last year, my gross income from all sources was ($)</div>
+          <input type="text" class="form-control ui-input" name="last_year_gross_income"
+                 value="{{ statement.last_year_gross_income|default:'' }}"
+                 placeholder="Do not subtract any taxes that have been deducted from this income.">
+          <div class="ui-help">Enter the full gross amount for the previous year.</div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">5. Required documents (past three years)</h3>
+              <div class="panel-sub">Attach all required documents as proof of your income over the past three years, if not already provided.</div>
+            </div>
+            <div class="panel-pill">Attachments</div>
+          </div>
+
+          <ul class="bullet">
+            <li>A copy of my personal income tax returns for each of the past three taxation years, including any materials filed with the returns.</li>
+            <li>A copy of my notices of assessment and any notices of reassessment for each of the past three taxation years.</li>
+            <li>Where notices are unavailable or a return was not filed: an Income and Deductions printout from CRA for each year.</li>
+          </ul>
+
+          <div class="note mt-3">
+            <strong>Indian Act option</strong>
+            <div class="d-flex gap-2 align-items-start">
+              <input class="form-check-input mt-1" type="checkbox" name="indian_status" id="indian_status" {% if statement.indian_status %}checked{% endif %}>
+              <label for="indian_status" style="margin:0; font-weight:700; color:var(--text); font-size:13px;">
+                I am an Indian within the meaning of the Indian Act (Canada) and I have chosen not to file income tax returns for the past three years.
+                I am attaching proof of income for the last three years (list documents provided).
+              </label>
+            </div>
+            <input type="text" class="form-control ui-input mt-2" name="indian_status_docs" value="{{ statement.indian_status_docs|default:'' }}" placeholder="List documents provided">
+          </div>
+        </div>
+
+        <!-- Income Table -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Income table</h3>
+              <div class="panel-sub">Show all income you are currently receiving (taxable or not). Amounts should be monthly.</div>
+            </div>
+            <div class="panel-pill">Monthly</div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table" id="income-table">
+                <thead>
+                  <tr>
+                    <th style="width:68%">Income source</th>
+                    <th style="width:32%">Amount received / month</th>
+                  </tr>
+                </thead>
+                <tbody id="income-table-body">
+                  <tr>
+                    <td class="row-title">1. Employment income (before deductions)</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_employment" value="{{ statement.income_employment|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">2. Commissions, tips and bonuses</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_commissions" value="{{ statement.income_commissions|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">
+                      3. Self-employment income
+                      <span class="text-muted" style="font-weight:600;">
+                        (Monthly amount before expenses: $
+                        <input type="text" class="form-control money-input inline-mini" name="income_self_employment_before_expenses" value="{{ statement.income_self_employment_before_expenses|default:'' }}">
+                        )
+                      </span>
+                    </td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_self_employment" value="{{ statement.income_self_employment|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">4. Employment Insurance benefits</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_ei" value="{{ statement.income_ei|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">5. Workers' compensation benefits</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_workers_comp" value="{{ statement.income_workers_comp|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">6. Social assistance income (including ODSP payments)</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_social_assistance" value="{{ statement.income_social_assistance|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">7. Interest and investment income</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_investment" value="{{ statement.income_investment|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">8. Pension income (including CPP and OAS)</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_pension" value="{{ statement.income_pension|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">9. Spousal support received from a former spouse/partner</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_spousal_support" value="{{ statement.income_spousal_support|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">10. Child Tax Benefits or Tax Rebates (e.g. GST)</td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_tax_benefits" value="{{ statement.income_tax_benefits|default:'' }}"></td>
+                  </tr>
+                  <tr>
+                    <td class="row-title">
+                      11. Other sources of income (e.g. RRSP withdrawals, capital gains)
+                      <span class="text-muted" style="font-weight:600;">(*attach Schedule A and divide annual amount by 12)</span>
+                    </td>
+                    <td><input type="text" class="form-control money-input income-field" name="income_other" value="{{ statement.income_other|default:'' }}"></td>
+                  </tr>
+                  <!-- Custom rows will be inserted here -->
+                </tbody>
+                <tfoot>
+
+                  <tr class="totals">
+                    <td class="row-title">12. Total monthly income from all sources</td>
+                    <td><input type="text" class="form-control money-input" name="income_total_monthly" id="income_total_monthly" value="{{ statement.income_total_monthly|default:'' }}" readonly></td>
+                  </tr>
+                  <tr class="totals">
+                    <td class="row-title">13. Total monthly income × 12 = Total annual income</td>
+                    <td><input type="text" class="form-control money-input" name="income_total_annual" id="income_total_annual" value="{{ statement.income_total_annual|default:'' }}" readonly></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <script>
+            (function(){
+              // Add Row feature
+              var addBtn = document.getElementById('add-income-row');
+              if (addBtn) {
+                addBtn.addEventListener('click', function(){
+                  var tbody = document.getElementById('income-table-body');
+                  var idx = tbody.querySelectorAll('tr').length + 1;
+                  var tr = document.createElement('tr');
+                  tr.innerHTML = '<td><input type="text" class="form-control" name="income_custom_label_'+idx+'" placeholder="Other income source"></td>'+
+                    '<td><input type="text" class="form-control money-input income-field" name="income_custom_'+idx+'" value=""></td>';
+                  tbody.appendChild(tr);
+                });
+              }
+            })();
+            </script>
+          </div>
+
+          <div class="ui-help">Tip: keep amounts as numbers only (no commas) to simplify validation/calculations.</div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          <a href="{% url 'financial_statement_page1' statement.pk %}" class="btn-modern btn-secondary-modern">&larr; Previous</a>
+
+          <div class="d-flex gap-2 flex-wrap">
+            <button type="submit" class="btn-modern btn-primary-modern">Save &amp; Next &rarr;</button>
+            {% if statement.pk %}
+              <!-- <a href="{% url 'financial_statement_page3' statement.pk %}" class="btn-modern btn-primary-modern">Next &rarr;</a> -->
+            {% endif %}
+          </div>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mt-4">
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">New Comparison of Net Family Property</h4>
+    </div>
+    <div class="card-body">
+      <form method="post">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+          <div class="mb-3 row align-items-center">
+            <label class="col-sm-3 col-form-label">{{ field.label_tag }}</label>
+            <div class="col-sm-9">
+              {{ field|add_class:'form-control' }}
+              {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+              {% for error in field.errors %}<div class="text-danger">{{ error }}</div>{% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+        <div class="d-flex justify-content-end">
+          <button type="submit" class="btn btn-success">Submit</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

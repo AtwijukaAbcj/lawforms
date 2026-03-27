@@ -1,0 +1,806 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Form 13B: Net Family Property Statement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        @media print {
+            @page { size: A4; margin: 8mm; }
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 11px;
+            line-height: 1.3;
+            color: #000;
+        }
+        
+        .page {
+            width: 210mm;
+            height: 297mm;  /* Fixed A4 height */
+            max-height: 297mm;
+            padding: 12mm 12mm 18mm 12mm;
+            margin: 0 auto 10px;
+            background: white;
+            position: relative;
+            overflow: hidden;  /* Cut off content that exceeds page */
+        }
+        
+        .page-footer {
+            position: absolute;
+            bottom: 8mm;
+            left: 12mm;
+            right: 12mm;
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+        }
+        
+        /* Page 1 Header */
+        .header-ontario {
+            text-align: center;
+            font-size: 14px;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .court-file-box {
+            border: 1px solid #000;
+            padding: 4px 8px;
+            min-width: 150px;
+            text-align: left;
+        }
+        
+        .court-file-label {
+            font-size: 10px;
+        }
+        
+        .court-file-value {
+            font-size: 11px;
+            min-height: 14px;
+        }
+        
+        .court-info {
+            flex: 1;
+            margin-right: 20px;
+        }
+        
+        .court-line {
+            border-bottom: 1px dotted #000;
+            margin-bottom: 2px;
+            padding-bottom: 2px;
+            min-height: 18px;
+        }
+        
+        .court-label {
+            font-size: 9px;
+            font-style: italic;
+            text-align: center;
+        }
+        
+        .at-line {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 5px;
+        }
+        
+        .at-label {
+            font-weight: bold;
+        }
+        
+        .form-title-box {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        .form-title-main {
+            font-size: 12px;
+        }
+        
+        /* Party Sections */
+        .party-section {
+            margin-bottom: 10px;
+        }
+        
+        .party-title {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .party-boxes {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .party-box {
+            flex: 1;
+            border: 1px solid #000;
+            padding: 5px;
+            min-height: 70px;
+        }
+        
+        .party-box-label {
+            font-size: 8px;
+            font-style: italic;
+            color: #555;
+            margin-bottom: 3px;
+        }
+        
+        .party-box-content {
+            font-size: 10px;
+            white-space: pre-wrap;
+        }
+        
+        /* My name / valuation date lines */
+        .info-line {
+            margin: 10px 0;
+            display: flex;
+            align-items: baseline;
+        }
+        
+        .info-label {
+            margin-right: 5px;
+        }
+        
+        .info-value {
+            border-bottom: 1px solid #000;
+            min-width: 200px;
+            padding: 0 5px;
+        }
+        
+        .instructions-text {
+            font-style: italic;
+            font-size: 10px;
+            margin: 10px 0;
+        }
+        
+        /* Tables */
+        .table-section {
+            margin-bottom: 15px;
+        }
+        
+        .table-header {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .table-subheader {
+            font-size: 9px;
+            font-style: italic;
+            font-weight: normal;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 5px;
+        }
+        
+        th, td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            text-align: left;
+            vertical-align: top;
+        }
+        
+        th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .col-item {
+            width: 55%;
+        }
+        
+        .col-applicant, .col-respondent {
+            width: 22.5%;
+            text-align: right;
+        }
+        
+        .col-number {
+            width: 30px;
+            text-align: center;
+        }
+        
+        .dollar-prefix {
+            text-align: left;
+            color: #666;
+        }
+        
+        .total-row td {
+            font-weight: bold;
+            background-color: #f9f9f9;
+        }
+        
+        .total-label {
+            text-align: right !important;
+        }
+        
+        .empty-row td {
+            height: 22px;
+        }
+        
+        /* Page 2 specific */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        
+        .page-header-title {
+            font-weight: bold;
+        }
+        
+        .page-header-page {
+            text-align: center;
+        }
+        
+        .page-header-court {
+            text-align: right;
+        }
+        
+        .table-3-header {
+            background-color: #f0f0f0;
+            border: 1px solid #000;
+            padding: 5px;
+            text-align: center;
+            font-size: 10px;
+        }
+        
+        .table-3-title {
+            font-weight: bold;
+        }
+        
+        /* Page 3 Summary */
+        .summary-table {
+            margin-top: 20px;
+        }
+        
+        .summary-table td {
+            padding: 5px 8px;
+        }
+        
+        .summary-label {
+            text-align: right;
+            font-weight: normal;
+        }
+        
+        .summary-total-label {
+            text-align: right;
+            font-weight: bold;
+        }
+        
+        /* Signature Section */
+        .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            gap: 50px;
+        }
+        
+        .signature-box {
+            flex: 1;
+        }
+        
+        .signature-line {
+            border-top: 1px solid #000;
+            margin-top: 40px;
+            padding-top: 5px;
+            text-align: center;
+            font-style: italic;
+        }
+        
+        /* Print Styles */
+        @media print {
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                box-shadow: none !important;
+            }
+            
+            body {
+                margin: 0;
+                padding: 0;
+                background: #fff !important;
+            }
+            
+            .page {
+                width: 210mm !important;
+                height: 277mm !important;  /* A4 height minus margins */
+                min-height: 277mm !important;
+                max-height: 277mm !important;
+                padding: 8mm 10mm 12mm 10mm !important;
+                margin: 0 !important;
+                page-break-after: always !important;
+                page-break-inside: avoid !important;
+                overflow: hidden !important;
+                box-sizing: border-box !important;
+                position: relative !important;
+            }
+            
+            .page:last-child {
+                page-break-after: auto !important;
+            }
+            
+            .no-print {
+                display: none !important;
+            }
+            
+            .page-footer {
+                position: absolute !important;
+                bottom: 4mm !important;
+                left: 10mm !important;
+                right: 10mm !important;
+            }
+        }
+        
+        /* Print Button */
+        .print-controls {
+            text-align: center;
+            padding: 20px;
+            background: #f5f5f5;
+            margin-bottom: 20px;
+        }
+        
+        .print-btn {
+            background: #0d6efd;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        
+        .print-btn:hover {
+            background: #0b5ed7;
+        }
+        
+        .back-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        
+        .back-btn:hover {
+            background: #5c636a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Print Controls -->
+    <div class="print-controls no-print">
+        <button class="print-btn" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print Form</button>
+        <a href="{% url 'net_family_property_13b_list' %}" class="back-btn">← Back to List</a>
+    </div>
+
+    <!-- PAGE 1 -->
+    <div class="page">
+        <!-- Header with ONTARIO and Court File Number -->
+        <div class="header-row">
+            <div class="court-info">
+                <div class="header-ontario">ONTARIO</div>
+                <div class="court-line">{{ statement.court_name|default:"" }}</div>
+                <div class="court-label">(Name of court)</div>
+            </div>
+            <div class="court-file-box">
+                <div class="court-file-label">Court File Number</div>
+                <div class="court-file-value">{{ statement.court_file_number|default:"" }}</div>
+            </div>
+        </div>
+        
+        <div class="at-line">
+            <span class="at-label">at</span>
+            <div style="flex: 1;">
+                <div class="court-line">{{ statement.court_address|default:"" }}</div>
+                <div class="court-label">Court office address</div>
+            </div>
+            <div class="form-title-box">
+                <div class="form-title-main">Form 13B: Net Family</div>
+                <div class="form-title-main">Property Statement</div>
+            </div>
+        </div>
+        
+        <!-- Applicant Section -->
+        <div class="party-section">
+            <div class="party-title">Applicant(s)</div>
+            <div class="party-boxes">
+                <div class="party-box">
+                    <div class="party-box-label">Full legal name & address for service — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any)</div>
+                    <div class="party-box-content">{{ statement.applicant_name|default:"" }}
+{{ statement.applicant_address|default:"" }}
+{% if statement.applicant_phone %}Tel: {{ statement.applicant_phone }}{% endif %}
+{% if statement.applicant_email %}Email: {{ statement.applicant_email }}{% endif %}</div>
+                </div>
+                <div class="party-box">
+                    <div class="party-box-label">Lawyer's name & address — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any).</div>
+                    <div class="party-box-content">{{ statement.applicant_lawyer_name|default:"" }}
+{{ statement.applicant_lawyer_address|default:"" }}
+{% if statement.applicant_lawyer_phone %}Tel: {{ statement.applicant_lawyer_phone }}{% endif %}
+{% if statement.applicant_lawyer_email %}Email: {{ statement.applicant_lawyer_email }}{% endif %}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Respondent Section -->
+        <div class="party-section">
+            <div class="party-title">Respondent(s)</div>
+            <div class="party-boxes">
+                <div class="party-box">
+                    <div class="party-box-label">Full legal name & address for service — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any).</div>
+                    <div class="party-box-content">{{ statement.respondent_name|default:"" }}
+{{ statement.respondent_address|default:"" }}
+{% if statement.respondent_phone %}Tel: {{ statement.respondent_phone }}{% endif %}
+{% if statement.respondent_email %}Email: {{ statement.respondent_email }}{% endif %}</div>
+                </div>
+                <div class="party-box">
+                    <div class="party-box-label">Lawyer's name & address — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any).</div>
+                    <div class="party-box-content">{{ statement.respondent_lawyer_name|default:"" }}
+{{ statement.respondent_lawyer_address|default:"" }}
+{% if statement.respondent_lawyer_phone %}Tel: {{ statement.respondent_lawyer_phone }}{% endif %}
+{% if statement.respondent_lawyer_email %}Email: {{ statement.respondent_lawyer_email }}{% endif %}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- My name and Valuation Date -->
+        <div class="info-line">
+            <span class="info-label">My name is</span>
+            <span class="info-value">{{ statement.my_name|default:"" }}</span>
+            <span style="margin-left: 5px; font-style: italic; font-size: 9px;">(full legal name)</span>
+        </div>
+        
+        <div class="info-line">
+            <span class="info-label">The valuation date for the following material is</span>
+            <span class="info-value">{{ statement.valuation_date|date:"F j, Y"|default:"" }}</span>
+            <span style="margin-left: 5px; font-style: italic; font-size: 9px;">(date)</span>
+        </div>
+        
+        <p class="instructions-text">(Complete the tables by filling in the columns for both parties, showing your assets, debts, etc., and those of your spouse.)</p>
+        
+        <!-- TABLE 1: Value of assets owned on valuation date -->
+        <div class="table-section">
+            <div class="table-header">
+                TABLE 1: Value of assets owned on valuation date<br>
+                <span class="table-subheader">(List in the order of the categories in the financial statement.)</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-item">ITEM</th>
+                        <th class="col-applicant">APPLICANT</th>
+                        <th class="col-respondent">RESPONDENT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for asset in assets %}
+                    <tr>
+                        <td>{% if forloop.first %}1.{% endif %} {{ asset.item|default:"" }}</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ asset.applicant_value|default:""|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ asset.respondent_value|default:""|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Empty rows to fill page -->
+                    {% for i in "123456789012345" %}
+                    {% if forloop.counter > assets|length %}
+                    <tr class="empty-row">
+                        <td>{% if forloop.counter == 1 and not assets %}1.{% endif %}</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span></td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td class="total-label">TOTAL 1</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total1_app|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total1_resp|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="page-footer">
+            <span>FLR 13B (May 15, 2009)</span>
+            <span>Page 1 of 3</span>
+        </div>
+    </div>
+
+    <!-- PAGE 2 -->
+    <div class="page">
+        <div class="page-header">
+            <div class="page-header-title">Form 13B: Net Family Property Statement</div>
+            <div class="page-header-page">(page 2)</div>
+            <div class="page-header-court">
+                <div class="court-file-box">
+                    <div class="court-file-label">Court File Number</div>
+                    <div class="court-file-value">{{ statement.court_file_number|default:"" }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TABLE 2: Value of debts and liabilities on valuation date -->
+        <div class="table-section">
+            <div class="table-header">
+                TABLE 2: Value of debts and liabilities on valuation date<br>
+                <span class="table-subheader">(List in the order of the categories in the financial statement.)</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-item">ITEM</th>
+                        <th class="col-applicant">APPLICANT</th>
+                        <th class="col-respondent">RESPONDENT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for debt in debts %}
+                    <tr>
+                        <td>{% if forloop.first %}1.{% endif %} {{ debt.item|default:"" }}</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ debt.applicant_value|default:""|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ debt.respondent_value|default:""|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Empty rows -->
+                    {% for i in "123456789012" %}
+                    {% if forloop.counter > debts|length %}
+                    <tr class="empty-row">
+                        <td>{% if forloop.counter == 1 and not debts %}1.{% endif %}</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span></td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td class="total-label">TOTAL 2</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total2_app|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total2_resp|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- TABLE 3: Net value on date of marriage -->
+        <div class="table-section">
+            <div class="table-3-header">
+                <div class="table-3-title">TABLE 3: Net value on date of marriage of property (other than a matrimonial home) after<br>
+                deducting debts or other liabilities on date of marriage (other than those relating directly<br>
+                to the purchase or significant improvement of a matrimonial home)</div>
+                <div class="table-subheader">(List in the order of the categories in the financial statement.)</div>
+            </div>
+            
+            <!-- 3(a) Property Items -->
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-number">3(a)</th>
+                        <th class="col-item">PROPERTY ITEM</th>
+                        <th class="col-applicant">APPLICANT</th>
+                        <th class="col-respondent">RESPONDENT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prop in marriage_properties %}
+                    <tr>
+                        <td></td>
+                        <td>{{ prop.item|default:"" }}</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ prop.applicant_value|default:""|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ prop.respondent_value|default:""|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Empty rows -->
+                    {% for i in "123456" %}
+                    {% if forloop.counter > marriage_properties|length %}
+                    <tr class="empty-row">
+                        <td></td>
+                        <td></td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span></td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td></td>
+                        <td class="total-label">TOTAL OF PROPERTY ITEMS</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{% widthratio totals.total3_app 1 1 as prop_total %}{{ prop_total|default:"0.00" }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{% widthratio totals.total3_resp 1 1 as prop_total_r %}{{ prop_total_r|default:"0.00" }}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- 3(b) Debt Items -->
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-number">3(b)</th>
+                        <th class="col-item">DEBT ITEM</th>
+                        <th class="col-applicant">APPLICANT</th>
+                        <th class="col-respondent">RESPONDENT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for debt in marriage_debts %}
+                    <tr>
+                        <td></td>
+                        <td>{{ debt.item|default:"" }}</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ debt.applicant_value|default:""|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ debt.respondent_value|default:""|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Empty rows -->
+                    {% for i in "1234567" %}
+                    {% if forloop.counter > marriage_debts|length %}
+                    <tr class="empty-row">
+                        <td></td>
+                        <td></td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span></td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td></td>
+                        <td class="total-label">TOTAL OF DEBT ITEMS</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span></td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span></td>
+                    </tr>
+                    <tr class="total-row">
+                        <td></td>
+                        <td class="total-label">NET TOTAL 3 <em>[3(a) minus 3(b)]</em></td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total3_app|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total3_resp|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="page-footer">
+            <span>FLR 13B (May 15, 2009)</span>
+            <span>Page 2 of 3</span>
+        </div>
+    </div>
+
+    <!-- PAGE 3 -->
+    <div class="page">
+        <div class="page-header">
+            <div class="page-header-title">Form 13B: Net Family Property Statement</div>
+            <div class="page-header-page">(page 3)</div>
+            <div class="page-header-court">
+                <div class="court-file-box">
+                    <div class="court-file-label">Court File Number</div>
+                    <div class="court-file-value">{{ statement.court_file_number|default:"" }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- TABLE 4: Value of property excluded -->
+        <div class="table-section">
+            <div class="table-header">
+                TABLE 4: Value of property excluded under subsection 4(2) of the <em>Family Law Act</em><br>
+                <span class="table-subheader">(List in the order of the categories in the financial statement.)</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th class="col-item">ITEM</th>
+                        <th class="col-applicant">APPLICANT</th>
+                        <th class="col-respondent">RESPONDENT</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for excluded in excluded_properties %}
+                    <tr>
+                        <td>{{ excluded.item|default:"" }}</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ excluded.applicant_value|default:""|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ excluded.respondent_value|default:""|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    <!-- Empty rows -->
+                    {% for i in "12345678901234" %}
+                    {% if forloop.counter > excluded_properties|length %}
+                    <tr class="empty-row">
+                        <td></td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span></td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span></td>
+                    </tr>
+                    {% endif %}
+                    {% endfor %}
+                    <tr class="total-row">
+                        <td class="total-label">TOTAL 4</td>
+                        <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total4_app|floatformat:2 }}</td>
+                        <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total4_resp|floatformat:2 }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Summary Table: Totals 2, 3, 4, 5 -->
+        <table class="summary-table">
+            <tbody>
+                <tr>
+                    <td class="summary-label"><strong>TOTAL 2</strong> <em>(from page 2)</em></td>
+                    <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total2_app|floatformat:2 }}</td>
+                    <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total2_resp|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td class="summary-label"><strong>TOTAL 3</strong> <em>(from page 2)</em></td>
+                    <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total3_app|floatformat:2 }}</td>
+                    <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total3_resp|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td class="summary-label"><strong>TOTAL 4</strong> <em>(from page 3)</em></td>
+                    <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total4_app|floatformat:2 }}</td>
+                    <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total4_resp|floatformat:2 }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="summary-total-label">TOTAL 5 <em>([Total 2] + [Total 3] + [Total 4])</em></td>
+                    <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total5_app|floatformat:2 }}</td>
+                    <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total5_resp|floatformat:2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Final Summary: Totals 1, 5, 6 -->
+        <table class="summary-table" style="margin-top: 30px;">
+            <tbody>
+                <tr>
+                    <td class="summary-label"><strong>TOTAL 1</strong> <em>(from page 1)</em></td>
+                    <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total1_app|floatformat:2 }}</td>
+                    <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total1_resp|floatformat:2 }}</td>
+                </tr>
+                <tr>
+                    <td class="summary-label"><strong>TOTAL 5</strong> <em>(from above)</em></td>
+                    <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total5_app|floatformat:2 }}</td>
+                    <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total5_resp|floatformat:2 }}</td>
+                </tr>
+                <tr class="total-row">
+                    <td class="summary-total-label">TOTAL 6: NET FAMILY PROPERTY <em>([Total 1] minus [Total 5])</em></td>
+                    <td class="col-applicant"><span class="dollar-prefix">$</span>{{ totals.total6_app|floatformat:2 }}</td>
+                    <td class="col-respondent"><span class="dollar-prefix">$</span>{{ totals.total6_resp|floatformat:2 }}</td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Signature Section -->
+        <div class="signature-section">
+            <div class="signature-box">
+                <div class="signature-line">Date of signature</div>
+                <div style="text-align: center; margin-top: 5px;">{{ final_totals.date_of_signature|date:"F j, Y"|default:"" }}</div>
+            </div>
+            <div class="signature-box">
+                <div class="signature-line">Signature</div>
+                <div style="text-align: center; margin-top: 5px;">{{ final_totals.signature|default:"" }}</div>
+            </div>
+        </div>
+        
+        <div class="page-footer">
+            <span>FLR 13B (May 15, 2009)</span>
+            <span>Page 3 of 3</span>
+        </div>
+    </div>
+</body>
+</html>

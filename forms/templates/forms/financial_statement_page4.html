@@ -1,0 +1,750 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+    --amber:245,158,11;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1200px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  /* Panels */
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-title{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .panel-sub{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    max-width: 920px;
+    line-height: 1.35;
+  }
+  .panel-pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  /* Inputs */
+  .ui-input{
+    width:100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 10px 12px !important;
+    font-size: .95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .ui-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+  .ui-input.sm{ height: 42px; border-radius: 8px !important; }
+
+  /* Table */
+  .table-wrap{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  }
+  .modern-table{
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: .93rem;
+  }
+  .modern-table thead th{
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.55);
+  }
+  .money-input{
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .section-gap{ margin-top: 14px; }
+
+  /* Responsive columns */
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 992px){
+    .grid-2{ grid-template-columns: 1fr; }
+  }
+
+  /* Buttons */
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{ filter: brightness(1.03); color:#fff; }
+  .btn-secondary-modern{
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+  }
+
+  .kpi{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px dashed var(--line2);
+    border-radius: 8px;
+    background: rgba(248,250,252,.8);
+    margin-top: 10px;
+  }
+  .kpi strong{ font-weight: 950; }
+  .kpi span{ color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+
+    <div class="page-header">
+      <div>
+        <h1>Financial Statement (Support Claims)</h1>
+        <p>Page 4 • Expenses (continued) • Part 3: Assets</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if statement.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ statement.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Page 4</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <div id="autosave-indicator" style="position:fixed; top:10px; right:10px; padding:8px 16px; background:rgba(34,197,94,.9); color:#fff; border-radius:8px; font-weight:700; font-size:13px; display:none; z-index:9999;">Saved</div>
+      <form method="post">
+        {% csrf_token %}
+
+        <script>
+        (function(){
+          function parseNum(val) {
+            if (!val) return 0;
+            val = (''+val).replace(/[^\d.\-]/g, '');
+            var n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+          }
+          function sumInputsByPrefix(prefix) {
+            var sum = 0;
+            var inputs = document.querySelectorAll('input[name^="'+prefix+'"][type="number"]');
+            inputs.forEach(function(inp){ sum += parseNum(inp.value); });
+            return sum;
+          }
+          function sumInputs(names) {
+            return names.reduce(function(sum, name){
+              var inp = document.getElementsByName(name)[0];
+              return sum + (inp ? parseNum(inp.value) : 0);
+            }, 0);
+          }
+          function updateSubtotalsAndTotals() {
+            // Utilities, continued
+            var utilitiesNames = [
+              'telephone','cell_phone','cable','internet'
+            ];
+            var utilitiesSum = sumInputs(utilitiesNames);
+            var utilitiesSub = document.getElementsByName('utilities_subtotal')[0];
+            if (utilitiesSub) utilitiesSub.value = utilitiesSum.toFixed(2);
+            // Household expenses
+            var householdNames = [
+              'groceries','household_supplies','meals_outside','pet_care','laundry_dry_cleaning'
+            ];
+            var householdSum = sumInputs(householdNames);
+            var householdSub = document.getElementsByName('household_subtotal')[0];
+            if (householdSub) householdSub.value = householdSum.toFixed(2);
+            // Childcare costs
+            var childcareNames = [
+              'daycare_expense','babysitting_costs'
+            ];
+            var childcareSum = sumInputs(childcareNames);
+            var childcareSub = document.getElementsByName('childcare_subtotal')[0];
+            if (childcareSub) childcareSub.value = childcareSum.toFixed(2);
+            // Personal continued
+            var personalNames = [
+              'education','entertainment','gifts'
+            ];
+            var personalSum = sumInputs(personalNames);
+            var personalSub = document.getElementsByName('personal_subtotal')[0];
+            if (personalSub) personalSub.value = personalSum.toFixed(2);
+            // Other expenses
+            var otherNames = [
+              'life_insurance_premiums','rrsp_resp_withdrawals','vacations','school_fees_supplies','clothing_for_children','summer_camp_expenses','debt_payments','support_paid_for_other_children','other_expenses_amount'
+            ];
+            var otherSum = sumInputs(otherNames);
+            var otherSub = document.getElementsByName('other_expenses_subtotal')[0];
+            if (otherSub) otherSub.value = otherSum.toFixed(2);
+            // Grand totals (include utilities subtotal)
+            var grandNames = [
+              'utilities_subtotal','household_subtotal','childcare_subtotal','personal_subtotal','other_expenses_subtotal'
+            ];
+            var grandSum = sumInputs(grandNames);
+            var totalMonthly = document.getElementsByName('total_monthly_expenses')[0];
+            var totalYearly = document.getElementsByName('total_yearly_expenses')[0];
+            if (totalMonthly) totalMonthly.value = grandSum.toFixed(2);
+            if (totalYearly) totalYearly.value = (grandSum*12).toFixed(2);
+
+            // --- Asset subtotals (dynamic) ---
+            var realEstateTotal = sumInputsByPrefix('real_estate_value_');
+            var vehicleTotal = sumInputsByPrefix('vehicle_value_');
+          }
+
+          // --- AUTOSAVE LOGIC ---
+          var autosaveTimeout = null;
+          var indicator = null;
+          function showIndicator(text, color) {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              indicator.textContent = text;
+              indicator.style.background = color;
+              indicator.style.display = 'block';
+            }
+          }
+          function hideIndicator() {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) indicator.style.display = 'none';
+          }
+          function autosaveForm() {
+            var form = document.querySelector('form');
+            if (!form) return;
+            showIndicator('Saving...', 'rgba(99,102,241,.9)');
+            var formData = new FormData(form);
+            var csrfToken = formData.get('csrfmiddlewaretoken');
+            fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+              },
+              body: formData
+            })
+            .then(function(response) {
+              if (response.ok) {
+                showIndicator('Saved', 'rgba(34,197,94,.9)');
+                setTimeout(hideIndicator, 1500);
+              } else {
+                showIndicator('Error', 'rgba(239,68,68,.9)');
+                setTimeout(hideIndicator, 2000);
+              }
+            })
+            .catch(function() {
+              showIndicator('Error', 'rgba(239,68,68,.9)');
+              setTimeout(hideIndicator, 2000);
+            });
+          }
+          function scheduleAutosave() {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(function(){
+              updateSubtotalsAndTotals();
+              autosaveForm();
+            }, 800);
+          }
+
+          // Listen for input changes (including dynamic rows)
+          document.addEventListener('input', function(e){
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+              updateSubtotalsAndTotals();
+              scheduleAutosave();
+            }
+          });
+          // Initial calculation on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            updateSubtotalsAndTotals();
+          });
+        })();
+        </script>
+
+        <!-- EXPENSES CONTINUED -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Expenses (continued)</h3>
+              <div class="panel-sub">Enter monthly amounts. Use 0 if an item doesn’t apply.</div>
+            </div>
+            <div class="panel-pill">Monthly</div>
+          </div>
+
+          <div class="grid-2">
+
+            <!-- LEFT COLUMN -->
+            <div class="panel" style="margin:0;">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Utilities, continued</h3>
+                  <div class="panel-sub">Phone, cable and internet.</div>
+                </div>
+                <div class="panel-pill">Subtotal</div>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <tbody>
+                      <tr><td>Telephone</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="telephone" value="{{ statement.telephone }}"></td></tr>
+                      <tr><td>Cell phone</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="cell_phone" value="{{ statement.cell_phone }}"></td></tr>
+                      <tr><td>Cable</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="cable" value="{{ statement.cable }}"></td></tr>
+                      <tr><td>Internet</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="internet" value="{{ statement.internet }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="utilities_subtotal" value="{{ statement.utilities_subtotal }}"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="section-gap"></div>
+
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Household expenses</h3>
+                  <div class="panel-sub">Food, household needs, and routine living costs.</div>
+                </div>
+                <div class="panel-pill">Subtotal</div>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <tbody>
+                      <tr><td>Groceries</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="groceries" value="{{ statement.groceries }}"></td></tr>
+                      <tr><td>Household supplies</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="household_supplies" value="{{ statement.household_supplies }}"></td></tr>
+                      <tr><td>Meals outside the home</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="meals_outside" value="{{ statement.meals_outside }}"></td></tr>
+                      <tr><td>Pet care</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="pet_care" value="{{ statement.pet_care }}"></td></tr>
+                      <tr><td>Laundry and dry cleaning</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="laundry_dry_cleaning" value="{{ statement.laundry_dry_cleaning }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="household_subtotal" value="{{ statement.household_subtotal }}"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="section-gap"></div>
+
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Childcare costs</h3>
+                  <div class="panel-sub">Daycare and babysitting.</div>
+                </div>
+                <div class="panel-pill">Subtotal</div>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <tbody>
+                      <tr><td>Daycare expense</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="daycare_expense" value="{{ statement.daycare_expense }}"></td></tr>
+                      <tr><td>Babysitting costs</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="babysitting_costs" value="{{ statement.babysitting_costs }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="childcare_subtotal" value="{{ statement.childcare_subtotal }}"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="panel" style="margin:0;">
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Personal, continued</h3>
+                  <div class="panel-sub">Education, recreation and gifts.</div>
+                </div>
+                <div class="panel-pill">Subtotal</div>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <tbody>
+                      <tr><td>Education <em class="text-muted">(specify)</em></td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="education" value="{{ statement.education }}"></td></tr>
+                      <tr><td>Entertainment / recreation (including children)</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="entertainment" value="{{ statement.entertainment }}"></td></tr>
+                      <tr><td>Gifts</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="gifts" value="{{ statement.gifts }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="personal_subtotal" value="{{ statement.personal_subtotal }}"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="section-gap"></div>
+
+              <div class="panel-head">
+                <div>
+                  <h3 class="panel-title">Other expenses</h3>
+                  <div class="panel-sub">Insurance, vacations, debt payments, support, etc.</div>
+                </div>
+                <div class="panel-pill">Subtotal</div>
+              </div>
+              <div class="table-wrap">
+                <div class="table-responsive">
+                  <table class="table modern-table">
+                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <tbody>
+                      <tr><td>Life insurance premiums</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="life_insurance_premiums" value="{{ statement.life_insurance_premiums }}"></td></tr>
+                      <tr><td>RRSP/RESP withdrawals</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="rrsp_resp_withdrawals" value="{{ statement.rrsp_resp_withdrawals }}"></td></tr>
+                      <tr><td>Vacations</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="vacations" value="{{ statement.vacations }}"></td></tr>
+                      <tr><td>School fees and supplies</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="school_fees_supplies" value="{{ statement.school_fees_supplies }}"></td></tr>
+                      <tr><td>Clothing for children</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="clothing_for_children" value="{{ statement.clothing_for_children }}"></td></tr>
+                      <tr><td>Summer camp expenses</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="summer_camp_expenses" value="{{ statement.summer_camp_expenses }}"></td></tr>
+                      <tr><td>Debt payments</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="debt_payments" value="{{ statement.debt_payments }}"></td></tr>
+                      <tr><td>Support paid for other children</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="support_paid_for_other_children" value="{{ statement.support_paid_for_other_children }}"></td></tr>
+                      <tr><td>Other expenses <em class="text-muted">(specify)</em><br><input class="form-control ui-input sm" type="text" name="other_expenses_specify" value="{{ statement.other_expenses_specify }}" placeholder="Describe other expenses" style="width:100%; margin-top:4px;"></td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_expenses_amount" value="{{ statement.other_expenses_amount }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="other_expenses_subtotal" value="{{ statement.other_expenses_subtotal }}"></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="kpi">
+                <div>
+                  <span>Expense totals</span><br>
+                  <strong>Monthly / Yearly</strong>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
+                  <input class="form-control ui-input sm money-input" style="width: 220px;" type="number" step="0.01" name="total_monthly_expenses" value="{{ statement.total_monthly_expenses }}" placeholder="Total monthly expenses">
+                  <input class="form-control ui-input sm money-input" style="width: 220px;" type="number" step="0.01" name="total_yearly_expenses" value="{{ statement.total_yearly_expenses }}" placeholder="Total yearly expenses">
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+
+        <!-- PART 3: ASSETS -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Part 3 — Assets</h3>
+              <div class="panel-sub">Provide details and current estimated values.</div>
+            </div>
+            <div class="panel-pill">Value</div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table" id="assets-table">
+                <thead>
+                  <tr>
+                    <th style="width:20%">Type</th>
+                    <th style="width:50%">Details</th>
+                    <th style="width:20%">Value or amount</th>
+                    <th style="width:10%"></th>
+                  </tr>
+                </thead>
+                <tbody id="assets-table-body">
+                  <!-- Real Estate -->
+                  <tr class="real-estate-row">
+                    <td rowspan="3" id="real-estate-type-cell" style="font-weight:950;vertical-align:middle;">Real Estate</td>
+                    <td><input class="form-control ui-input sm" type="text" name="real_estate_details_1" value="{{ real_estate_details_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="real_estate_value_1" value="{{ real_estate_value_1 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr class="real-estate-row">
+                    <td><input class="form-control ui-input sm" type="text" name="real_estate_details_2" value="{{ real_estate_details_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="real_estate_value_2" value="{{ real_estate_value_2 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr class="real-estate-row">
+                    <td><input class="form-control ui-input sm" type="text" name="real_estate_details_3" value="{{ real_estate_details_3 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="real_estate_value_3" value="{{ real_estate_value_3 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" style="padding:0; border:none; text-align:right;">
+                      <button type="button" id="add-real-estate-row" class="btn-modern btn-secondary-modern" style="margin:0 0 10px 0; min-width:180px; width:auto; float:right;">+ Add Real Estate Row</button>
+                    </td>
+                  </tr>
+
+                  <!-- Vehicles -->
+                  <tr class="vehicle-row">
+                    <td rowspan="3" id="vehicle-type-cell" style="font-weight:950;vertical-align:middle;">Cars, boats, vehicles</td>
+                    <td><input class="form-control ui-input sm" type="text" name="vehicle_details_1" value="{{ vehicle_details_1 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="vehicle_value_1" value="{{ vehicle_value_1 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr class="vehicle-row">
+                    <td><input class="form-control ui-input sm" type="text" name="vehicle_details_2" value="{{ vehicle_details_2 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="vehicle_value_2" value="{{ vehicle_value_2 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr class="vehicle-row">
+                    <td><input class="form-control ui-input sm" type="text" name="vehicle_details_3" value="{{ vehicle_details_3 }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="vehicle_value_3" value="{{ vehicle_value_3 }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button></td>
+                  </tr>
+                  <tr>
+                    <td colspan="4" style="padding:0; border:none; text-align:right;">
+                      <button type="button" id="add-vehicle-row" class="btn-modern btn-secondary-modern" style="margin:0 0 10px 0; min-width:180px; width:auto; float:right;">+ Add Vehicle Row</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <style>
+              .btn-delete-row {
+                background: #ef4444;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                width: 28px;
+                height: 28px;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+                line-height: 1;
+                padding: 0;
+                transition: all 0.15s ease;
+              }
+              .btn-delete-row:hover {
+                background: #dc2626;
+                transform: scale(1.1);
+              }
+            </style>
+            <script>
+            function deleteAssetRow(btn, assetType) {
+              var row = btn.closest('tr');
+              var rows = document.querySelectorAll('.' + assetType + '-row');
+              
+              // Don't delete if only 1 row remains
+              if (rows.length <= 1) {
+                alert('At least one row must remain.');
+                return;
+              }
+              
+              var typeCell = document.getElementById(assetType + '-type-cell');
+              var isFirstRow = row.querySelector('td[rowspan]') !== null;
+              
+              if (isFirstRow && rows.length > 1) {
+                // Move the type cell to the next row
+                var nextRow = rows[1];
+                var newTypeCell = document.createElement('td');
+                newTypeCell.id = assetType + '-type-cell';
+                newTypeCell.style.fontWeight = '950';
+                newTypeCell.style.verticalAlign = 'middle';
+                newTypeCell.rowSpan = rows.length - 1;
+                newTypeCell.textContent = typeCell.textContent;
+                nextRow.insertBefore(newTypeCell, nextRow.firstChild);
+              } else if (typeCell) {
+                // Just update rowspan
+                typeCell.rowSpan = rows.length - 1;
+              }
+              
+              row.remove();
+              renumberAssetInputs(assetType);
+            }
+            
+            function renumberAssetInputs(assetType) {
+              var prefix = assetType === 'real-estate' ? 'real_estate' : 'vehicle';
+              var rows = document.querySelectorAll('.' + assetType + '-row');
+              rows.forEach(function(row, idx) {
+                var inputs = row.querySelectorAll('input');
+                inputs.forEach(function(input) {
+                  var name = input.name;
+                  if (name.includes('_details_')) {
+                    input.name = prefix + '_details_' + (idx + 1);
+                  } else if (name.includes('_value_')) {
+                    input.name = prefix + '_value_' + (idx + 1);
+                  }
+                });
+              });
+            }
+            
+            (function(){
+              // Add Real Estate Row
+              document.getElementById('add-real-estate-row').addEventListener('click', function(){
+                var rows = document.querySelectorAll('.real-estate-row');
+                var idx = rows.length + 1;
+                var tr = document.createElement('tr');
+                tr.className = 'real-estate-row';
+                tr.innerHTML = '<td><input class="form-control ui-input sm" type="text" name="real_estate_details_'+idx+'" placeholder="Details"></td>'+
+                  '<td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="real_estate_value_'+idx+'" placeholder="Value or amount"></td>'+
+                  '<td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, \'real-estate\')" title="Delete row">&times;</button></td>';
+                // Insert before the add button row
+                var addBtnRow = document.getElementById('add-real-estate-row').closest('tr');
+                addBtnRow.parentNode.insertBefore(tr, addBtnRow);
+                // Update rowspan
+                var typeCell = document.getElementById('real-estate-type-cell');
+                if(typeCell) typeCell.rowSpan = rows.length + 1;
+              });
+              // Add Vehicle Row
+              document.getElementById('add-vehicle-row').addEventListener('click', function(){
+                var rows = document.querySelectorAll('.vehicle-row');
+                var idx = rows.length + 1;
+                var tr = document.createElement('tr');
+                tr.className = 'vehicle-row';
+                tr.innerHTML = '<td><input class="form-control ui-input sm" type="text" name="vehicle_details_'+idx+'" placeholder="Details"></td>'+
+                  '<td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="vehicle_value_'+idx+'" placeholder="Value or amount"></td>'+
+                  '<td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, \'vehicle\')" title="Delete row">&times;</button></td>';
+                var addBtnRow = document.getElementById('add-vehicle-row').closest('tr');
+                addBtnRow.parentNode.insertBefore(tr, addBtnRow);
+                var typeCell = document.getElementById('vehicle-type-cell');
+                if(typeCell) typeCell.rowSpan = rows.length + 1;
+              });
+            })();
+            </script>
+          </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          {% if statement.pk %}
+            <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
+          {% endif %}
+          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

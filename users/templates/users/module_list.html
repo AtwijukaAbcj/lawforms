@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}Modules{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Modules</h1>
+        <a href="{% url 'users:module_create' %}" class="btn btn-primary">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M12 5v14M5 12h14"/></svg> Create Module
+        </a>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Icon</th>
+                        <th>Name</th>
+                        <th>Code</th>
+                        <th>Description</th>
+                        <th>Permissions</th>
+                        <th>Status</th>
+                        <th width="120">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for module in modules %}
+                    <tr>
+                        <td class="fs-4">{{ module.icon }}</td>
+                        <td><strong>{{ module.name }}</strong></td>
+                        <td><code>{{ module.code }}</code></td>
+                        <td>{{ module.description|truncatewords:10|default:"-" }}</td>
+                        <td>
+                            {% for perm in module.permissions.all %}
+                            <span class="badge bg-light text-dark">{{ perm.get_permission_type_display }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if module.is_active %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{% url 'users:module_edit' module.pk %}" class="btn btn-outline-primary">Edit</a>
+                                <a href="{% url 'users:module_delete' module.pk %}" class="btn btn-outline-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            No modules created yet. <a href="{% url 'users:module_create' %}">Create your first module</a>.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

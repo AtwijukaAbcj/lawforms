@@ -1,0 +1,631 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  :root{
+    --bg:#f6f7fb;
+    --card:#ffffff;
+    --text:#0f172a;
+    --muted:#64748b;
+    --line:#e2e8f0;
+    --line2:#cbd5e1;
+    --radius:18px;
+    --indigo:99,102,241;
+    --green:34,197,94;
+    --amber:245,158,11;
+  }
+
+  body{ background: var(--bg); }
+
+  .page-wrap{
+    max-width: 1240px;
+    margin: 22px auto 56px;
+    padding: 0 14px;
+  }
+
+  .page-card{
+    background:
+      radial-gradient(1100px 520px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
+      radial-gradient(900px 460px at 100% 0%, rgba(var(--green),.05), transparent 55%),
+      var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    overflow: hidden;
+  }
+
+  .page-header{
+    padding: 18px;
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(var(--green),.07));
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .page-header h1{
+    margin:0;
+    font-weight: 950;
+    letter-spacing: -.02em;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.2;
+  }
+  .page-header p{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .badge-soft{
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: rgba(255,255,255,.85);
+    border: 1px solid var(--line);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+
+  .page-body{ padding: 18px; }
+
+  .panel{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: rgba(255,255,255,.92);
+    box-shadow: 0 10px 30px rgba(2,6,23,.05);
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+  .panel-title{
+    margin:0;
+    font-size: 13px;
+    font-weight: 950;
+    color: var(--text);
+    letter-spacing: .06em;
+    text-transform: uppercase;
+  }
+  .panel-sub{
+    margin:6px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.35;
+    max-width: 980px;
+  }
+  .panel-pill{
+    font-size: 11px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.85);
+    padding: 6px 10px;
+    border-radius: 8px;
+    white-space: nowrap;
+  }
+
+  .ui-input{
+    width:100%;
+    height: 44px;
+    border-radius: 8px !important;
+    border: 1px solid var(--line2) !important;
+    background: #fff;
+    padding: 10px 12px !important;
+    font-size: .95rem;
+    outline: none;
+    transition: box-shadow .15s ease, border-color .15s ease;
+  }
+  .ui-input:focus{
+    border-color: rgba(var(--indigo), .65) !important;
+    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
+  }
+  .ui-input.sm{ height: 42px; border-radius: 8px !important; }
+
+  .money-input{
+    text-align:right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .table-wrap{
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 10px 28px rgba(2,6,23,.06);
+  }
+  .modern-table{
+    margin: 0;
+    width: 100%;
+    table-layout: fixed;
+    font-size: .93rem;
+  }
+  .modern-table thead th{
+    background: rgba(248,250,252,.95);
+    color: var(--text);
+    font-weight: 950;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    font-size: 12px;
+    border-bottom: 1px solid var(--line);
+    padding: 12px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody td{
+    border-top: 1px solid var(--line);
+    padding: 10px 12px;
+    vertical-align: middle;
+  }
+  .modern-table tbody tr:nth-child(odd) td{
+    background: rgba(248,250,252,.55);
+  }
+
+  .note{
+    border: 1px solid rgba(var(--amber), .28);
+    background: rgba(var(--amber), .08);
+    border-radius: 8px;
+    padding: 12px 14px;
+    color: #7c2d12;
+    box-shadow: 0 10px 28px rgba(2,6,23,.05);
+  }
+  .note strong{ font-weight: 950; }
+  .note p{ margin: 0; color:#7c2d12; font-weight: 600; font-size: 13px; line-height: 1.35; }
+
+  .check-row{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    background: rgba(248,250,252,.75);
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .check-row input[type="checkbox"]{ margin-top: 3px; }
+  .check-row label{
+    margin:0;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .check-row .sub{
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    line-height: 1.35;
+  }
+
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 992px){
+    .grid-2{ grid-template-columns: 1fr; }
+  }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btn-modern{
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 900;
+    letter-spacing: .01em;
+    border: 1px solid var(--line);
+    background: #fff;
+    color: var(--text);
+    box-shadow: 0 12px 25px rgba(2,6,23,.08);
+    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap: 8px;
+    white-space: nowrap;
+  }
+  .btn-modern:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 16px 34px rgba(2,6,23,.12);
+    text-decoration:none;
+    color: var(--text);
+  }
+  .btn-primary-modern{
+    border: 1px solid rgba(var(--indigo), .35);
+    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    color:#fff;
+    box-shadow: 0 14px 30px rgba(79,70,229,.22);
+  }
+  .btn-primary-modern:hover{ filter: brightness(1.03); color:#fff; }
+  .btn-secondary-modern{
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.9);
+    color: var(--text);
+  }
+
+  .section-sep{
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line), transparent);
+    margin: 14px 0;
+  }
+</style>
+
+<div class="page-wrap">
+  <div class="page-card">
+
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Schedules • Income & Household Earners</h1>
+        <p>Schedule A: Additional Sources of Income • Schedule B: Other Income Earners in the Home</p>
+      </div>
+      <div style="display:flex; align-items:center; gap:16px;">
+        {% if statement.court_file_number %}
+        <div style="background:rgba(255,255,255,.9); border:1px solid var(--line); border-radius:8px; padding:8px 14px;">
+          <div style="font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em;">Court File #</div>
+          <div style="font-size:14px; font-weight:700; color:var(--text);">{{ statement.court_file_number }}</div>
+        </div>
+        {% endif %}
+        <div class="badge-soft">Schedules</div>
+      </div>
+    </div>
+
+    <div class="page-body">
+      <form method="post">
+        {% csrf_token %}
+
+        <div id="autosave-indicator" style="position:fixed; top:10px; right:10px; padding:8px 16px; background:rgba(34,197,94,.9); color:#fff; border-radius:8px; font-weight:700; font-size:13px; display:none; z-index:9999;">Saved</div>
+
+        <script>
+        (function(){
+          function parseNum(val) {
+            if (!val) return 0;
+            val = (''+val).replace(/[^\d.\-]/g, '');
+            var n = parseFloat(val);
+            return isNaN(n) ? 0 : n;
+          }
+          function updateScheduleASubtotal() {
+            var fields = [
+              'schedule_a_partnership_income',
+              'schedule_a_rental_income_net',
+              'schedule_a_dividends',
+              'schedule_a_capital_gains',
+              'schedule_a_rrsp_withdrawals',
+              'schedule_a_rrif_annuity',
+              'schedule_a_other_income_amount'
+            ];
+            var sum = 0;
+            fields.forEach(function(name){
+              var inp = document.getElementsByName(name)[0];
+              if (inp) sum += parseNum(inp.value);
+            });
+            // Subtract capital losses
+            var losses = document.getElementsByName('schedule_a_capital_losses')[0];
+            if (losses) sum -= parseNum(losses.value);
+            
+            var subtotal = document.getElementsByName('schedule_a_subtotal')[0];
+            if (subtotal) subtotal.value = sum.toFixed(2);
+          }
+
+          // --- AUTOSAVE LOGIC ---
+          var autosaveTimeout = null;
+          var indicator = null;
+          function showIndicator(text, color) {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) {
+              indicator.textContent = text;
+              indicator.style.background = color;
+              indicator.style.display = 'block';
+            }
+          }
+          function hideIndicator() {
+            if (!indicator) indicator = document.getElementById('autosave-indicator');
+            if (indicator) indicator.style.display = 'none';
+          }
+          function autosaveForm() {
+            var form = document.querySelector('form');
+            if (!form) return;
+            showIndicator('Saving...', 'rgba(99,102,241,.9)');
+            var formData = new FormData(form);
+            var csrfToken = formData.get('csrfmiddlewaretoken');
+            fetch(window.location.href, {
+              method: 'POST',
+              headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': csrfToken
+              },
+              body: formData
+            })
+            .then(function(response) {
+              if (response.ok) {
+                showIndicator('Saved', 'rgba(34,197,94,.9)');
+                setTimeout(hideIndicator, 1500);
+              } else {
+                showIndicator('Error', 'rgba(239,68,68,.9)');
+                setTimeout(hideIndicator, 2000);
+              }
+            })
+            .catch(function() {
+              showIndicator('Error', 'rgba(239,68,68,.9)');
+              setTimeout(hideIndicator, 2000);
+            });
+          }
+          function scheduleAutosave() {
+            if (autosaveTimeout) clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(function(){
+              updateScheduleASubtotal();
+              autosaveForm();
+            }, 800);
+          }
+
+          // Listen for input changes
+          document.addEventListener('input', function(e){
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'TEXTAREA') {
+              updateScheduleASubtotal();
+              scheduleAutosave();
+            }
+          });
+          document.addEventListener('change', function(e){
+            if (e.target.type === 'checkbox' || e.target.type === 'radio') {
+              scheduleAutosave();
+            }
+          });
+          // Initial calculation on page load
+          document.addEventListener('DOMContentLoaded', function() {
+            updateScheduleASubtotal();
+          });
+        })();
+        </script>
+
+        <!-- =======================
+             SCHEDULE A
+        ======================== -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Schedule A: Additional Sources of Income</h3>
+              <div class="panel-sub">Enter annual amounts for each applicable source. Use dollars (annual). Values can be 0 if not applicable.</div>
+            </div>
+            <div class="panel-pill">Annual Income</div>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-responsive">
+              <table class="table modern-table">
+                <thead>
+                  <tr>
+                    <th style="width:70px;">Line</th>
+                    <th>Income source</th>
+                    <th style="width:220px;">Annual amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><strong>1</strong></td>
+                    <td>Net partnership income</td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="schedule_a_partnership_income" value="{{ statement.schedule_a_partnership_income|default:'' }}"></td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>2</strong></td>
+                    <td>
+                      Net rental income
+                      <div class="panel-sub" style="margin:6px 0 0;">
+                        Gross annual rental income of $
+                        <input class="form-control ui-input sm money-input d-inline-block" style="width: 180px; display:inline-block;" type="number" step="0.01" name="schedule_a_rental_income_gross" value="{{ statement.schedule_a_rental_income_gross|default:'' }}">
+                      </div>
+                    </td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="schedule_a_rental_income_net" value="{{ statement.schedule_a_rental_income_net|default:'' }}"></td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>3</strong></td>
+                    <td>Total amount of dividends received from taxable Canadian corporations</td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="schedule_a_dividends" value="{{ statement.schedule_a_dividends|default:'' }}"></td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>4</strong></td>
+                    <td>
+                      Total capital gains less capital losses
+                      <div class="panel-sub" style="margin:6px 0 0;">
+                        Gains $
+                        <input class="form-control ui-input sm money-input d-inline-block" style="width: 160px; display:inline-block;" type="number" step="0.01" name="schedule_a_capital_gains" value="{{ statement.schedule_a_capital_gains|default:'' }}">
+                        &nbsp; Losses $
+                        <input class="form-control ui-input sm money-input d-inline-block" style="width: 160px; display:inline-block;" type="number" step="0.01" name="schedule_a_capital_losses" value="{{ statement.schedule_a_capital_losses|default:'' }}">
+                      </div>
+                    </td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="schedule_a_net_capital_gains" value="{{ statement.schedule_a_net_capital_gains|default:'' }}"></td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>5</strong></td>
+                    <td>Registered retirement savings plan withdrawals</td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="schedule_a_rrsp_withdrawals" value="{{ statement.schedule_a_rrsp_withdrawals|default:'' }}"></td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>6</strong></td>
+                    <td>Income from a Registered Retirement Income Fund or annuity</td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="schedule_a_rrif_annuity" value="{{ statement.schedule_a_rrif_annuity|default:'' }}"></td>
+                  </tr>
+
+                  <tr>
+                    <td><strong>7</strong></td>
+                    <td>
+                      Any other income <em>(specify source)</em>
+                      <div class="panel-sub" style="margin:6px 0 0;">
+                        <input class="form-control ui-input sm" type="text" name="schedule_a_other_income_source" value="{{ statement.schedule_a_other_income_source|default:'' }}" placeholder="Specify source (e.g., trust income, foreign income)">
+                      </div>
+                    </td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="schedule_a_other_income_amount" value="{{ statement.schedule_a_other_income_amount|default:'' }}"></td>
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section-sep"></div>
+
+          <div class="grid-2">
+            <div class="note">
+              <p><strong>Tip:</strong> If a line is not applicable, leave it blank or enter 0.00 (depending on your validation rules).</p>
+            </div>
+            <div>
+              <label for="income_subtotal" class="panel-sub" style="margin:0 0 6px;">Subtotal</label>
+              <input class="form-control ui-input money-input" type="number" step="0.01" name="schedule_a_subtotal" id="income_subtotal" value="{{ statement.schedule_a_subtotal|default:'' }}" placeholder="0.00">
+            </div>
+          </div>
+        </div>
+
+        <!-- =======================
+             SCHEDULE B
+        ======================== -->
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <h3 class="panel-title">Schedule B: Other Income Earners in the Home</h3>
+              <div class="panel-sub">
+                Complete only if you are making or responding to a claim for undue hardship or spousal support.
+                Check and complete all sections that apply.
+              </div>
+            </div>
+            <div class="panel-pill">Household</div>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" name="lives_alone" id="lives_alone" {% if statement.lives_alone %}checked{% endif %}>
+            <div>
+              <label for="lives_alone">1. I live alone.</label>
+              <div class="sub">Check if no other adults live with you.</div>
+            </div>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" name="living_with_someone" id="living_with_someone" {% if statement.living_with_someone %}checked{% endif %}>
+            <div style="width:100%;">
+              <label for="living_with_someone">2. I am living with (full legal name of person you are married to or cohabiting with)</label>
+              <div class="sub" style="margin-top:8px;">
+                <input class="form-control ui-input sm" type="text" name="living_with_name" value="{{ statement.living_with_name|default:'' }}" placeholder="Partner full legal name">
+              </div>
+            </div>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" name="lives_with_other_adults" id="lives_with_other_adults" {% if statement.lives_with_other_adults %}checked{% endif %}>
+            <div style="width:100%;">
+              <label for="lives_with_other_adults">3. I/we live with the following other adult(s):</label>
+              <div class="sub" style="margin-top:8px;">
+                <textarea class="form-control ui-input" name="other_adults_names" rows="2" style="height:auto; min-height: 88px;">{{ statement.other_adults_names|default:'' }}</textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" name="has_children_in_home" id="has_children_in_home" {% if statement.has_children_in_home %}checked{% endif %}>
+            <div style="width:100%;">
+              <label for="has_children_in_home">
+                4. I/we have (give number) child(ren) who live(s) in the home.
+              </label>
+              <div class="sub" style="margin-top:8px; max-width: 220px;">
+                <input class="form-control ui-input sm" type="number" name="number_of_children_in_home" value="{{ statement.number_of_children_in_home|default:'' }}" placeholder="0">
+              </div>
+            </div>
+          </div>
+
+          <div class="check-row">
+            <div style="width:100%;">
+              <label>5. My spouse/partner</label>
+              <div class="sub" style="margin-top:8px;">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                  <label class="radio-pill" style="background:rgba(248,250,252,.85);">
+                    <input type="checkbox" name="spouse_works" {% if statement.spouse_works %}checked{% endif %}>
+                    works at
+                  </label>
+                  <input class="form-control ui-input sm" style="max-width: 360px;" type="text" name="spouse_work_place" value="{{ statement.spouse_work_place|default:'' }}" placeholder="Place of work or business">
+                  <label class="radio-pill" style="background:rgba(248,250,252,.85);">
+                    <input type="checkbox" name="spouse_does_not_work" {% if statement.spouse_does_not_work %}checked{% endif %}>
+                    does not work outside the home
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="check-row">
+            <div style="width:100%;">
+              <label>6. My spouse/partner</label>
+              <div class="sub" style="margin-top:8px;">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
+                  <label class="radio-pill" style="background:rgba(248,250,252,.85);">
+                    <input type="checkbox" name="spouse_earns_income" {% if statement.spouse_earns_income %}checked{% endif %}>
+                    earns
+                  </label>
+                  <span style="font-weight:800; color:var(--muted);">$</span>
+                  <input class="form-control ui-input sm money-input" style="max-width: 180px;" type="number" step="0.01" name="spouse_income_amount" value="{{ statement.spouse_income_amount|default:'' }}" placeholder="0.00">
+                  <span style="font-weight:800; color:var(--muted);">per</span>
+                  <input class="form-control ui-input sm" style="max-width: 180px;" type="text" name="spouse_income_period" value="{{ statement.spouse_income_period|default:'' }}" placeholder="week / month / year">
+                  <label class="radio-pill" style="background:rgba(248,250,252,.85);">
+                    <input type="checkbox" name="spouse_no_income" {% if statement.spouse_no_income %}checked{% endif %}>
+                    does not earn any income
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="check-row" style="margin-bottom:0;">
+            <div style="width:100%;">
+              <label>7.</label>
+              <div class="sub" style="margin-top:8px;">
+                <label class="radio-pill" style="background:rgba(248,250,252,.85);">
+                  <input type="checkbox" name="household_contribution" {% if statement.household_contribution %}checked{% endif %}>
+                  My spouse/partner or other adult contributes about
+                </label>
+                <div class="d-flex flex-wrap gap-3 align-items-center" style="margin-top:10px;">
+                  <span style="font-weight:900; color:var(--muted);">$</span>
+                  <input class="form-control ui-input sm money-input" style="max-width: 200px;" type="number" step="0.01" name="household_contribution_amount" value="{{ statement.household_contribution_amount|default:'' }}" placeholder="0.00">
+                  <span style="font-weight:800; color:var(--muted);">per</span>
+                  <input class="form-control ui-input sm" style="max-width: 220px;" type="text" name="household_contribution_period" value="{{ statement.household_contribution_period|default:'' }}" placeholder="week / month / year">
+                  <span style="font-weight:700; color:var(--muted);">towards household expenses</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions">
+          {% if statement.pk %}
+            <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
+            <button type="submit" class="btn-modern btn-primary-modern">Save &amp; Next &rarr;</button>
+          {% endif %}
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

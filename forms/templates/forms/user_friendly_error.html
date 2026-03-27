@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Submission Error</h4>
+        <p>{{ message }}</p>
+        {% if details %}
+        <details style="margin-bottom:12px;">
+            <summary>Technical details</summary>
+            <pre style="white-space:pre-wrap;">{{ details }}</pre>
+        </details>
+        {% endif %}
+        <hr>
+        <form method="post">
+            {% csrf_token %}
+            {# Re-render the form and formset if available #}
+            {% if form and land_formset %}
+                {{ form.as_p }}
+                {{ land_formset.management_form }}
+                {% for f in land_formset.forms %}
+                    {{ f.as_p }}
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Try Again</button>
+            {% else %}
+                <a href="/forms/comparison-nfp/" class="btn btn-primary">Go to Comparison NFP Dashboard</a>
+                <a href="/forms/comparison-nfp/page1/" class="btn btn-secondary">Start New Comparison NFP</a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}

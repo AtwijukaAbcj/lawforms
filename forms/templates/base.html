@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Family Law Forms{% endblock %}</title>
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+
+  <style>
+    :root{
+      --bg: #f6f7fb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted:#64748b;
+      --line: #e2e8f0;
+      --brand: #4f46e5;
+      --brand2:#22c55e;
+      --sidebar-w: 280px;
+      --radius: 18px;
+    }
+
+    body{
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* Layout */
+    .app-shell{
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Sidebar */
+    .sidebar{
+      width: var(--sidebar-w);
+      flex: 0 0 var(--sidebar-w); /* Prevent sidebar from shrinking */
+      box-sizing: border-box;
+      background: linear-gradient(180deg, rgba(79,70,229,.10), rgba(34,197,94,.06)), var(--card);
+      border-right: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 16px;
+      overflow-y: auto;
+    }
+
+    .brand{
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.9);
+      border-radius: var(--radius);
+      padding: 14px 14px;
+      box-shadow: 0 12px 30px rgba(2,6,23,.06);
+      margin-bottom: 14px;
+    }
+    .brand .title{
+      font-weight: 900;
+      letter-spacing: -.02em;
+      margin: 0;
+      font-size: 16px;
+    }
+    .brand .sub{
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .nav-section{
+      margin-top: 14px;
+      color: var(--muted);
+      font-weight: 900;
+      font-size: 11px;
+      letter-spacing: .10em;
+      text-transform: uppercase;
+      padding: 0 10px;
+    }
+
+    .sidebar .nav{
+      margin-top: 10px;
+      gap: 6px;
+    }
+
+    .sidebar .nav-link{
+      border-radius: 8px;
+      padding: 10px 12px;
+      color: #111827;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid transparent;
+      transition: transform .08s ease, background .15s ease, border-color .15s ease;
+    }
+
+    .sidebar .nav-link:hover{
+      background: rgba(79,70,229,.07);
+      border-color: rgba(79,70,229,.15);
+      transform: translateY(-1px);
+    }
+
+    /* Active link (auto-highlights based on URL) */
+    .sidebar .nav-link.active{
+      background: rgba(79,70,229,.12);
+      border-color: rgba(79,70,229,.25);
+      color: #111827;
+    }
+
+    .nav-icon{
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.9);
+      font-weight: 900;
+      color: var(--brand);
+      flex: 0 0 auto;
+    }
+
+    /* Main */
+    .main{
+      flex: 1;
+      padding: 18px;
+      min-width: 0; /* allow main to shrink and enable internal overflow handling */
+    }
+
+    .topbar{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .page-card{
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 50px rgba(2,6,23,.08);
+      padding: 18px;
+    }
+
+    /* Mobile */
+    .mobile-top{
+      display: none;
+      position: sticky;
+      top: 0;
+      z-index: 1030;
+      background: rgba(246,247,251,.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--line);
+      padding: 10px 12px;
+    }
+
+    @media (max-width: 991.98px){
+      .sidebar{
+        position: fixed;
+        left: -100%;
+        top: 0;
+        height: 100vh;
+        z-index: 1040;
+        transition: left .2s ease;
+      }
+      .sidebar.show{
+        left: 0;
+      }
+      .main{
+        padding: 12px;
+      }
+      .mobile-top{
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .overlay{
+        display:none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15,23,42,.35);
+        z-index: 1035;
+      }
+      .overlay.show{ display:block; }
+    }
+
+    /* Print styles */
+    @media print {
+      .sidebar, .mobile-top, .topbar { display: none !important; }
+      .main { padding: 0 !important; margin: 0 !important; }
+      .page-card {
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      body { background: #fff !important; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Mobile top bar -->
+  <div class="mobile-top">
+    <button class="btn btn-outline-secondary btn-sm" type="button" id="menuBtn">☰ Menu</button>
+    <div class="fw-bold">Family Law Forms</div>
+    <div style="width:64px;"></div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <div class="app-shell">
+    <!-- Sidebar -->
+    <nav class="sidebar" id="sidebar">
+      <div class="brand">
+        <p class="title mb-0">Family Law Forms</p>
+        <p class="sub mb-0">Dashboard • 13B • Financial Statement • Schedules</p>
+      </div>
+
+      <div class="nav-section">Navigation</div>
+      <ul class="nav flex-column">
+        <li class="nav-item">
+          <a class="nav-link" href="/forms/dashboard/">
+            <span class="nav-icon">D</span> Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/forms/comparison-nfp/">
+            <span class="nav-icon">C</span> Comparison of Net Family Property
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'net_family_property_13b_list' %}">
+            <span class="nav-icon">13</span> Net Family Property Statement (13B)
+          </a>
+        </li>
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="{% url 'net_family_property_13b_list' %}">
+            <span class="nav-icon">13</span> Net Family Property Statement (13B)
+          </a>
+        </li> -->
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'financial_statement_list' %}">
+            <span class="nav-icon">F</span> Financial Statement
+          </a>
+        </li>
+
+        <div class="nav-section mt-3">System</div>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'users:dashboard' %}">
+            <span class="nav-icon">👥</span> User Management
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'recycle_bin' %}">
+            <span class="nav-icon">🗑️</span> Recycle Bin
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="/admin/">
+            <span class="nav-icon">A</span> Admin Panel
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <form method="post" action="/accounts/logout/" style="margin:0;">
+            {% csrf_token %}
+            <button type="submit" class="nav-link" style="width:100%; border:none; background:none; cursor:pointer; text-align:left;">
+              <span class="nav-icon" style="color:#dc2626;">⎋</span> Logout
+            </button>
+          </form>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- Main content -->
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <div class="fw-black" style="font-weight: 950; font-size: 18px;">{% block header %}Welcome{% endblock %}</div>
+          <div class="text-muted" style="font-weight:600;">{% block subheader %}Manage your forms and schedules{% endblock %}</div>
+        </div>
+      </div>
+
+      <div class="page-card">
+        {% block content %}{% endblock %}
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    // Mobile sidebar toggle
+    const sidebar = document.getElementById("sidebar");
+    const overlay = document.getElementById("overlay");
+    const menuBtn = document.getElementById("menuBtn");
+
+    function openMenu(){
+      sidebar.classList.add("show");
+      overlay.classList.add("show");
+    }
+    function closeMenu(){
+      sidebar.classList.remove("show");
+      overlay.classList.remove("show");
+    }
+
+    if(menuBtn){
+      menuBtn.addEventListener("click", () => {
+        if(sidebar.classList.contains("show")) closeMenu();
+        else openMenu();
+      });
+    }
+    overlay.addEventListener("click", closeMenu);
+
+    // Active link highlight based on current path
+    const path = window.location.pathname;
+    document.querySelectorAll(".sidebar .nav-link").forEach(a => {
+      const href = a.getAttribute("href");
+      if (!href) return;
+
+      // basic match: exact or prefix match (useful for /forms/.../id/)
+      if (path === href || (href !== "/" && path.startsWith(href))) {
+        a.classList.add("active");
+      }
+    });
+  </script>
+</body>
+</html>

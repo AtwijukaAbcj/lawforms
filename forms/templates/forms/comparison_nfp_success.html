@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+  .success-wrap{
+    max-width: 600px;
+    margin: 60px auto;
+    padding: 40px;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 18px 50px rgba(2,6,23,.08);
+    text-align: center;
+  }
+  .success-wrap h2{
+    color: #10b981;
+    margin-bottom: 16px;
+  }
+  .success-wrap p{
+    color: #64748b;
+    margin-bottom: 24px;
+  }
+  .success-wrap .btn{
+    display: inline-block;
+    padding: 12px 24px;
+    margin: 8px;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 800;
+    transition: transform .1s ease, box-shadow .15s ease;
+  }
+  .success-wrap .btn:hover{
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(0,0,0,.12);
+  }
+  .btn-primary{
+    background: linear-gradient(135deg, rgba(99,102,241,.95), rgba(79,70,229,.95));
+    color: #fff;
+  }
+  .btn-secondary{
+    background: #f1f5f9;
+    color: #0f172a;
+    border: 1px solid #e2e8f0;
+  }
+</style>
+
+<div class="success-wrap">
+  <h2><svg width="28" height="28" fill="none" stroke="#22c55e" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align: -6px; margin-right: 8px;"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><path d="M22 4L12 14.01l-3-3"/></svg>Form Submitted Successfully!</h2>
+  <p>Your Comparison of Net Family Property (Form 13C) has been saved.</p>
+  <a href="{% url 'comparison_nfp_list' %}" class="btn btn-primary">View All Forms</a>
+  <a href="{% url 'comparison_nfp_create' %}" class="btn btn-secondary">+ Create New Form</a>
+</div>
+{% endblock %}
