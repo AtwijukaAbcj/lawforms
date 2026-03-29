@@ -48,4 +48,9 @@ urlpatterns = [
     path('financial-statement/page8/<int:pk>/', views.financial_statement_page8, name='financial_statement_page8'),
     path('financial-statement/view/<int:pk>/', views.financial_statement_view, name='financial_statement_view'),
     path('financial-statement/print/<int:pk>/', views.financial_statement_print, name='financial_statement_print'),
+    # Billing & Print Tracking
+    path('billing/', views.billing_dashboard, name='billing_dashboard'),
+    path('billing/history/', views.billing_history, name='billing_history'),
+    path('billing/settings/', views.billing_settings_view, name='billing_settings'),
+    path('billing/admin-report/', views.admin_billing_report, name='admin_billing_report'),
 ]

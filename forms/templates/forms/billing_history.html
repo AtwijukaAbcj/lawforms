@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .page-header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .filter-card {
+        background: white;
+        border-radius: 16px;
+        padding: 24px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        margin-bottom: 24px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .filter-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 16px;
+        align-items: end;
+    }
+    
+    .filter-group label {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 8px;
+    }
+    
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+        padding: 10px 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+    
+    .filter-group input:focus,
+    .filter-group select:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .filter-btn {
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .filter-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .summary-bar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px 24px;
+        border-radius: 12px;
+        margin-bottom: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .summary-item {
+        text-align: center;
+    }
+    
+    .summary-item .value {
+        font-size: 24px;
+        font-weight: 700;
+    }
+    
+    .summary-item .label {
+        font-size: 13px;
+        opacity: 0.9;
+    }
+    
+    .table-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    .data-table th {
+        background: #f8fafc;
+        padding: 16px 20px;
+        text-align: left;
+        font-size: 13px;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #e2e8f0;
+    }
+    
+    .data-table td {
+        padding: 16px 20px;
+        border-bottom: 1px solid #f1f5f9;
+        font-size: 14px;
+        color: #1a1a2e;
+    }
+    
+    .data-table tr:hover {
+        background: #f8fafc;
+    }
+    
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+    
+    .form-badge {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .form-badge.form13 { background: #dbeafe; color: #2563eb; }
+    .form-badge.form13b { background: #fef3c7; color: #d97706; }
+    .form-badge.form13c { background: #d1fae5; color: #059669; }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-badge.billed { background: #d1fae5; color: #059669; }
+    .status-badge.pending { background: #fef3c7; color: #d97706; }
+    
+    .price-cell {
+        font-weight: 700;
+        color: #059669;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #64748b;
+    }
+    
+    .empty-state .icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+    
+    .empty-state h3 {
+        margin: 0 0 8px;
+        color: #1a1a2e;
+    }
+</style>
+
+<div class="page-header">
+    <div>
+        <h1>📜 Print History {% if showing_all %}<span style="font-size: 16px; opacity: 0.7;">(All Users)</span>{% endif %}</h1>
+        {% if can_view_all %}
+        <div style="display: flex; gap: 8px; margin-top: 12px;">
+            <a href="?view=all{% if filters.form_type %}&form_type={{ filters.form_type }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.billed %}&billed={{ filters.billed }}{% endif %}" 
+               class="btn btn-sm {% if showing_all %}btn-primary{% else %}btn-outline-primary{% endif %}" style="font-size: 12px; padding: 6px 12px; border-radius: 6px;">
+                👥 All Users
+            </a>
+            <a href="?view=mine{% if filters.form_type %}&form_type={{ filters.form_type }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.billed %}&billed={{ filters.billed }}{% endif %}" 
+               class="btn btn-sm {% if not showing_all %}btn-primary{% else %}btn-outline-primary{% endif %}" style="font-size: 12px; padding: 6px 12px; border-radius: 6px;">
+                👤 My Prints
+            </a>
+        </div>
+        {% endif %}
+    </div>
+    <a href="{% url 'billing_dashboard' %}{% if showing_all %}?view=all{% endif %}" class="back-btn">← Back to Dashboard</a>
+</div>
+
+<div class="filter-card">
+    <form method="get" action="">
+        {% if showing_all %}<input type="hidden" name="view" value="all">{% endif %}
+        <div class="filter-grid">
+            <div class="filter-group">
+                <label>Form Type</label>
+                <select name="form_type">
+                    <option value="">All Forms</option>
+                    {% for value, label in form_types %}
+                    <option value="{{ value }}" {% if filters.form_type == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>From Date</label>
+                <input type="date" name="date_from" value="{{ filters.date_from }}">
+            </div>
+            <div class="filter-group">
+                <label>To Date</label>
+                <input type="date" name="date_to" value="{{ filters.date_to }}">
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select name="billed">
+                    <option value="">All</option>
+                    <option value="billed" {% if filters.billed == 'billed' %}selected{% endif %}>Billed</option>
+                    <option value="unbilled" {% if filters.billed == 'unbilled' %}selected{% endif %}>Unbilled</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <button type="submit" class="filter-btn">Apply Filters</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div class="summary-bar">
+    <div class="summary-item">
+        <div class="value">{{ totals.count|default:0 }}</div>
+        <div class="label">Total Prints</div>
+    </div>
+    <div class="summary-item">
+        <div class="value">${{ totals.total_amount|floatformat:2|default:"0.00" }}</div>
+        <div class="label">Total Amount</div>
+    </div>
+</div>
+
+<div class="table-card">
+    {% if prints %}
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Date & Time</th>
+                {% if showing_all %}<th>User</th>{% endif %}
+                <th>Form Type</th>
+                <th>Identifier</th>
+                <th>Price</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for print in prints %}
+            <tr>
+                <td>{{ print.printed_at|date:"M d, Y H:i" }}</td>
+                {% if showing_all %}<td><strong>{{ print.user.username }}</strong></td>{% endif %}
+                <td>
+                    <span class="form-badge {% if print.form_type == 'financial_statement' %}form13{% elif print.form_type == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
+                        {{ print.get_form_type_display }}
+                    </span>
+                </td>
+                <td>{{ print.form_identifier }}</td>
+                <td class="price-cell">${{ print.price_charged|floatformat:2 }}</td>
+                <td>
+                    {% if print.is_billed %}
+                        <span class="status-badge billed">Billed</span>
+                    {% else %}
+                        <span class="status-badge pending">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="icon">📋</div>
+        <h3>No prints found</h3>
+        <p>Try adjusting your filters or print some forms to see them here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

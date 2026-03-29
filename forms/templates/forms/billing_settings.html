@@ -1,0 +1,249 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .page-header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .settings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 24px;
+    }
+    
+    .pricing-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .pricing-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+    }
+    
+    .pricing-header {
+        padding: 24px;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-bottom: 1px solid #e2e8f0;
+        text-align: center;
+    }
+    
+    .pricing-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 16px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+    
+    .pricing-icon.form13 { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .pricing-icon.form13b { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+    .pricing-icon.form13c { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    
+    .pricing-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+    
+    .pricing-body {
+        padding: 24px;
+    }
+    
+    .current-price {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .current-price .label {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 4px;
+    }
+    
+    .current-price .value {
+        font-size: 36px;
+        font-weight: 800;
+        color: #059669;
+    }
+    
+    .price-form {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .price-input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+    
+    .price-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .update-btn {
+        width: 100%;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .update-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .status-badge.active { background: #d1fae5; color: #059669; }
+    .status-badge.inactive { background: #fee2e2; color: #dc2626; }
+    
+    .info-box {
+        background: linear-gradient(135deg, #dbeafe, #eff6ff);
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 30px;
+    }
+    
+    .info-box h4 {
+        margin: 0 0 12px;
+        color: #1e40af;
+        font-size: 16px;
+    }
+    
+    .info-box p {
+        margin: 0;
+        color: #1e40af;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+</style>
+
+<div class="page-header">
+    <h1>⚙️ Billing Settings</h1>
+    <a href="{% url 'billing_dashboard' %}" class="back-btn">← Back to Dashboard</a>
+</div>
+
+<div class="settings-grid">
+    {% for setting in settings %}
+    <div class="pricing-card">
+        <div class="pricing-header">
+            <div class="pricing-icon {% if setting.form_type == 'financial_statement' %}form13{% elif setting.form_type == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
+                {% if setting.form_type == 'financial_statement' %}📄{% elif setting.form_type == 'net_family_property_13b' %}📋{% else %}📊{% endif %}
+            </div>
+            <h3>{{ setting.form_display_name }}</h3>
+            {% if setting.is_active %}
+                <span class="status-badge active">Active</span>
+            {% else %}
+                <span class="status-badge inactive">Inactive</span>
+            {% endif %}
+        </div>
+        <div class="pricing-body">
+            <div class="current-price">
+                <div class="label">Current Price</div>
+                <div class="value">${{ setting.price_per_print|floatformat:2 }}</div>
+            </div>
+            <form method="post" class="price-form">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="{{ setting.form_type }}">
+                <input type="number" name="price" step="0.01" min="0" placeholder="New price" class="price-input" value="{{ setting.price_per_print }}">
+                <button type="submit" class="update-btn">Update</button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    {% for value, label in form_types %}
+    <div class="pricing-card">
+        <div class="pricing-header">
+            <div class="pricing-icon {% if value == 'financial_statement' %}form13{% elif value == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
+                {% if value == 'financial_statement' %}📄{% elif value == 'net_family_property_13b' %}📋{% else %}📊{% endif %}
+            </div>
+            <h3>{{ label }}</h3>
+        </div>
+        <div class="pricing-body">
+            <div class="current-price">
+                <div class="label">Current Price</div>
+                <div class="value">$1.00</div>
+            </div>
+            <form method="post" class="price-form">
+                {% csrf_token %}
+                <input type="hidden" name="form_type" value="{{ value }}">
+                <input type="number" name="price" step="0.01" min="0" placeholder="New price" class="price-input" value="1.00">
+                <button type="submit" class="update-btn">Set Price</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+    {% endfor %}
+</div>
+
+<div class="info-box">
+    <h4>💡 How Billing Works</h4>
+    <p>
+        Each time a user prints a form, a print event is logged with the current price for that form type.
+        The price at the time of printing is locked in, so changes here only affect future prints.
+        Users can view their print history and billing status from their dashboard.
+    </p>
+</div>
+{% endblock %}

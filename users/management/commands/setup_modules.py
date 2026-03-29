@@ -38,6 +38,24 @@ class Command(BaseCommand):
                 'description': 'Manage users, roles, and permissions',
                 'icon': '👥',
             },
+            {
+                'name': 'Billing',
+                'code': 'billing',
+                'description': 'View and manage print billing and invoices',
+                'icon': '💳',
+            },
+            {
+                'name': 'Recycle Bin',
+                'code': 'recycle_bin',
+                'description': 'View and restore deleted items',
+                'icon': '🗑️',
+            },
+            {
+                'name': 'Admin Panel',
+                'code': 'admin_panel',
+                'description': 'Access to Django admin panel',
+                'icon': '⚙️',
+            },
         ]
 
         permission_types = ['view', 'create', 'edit', 'delete', 'print', 'export']

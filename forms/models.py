@@ -1,6 +1,8 @@
 # forms/models.py
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
+from decimal import Decimal
 
 
 # ============================================================
@@ -930,3 +932,114 @@ class Form13CFinalTotals(models.Model):
 
     def __str__(self):
         return f"13C Final Totals for Form13C {self.form13c_id}"
+
+
+# ============================================================
+# BILLING & PRINT TRACKING
+# ============================================================
+class BillingSetting(models.Model):
+    """Global billing settings for print charges."""
+    form_type = models.CharField(max_length=100, unique=True)
+    form_display_name = models.CharField(max_length=200)
+    price_per_print = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('1.00'))
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['form_display_name']
+
+    def __str__(self):
+        return f"{self.form_display_name} - ${self.price_per_print}/print"
+
+
+class PrintEvent(models.Model):
+    """Track each print event for billing purposes."""
+    FORM_TYPE_CHOICES = [
+        ('financial_statement', 'Financial Statement (Form 13)'),
+        ('net_family_property_13b', 'Net Family Property (Form 13B)'),
+        ('comparison_nfp', 'Comparison of Net Family Property (Form 13C)'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='print_events')
+    form_type = models.CharField(max_length=100, choices=FORM_TYPE_CHOICES)
+    form_id = models.IntegerField()  # The pk of the printed form
+    form_identifier = models.CharField(max_length=255, blank=True)  # Court file number or name
+    printed_at = models.DateTimeField(auto_now_add=True)
+    price_charged = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    is_billed = models.BooleanField(default=False)
+    billed_at = models.DateTimeField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-printed_at']
+        indexes = [
+            models.Index(fields=['user', 'printed_at']),
+            models.Index(fields=['form_type', 'printed_at']),
+            models.Index(fields=['is_billed']),
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} printed {self.get_form_type_display()} #{self.form_id} at {self.printed_at}"
+
+    @classmethod
+    def log_print(cls, user, form_type, form_id, form_identifier=''):
+        """Convenience method to log a print event with auto-pricing."""
+        # Get the price from BillingSetting
+        try:
+            setting = BillingSetting.objects.get(form_type=form_type, is_active=True)
+            price = setting.price_per_print
+        except BillingSetting.DoesNotExist:
+            price = Decimal('1.00')  # Default price
+        
+        return cls.objects.create(
+            user=user,
+            form_type=form_type,
+            form_id=form_id,
+            form_identifier=form_identifier,
+            price_charged=price
+        )
+
+
+class Invoice(models.Model):
+    """Invoice for billing clients based on print events."""
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('sent', 'Sent'),
+        ('paid', 'Paid'),
+        ('overdue', 'Overdue'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invoices')
+    invoice_number = models.CharField(max_length=50, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    due_date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
+    print_events = models.ManyToManyField(PrintEvent, related_name='invoices')
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
+    tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    notes = models.TextField(blank=True)
+    paid_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Invoice {self.invoice_number} - {self.user.username}"
+
+    def calculate_totals(self):
+        """Recalculate invoice totals based on print events."""
+        self.subtotal = sum(pe.price_charged for pe in self.print_events.all())
+        self.tax_amount = self.subtotal * (self.tax_rate / 100)
+        self.total = self.subtotal + self.tax_amount
+        self.save()
+
+    def mark_as_paid(self):
+        """Mark invoice and associated print events as paid."""
+        self.status = 'paid'
+        self.paid_at = timezone.now()
+        self.save()
+        self.print_events.update(is_billed=True, billed_at=timezone.now())

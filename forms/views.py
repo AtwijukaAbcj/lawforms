@@ -39,6 +39,9 @@ from .models import (
     Form13CMarriageProperty,
     Form13CExcludedProperty,
     Form13CFinalTotals,
+
+    # Billing & Print tracking
+    PrintEvent,
 )
 
 from .forms import (
@@ -1028,6 +1031,14 @@ def financial_statement_print(request, pk):
         i += 1
     context['other_debts'] = other_debts
     
+    # Log the print event for billing
+    PrintEvent.log_print(
+        user=request.user,
+        form_type='financial_statement',
+        form_id=pk,
+        form_identifier=statement.court_file_number or f'Form 13 #{pk}'
+    )
+    
     return render(request, "forms/financial_statement_print.html", context)
 
 
@@ -1359,6 +1370,14 @@ def net_family_property_13b_print(request, pk):
     totals['total5_resp'] = totals['total2_resp'] + totals['total3_resp'] + totals['total4_resp']
     totals['total6_app'] = totals['total1_app'] - totals['total5_app']
     totals['total6_resp'] = totals['total1_resp'] - totals['total5_resp']
+    
+    # Log the print event for billing
+    PrintEvent.log_print(
+        user=request.user,
+        form_type='net_family_property_13b',
+        form_id=pk,
+        form_identifier=statement.court_file_number or f'Form 13B #{pk}'
+    )
     
     return render(request, "forms/net_family_property_13b_print.html", {
         "statement": statement,
@@ -1992,6 +2011,14 @@ def comparison_nfp_print(request, pk):
     elif nfp_resp_resp > nfp_app_resp:
         equalization['resp_pays_app_resp'] = (nfp_resp_resp - nfp_app_resp) / 2
 
+    # Log the print event for billing
+    PrintEvent.log_print(
+        user=request.user,
+        form_type='comparison_nfp',
+        form_id=pk,
+        form_identifier=comparison.court_file_number or f'Form 13C #{pk}'
+    )
+
     return render(request, 'forms/comparison_nfp_print.html', {
         'comparison': comparison,
         'pk': pk,
@@ -2136,3 +2163,259 @@ def comparison_nfp_full_view(request, pk):
         "equalization": equalization,
         "pk": pk,
     })
+
+
+# ============================================================
+# BILLING & PRINT TRACKING
+# ============================================================
+from django.db.models import Sum, Count
+from django.db.models.functions import TruncDate, TruncMonth
+from datetime import datetime, timedelta
+from .models import BillingSetting, Invoice
+
+
+@login_required
+def billing_dashboard(request):
+    """Dashboard showing print statistics and billing information."""
+    user = request.user
+    
+    # Check if user has billing view permission
+    has_billing_permission = user.is_staff or user.is_superuser
+    if not has_billing_permission:
+        try:
+            has_billing_permission = user.profile.has_module_permission('billing', 'view')
+        except:
+            has_billing_permission = False
+    
+    # Staff/superusers/users with billing permission see ALL prints by default
+    view_all = request.GET.get('view') == 'all' or has_billing_permission
+    view_mine = request.GET.get('view') == 'mine'
+    
+    if view_mine:
+        user_prints = PrintEvent.objects.filter(user=user)
+        showing_all = False
+    elif view_all and has_billing_permission:
+        user_prints = PrintEvent.objects.all()
+        showing_all = True
+    else:
+        user_prints = PrintEvent.objects.filter(user=user)
+        showing_all = False
+    
+    # Get date range (default: current month)
+    today = datetime.now().date()
+    start_of_month = today.replace(day=1)
+    this_month_prints = user_prints.filter(printed_at__date__gte=start_of_month)
+    
+    # Statistics
+    stats = {
+        'total_prints': user_prints.count(),
+        'month_prints': this_month_prints.count(),
+        'total_charges': user_prints.aggregate(Sum('price_charged'))['price_charged__sum'] or 0,
+        'month_charges': this_month_prints.aggregate(Sum('price_charged'))['price_charged__sum'] or 0,
+        'unbilled_prints': user_prints.filter(is_billed=False).count(),
+        'unbilled_amount': user_prints.filter(is_billed=False).aggregate(Sum('price_charged'))['price_charged__sum'] or 0,
+    }
+    
+    # Recent print events
+    recent_prints = user_prints.order_by('-printed_at')[:20]
+    
+    # Prints by form type
+    prints_by_type = user_prints.values('form_type').annotate(
+        count=Count('id'),
+        total=Sum('price_charged')
+    )
+    
+    # Daily prints for chart (last 30 days)
+    thirty_days_ago = today - timedelta(days=30)
+    daily_prints = user_prints.filter(
+        printed_at__date__gte=thirty_days_ago
+    ).annotate(
+        date=TruncDate('printed_at')
+    ).values('date').annotate(
+        count=Count('id'),
+        total=Sum('price_charged')
+    ).order_by('date')
+    
+    # Get billing settings for price display
+    billing_settings = BillingSetting.objects.filter(is_active=True)
+    
+    # Get user's invoices
+    invoices = Invoice.objects.filter(user=user).order_by('-created_at')[:10]
+    
+    context = {
+        'stats': stats,
+        'recent_prints': recent_prints,
+        'prints_by_type': prints_by_type,
+        'daily_prints': list(daily_prints),
+        'billing_settings': billing_settings,
+        'invoices': invoices,
+        'showing_all': showing_all,
+        'can_view_all': has_billing_permission,
+    }
+    
+    return render(request, 'forms/billing_dashboard.html', context)
+
+
+@login_required
+def billing_history(request):
+    """Full history of print events for the user."""
+    user = request.user
+    
+    # Check if user has billing view permission
+    has_billing_permission = user.is_staff or user.is_superuser
+    if not has_billing_permission:
+        try:
+            has_billing_permission = user.profile.has_module_permission('billing', 'view')
+        except:
+            has_billing_permission = False
+    
+    # Staff/superusers/users with billing permission can view ALL prints
+    view_all = request.GET.get('view') == 'all' or has_billing_permission
+    view_mine = request.GET.get('view') == 'mine'
+    
+    if view_mine:
+        prints = PrintEvent.objects.filter(user=user)
+        showing_all = False
+    elif view_all and has_billing_permission:
+        prints = PrintEvent.objects.all()
+        showing_all = True
+    else:
+        prints = PrintEvent.objects.filter(user=user)
+        showing_all = False
+    
+    # Filter parameters
+    form_type = request.GET.get('form_type', '')
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    billed_status = request.GET.get('billed', '')
+    
+    if form_type:
+        prints = prints.filter(form_type=form_type)
+    if date_from:
+        prints = prints.filter(printed_at__date__gte=date_from)
+    if date_to:
+        prints = prints.filter(printed_at__date__lte=date_to)
+    if billed_status == 'billed':
+        prints = prints.filter(is_billed=True)
+    elif billed_status == 'unbilled':
+        prints = prints.filter(is_billed=False)
+    
+    # Calculate totals
+    totals = prints.aggregate(
+        count=Count('id'),
+        total_amount=Sum('price_charged')
+    )
+    
+    context = {
+        'prints': prints.order_by('-printed_at'),
+        'totals': totals,
+        'form_types': PrintEvent.FORM_TYPE_CHOICES,
+        'filters': {
+            'form_type': form_type,
+            'date_from': date_from,
+            'date_to': date_to,
+            'billed': billed_status,
+        },
+        'showing_all': showing_all,
+        'can_view_all': has_billing_permission,
+    }
+    
+    return render(request, 'forms/billing_history.html', context)
+
+
+@login_required  
+def billing_settings_view(request):
+    """Admin view to manage billing settings (staff only)."""
+    if not request.user.is_staff:
+        return redirect('billing_dashboard')
+    
+    settings = BillingSetting.objects.all()
+    
+    if request.method == 'POST':
+        form_type = request.POST.get('form_type')
+        price = request.POST.get('price')
+        
+        if form_type and price:
+            setting, created = BillingSetting.objects.update_or_create(
+                form_type=form_type,
+                defaults={
+                    'price_per_print': Decimal(price),
+                    'form_display_name': dict(PrintEvent.FORM_TYPE_CHOICES).get(form_type, form_type)
+                }
+            )
+    
+    # Initialize default settings if none exist
+    if not settings.exists():
+        for form_type, display_name in PrintEvent.FORM_TYPE_CHOICES:
+            BillingSetting.objects.get_or_create(
+                form_type=form_type,
+                defaults={
+                    'form_display_name': display_name,
+                    'price_per_print': Decimal('1.00')
+                }
+            )
+        settings = BillingSetting.objects.all()
+    
+    context = {
+        'settings': settings,
+        'form_types': PrintEvent.FORM_TYPE_CHOICES,
+    }
+    
+    return render(request, 'forms/billing_settings.html', context)
+
+
+@login_required
+def admin_billing_report(request):
+    """Admin report showing all users' print activity (staff only)."""
+    if not request.user.is_staff:
+        return redirect('billing_dashboard')
+    
+    from django.contrib.auth.models import User
+    from django.db.models import Q
+    
+    # Get date range
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    
+    prints = PrintEvent.objects.all()
+    
+    if date_from:
+        prints = prints.filter(printed_at__date__gte=date_from)
+    if date_to:
+        prints = prints.filter(printed_at__date__lte=date_to)
+    
+    # User summary
+    user_summary = prints.values('user__username', 'user__id').annotate(
+        total_prints=Count('id'),
+        total_amount=Sum('price_charged'),
+        unbilled_prints=Count('id', filter=Q(is_billed=False)),
+        unbilled_amount=Sum('price_charged', filter=Q(is_billed=False))
+    ).order_by('-total_amount')
+    
+    # Overall totals
+    totals = prints.aggregate(
+        total_prints=Count('id'),
+        total_amount=Sum('price_charged'),
+        unbilled_prints=Count('id', filter=Q(is_billed=False)),
+        unbilled_amount=Sum('price_charged', filter=Q(is_billed=False))
+    )
+    
+    # Monthly breakdown
+    monthly_data = prints.annotate(
+        month=TruncMonth('printed_at')
+    ).values('month').annotate(
+        count=Count('id'),
+        total=Sum('price_charged')
+    ).order_by('-month')[:12]
+    
+    context = {
+        'user_summary': user_summary,
+        'totals': totals,
+        'monthly_data': monthly_data,
+        'filters': {
+            'date_from': date_from,
+            'date_to': date_to,
+        }
+    }
+    
+    return render(request, 'forms/admin_billing_report.html', context)
