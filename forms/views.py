@@ -1,3 +1,21 @@
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+# Delete PrintEvent (admin/staff only)
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser or u.is_staff)
+def delete_print_event(request, pk):
+    print_event = get_object_or_404(PrintEvent, pk=pk)
+    if request.method == "POST":
+        print_event.delete()
+        return redirect("billing_history")
+    return render(request, "forms/confirm_delete.html", {
+        "object": print_event,
+        "object_name": f"Print Event #{print_event.id}",
+        "cancel_url": reverse("billing_history"),
+    })
 # forms/views.py - Comprehensive version with all data saving properly
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponseRedirect, JsonResponse

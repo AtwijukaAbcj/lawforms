@@ -51,6 +51,7 @@ urlpatterns = [
     # Billing & Print Tracking
     path('billing/', views.billing_dashboard, name='billing_dashboard'),
     path('billing/history/', views.billing_history, name='billing_history'),
+    path('billing/history/delete/<int:pk>/', views.delete_print_event, name='delete_print_event'),
     path('billing/settings/', views.billing_settings_view, name='billing_settings'),
     path('billing/admin-report/', views.admin_billing_report, name='admin_billing_report'),
 ]
