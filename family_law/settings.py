@@ -29,7 +29,7 @@ SECRET_KEY = 'django-insecure-!&l#_0f@fem+xv*9!hpyioz^@82z5)xssc+uoh155d^veb0xw8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['lawforms.solichsystems.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
