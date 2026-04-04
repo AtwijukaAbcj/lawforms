@@ -6,11 +6,43 @@
 <style>
 @page { size: letter; margin: 0.4in 0.5in; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #000; background: #ddd; }
+body { font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #000; background: #e5e5e5; }
 .page { width: 8.5in; min-height: 11in; background: #fff; padding: 0.4in 0.5in; margin: 10px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2); page-break-after: always; position: relative; }
 .page:last-child { page-break-after: avoid; }
-.no-print { background: #333; color: #fff; padding: 10px 20px; text-align: center; position: sticky; top: 0; z-index: 999; }
-.no-print a { color: #fff; margin: 0 12px; }
+
+/* Print controls - styled buttons */
+.print-controls {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1000;
+  display: flex;
+  gap: 10px;
+}
+.print-controls button, .print-controls a {
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.15s;
+}
+.print-controls button:hover, .print-controls a:hover {
+  background: #f3f4f6;
+}
+.print-controls .btn-print {
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+  border: none;
+}
+.print-controls .btn-print:hover {
+  background: linear-gradient(135deg, #4f46e5, #4338ca);
+}
 
 /* Database values - bold blue */
 .val { color: #0066cc; font-weight: bold; }
@@ -89,7 +121,7 @@ th { font-weight: bold; background: #fff; }
 
 @media print {
   body { background: #fff; }
-  .no-print { display: none !important; }
+  .print-controls { display: none !important; }
   .page { width: 100%; min-height: auto; margin: 0; padding: 0.4in 0.5in; box-shadow: none; }
   .page-footer { position: absolute; }
 }
@@ -131,9 +163,9 @@ th { font-weight: bold; background: #fff; }
 </head>
 <body>
 
-<div class="no-print">
-  <a href="javascript:window.print()">🖨️ Print</a> |
-  <a href="{% url 'financial_statement_131_page1' form.pk %}">Edit</a> |
+<div class="print-controls">
+  <button class="btn-print" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print Form</button>
+  <a href="{% url 'financial_statement_131_page1' form.pk %}">Edit</a>
   <a href="{% url 'financial_statement_131_list' %}">Back to List</a>
 </div>
 
