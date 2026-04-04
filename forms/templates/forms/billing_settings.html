@@ -75,6 +75,7 @@
     }
     
     .pricing-icon.form13 { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .pricing-icon.form131 { background: linear-gradient(135deg, #e0e7ff, #c7d2fe); }
     .pricing-icon.form13b { background: linear-gradient(135deg, #fef3c7, #fde68a); }
     .pricing-icon.form13c { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
     
@@ -189,8 +190,8 @@
     {% for setting in settings %}
     <div class="pricing-card">
         <div class="pricing-header">
-            <div class="pricing-icon {% if setting.form_type == 'financial_statement' %}form13{% elif setting.form_type == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
-                {% if setting.form_type == 'financial_statement' %}📄{% elif setting.form_type == 'net_family_property_13b' %}📋{% else %}📊{% endif %}
+            <div class="pricing-icon {% if setting.form_type == 'financial_statement' %}form13{% elif setting.form_type == 'financial_statement_131' %}form131{% elif setting.form_type == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
+                {% if setting.form_type == 'financial_statement' %}📄{% elif setting.form_type == 'financial_statement_131' %}📑{% elif setting.form_type == 'net_family_property_13b' %}📋{% else %}📊{% endif %}
             </div>
             <h3>{{ setting.form_display_name }}</h3>
             {% if setting.is_active %}
@@ -216,8 +217,8 @@
     {% for value, label in form_types %}
     <div class="pricing-card">
         <div class="pricing-header">
-            <div class="pricing-icon {% if value == 'financial_statement' %}form13{% elif value == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
-                {% if value == 'financial_statement' %}📄{% elif value == 'net_family_property_13b' %}📋{% else %}📊{% endif %}
+            <div class="pricing-icon {% if value == 'financial_statement' %}form13{% elif value == 'financial_statement_131' %}form131{% elif value == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
+                {% if value == 'financial_statement' %}📄{% elif value == 'financial_statement_131' %}📑{% elif value == 'net_family_property_13b' %}📋{% else %}📊{% endif %}
             </div>
             <h3>{{ label }}</h3>
         </div>
