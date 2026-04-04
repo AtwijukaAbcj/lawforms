@@ -3737,6 +3737,56 @@ def billing_settings_view(request):
 
 
 @login_required
+def email_settings_view(request):
+    """Admin view to manage email settings (staff only)."""
+    from django.conf import settings as django_settings
+    
+    if not request.user.is_staff:
+        return redirect('dashboard')
+    
+    # Current email settings (read from settings.py)
+    current_settings = {
+        'EMAIL_HOST': getattr(django_settings, 'EMAIL_HOST', ''),
+        'EMAIL_PORT': getattr(django_settings, 'EMAIL_PORT', 587),
+        'EMAIL_USE_SSL': getattr(django_settings, 'EMAIL_USE_SSL', False),
+        'EMAIL_USE_TLS': getattr(django_settings, 'EMAIL_USE_TLS', True),
+        'EMAIL_HOST_USER': getattr(django_settings, 'EMAIL_HOST_USER', ''),
+        'DEFAULT_FROM_EMAIL': getattr(django_settings, 'DEFAULT_FROM_EMAIL', ''),
+        'ADMIN_NOTIFICATION_EMAIL': getattr(django_settings, 'ADMIN_NOTIFICATION_EMAIL', ''),
+    }
+    
+    test_result = None
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        
+        if action == 'test_email':
+            # Send a test email
+            from django.core.mail import send_mail
+            test_email = request.POST.get('test_email', request.user.email)
+            
+            try:
+                send_mail(
+                    subject='Test Email from Family Law Forms',
+                    message='This is a test email to verify your email configuration is working correctly.',
+                    from_email=django_settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[test_email],
+                    fail_silently=False,
+                )
+                test_result = {'success': True, 'message': f'Test email sent successfully to {test_email}'}
+                log_audit(request, 'export', 'email_settings', '', 'Email Settings', 
+                          f'Test email sent to {test_email}')
+            except Exception as e:
+                test_result = {'success': False, 'message': f'Failed to send test email: {str(e)}'}
+    
+    context = {
+        'current_settings': current_settings,
+        'test_result': test_result,
+    }
+    
+    return render(request, 'forms/email_settings.html', context)
+
+
+@login_required
 def admin_billing_report(request):
     """Admin report showing all users' print activity (staff only)."""
     if not request.user.is_staff:

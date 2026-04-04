@@ -1,0 +1,321 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    
+    .page-header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1a2e;
+    }
+    
+    .back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 14px;
+        text-decoration: none;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+        transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .settings-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+    }
+    
+    @media (max-width: 992px) {
+        .settings-container {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .settings-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        overflow: hidden;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+    
+    .settings-header {
+        padding: 24px;
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .settings-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+        color: #1a1a2e;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .settings-body {
+        padding: 24px;
+    }
+    
+    .setting-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    
+    .setting-row:last-child {
+        border-bottom: none;
+    }
+    
+    .setting-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #64748b;
+    }
+    
+    .setting-value {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1a1a2e;
+        font-family: 'Consolas', 'Monaco', monospace;
+        background: #f8fafc;
+        padding: 6px 12px;
+        border-radius: 6px;
+        max-width: 250px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    
+    .setting-value.masked {
+        color: #94a3b8;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+    
+    .status-badge.enabled {
+        background: #d1fae5;
+        color: #059669;
+    }
+    
+    .status-badge.disabled {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+    
+    .test-form {
+        margin-top: 20px;
+    }
+    
+    .input-group {
+        display: flex;
+        gap: 12px;
+    }
+    
+    .test-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+    }
+    
+    .test-input:focus {
+        outline: none;
+        border-color: #667eea;
+    }
+    
+    .test-btn {
+        padding: 12px 24px;
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+    
+    .test-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+    
+    .alert {
+        padding: 16px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+    
+    .alert-success {
+        background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+    
+    .alert-error {
+        background: linear-gradient(135deg, #fee2e2, #fecaca);
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+    }
+    
+    .info-box {
+        background: linear-gradient(135deg, #dbeafe, #eff6ff);
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 24px;
+    }
+    
+    .info-box h4 {
+        margin: 0 0 12px;
+        color: #1e40af;
+        font-size: 16px;
+    }
+    
+    .info-box p {
+        margin: 0;
+        color: #1e40af;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
+    .info-box code {
+        background: rgba(30, 64, 175, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+    }
+</style>
+
+<div class="page-header">
+    <h1>📧 Email Settings</h1>
+    <a href="{% url 'dashboard' %}" class="back-btn">← Back to Dashboard</a>
+</div>
+
+{% if test_result %}
+<div class="alert {% if test_result.success %}alert-success{% else %}alert-error{% endif %}">
+    <span>{% if test_result.success %}✅{% else %}❌{% endif %}</span>
+    <span>{{ test_result.message }}</span>
+</div>
+{% endif %}
+
+<div class="settings-container">
+    <div class="settings-card">
+        <div class="settings-header">
+            <h3>🔧 Current Configuration</h3>
+        </div>
+        <div class="settings-body">
+            <div class="setting-row">
+                <span class="setting-label">SMTP Server</span>
+                <span class="setting-value">{{ current_settings.EMAIL_HOST|default:"Not configured" }}</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Port</span>
+                <span class="setting-value">{{ current_settings.EMAIL_PORT }}</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">SSL</span>
+                {% if current_settings.EMAIL_USE_SSL %}
+                <span class="status-badge enabled">✓ Enabled</span>
+                {% else %}
+                <span class="status-badge disabled">✗ Disabled</span>
+                {% endif %}
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">TLS</span>
+                {% if current_settings.EMAIL_USE_TLS %}
+                <span class="status-badge enabled">✓ Enabled</span>
+                {% else %}
+                <span class="status-badge disabled">✗ Disabled</span>
+                {% endif %}
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Username</span>
+                <span class="setting-value">{{ current_settings.EMAIL_HOST_USER|default:"Not configured" }}</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Password</span>
+                <span class="setting-value masked">••••••••••••</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="settings-card">
+        <div class="settings-header">
+            <h3>📬 Email Addresses</h3>
+        </div>
+        <div class="settings-body">
+            <div class="setting-row">
+                <span class="setting-label">From Email</span>
+                <span class="setting-value">{{ current_settings.DEFAULT_FROM_EMAIL|default:"Not configured" }}</span>
+            </div>
+            <div class="setting-row">
+                <span class="setting-label">Admin Notification</span>
+                <span class="setting-value">{{ current_settings.ADMIN_NOTIFICATION_EMAIL|default:"Not configured" }}</span>
+            </div>
+            
+            <form method="post" class="test-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="test_email">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600; color: #475569; font-size: 13px;">
+                    Send Test Email
+                </label>
+                <div class="input-group">
+                    <input type="email" name="test_email" class="test-input" 
+                           placeholder="Enter email address" 
+                           value="{{ request.user.email }}" required>
+                    <button type="submit" class="test-btn">📤 Send Test</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="info-box">
+    <h4>💡 How to Configure Email Settings</h4>
+    <p>
+        Email settings are configured in the <code>settings.py</code> file. 
+        Current notifications are sent for: user logins, form creations, and form prints.
+        <br><br>
+        To change settings, update the following in <code>family_law/settings.py</code>:
+        <br>
+        <code>EMAIL_HOST</code>, <code>EMAIL_PORT</code>, <code>EMAIL_HOST_USER</code>, 
+        <code>EMAIL_HOST_PASSWORD</code>, <code>ADMIN_NOTIFICATION_EMAIL</code>
+    </p>
+</div>
+{% endblock %}
