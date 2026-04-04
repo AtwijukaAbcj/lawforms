@@ -21,6 +21,12 @@ class Command(BaseCommand):
                 'icon': '📄',
             },
             {
+                'name': 'Financial Statement (Form 13.1)',
+                'code': 'financial_statement_131',
+                'description': 'Create and manage Financial Statement - Property and Support Claims (Form 13.1)',
+                'icon': '📑',
+            },
+            {
                 'name': 'Net Family Property (13B)',
                 'code': 'net_family_property_13b',
                 'description': 'Create and manage Net Family Property Statements (Form 13B)',
