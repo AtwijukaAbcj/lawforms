@@ -3716,17 +3716,16 @@ def billing_settings_view(request):
             log_audit(request, action, 'billing_settings', form_type, 
                       f"Billing Setting - {setting.form_display_name}", details)
     
-    # Initialize default settings if none exist
-    if not settings.exists():
-        for form_type, display_name in PrintEvent.FORM_TYPE_CHOICES:
-            BillingSetting.objects.get_or_create(
-                form_type=form_type,
-                defaults={
-                    'form_display_name': display_name,
-                    'price_per_print': Decimal('1.00')
-                }
-            )
-        settings = BillingSetting.objects.all()
+    # Ensure all form types have billing settings (add any missing ones)
+    for form_type, display_name in PrintEvent.FORM_TYPE_CHOICES:
+        BillingSetting.objects.get_or_create(
+            form_type=form_type,
+            defaults={
+                'form_display_name': display_name,
+                'price_per_print': Decimal('1.00')
+            }
+        )
+    settings = BillingSetting.objects.all()
     
     context = {
         'settings': settings,
