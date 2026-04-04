@@ -1451,7 +1451,7 @@ def financial_statement_page1_new(request):
             # Audit log for creation
             log_audit(request, 'create', 'financial_statement', statement.pk, 
                       f"Form 13 #{statement.pk}", 
-                      f"Created - Applicant: {statement.applicant_full_name or 'N/A'}")
+                      f"Created - Applicant: {getattr(statement, 'applicant_name', 'N/A') or 'N/A'}")
             
             return redirect("financial_statement_page2", pk=statement.pk)
     else:
