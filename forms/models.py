@@ -957,6 +957,7 @@ class PrintEvent(models.Model):
     """Track each print event for billing purposes."""
     FORM_TYPE_CHOICES = [
         ('financial_statement', 'Financial Statement (Form 13)'),
+        ('financial_statement_131', 'Financial Statement - Property & Support (Form 13.1)'),
         ('net_family_property_13b', 'Net Family Property (Form 13B)'),
         ('comparison_nfp', 'Comparison of Net Family Property (Form 13C)'),
     ]

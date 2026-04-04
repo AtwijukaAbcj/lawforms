@@ -1329,6 +1329,14 @@ def financial_statement_131_print(request, pk):
     # NEW: fill the missing totals/subtotals for pages 2, 3, 4, and 10
     pages = _calculate_form131_missing_totals(pages)
 
+    # Log the print event for billing
+    PrintEvent.log_print(
+        user=request.user,
+        form_type='financial_statement_131',
+        form_id=pk,
+        form_identifier=page1.get('court_file_number') or form.court_file_number or f'Form 13.1 #{pk}'
+    )
+
     return render(request, "forms/financial_statement_131_print.html", {
         "form": form,
         "pages": pages,
