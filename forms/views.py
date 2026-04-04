@@ -15,6 +15,10 @@ import json
 from decimal import Decimal, InvalidOperation
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
+
+# Email notifications
+from .notifications import send_form_created_notification, send_form_printed_notification
+
 from .models import (
     # Base single-page models
     NetFamilyPropertyStatement,
@@ -164,6 +168,10 @@ def financial_statement_131_page1_new(request):
         statement.respondent_name = data.get('respondent_name', '')
         statement.save()
         statement.save_page_data(1, data)
+        
+        # Send email notification for new form
+        send_form_created_notification('financial_statement_131', statement, request.user)
+        
         return redirect("financial_statement_131_page2", pk=statement.id)
     return render(request, "forms/financial_statement_131_page1.html", {
         "page_data": {},
@@ -1330,12 +1338,15 @@ def financial_statement_131_print(request, pk):
     pages = _calculate_form131_missing_totals(pages)
 
     # Log the print event for billing
-    PrintEvent.log_print(
+    print_event = PrintEvent.log_print(
         user=request.user,
         form_type='financial_statement_131',
         form_id=pk,
         form_identifier=page1.get('court_file_number') or form.court_file_number or f'Form 13.1 #{pk}'
     )
+    
+    # Send email notification for print
+    send_form_printed_notification('financial_statement_131', form, request.user, print_event.price_charged)
 
     return render(request, "forms/financial_statement_131_print.html", {
         "form": form,
@@ -1383,6 +1394,10 @@ def financial_statement_page1_new(request):
             statement = form.save()
             # Save additional page 1 fields
             _save_page1_fields(statement, request.POST)
+            
+            # Send email notification for new form
+            send_form_created_notification('financial_statement', statement, request.user)
+            
             return redirect("financial_statement_page2", pk=statement.pk)
     else:
         form = FinancialStatementForm()
@@ -2251,12 +2266,15 @@ def financial_statement_print(request, pk):
     context['other_debts'] = other_debts
     
     # Log the print event for billing
-    PrintEvent.log_print(
+    print_event = PrintEvent.log_print(
         user=request.user,
         form_type='financial_statement',
         form_id=pk,
         form_identifier=statement.court_file_number or f'Form 13 #{pk}'
     )
+    
+    # Send email notification for print
+    send_form_printed_notification('financial_statement', statement, request.user, print_event.price_charged)
     
     return render(request, "forms/financial_statement_print.html", context)
 
@@ -2290,6 +2308,7 @@ def net_family_property_13b_delete(request, pk):
 def net_family_property_13b_create_page1(request, pk=None):
     """13B Page 1 - Basic info and Assets."""
     statement = get_object_or_404(NetFamilyProperty13B, pk=pk) if pk else None
+    is_new = statement is None  # Track if this is a new form
 
     AssetFormSet = inlineformset_factory(
         NetFamilyProperty13B,
@@ -2307,6 +2326,11 @@ def net_family_property_13b_create_page1(request, pk=None):
             statement = form.save()
             asset_formset.instance = statement
             asset_formset.save()
+            
+            # Send email notification for new form only
+            if is_new:
+                send_form_created_notification('net_family_property_13b', statement, request.user)
+            
             return redirect("net_family_property_13b_page2", pk=statement.pk)
     else:
         form = NetFamilyProperty13BForm(instance=statement)
@@ -2591,12 +2615,15 @@ def net_family_property_13b_print(request, pk):
     totals['total6_resp'] = totals['total1_resp'] - totals['total5_resp']
     
     # Log the print event for billing
-    PrintEvent.log_print(
+    print_event = PrintEvent.log_print(
         user=request.user,
         form_type='net_family_property_13b',
         form_id=pk,
         form_identifier=statement.court_file_number or f'Form 13B #{pk}'
     )
+    
+    # Send email notification for print
+    send_form_printed_notification('net_family_property_13b', statement, request.user, print_event.price_charged)
     
     return render(request, "forms/net_family_property_13b_print.html", {
         "statement": statement,
@@ -2756,6 +2783,7 @@ def comparison_nfp_success(request):
 def comparison_nfp_page1(request, pk=None):
     """Comparison NFP Page 1 - Basic info and Land."""
     instance = get_object_or_404(ComparisonNetFamilyProperty, pk=pk) if pk else None
+    is_new = instance is None  # Track if this is a new form
 
     AssetFormSet = modelformset_factory(
         Form13CAsset,
@@ -2798,6 +2826,10 @@ def comparison_nfp_page1(request, pk=None):
                     inst = form_instance.save(commit=False)
                     inst.form13c = form13c
                     inst.save()
+
+                # Send email notification for new form only
+                if is_new:
+                    send_form_created_notification('comparison_nfp', obj, request.user)
 
                 return redirect("comparison_nfp_page2", pk=obj.pk)
             else:
@@ -3231,12 +3263,15 @@ def comparison_nfp_print(request, pk):
         equalization['resp_pays_app_resp'] = (nfp_resp_resp - nfp_app_resp) / 2
 
     # Log the print event for billing
-    PrintEvent.log_print(
+    print_event = PrintEvent.log_print(
         user=request.user,
         form_type='comparison_nfp',
         form_id=pk,
         form_identifier=comparison.court_file_number or f'Form 13C #{pk}'
     )
+    
+    # Send email notification
+    send_form_printed_notification('comparison_nfp', comparison, request.user, print_event.price_charged)
 
     return render(request, 'forms/comparison_nfp_print.html', {
         'comparison': comparison,

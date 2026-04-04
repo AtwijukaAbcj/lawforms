@@ -133,3 +133,16 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mail.solichsystems.com'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True  # Port 465 uses SSL
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = 'info@solichsystems.com'
+EMAIL_HOST_PASSWORD = "#aB2386t:3'%$#A"
+DEFAULT_FROM_EMAIL = 'SOLICH <info@solichsystems.com>'
+
+# Admin email for notifications
+ADMIN_NOTIFICATION_EMAIL = 'info@solichsystems.com'
