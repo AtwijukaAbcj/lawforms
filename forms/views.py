@@ -19,6 +19,44 @@ from django.views.decorators.csrf import csrf_exempt
 # Email notifications
 from .notifications import send_form_created_notification, send_form_printed_notification
 
+# Audit logging
+from users.models import AuditLog
+
+
+def get_client_ip(request):
+    """Get client IP address from request"""
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0].strip()
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
+def log_audit(request, action, module, object_id='', object_repr='', details=''):
+    """
+    Helper to log user actions to AuditLog.
+    
+    Args:
+        request: The HTTP request
+        action: Action type (create, update, delete, view, export)
+        module: Module name (e.g., 'financial_statement_131', 'comparison_nfp')
+        object_id: ID of the object being acted upon
+        object_repr: Human-readable representation of the object
+        details: Additional details about the action
+    """
+    AuditLog.objects.create(
+        user=request.user if request.user.is_authenticated else None,
+        action=action,
+        module=module,
+        object_id=str(object_id) if object_id else '',
+        object_repr=object_repr[:255] if object_repr else '',
+        details=details,
+        ip_address=get_client_ip(request),
+        user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
+    )
+
+
 from .models import (
     # Base single-page models
     NetFamilyPropertyStatement,
@@ -171,6 +209,11 @@ def financial_statement_131_page1_new(request):
         
         # Send email notification for new form
         send_form_created_notification('financial_statement_131', statement, request.user)
+        
+        # Audit log for creation
+        log_audit(request, 'create', 'financial_statement_131', statement.pk, 
+                  f"Form 13.1 #{statement.pk}", 
+                  f"Created - Applicant: {statement.applicant_name or 'N/A'}")
         
         return redirect("financial_statement_131_page2", pk=statement.id)
     return render(request, "forms/financial_statement_131_page1.html", {
@@ -1345,6 +1388,10 @@ def financial_statement_131_print(request, pk):
         form_identifier=page1.get('court_file_number') or form.court_file_number or f'Form 13.1 #{pk}'
     )
     
+    # Audit log for print
+    log_audit(request, 'export', 'financial_statement_131', pk, 
+              f"Form 13.1 #{pk}", f"Printed - Price: ${print_event.price_charged}")
+    
     # Send email notification for print
     send_form_printed_notification('financial_statement_131', form, request.user, print_event.price_charged)
 
@@ -1372,6 +1419,9 @@ def financial_statement_delete(request, pk):
     statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
     if request.method == "POST":
         statement.soft_delete()
+        log_audit(request, 'delete', 'financial_statement', pk, 
+                  f"Financial Statement #{pk}", 
+                  f"Moved to recycle bin - Applicant: {statement.applicant_full_name or 'N/A'}")
         return redirect("financial_statement_list")
     return render(request, "forms/confirm_delete.html", {
         "object": statement,
@@ -1397,6 +1447,11 @@ def financial_statement_page1_new(request):
             
             # Send email notification for new form
             send_form_created_notification('financial_statement', statement, request.user)
+            
+            # Audit log for creation
+            log_audit(request, 'create', 'financial_statement', statement.pk, 
+                      f"Form 13 #{statement.pk}", 
+                      f"Created - Applicant: {statement.applicant_full_name or 'N/A'}")
             
             return redirect("financial_statement_page2", pk=statement.pk)
     else:
@@ -2273,6 +2328,10 @@ def financial_statement_print(request, pk):
         form_identifier=statement.court_file_number or f'Form 13 #{pk}'
     )
     
+    # Audit log for print
+    log_audit(request, 'export', 'financial_statement', pk, 
+              f"Form 13 #{pk}", f"Printed - Price: ${print_event.price_charged}")
+    
     # Send email notification for print
     send_form_printed_notification('financial_statement', statement, request.user, print_event.price_charged)
     
@@ -2296,6 +2355,9 @@ def net_family_property_13b_delete(request, pk):
     form = get_object_or_404(NetFamilyProperty13B.all_objects, pk=pk)
     if request.method == "POST":
         form.soft_delete()
+        log_audit(request, 'delete', 'net_family_property_13b', pk, 
+                  f"Net Family Property 13B #{pk}", 
+                  f"Moved to recycle bin - Applicant: {form.applicant_name or 'N/A'}")
         return redirect("net_family_property_13b_list")
     return render(request, "forms/confirm_delete.html", {
         "object": form,
@@ -2330,6 +2392,14 @@ def net_family_property_13b_create_page1(request, pk=None):
             # Send email notification for new form only
             if is_new:
                 send_form_created_notification('net_family_property_13b', statement, request.user)
+                # Audit log for creation
+                log_audit(request, 'create', 'net_family_property_13b', statement.pk, 
+                          f"Form 13B #{statement.pk}", 
+                          f"Created - Applicant: {statement.applicant_name or 'N/A'}")
+            else:
+                # Audit log for update
+                log_audit(request, 'update', 'net_family_property_13b', statement.pk, 
+                          f"Form 13B #{statement.pk}", "Updated Page 1")
             
             return redirect("net_family_property_13b_page2", pk=statement.pk)
     else:
@@ -2622,6 +2692,10 @@ def net_family_property_13b_print(request, pk):
         form_identifier=statement.court_file_number or f'Form 13B #{pk}'
     )
     
+    # Audit log for print
+    log_audit(request, 'export', 'net_family_property_13b', pk, 
+              f"Form 13B #{pk}", f"Printed - Price: ${print_event.price_charged}")
+    
     # Send email notification for print
     send_form_printed_notification('net_family_property_13b', statement, request.user, print_event.price_charged)
     
@@ -2686,6 +2760,9 @@ def comparison_nfp_delete(request, pk):
     nfp = get_object_or_404(ComparisonNetFamilyProperty.all_objects, pk=pk)
     if request.method == "POST":
         nfp.soft_delete()
+        log_audit(request, 'delete', 'comparison_nfp', pk, 
+                  f"Comparison NFP #{pk}", 
+                  f"Moved to recycle bin - Court File: {nfp.court_file_number or 'N/A'}")
         return redirect("comparison_nfp_list")
     return render(request, "forms/confirm_delete.html", {
         "object": nfp,
@@ -2718,14 +2795,20 @@ def restore_form(request, form_type, pk):
     if form_type == "financial":
         obj = get_object_or_404(FinancialStatement.deleted_objects, pk=pk)
         obj.restore()
+        log_audit(request, 'update', 'financial_statement', pk, 
+                  f"Financial Statement #{pk}", "Restored from recycle bin")
         return redirect("recycle_bin")
     elif form_type == "13b":
         obj = get_object_or_404(NetFamilyProperty13B.deleted_objects, pk=pk)
         obj.restore()
+        log_audit(request, 'update', 'net_family_property_13b', pk, 
+                  f"Net Family Property 13B #{pk}", "Restored from recycle bin")
         return redirect("recycle_bin")
     elif form_type == "comparison":
         obj = get_object_or_404(ComparisonNetFamilyProperty.deleted_objects, pk=pk)
         obj.restore()
+        log_audit(request, 'update', 'comparison_nfp', pk, 
+                  f"Comparison NFP #{pk}", "Restored from recycle bin")
         return redirect("recycle_bin")
     return redirect("recycle_bin")
 
@@ -2737,16 +2820,21 @@ def permanent_delete(request, form_type, pk):
     if form_type == "financial":
         obj = get_object_or_404(FinancialStatement.deleted_objects, pk=pk)
         object_name = f"Financial Statement #{obj.id}"
+        module_name = 'financial_statement'
     elif form_type == "13b":
         obj = get_object_or_404(NetFamilyProperty13B.deleted_objects, pk=pk)
         object_name = f"Net Family Property (13B) #{obj.id}"
+        module_name = 'net_family_property_13b'
     elif form_type == "comparison":
         obj = get_object_or_404(ComparisonNetFamilyProperty.deleted_objects, pk=pk)
         object_name = f"Comparison of NFP #{obj.id}"
+        module_name = 'comparison_nfp'
     else:
         return redirect("recycle_bin")
     
     if request.method == "POST":
+        log_audit(request, 'delete', module_name, pk, object_name, 
+                  f"Permanently deleted from recycle bin")
         obj.hard_delete()
         return redirect("recycle_bin")
     
@@ -2761,9 +2849,19 @@ def permanent_delete(request, form_type, pk):
 @require_http_methods(["POST"])
 def empty_recycle_bin(request):
     """Permanently delete all forms in recycle bin."""
+    # Count items before deleting
+    financial_count = FinancialStatement.deleted_objects.count()
+    nfp13b_count = NetFamilyProperty13B.deleted_objects.count()
+    comparison_count = ComparisonNetFamilyProperty.deleted_objects.count()
+    
     FinancialStatement.deleted_objects.all().delete()
     NetFamilyProperty13B.deleted_objects.all().delete()
     ComparisonNetFamilyProperty.deleted_objects.all().delete()
+    
+    # Audit log for emptying recycle bin
+    log_audit(request, 'delete', 'recycle_bin', '', 'Recycle Bin', 
+              f"Emptied recycle bin - Deleted: {financial_count} Form 13, {nfp13b_count} Form 13B, {comparison_count} Form 13C")
+    
     return redirect("recycle_bin")
 
 
@@ -2830,6 +2928,14 @@ def comparison_nfp_page1(request, pk=None):
                 # Send email notification for new form only
                 if is_new:
                     send_form_created_notification('comparison_nfp', obj, request.user)
+                    # Audit log for creation
+                    log_audit(request, 'create', 'comparison_nfp', obj.pk, 
+                              f"Form 13C #{obj.pk}", 
+                              f"Created - Court File: {obj.court_file_number or 'N/A'}")
+                else:
+                    # Audit log for update
+                    log_audit(request, 'update', 'comparison_nfp', obj.pk, 
+                              f"Form 13C #{obj.pk}", "Updated Page 1")
 
                 return redirect("comparison_nfp_page2", pk=obj.pk)
             else:
@@ -3270,6 +3376,10 @@ def comparison_nfp_print(request, pk):
         form_identifier=comparison.court_file_number or f'Form 13C #{pk}'
     )
     
+    # Audit log for print
+    log_audit(request, 'export', 'comparison_nfp', pk, 
+              f"Form 13C #{pk}", f"Printed - Price: ${print_event.price_charged}")
+    
     # Send email notification
     send_form_printed_notification('comparison_nfp', comparison, request.user, print_event.price_charged)
 
@@ -3589,6 +3699,9 @@ def billing_settings_view(request):
         price = request.POST.get('price')
         
         if form_type and price:
+            old_setting = BillingSetting.objects.filter(form_type=form_type).first()
+            old_price = old_setting.price_per_print if old_setting else None
+            
             setting, created = BillingSetting.objects.update_or_create(
                 form_type=form_type,
                 defaults={
@@ -3596,6 +3709,12 @@ def billing_settings_view(request):
                     'form_display_name': dict(PrintEvent.FORM_TYPE_CHOICES).get(form_type, form_type)
                 }
             )
+            
+            # Audit log for price update
+            action = 'create' if created else 'update'
+            details = f"Price set to ${price}" if created else f"Price changed from ${old_price} to ${price}"
+            log_audit(request, action, 'billing_settings', form_type, 
+                      f"Billing Setting - {setting.form_display_name}", details)
     
     # Initialize default settings if none exist
     if not settings.exists():
@@ -3720,6 +3839,9 @@ def financial_statement_131_delete(request, pk):
     statement = get_object_or_404(Form131FinancialStatement.all_objects, pk=pk)
     if request.method == "POST":
         statement.soft_delete()
+        log_audit(request, 'delete', 'financial_statement_131', pk, 
+                  f"Form 13.1 Financial Statement #{pk}", 
+                  f"Moved to recycle bin - Applicant: {statement.applicant_name or 'N/A'}")
         return redirect("financial_statement_131_list")
     return render(request, "forms/confirm_delete.html", {
         "object": statement,
@@ -3737,6 +3859,9 @@ from django.urls import reverse
 def delete_print_event(request, pk):
     print_event = get_object_or_404(PrintEvent, pk=pk)
     if request.method == "POST":
+        log_audit(request, 'delete', 'print_event', pk, 
+                  f"Print Event #{pk}", 
+                  f"Deleted print event - Form: {print_event.form_type}, Price: ${print_event.price_charged}")
         print_event.delete()
         return redirect("billing_history")
     return render(request, "forms/confirm_delete.html", {

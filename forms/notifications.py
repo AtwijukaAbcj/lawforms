@@ -208,3 +208,85 @@ def send_form_printed_notification(form_type, form_instance, user, price_charged
     except Exception as e:
         logger.error(f"Failed to send form printed notification: {e}")
         return False
+
+
+def send_login_notification(user, ip_address=None, user_agent=None):
+    """
+    Send email notification when a user logs in.
+    
+    Args:
+        user: The user who logged in
+        ip_address: Optional IP address of the login
+        user_agent: Optional user agent string
+    """
+    try:
+        admin_email = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', None)
+        if not admin_email:
+            logger.warning("ADMIN_NOTIFICATION_EMAIL not configured")
+            return False
+        
+        from django.utils import timezone
+        login_time = timezone.now().strftime('%B %d, %Y at %I:%M %p')
+        
+        subject = f"User Login: {user.username}"
+        
+        html_message = f"""
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
+                <div style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); padding: 20px; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0; font-size: 24px;">🔐 User Login</h1>
+                </div>
+                <div style="background: #f8f9fa; padding: 20px; border: 1px solid #e9ecef; border-radius: 0 0 10px 10px;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;"><strong>Username:</strong></td>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;">{user.username}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;"><strong>Email:</strong></td>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;">{user.email or 'Not set'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;"><strong>Full Name:</strong></td>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;">{user.get_full_name() or 'Not set'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;"><strong>Login Time:</strong></td>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;">{login_time}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;"><strong>IP Address:</strong></td>
+                            <td style="padding: 10px 0; border-bottom: 1px solid #dee2e6;">{ip_address or 'Unknown'}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px 0;"><strong>User Agent:</strong></td>
+                            <td style="padding: 10px 0; font-size: 12px;">{user_agent or 'Unknown'}</td>
+                        </tr>
+                    </table>
+                </div>
+                <p style="font-size: 12px; color: #6c757d; margin-top: 20px; text-align: center;">
+                    This is an automated notification from Family Law Forms System.
+                </p>
+            </div>
+        </body>
+        </html>
+        """
+        
+        plain_message = strip_tags(html_message)
+        
+        send_mail(
+            subject=subject,
+            message=plain_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[admin_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        
+        logger.info(f"Login notification sent for user {user.username}")
+        return True
+        
+    except Exception as e:
+        logger.error(f"Failed to send login notification: {e}")
+        return False
