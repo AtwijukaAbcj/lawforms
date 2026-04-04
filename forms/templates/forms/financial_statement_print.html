@@ -413,7 +413,7 @@
     <div class="page-header-right">
       <div class="court-file-box">
         <div class="label">Court File Number</div>
-        <div>{{ statement.court_file_number|default:"" }}</div>
+        <div>{{ pages.page1.court_file_number|default:statement.court_file_number|default:"" }}</div>
       </div>
       <div class="form-title-box">
         Form 13: Financial<br>
@@ -426,7 +426,7 @@
   <div class="party-grid">
     <div class="party-box">
       <div class="party-box-header">Applicant(s)</div>
-      <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ statement.applicant_name|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ pages.page1.applicant_name|default:statement.applicant_name|default:"" }}</span></div>
       <div class="party-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_address|default:"" }}</span></div>
       <div class="party-row"><span class="label">Phone & fax:</span><span class="value">{{ statement.applicant_phone|default:"" }}</span></div>
       <div class="party-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_email|default:"" }}</span></div>
@@ -440,7 +440,7 @@
     </div>
     <div class="party-box">
       <div class="party-box-header">Respondent(s)</div>
-      <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ statement.respondent_name|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ pages.page1.respondent_name|default:statement.respondent_name|default:"" }}</span></div>
       <div class="party-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_address|default:"" }}</span></div>
       <div class="party-row"><span class="label">Phone & fax:</span><span class="value">{{ statement.respondent_phone|default:"" }}</span></div>
       <div class="party-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_email|default:"" }}</span></div>

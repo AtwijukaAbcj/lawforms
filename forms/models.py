@@ -1068,3 +1068,72 @@ class Form131FinancialStatement(SoftDeleteMixin, models.Model):
         if not self.draft:
             return {}
         return self.draft.get(f"page{page_number}", {})
+
+
+# ============================================================
+# EMAIL SETTINGS - Configurable email notifications
+# ============================================================
+class EmailSettings(models.Model):
+    """
+    Singleton model for email configuration.
+    Only one instance should exist.
+    """
+    # Toggle for notifications
+    notifications_enabled = models.BooleanField(default=True, help_text="Enable/disable all email notifications")
+    
+    # SMTP Settings
+    email_host = models.CharField(max_length=255, blank=True, help_text="SMTP server hostname")
+    email_port = models.PositiveIntegerField(default=587, help_text="SMTP port (usually 587 for TLS, 465 for SSL)")
+    email_use_ssl = models.BooleanField(default=False, help_text="Use SSL connection")
+    email_use_tls = models.BooleanField(default=True, help_text="Use TLS connection")
+    email_host_user = models.CharField(max_length=255, blank=True, help_text="SMTP username")
+    email_host_password = models.CharField(max_length=255, blank=True, help_text="SMTP password")
+    
+    # From and notification emails
+    default_from_email = models.CharField(max_length=255, blank=True, help_text="Default sender email")
+    admin_notification_email = models.CharField(max_length=255, blank=True, help_text="Email to receive notifications")
+    
+    # Notification toggles
+    notify_on_login = models.BooleanField(default=True, help_text="Send notification when users log in")
+    notify_on_form_create = models.BooleanField(default=True, help_text="Send notification when forms are created")
+    notify_on_form_print = models.BooleanField(default=True, help_text="Send notification when forms are printed")
+    
+    # Timestamps
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Email Settings"
+        verbose_name_plural = "Email Settings"
+
+    def __str__(self):
+        status = "Enabled" if self.notifications_enabled else "Disabled"
+        return f"Email Settings ({status})"
+
+    def save(self, *args, **kwargs):
+        # Ensure only one instance exists
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def get_settings(cls):
+        """Get or create the singleton settings instance."""
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    @classmethod
+    def is_enabled(cls, notification_type='all'):
+        """Check if a specific notification type is enabled."""
+        try:
+            settings = cls.objects.get(pk=1)
+            if not settings.notifications_enabled:
+                return False
+            if notification_type == 'login':
+                return settings.notify_on_login
+            elif notification_type == 'form_create':
+                return settings.notify_on_form_create
+            elif notification_type == 'form_print':
+                return settings.notify_on_form_print
+            return True
+        except cls.DoesNotExist:
+            return True  # Default to enabled if not configured

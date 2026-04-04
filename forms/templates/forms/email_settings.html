@@ -6,7 +6,7 @@
 {% block content %}
 <style>
     .settings-container {
-        max-width: 800px;
+        max-width: 900px;
     }
     
     .config-card {
@@ -21,6 +21,9 @@
         padding: 20px 24px;
         background: linear-gradient(135deg, #f8fafc, #f1f5f9);
         border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
     
     .config-header h3 {
@@ -37,35 +40,158 @@
         padding: 24px;
     }
     
-    .config-row {
-        display: flex;
-        justify-content: space-between;
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        font-size: 14px;
+        margin-bottom: 8px;
+    }
+    
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"],
+    .form-group input[type="number"] {
+        width: 100%;
+        padding: 12px 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.2s;
+        box-sizing: border-box;
+    }
+    
+    .form-group input:focus {
+        outline: none;
+        border-color: #6366f1;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .form-row-3 {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .toggle-switch {
+        position: relative;
+        display: inline-flex;
         align-items: center;
-        padding: 12px 0;
-        border-bottom: 1px solid #f1f5f9;
+        cursor: pointer;
+        gap: 12px;
     }
     
-    .config-row:last-child {
-        border-bottom: none;
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+        position: absolute;
     }
     
-    .config-label {
+    .toggle-slider {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        background-color: #e2e8f0;
+        border-radius: 28px;
+        transition: all 0.3s;
+    }
+    
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        border-radius: 50%;
+        transition: all 0.3s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .toggle-switch input:checked + .toggle-slider {
+        background: linear-gradient(135deg, #10b981, #059669);
+    }
+    
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+    
+    .toggle-label {
         font-weight: 600;
         color: #374151;
         font-size: 14px;
     }
     
-    .config-value {
-        font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-        font-size: 13px;
-        color: #6366f1;
-        background: #f5f3ff;
-        padding: 6px 12px;
-        border-radius: 6px;
+    .master-toggle {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        border: 2px solid #86efac;
+        border-radius: 12px;
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
     
-    .config-value.masked {
-        color: #9ca3af;
+    .master-toggle.disabled {
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        border-color: #fca5a5;
+    }
+    
+    .master-toggle-info h4 {
+        margin: 0 0 4px;
+        font-size: 16px;
+        color: #065f46;
+    }
+    
+    .master-toggle.disabled .master-toggle-info h4 {
+        color: #991b1b;
+    }
+    
+    .master-toggle-info p {
+        margin: 0;
+        font-size: 13px;
+        color: #047857;
+    }
+    
+    .master-toggle.disabled .master-toggle-info p {
+        color: #b91c1c;
+    }
+    
+    .notification-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px;
+        background: #f8fafc;
+        border-radius: 10px;
+        margin-bottom: 12px;
+    }
+    
+    .notification-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .notification-info h5 {
+        margin: 0 0 4px;
+        font-size: 14px;
+        color: #1f2937;
+    }
+    
+    .notification-info p {
+        margin: 0;
+        font-size: 12px;
+        color: #6b7280;
     }
     
     .status-badge {
@@ -122,21 +248,46 @@
         border-color: #6366f1;
     }
     
-    .test-btn {
-        padding: 10px 20px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
+    .btn {
+        padding: 12px 24px;
         border: none;
         border-radius: 8px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.2s;
         white-space: nowrap;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
     }
     
-    .test-btn:hover {
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: white;
+    }
+    
+    .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-success {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: white;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+    }
+    
+    .btn-secondary {
+        background: #f1f5f9;
+        color: #475569;
+    }
+    
+    .btn-secondary:hover {
+        background: #e2e8f0;
     }
     
     .alert {
@@ -198,10 +349,56 @@
     .back-link:hover {
         color: #4f46e5;
     }
+    
+    .form-help {
+        font-size: 12px;
+        color: #6b7280;
+        margin-top: 4px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 12px;
+        margin-top: 24px;
+        padding-top: 24px;
+        border-top: 1px solid #e2e8f0;
+    }
+    
+    .checkbox-group {
+        display: flex;
+        gap: 24px;
+    }
+    
+    .checkbox-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .checkbox-item input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    .last-updated {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-top: 8px;
+    }
 </style>
 
 <div class="settings-container">
-    <a href="{% url 'dashboard' %}" class="back-link">← Back to Dashboard</a>
+    <a href="{% url 'settings_page' %}" class="back-link">← Back to Settings</a>
+    
+    {% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-success">
+        <span>✅</span>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
     
     {% if test_result %}
     <div class="alert {% if test_result.success %}alert-success{% else %}alert-danger{% endif %}">
@@ -210,74 +407,187 @@
     </div>
     {% endif %}
     
+    <!-- Master Toggle Card -->
     <div class="config-card">
         <div class="config-header">
-            <h3>📧 SMTP Configuration</h3>
+            <h3>🔔 Email Notifications</h3>
+            <span class="status-badge {% if email_settings.notifications_enabled %}enabled{% else %}disabled{% endif %}">
+                {% if email_settings.notifications_enabled %}✓ Enabled{% else %}✗ Disabled{% endif %}
+            </span>
         </div>
         <div class="config-body">
-            <div class="config-row">
-                <span class="config-label">Email Host</span>
-                <span class="config-value">{{ email_config.EMAIL_HOST|default:"Not configured" }}</span>
+            <div class="master-toggle {% if not email_settings.notifications_enabled %}disabled{% endif %}">
+                <div class="master-toggle-info">
+                    <h4>{% if email_settings.notifications_enabled %}Notifications are ON{% else %}Notifications are OFF{% endif %}</h4>
+                    <p>{% if email_settings.notifications_enabled %}All enabled notification types will be sent{% else %}No email notifications will be sent{% endif %}</p>
+                </div>
+                <form method="post" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" name="toggle_notifications" class="btn {% if email_settings.notifications_enabled %}btn-secondary{% else %}btn-success{% endif %}">
+                        {% if email_settings.notifications_enabled %}Turn Off{% else %}Turn On{% endif %}
+                    </button>
+                </form>
             </div>
-            <div class="config-row">
-                <span class="config-label">Port</span>
-                <span class="config-value">{{ email_config.EMAIL_PORT }}</span>
-            </div>
-            <div class="config-row">
-                <span class="config-label">SSL</span>
-                <span class="status-badge {% if email_config.EMAIL_USE_SSL %}enabled{% else %}disabled{% endif %}">
-                    {% if email_config.EMAIL_USE_SSL %}✓ Enabled{% else %}✗ Disabled{% endif %}
-                </span>
-            </div>
-            <div class="config-row">
-                <span class="config-label">TLS</span>
-                <span class="status-badge {% if email_config.EMAIL_USE_TLS %}enabled{% else %}disabled{% endif %}">
-                    {% if email_config.EMAIL_USE_TLS %}✓ Enabled{% else %}✗ Disabled{% endif %}
-                </span>
-            </div>
-            <div class="config-row">
-                <span class="config-label">Username</span>
-                <span class="config-value">{{ email_config.EMAIL_HOST_USER|default:"Not configured" }}</span>
-            </div>
-            <div class="config-row">
-                <span class="config-label">Password</span>
-                <span class="config-value masked">••••••••••••</span>
-            </div>
+            
+            {% if email_settings.updated_at %}
+            <p class="last-updated">Last updated: {{ email_settings.updated_at|date:"M d, Y H:i" }}{% if email_settings.updated_by %} by {{ email_settings.updated_by.username }}{% endif %}</p>
+            {% endif %}
         </div>
     </div>
     
-    <div class="config-card">
+    <form method="post">
+        {% csrf_token %}
+        
+        <!-- SMTP Configuration Card -->
+        <div class="config-card">
+            <div class="config-header">
+                <h3>📧 SMTP Configuration</h3>
+            </div>
+            <div class="config-body">
+                <div class="form-row-3">
+                    <div class="form-group">
+                        <label>Email Host</label>
+                        <input type="text" name="email_host" 
+                               value="{{ email_settings.email_host|default:default_config.email_host }}" 
+                               placeholder="mail.example.com">
+                        <p class="form-help">SMTP server address</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Port</label>
+                        <input type="number" name="email_port" 
+                               value="{{ email_settings.email_port|default:default_config.email_port }}" 
+                               placeholder="465">
+                    </div>
+                    <div class="form-group">
+                        <label>Security</label>
+                        <div class="checkbox-group" style="margin-top: 12px;">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="email_use_ssl" 
+                                       {% if email_settings.email_use_ssl or default_config.email_use_ssl %}checked{% endif %}>
+                                SSL
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="email_use_tls" 
+                                       {% if email_settings.email_use_tls %}checked{% endif %}>
+                                TLS
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username</label>
+                        <input type="text" name="email_host_user" 
+                               value="{{ email_settings.email_host_user|default:default_config.email_host_user }}" 
+                               placeholder="your-email@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" name="email_host_password" 
+                               placeholder="{% if email_settings.email_host_password %}••••••••••••{% else %}Enter password{% endif %}">
+                        <p class="form-help">Leave blank to keep current password</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notification Settings Card -->
+        <div class="config-card">
+            <div class="config-header">
+                <h3>📬 Notification Settings</h3>
+            </div>
+            <div class="config-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>From Email</label>
+                        <input type="email" name="default_from_email" 
+                               value="{{ email_settings.default_from_email|default:default_config.default_from_email }}" 
+                               placeholder="noreply@example.com">
+                        <p class="form-help">Email address that notifications are sent from</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Admin Notification Email</label>
+                        <input type="email" name="admin_notification_email" 
+                               value="{{ email_settings.admin_notification_email|default:default_config.admin_notification_email }}" 
+                               placeholder="admin@example.com">
+                        <p class="form-help">Receives all admin notifications</p>
+                    </div>
+                </div>
+                
+                <h4 style="margin: 24px 0 16px; color: #374151;">Notification Types</h4>
+                
+                <div class="notification-item">
+                    <div class="notification-info">
+                        <h5>🔐 Login Notifications</h5>
+                        <p>Send email when a user logs in to the system</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="notify_on_login" 
+                               {% if email_settings.notify_on_login %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-info">
+                        <h5>📝 Form Creation Notifications</h5>
+                        <p>Send email when a new form is created</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="notify_on_form_create" 
+                               {% if email_settings.notify_on_form_create %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+                
+                <div class="notification-item">
+                    <div class="notification-info">
+                        <h5>🖨️ Form Print Notifications</h5>
+                        <p>Send email when a form is printed or exported</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" name="notify_on_form_print" 
+                               {% if email_settings.notify_on_form_print %}checked{% endif %}>
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <button type="submit" name="save_settings" class="btn btn-success">
+                💾 Save Settings
+            </button>
+            <a href="{% url 'settings_page' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+    
+    <!-- Test Email Card -->
+    <div class="config-card" style="margin-top: 24px;">
         <div class="config-header">
-            <h3>📬 Notification Settings</h3>
+            <h3>🧪 Test Email Configuration</h3>
         </div>
         <div class="config-body">
-            <div class="config-row">
-                <span class="config-label">From Email</span>
-                <span class="config-value">{{ email_config.DEFAULT_FROM_EMAIL|default:"Not configured" }}</span>
-            </div>
-            <div class="config-row">
-                <span class="config-label">Admin Notification Email</span>
-                <span class="config-value">{{ email_config.ADMIN_NOTIFICATION_EMAIL|default:"Not configured" }}</span>
-            </div>
-            
-            <div class="test-section">
-                <h4>🧪 Test Email Configuration</h4>
-                <form method="post" class="test-form">
-                    {% csrf_token %}
-                    <input type="email" name="test_to" class="test-input" 
-                           placeholder="Enter email address" value="{{ request.user.email }}">
-                    <button type="submit" name="test_email" class="test-btn">Send Test Email</button>
-                </form>
-            </div>
+            <p style="margin: 0 0 16px; color: #6b7280; font-size: 14px;">
+                Send a test email to verify your SMTP configuration is working correctly.
+            </p>
+            <form method="post" class="test-form">
+                {% csrf_token %}
+                <input type="email" name="test_to" class="test-input" 
+                       placeholder="Enter email address" value="{{ request.user.email }}">
+                <button type="submit" name="test_email" class="btn btn-primary">Send Test Email</button>
+            </form>
         </div>
     </div>
     
     <div class="info-box">
-        <h4>💡 Configuration Note</h4>
+        <h4>💡 Configuration Tips</h4>
         <p>
-            Email settings are configured in the server's <code>settings.py</code> file for security reasons.
-            To modify these settings, update the environment variables or configuration file on the server.
-            Use the test function above to verify your email configuration is working correctly.
+            <strong>SSL vs TLS:</strong> Use SSL (port 465) for implicit encryption or TLS (port 587) for explicit encryption. 
+            Don't enable both at the same time.<br><br>
+            <strong>Gmail:</strong> Use smtp.gmail.com, port 587, TLS enabled. You'll need an App Password if 2FA is enabled.<br><br>
+            <strong>Custom SMTP:</strong> Contact your email provider for the correct SMTP settings.
         </p>
     </div>
 </div>

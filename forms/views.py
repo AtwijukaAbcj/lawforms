@@ -3884,41 +3884,98 @@ def email_settings_view(request):
     """Admin view to manage email settings."""
     from django.conf import settings as django_settings
     from django.contrib import messages
+    from .models import EmailSettings
     
-    # Current email settings (read-only from settings.py)
-    email_config = {
-        'EMAIL_HOST': getattr(django_settings, 'EMAIL_HOST', ''),
-        'EMAIL_PORT': getattr(django_settings, 'EMAIL_PORT', 587),
-        'EMAIL_USE_SSL': getattr(django_settings, 'EMAIL_USE_SSL', False),
-        'EMAIL_USE_TLS': getattr(django_settings, 'EMAIL_USE_TLS', True),
-        'EMAIL_HOST_USER': getattr(django_settings, 'EMAIL_HOST_USER', ''),
-        'DEFAULT_FROM_EMAIL': getattr(django_settings, 'DEFAULT_FROM_EMAIL', ''),
-        'ADMIN_NOTIFICATION_EMAIL': getattr(django_settings, 'ADMIN_NOTIFICATION_EMAIL', ''),
+    # Get or create email settings
+    email_settings = EmailSettings.get_settings()
+    
+    # Default values from Django settings (fallback)
+    default_config = {
+        'email_host': getattr(django_settings, 'EMAIL_HOST', ''),
+        'email_port': getattr(django_settings, 'EMAIL_PORT', 587),
+        'email_use_ssl': getattr(django_settings, 'EMAIL_USE_SSL', False),
+        'email_use_tls': getattr(django_settings, 'EMAIL_USE_TLS', True),
+        'email_host_user': getattr(django_settings, 'EMAIL_HOST_USER', ''),
+        'default_from_email': getattr(django_settings, 'DEFAULT_FROM_EMAIL', ''),
+        'admin_notification_email': getattr(django_settings, 'ADMIN_NOTIFICATION_EMAIL', ''),
     }
     
     test_result = None
-    if request.method == 'POST' and 'test_email' in request.POST:
-        test_to = request.POST.get('test_to', request.user.email)
-        if test_to:
-            try:
-                from django.core.mail import send_mail
-                send_mail(
-                    subject='Test Email from Family Law Forms',
-                    message='This is a test email to verify your email configuration is working correctly.',
-                    from_email=django_settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[test_to],
-                    fail_silently=False,
-                )
-                test_result = {'success': True, 'message': f'Test email sent successfully to {test_to}'}
-                log_audit(request, 'update', 'email_settings', '', 'Email Settings', 
-                          f'Test email sent to {test_to}')
-            except Exception as e:
-                test_result = {'success': False, 'message': f'Failed to send test email: {str(e)}'}
-        else:
-            test_result = {'success': False, 'message': 'Please provide an email address'}
+    
+    if request.method == 'POST':
+        if 'save_settings' in request.POST:
+            # Save email settings
+            email_settings.notifications_enabled = request.POST.get('notifications_enabled') == 'on'
+            email_settings.email_host = request.POST.get('email_host', '').strip()
+            email_settings.email_port = int(request.POST.get('email_port', 587))
+            email_settings.email_use_ssl = request.POST.get('email_use_ssl') == 'on'
+            email_settings.email_use_tls = request.POST.get('email_use_tls') == 'on'
+            email_settings.email_host_user = request.POST.get('email_host_user', '').strip()
+            
+            # Only update password if provided
+            new_password = request.POST.get('email_host_password', '').strip()
+            if new_password:
+                email_settings.email_host_password = new_password
+            
+            email_settings.default_from_email = request.POST.get('default_from_email', '').strip()
+            email_settings.admin_notification_email = request.POST.get('admin_notification_email', '').strip()
+            
+            # Notification toggles
+            email_settings.notify_on_login = request.POST.get('notify_on_login') == 'on'
+            email_settings.notify_on_form_create = request.POST.get('notify_on_form_create') == 'on'
+            email_settings.notify_on_form_print = request.POST.get('notify_on_form_print') == 'on'
+            
+            email_settings.updated_by = request.user
+            email_settings.save()
+            
+            log_audit(request, 'update', 'email_settings', '', 'Email Settings', 
+                      f'Email settings updated - Notifications: {"Enabled" if email_settings.notifications_enabled else "Disabled"}')
+            
+            messages.success(request, 'Email settings saved successfully!')
+            return redirect('email_settings')
+        
+        elif 'toggle_notifications' in request.POST:
+            # Quick toggle for notifications
+            email_settings.notifications_enabled = not email_settings.notifications_enabled
+            email_settings.updated_by = request.user
+            email_settings.save()
+            
+            status = "enabled" if email_settings.notifications_enabled else "disabled"
+            log_audit(request, 'update', 'email_settings', '', 'Email Settings', 
+                      f'Email notifications {status}')
+            
+            messages.success(request, f'Email notifications {status}!')
+            return redirect('email_settings')
+        
+        elif 'test_email' in request.POST:
+            test_to = request.POST.get('test_to', request.user.email)
+            if test_to:
+                try:
+                    from .notifications import get_email_connection, get_from_email
+                    from django.core.mail import send_mail
+                    
+                    connection = get_email_connection()
+                    from_email = get_from_email() or django_settings.DEFAULT_FROM_EMAIL
+                    
+                    send_mail(
+                        subject='Test Email from Family Law Forms',
+                        message='This is a test email to verify your email configuration is working correctly.',
+                        from_email=from_email,
+                        recipient_list=[test_to],
+                        fail_silently=False,
+                        connection=connection,
+                    )
+                    test_result = {'success': True, 'message': f'Test email sent successfully to {test_to}'}
+                    log_audit(request, 'update', 'email_settings', '', 'Email Settings', 
+                              f'Test email sent to {test_to}')
+                except Exception as e:
+                    test_result = {'success': False, 'message': f'Failed to send test email: {str(e)}'}
+            else:
+                test_result = {'success': False, 'message': 'Please provide an email address'}
     
     context = {
-        'email_config': email_config,
+        'email_settings': email_settings,
+        'default_config': default_config,
         'test_result': test_result,
     }
     

@@ -318,15 +318,15 @@
         <div class="row g-3">
           <div class="col-lg-8">
             <label class="ui-label" for="id_court_name">Name of Court</label>
-            {{ form.court_name|add_class:"form-control ui-input"|attr:"id:id_court_name" }}
+            <input type="text" name="court_name" class="form-control ui-input" id="id_court_name" value="{{ page_data.court_name }}">
           </div>
           <div class="col-lg-4">
             <label class="ui-label" for="id_court_file_number">Court File Number</label>
-            {{ form.court_file_number|add_class:"form-control ui-input"|attr:"id:id_court_file_number" }}
+            <input type="text" name="court_file_number" class="form-control ui-input" id="id_court_file_number" value="{{ page_data.court_file_number }}">
           </div>
           <div class="col-12">
             <label class="ui-label" for="id_court_office_address">Court office address</label>
-            {{ form.court_office_address|add_class:"form-control ui-input"|attr:"id:id_court_office_address" }}
+            <input type="text" name="court_office_address" class="form-control ui-input" id="id_court_office_address" value="{{ page_data.court_office_address }}">
           </div>
         </div>
 
@@ -339,18 +339,18 @@
                 <div class="panel-pill">Service details</div>
               </div>
               <label class="ui-label" for="id_applicant_name">Full legal name</label>
-              {{ form.applicant_name|add_class:"form-control ui-input"|attr:"id:id_applicant_name" }}
+              <input type="text" name="applicant_name" class="form-control ui-input" id="id_applicant_name" value="{{ page_data.applicant_name }}">
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_address">Address for service</label>
-                {{ form.applicant_address|add_class:"form-control ui-input"|attr:"id:id_applicant_address" }}
+                <input type="text" name="applicant_address" class="form-control ui-input" id="id_applicant_address" value="{{ page_data.applicant_address }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_phone">Phone/fax</label>
-                {{ form.applicant_phone|add_class:"form-control ui-input"|attr:"id:id_applicant_phone" }}
+                <input type="text" name="applicant_phone" class="form-control ui-input" id="id_applicant_phone" value="{{ page_data.applicant_phone }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_email">Email (if any)</label>
-                {{ form.applicant_email|add_class:"form-control ui-input"|attr:"id:id_applicant_email" }}
+                <input type="email" name="applicant_email" class="form-control ui-input" id="id_applicant_email" value="{{ page_data.applicant_email }}">
               </div>
               <div class="ui-help">Full legal name, address for service, phone/fax, and email (if any).</div>
             </div>
@@ -363,18 +363,18 @@
                 <div class="panel-pill">If applicable</div>
               </div>
               <label class="ui-label" for="id_applicant_lawyer_name">Lawyer name</label>
-              {{ form.applicant_lawyer_name|add_class:"form-control ui-input"|attr:"id:id_applicant_lawyer_name" }}
+              <input type="text" name="applicant_lawyer_name" class="form-control ui-input" id="id_applicant_lawyer_name" value="{{ page_data.applicant_lawyer_name }}">
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_address">Lawyer address</label>
-                {{ form.applicant_lawyer_address|add_class:"form-control ui-input"|attr:"id:id_applicant_lawyer_address" }}
+                <input type="text" name="applicant_lawyer_address" class="form-control ui-input" id="id_applicant_lawyer_address" value="{{ page_data.applicant_lawyer_address }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_phone">Lawyer phone</label>
-                {{ form.applicant_lawyer_phone|add_class:"form-control ui-input"|attr:"id:id_applicant_lawyer_phone" }}
+                <input type="text" name="applicant_lawyer_phone" class="form-control ui-input" id="id_applicant_lawyer_phone" value="{{ page_data.applicant_lawyer_phone }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_email">Lawyer email</label>
-                {{ form.applicant_lawyer_email|add_class:"form-control ui-input"|attr:"id:id_applicant_lawyer_email" }}
+                <input type="email" name="applicant_lawyer_email" class="form-control ui-input" id="id_applicant_lawyer_email" value="{{ page_data.applicant_lawyer_email }}">
               </div>
             </div>
           </div>
@@ -386,18 +386,18 @@
                 <div class="panel-pill">Service details</div>
               </div>
               <label class="ui-label" for="id_respondent_name">Full legal name</label>
-              {{ form.respondent_name|add_class:"form-control ui-input"|attr:"id:id_respondent_name" }}
+              <input type="text" name="respondent_name" class="form-control ui-input" id="id_respondent_name" value="{{ page_data.respondent_name }}">
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_address">Address for service</label>
-                {{ form.respondent_address|add_class:"form-control ui-input"|attr:"id:id_respondent_address" }}
+                <input type="text" name="respondent_address" class="form-control ui-input" id="id_respondent_address" value="{{ page_data.respondent_address }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_phone">Phone/fax</label>
-                {{ form.respondent_phone|add_class:"form-control ui-input"|attr:"id:id_respondent_phone" }}
+                <input type="text" name="respondent_phone" class="form-control ui-input" id="id_respondent_phone" value="{{ page_data.respondent_phone }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_email">Email (if any)</label>
-                {{ form.respondent_email|add_class:"form-control ui-input"|attr:"id:id_respondent_email" }}
+                <input type="email" name="respondent_email" class="form-control ui-input" id="id_respondent_email" value="{{ page_data.respondent_email }}">
               </div>
             </div>
           </div>
@@ -409,18 +409,18 @@
                 <div class="panel-pill">If applicable</div>
               </div>
               <label class="ui-label" for="id_respondent_lawyer_name">Lawyer name</label>
-              {{ form.respondent_lawyer_name|add_class:"form-control ui-input"|attr:"id:id_respondent_lawyer_name" }}
+              <input type="text" name="respondent_lawyer_name" class="form-control ui-input" id="id_respondent_lawyer_name" value="{{ page_data.respondent_lawyer_name }}">
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_address">Lawyer address</label>
-                {{ form.respondent_lawyer_address|add_class:"form-control ui-input"|attr:"id:id_respondent_lawyer_address" }}
+                <input type="text" name="respondent_lawyer_address" class="form-control ui-input" id="id_respondent_lawyer_address" value="{{ page_data.respondent_lawyer_address }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_phone">Lawyer phone</label>
-                {{ form.respondent_lawyer_phone|add_class:"form-control ui-input"|attr:"id:id_respondent_lawyer_phone" }}
+                <input type="text" name="respondent_lawyer_phone" class="form-control ui-input" id="id_respondent_lawyer_phone" value="{{ page_data.respondent_lawyer_phone }}">
               </div>
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_email">Lawyer email</label>
-                {{ form.respondent_lawyer_email|add_class:"form-control ui-input"|attr:"id:id_respondent_lawyer_email" }}
+                <input type="email" name="respondent_lawyer_email" class="form-control ui-input" id="id_respondent_lawyer_email" value="{{ page_data.respondent_lawyer_email }}">
               </div>
             </div>
           </div>

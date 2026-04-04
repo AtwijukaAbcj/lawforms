@@ -1,13 +1,65 @@
 """
 Email notification utilities for form events.
 """
-from django.core.mail import send_mail
+from django.core.mail import send_mail, get_connection
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 import logging
 
 logger = logging.getLogger(__name__)
+
+
+def get_email_settings():
+    """Get email settings from database or fall back to Django settings."""
+    try:
+        from .models import EmailSettings
+        return EmailSettings.get_settings()
+    except Exception:
+        return None
+
+
+def get_email_connection():
+    """Get email connection using database settings or default Django settings."""
+    email_settings = get_email_settings()
+    
+    if email_settings and email_settings.email_host:
+        # Use database settings
+        return get_connection(
+            host=email_settings.email_host,
+            port=email_settings.email_port,
+            username=email_settings.email_host_user,
+            password=email_settings.email_host_password,
+            use_tls=email_settings.email_use_tls,
+            use_ssl=email_settings.email_use_ssl,
+        )
+    # Use default Django settings
+    return None
+
+
+def get_admin_email():
+    """Get admin notification email from database or settings."""
+    email_settings = get_email_settings()
+    if email_settings and email_settings.admin_notification_email:
+        return email_settings.admin_notification_email
+    return getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', None)
+
+
+def get_from_email():
+    """Get from email from database or settings."""
+    email_settings = get_email_settings()
+    if email_settings and email_settings.default_from_email:
+        return email_settings.default_from_email
+    return getattr(settings, 'DEFAULT_FROM_EMAIL', None)
+
+
+def is_notification_enabled(notification_type='all'):
+    """Check if notifications are enabled."""
+    try:
+        from .models import EmailSettings
+        return EmailSettings.is_enabled(notification_type)
+    except Exception:
+        return True  # Default enabled
 
 
 def send_form_created_notification(form_type, form_instance, user):
@@ -20,9 +72,14 @@ def send_form_created_notification(form_type, form_instance, user):
         user: The user who created the form
     """
     try:
-        admin_email = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', None)
+        # Check if form creation notifications are enabled
+        if not is_notification_enabled('form_create'):
+            logger.info("Form creation notifications are disabled")
+            return False
+        
+        admin_email = get_admin_email()
         if not admin_email:
-            logger.warning("ADMIN_NOTIFICATION_EMAIL not configured")
+            logger.warning("Admin notification email not configured")
             return False
         
         # Get form display name
@@ -89,13 +146,15 @@ def send_form_created_notification(form_type, form_instance, user):
         
         plain_message = strip_tags(html_message)
         
+        connection = get_email_connection()
         send_mail(
             subject=subject,
             message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=get_from_email(),
             recipient_list=[admin_email],
             html_message=html_message,
             fail_silently=False,
+            connection=connection,
         )
         
         logger.info(f"Form created notification sent for {form_type} #{form_instance.pk}")
@@ -117,9 +176,14 @@ def send_form_printed_notification(form_type, form_instance, user, price_charged
         price_charged: Optional price charged for the print
     """
     try:
-        admin_email = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', None)
+        # Check if form print notifications are enabled
+        if not is_notification_enabled('form_print'):
+            logger.info("Form print notifications are disabled")
+            return False
+        
+        admin_email = get_admin_email()
         if not admin_email:
-            logger.warning("ADMIN_NOTIFICATION_EMAIL not configured")
+            logger.warning("Admin notification email not configured")
             return False
         
         # Get form display name
@@ -193,13 +257,15 @@ def send_form_printed_notification(form_type, form_instance, user, price_charged
         
         plain_message = strip_tags(html_message)
         
+        connection = get_email_connection()
         send_mail(
             subject=subject,
             message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=get_from_email(),
             recipient_list=[admin_email],
             html_message=html_message,
             fail_silently=False,
+            connection=connection,
         )
         
         logger.info(f"Form printed notification sent for {form_type} #{form_instance.pk}")
@@ -220,9 +286,14 @@ def send_login_notification(user, ip_address=None, user_agent=None):
         user_agent: Optional user agent string
     """
     try:
-        admin_email = getattr(settings, 'ADMIN_NOTIFICATION_EMAIL', None)
+        # Check if login notifications are enabled
+        if not is_notification_enabled('login'):
+            logger.info("Login notifications are disabled")
+            return False
+        
+        admin_email = get_admin_email()
         if not admin_email:
-            logger.warning("ADMIN_NOTIFICATION_EMAIL not configured")
+            logger.warning("Admin notification email not configured")
             return False
         
         from django.utils import timezone
@@ -275,13 +346,15 @@ def send_login_notification(user, ip_address=None, user_agent=None):
         
         plain_message = strip_tags(html_message)
         
+        connection = get_email_connection()
         send_mail(
             subject=subject,
             message=plain_message,
-            from_email=settings.DEFAULT_FROM_EMAIL,
+            from_email=get_from_email(),
             recipient_list=[admin_email],
             html_message=html_message,
             fail_silently=False,
+            connection=connection,
         )
         
         logger.info(f"Login notification sent for user {user.username}")
