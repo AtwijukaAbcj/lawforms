@@ -364,10 +364,32 @@
       .overlay.show{ display:block; }
     }
 
-    /* Print styles */
+    /* Print styles for A4 paper */
     @media print {
-      .sidebar, .mobile-top, .topbar { display: none !important; }
-      .main { padding: 0 !important; margin: 0 !important; }
+      @page {
+        size: A4;
+        margin: 15mm 15mm 15mm 15mm;
+      }
+      
+      html, body {
+        width: 210mm;
+        height: 297mm;
+        background: #fff !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      
+      .sidebar, .mobile-top, .topbar, .page-nav, .actions-131, .btn-nav-131 { 
+        display: none !important; 
+      }
+      
+      .main { 
+        padding: 0 !important; 
+        margin: 0 !important; 
+        width: 100% !important;
+        max-width: none !important;
+      }
+      
       .page-card {
         border: none !important;
         border-radius: 0 !important;
@@ -375,7 +397,116 @@
         padding: 0 !important;
         margin: 0 !important;
       }
-      body { background: #fff !important; }
+      
+      /* Form page print styles */
+      .form-header-131 {
+        background: none !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 10px !important;
+        margin-bottom: 15px !important;
+      }
+      
+      .instructions-box-131 {
+        background: #f5f5f5 !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 12px !important;
+      }
+      
+      .instructions-box-131 h3 {
+        font-size: 12pt !important;
+      }
+      
+      .instructions-box-131 p {
+        font-size: 10pt !important;
+        line-height: 1.4 !important;
+      }
+      
+      .panel-131 {
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        break-inside: avoid;
+      }
+      
+      .panel-header-131 {
+        background: #f0f0f0 !important;
+        border-bottom: 1px solid #000 !important;
+      }
+      
+      .income-table, .expense-table, .property-table, .benefits-table {
+        border: 1px solid #000 !important;
+        border-collapse: collapse !important;
+      }
+      
+      .income-table th, .income-table td,
+      .expense-table th, .expense-table td,
+      .property-table th, .property-table td,
+      .benefits-table th, .benefits-table td {
+        border: 1px solid #000 !important;
+        padding: 4px 6px !important;
+        font-size: 10pt !important;
+      }
+      
+      .income-table th, .expense-table th, .property-table th, .benefits-table th {
+        background: #f0f0f0 !important;
+      }
+      
+      input, textarea, select {
+        border: 1px solid #999 !important;
+        background: #fff !important;
+        padding: 2px 4px !important;
+        font-size: 10pt !important;
+      }
+      
+      .court-input {
+        border: none !important;
+        border-bottom: 1px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 2px !important;
+      }
+      
+      .form-footer-131 {
+        margin-top: 20px !important;
+        padding-top: 10px !important;
+        border-top: 1px solid #ccc !important;
+        font-size: 9pt !important;
+      }
+      
+      /* Page break controls */
+      .print-page-break {
+        page-break-after: always;
+      }
+      
+      .no-print {
+        display: none !important;
+      }
+      
+      /* Ensure checkboxes print */
+      input[type="checkbox"] {
+        -webkit-appearance: checkbox !important;
+        appearance: checkbox !important;
+        width: 12px !important;
+        height: 12px !important;
+      }
+      
+      /* Info card print styles */
+      .info-card {
+        background: #f9f9f9 !important;
+        border: 1px solid #000 !important;
+        border-radius: 0 !important;
+        padding: 10px !important;
+      }
+      
+      .info-card p {
+        font-size: 10pt !important;
+        line-height: 1.4 !important;
+      }
+      
+      /* Subtotal row highlighting */
+      .subtotal-row, .total-row {
+        background: #f0f0f0 !important;
+      }
     }
 
     /* Toast notifications */
@@ -465,6 +596,13 @@
         <li class="nav-item">
           <a class="nav-link" href="/forms/comparison-nfp/">
             <span class="nav-icon">📊</span> Comparison NFP (13C)
+          </a>
+        </li>
+        {% endif %}
+        {% if user_modules.financial_statement_131 or request.user.is_superuser %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'financial_statement_131_list' %}">
+            <span class="nav-icon">📑</span> Financial Statement (13.1)
           </a>
         </li>
         {% endif %}

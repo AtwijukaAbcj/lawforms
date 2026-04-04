@@ -1,0 +1,2046 @@
+{% extends 'base.html' %}
+{% block header %}Financial Statement 13.1{% endblock %}
+{% block subheader %}Read-Only View{% endblock %}
+{% block content %}
+
+<style>
+:root {
+  --primary: #6366f1;
+  --primary-light: #818cf8;
+  --primary-dark: #4f46e5;
+  --success: #10b981;
+  --success-light: #34d399;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04);
+}
+
+/* Hero Header */
+.view-hero {
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 40%, #7c3aed 100%);
+  color: white;
+  padding: 32px;
+  border-radius: var(--radius);
+  margin-bottom: 28px;
+  box-shadow: var(--shadow-xl);
+  position: relative;
+  overflow: hidden;
+}
+.view-hero::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+  border-radius: 50%;
+}
+.view-hero-content {
+  position: relative;
+  z-index: 1;
+}
+.view-hero .ontario-badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.2);
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+.view-hero h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0 0 8px;
+}
+.view-hero .subtitle {
+  font-size: 15px;
+  opacity: 0.9;
+}
+.view-hero .file-number {
+  position: absolute;
+  top: 32px;
+  right: 32px;
+  background: white;
+  color: var(--gray-800);
+  padding: 16px 24px;
+  border-radius: var(--radius-sm);
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.view-hero .file-number label {
+  display: block;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.view-hero .file-number .number {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--primary);
+  font-family: ui-monospace, monospace;
+}
+
+/* Action Bar */
+.action-bar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
+  padding: 20px;
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  box-shadow: var(--shadow);
+}
+.btn {
+  padding: 12px 24px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+  cursor: pointer;
+  border: none;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: white;
+  box-shadow: var(--shadow);
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: white;
+  text-decoration: none;
+}
+.btn-success {
+  background: linear-gradient(135deg, var(--success), #059669);
+  color: white;
+}
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  color: white;
+  text-decoration: none;
+}
+.btn-outline {
+  background: white;
+  border: 2px solid var(--gray-300);
+  color: var(--gray-700);
+}
+.btn-outline:hover {
+  background: var(--gray-100);
+  border-color: var(--gray-400);
+  color: var(--gray-800);
+  text-decoration: none;
+}
+.action-bar .spacer { flex: 1; }
+
+/* Page Navigation Pills */
+.page-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--gray-50), white);
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+}
+.page-pill {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--gray-500);
+  background: white;
+  border: 1px solid var(--gray-200);
+  transition: all 0.2s;
+}
+.page-pill:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+  text-decoration: none;
+}
+.page-pill.has-data {
+  background: rgba(16,185,129,0.1);
+  color: var(--success);
+  border-color: rgba(16,185,129,0.3);
+}
+
+/* Section Cards */
+.section-card {
+  background: white;
+  border-radius: var(--radius);
+  border: 1px solid var(--gray-200);
+  margin-bottom: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+.section-header {
+  padding: 20px 24px;
+  background: linear-gradient(135deg, var(--gray-50), white);
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.section-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+.section-icon.purple { background: rgba(99,102,241,0.1); }
+.section-icon.green { background: rgba(16,185,129,0.1); }
+.section-icon.orange { background: rgba(245,158,11,0.1); }
+.section-icon.blue { background: rgba(59,130,246,0.1); }
+.section-header h2 {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--gray-800);
+  margin: 0;
+}
+.section-header .page-badge {
+  margin-left: auto;
+  padding: 6px 14px;
+  background: var(--gray-100);
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-500);
+}
+.section-body {
+  padding: 24px;
+}
+
+/* Data Grid */
+.data-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.data-grid.single { grid-template-columns: 1fr; }
+.data-item {
+  padding: 16px;
+  background: var(--gray-50);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+}
+.data-item.full-width { grid-column: 1 / -1; }
+.data-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+.data-value {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray-800);
+  word-break: break-word;
+}
+.data-value.empty {
+  color: var(--gray-400);
+  font-style: italic;
+  font-weight: 400;
+}
+.data-value.highlight {
+  color: var(--primary);
+  font-weight: 700;
+}
+.data-value.money {
+  font-family: ui-monospace, monospace;
+  font-size: 16px;
+  color: var(--success);
+}
+
+/* Party Cards */
+.party-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+.party-card {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  overflow: hidden;
+  background: white;
+}
+.party-card-header {
+  padding: 14px 18px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.party-card-header.applicant {
+  background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05));
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+.party-card-header.respondent {
+  background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05));
+  color: var(--success);
+  border-bottom: 2px solid var(--success);
+}
+.party-card-header.lawyer {
+  background: var(--gray-50);
+  color: var(--gray-600);
+  border-bottom: 1px solid var(--gray-200);
+}
+.party-card-body {
+  padding: 16px 18px;
+}
+.party-field {
+  margin-bottom: 12px;
+}
+.party-field:last-child { margin-bottom: 0; }
+.party-field-label {
+  font-size: 10px;
+  color: var(--gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+.party-field-value {
+  font-size: 14px;
+  color: var(--gray-800);
+  font-weight: 500;
+}
+.party-field-value.empty {
+  color: var(--gray-400);
+  font-style: italic;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.status-badge.applicant {
+  background: rgba(99,102,241,0.1);
+  color: var(--primary);
+}
+.status-badge.respondent {
+  background: rgba(16,185,129,0.1);
+  color: var(--success);
+}
+
+/* Checkbox Display */
+.check-display {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--gray-50);
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.check-display:last-child { margin-bottom: 0; }
+.check-box {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  border: 2px solid var(--gray-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.check-box.checked {
+  background: var(--success);
+  border-color: var(--success);
+  color: white;
+}
+.check-box svg {
+  width: 14px;
+  height: 14px;
+}
+.check-label {
+  font-size: 14px;
+  color: var(--gray-700);
+}
+.check-label strong { color: var(--gray-800); }
+.check-details {
+  margin-top: 8px;
+  padding: 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid var(--gray-200);
+  font-size: 13px;
+  color: var(--gray-600);
+}
+
+/* Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.data-table th {
+  text-align: left;
+  padding: 12px 16px;
+  background: var(--gray-100);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gray-600);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--gray-200);
+}
+.data-table td {
+  padding: 14px 16px;
+  font-size: 14px;
+  border-bottom: 1px solid var(--gray-100);
+  color: var(--gray-700);
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table .money {
+  font-family: ui-monospace, monospace;
+  text-align: right;
+  color: var(--gray-800);
+  font-weight: 600;
+}
+.data-table .total-row {
+  background: var(--gray-50);
+  font-weight: 700;
+}
+.data-table .total-row .money { color: var(--success); font-size: 15px; }
+
+/* Instructions Callout */
+.instructions-callout {
+  background: linear-gradient(135deg, #fef3c7, #fffbeb);
+  border: 2px solid #fbbf24;
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+}
+.instructions-callout h3 {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--gray-800);
+  margin: 0 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.instructions-callout ol {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--gray-700);
+}
+.instructions-callout li { margin-bottom: 8px; }
+
+/* Summary Stats */
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: white;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--gray-200);
+  padding: 20px;
+  text-align: center;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--gray-800);
+  font-family: ui-monospace, monospace;
+}
+.stat-value.positive { color: var(--success); }
+.stat-value.negative { color: var(--danger); }
+.stat-label {
+  font-size: 12px;
+  color: var(--gray-500);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Footer */
+.view-footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px 0;
+  margin-top: 32px;
+  border-top: 1px solid var(--gray-200);
+  font-size: 12px;
+  color: var(--gray-400);
+}
+
+/* Print Styles */
+@media print {
+  .action-bar, .page-pills, .view-footer { display: none !important; }
+  .view-hero { break-after: avoid; }
+  .section-card { break-inside: avoid; }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .data-grid, .party-grid { grid-template-columns: 1fr; }
+  .summary-stats { grid-template-columns: repeat(2, 1fr); }
+  .view-hero .file-number { position: static; margin-top: 20px; }
+}
+</style>
+
+<!-- Hero Header -->
+<div class="view-hero">
+  <div class="view-hero-content">
+    <div class="ontario-badge">ONTARIO</div>
+    <h1>Financial Statement (Form 13.1)</h1>
+    <div class="subtitle">Property and Support Claims • sworn/affirmed</div>
+  </div>
+  <div class="file-number">
+    <label>Court File Number</label>
+    <div class="number">{{ pages.page1.court_file_number|default:court_file_number|default:"Not Set" }}</div>
+  </div>
+</div>
+
+<!-- Action Bar -->
+<div class="action-bar">
+  <a href="{% url 'financial_statement_131_print' statement.id %}" target="_blank" class="btn btn-success">
+    🖨️ Print Form
+  </a>
+  <a href="{% url 'financial_statement_131_page1' statement.id %}" class="btn btn-primary">
+    ✏️ Edit Form
+  </a>
+  <div class="spacer"></div>
+  <a href="{% url 'financial_statement_131_list' %}" class="btn btn-outline">
+    ← Back to List
+  </a>
+</div>
+
+<!-- Page Navigation -->
+<div class="page-pills">
+  <a href="#page1" class="page-pill {% if pages.page1 %}has-data{% endif %}">Page 1</a>
+  <a href="#page2" class="page-pill {% if pages.page2 %}has-data{% endif %}">Page 2</a>
+  <a href="#page3" class="page-pill {% if pages.page3 %}has-data{% endif %}">Page 3</a>
+  <a href="#page4" class="page-pill {% if pages.page4 %}has-data{% endif %}">Page 4</a>
+  <a href="#page5" class="page-pill {% if pages.page5 %}has-data{% endif %}">Page 5</a>
+  <a href="#page6" class="page-pill {% if pages.page6 %}has-data{% endif %}">Page 6</a>
+  <a href="#page7" class="page-pill {% if pages.page7 %}has-data{% endif %}">Page 7</a>
+  <a href="#page8" class="page-pill {% if pages.page8 %}has-data{% endif %}">Page 8</a>
+  <a href="#page9" class="page-pill {% if pages.page9 %}has-data{% endif %}">Page 9</a>
+  <a href="#page10" class="page-pill {% if pages.page10 %}has-data{% endif %}">Page 10</a>
+</div>
+
+<!-- Financial Summary Stats -->
+<div class="summary-stats">
+  <div class="stat-card">
+    <div class="stat-value positive">${{ pages.page2.total_annual_income|default:"0" }}</div>
+    <div class="stat-label">Annual Income</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value">${{ pages.page7.grand_total_today|default:"0" }}</div>
+    <div class="stat-label">Total Assets</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value negative">${{ pages.page7.total_debt_today|default:"0" }}</div>
+    <div class="stat-label">Total Debts</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-value positive">${{ pages.page9.net_family_property|default:"0" }}</div>
+    <div class="stat-label">Net Family Property</div>
+  </div>
+</div>
+
+<!-- PAGE 1: Court Information & Parties -->
+<div class="section-card" id="page1">
+  <div class="section-header">
+    <div class="section-icon purple">⚖️</div>
+    <div>
+      <h2>Court Information & Parties</h2>
+    </div>
+    <span class="page-badge">Page 1</span>
+  </div>
+  <div class="section-body">
+    <!-- Court Info -->
+    <div class="data-grid" style="margin-bottom: 24px;">
+      <div class="data-item">
+        <div class="data-label">Name of Court</div>
+        <div class="data-value {% if not pages.page1.court_name %}empty{% endif %}">
+          {{ pages.page1.court_name|default:"Not provided" }}
+        </div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">Court Office Address</div>
+        <div class="data-value {% if not pages.page1.court_location %}empty{% endif %}">
+          {{ pages.page1.court_location|default:"Not provided" }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Filed By -->
+    <div style="margin-bottom: 24px;">
+      <div class="data-label" style="margin-bottom: 12px;">This form is filed by:</div>
+      {% if pages.page1.filed_by == 'applicant' %}
+        <span class="status-badge applicant">✓ Applicant</span>
+      {% elif pages.page1.filed_by == 'respondent' %}
+        <span class="status-badge respondent">✓ Respondent</span>
+      {% else %}
+        <span class="status-badge" style="background: var(--gray-100); color: var(--gray-500);">Not selected</span>
+      {% endif %}
+    </div>
+
+    <!-- Party Information -->
+    <div class="party-grid">
+      <!-- Applicant -->
+      <div class="party-card">
+        <div class="party-card-header applicant">👤 Applicant(s)</div>
+        <div class="party-card-body">
+          <div class="party-field">
+            <div class="party-field-label">Full Legal Name</div>
+            <div class="party-field-value {% if not pages.page1.applicant_name %}empty{% endif %}">
+              {{ pages.page1.applicant_name|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Address</div>
+            <div class="party-field-value {% if not pages.page1.applicant_address %}empty{% endif %}">
+              {{ pages.page1.applicant_address|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Phone & Fax</div>
+            <div class="party-field-value {% if not pages.page1.applicant_phone %}empty{% endif %}">
+              {{ pages.page1.applicant_phone|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Email</div>
+            <div class="party-field-value {% if not pages.page1.applicant_email %}empty{% endif %}">
+              {{ pages.page1.applicant_email|default:"Not provided" }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Applicant Lawyer -->
+      <div class="party-card">
+        <div class="party-card-header lawyer">👔 Applicant's Lawyer</div>
+        <div class="party-card-body">
+          <div class="party-field">
+            <div class="party-field-label">Full Legal Name</div>
+            <div class="party-field-value {% if not pages.page1.applicant_lawyer_name %}empty{% endif %}">
+              {{ pages.page1.applicant_lawyer_name|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Address</div>
+            <div class="party-field-value {% if not pages.page1.applicant_lawyer_address %}empty{% endif %}">
+              {{ pages.page1.applicant_lawyer_address|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Phone & Fax</div>
+            <div class="party-field-value {% if not pages.page1.applicant_lawyer_phone %}empty{% endif %}">
+              {{ pages.page1.applicant_lawyer_phone|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Email</div>
+            <div class="party-field-value {% if not pages.page1.applicant_lawyer_email %}empty{% endif %}">
+              {{ pages.page1.applicant_lawyer_email|default:"Not provided" }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Respondent -->
+      <div class="party-card">
+        <div class="party-card-header respondent">👤 Respondent(s)</div>
+        <div class="party-card-body">
+          <div class="party-field">
+            <div class="party-field-label">Full Legal Name</div>
+            <div class="party-field-value {% if not pages.page1.respondent_name %}empty{% endif %}">
+              {{ pages.page1.respondent_name|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Address</div>
+            <div class="party-field-value {% if not pages.page1.respondent_address %}empty{% endif %}">
+              {{ pages.page1.respondent_address|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Phone & Fax</div>
+            <div class="party-field-value {% if not pages.page1.respondent_phone %}empty{% endif %}">
+              {{ pages.page1.respondent_phone|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Email</div>
+            <div class="party-field-value {% if not pages.page1.respondent_email %}empty{% endif %}">
+              {{ pages.page1.respondent_email|default:"Not provided" }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Respondent Lawyer -->
+      <div class="party-card">
+        <div class="party-card-header lawyer">👔 Respondent's Lawyer</div>
+        <div class="party-card-body">
+          <div class="party-field">
+            <div class="party-field-label">Full Legal Name</div>
+            <div class="party-field-value {% if not pages.page1.respondent_lawyer_name %}empty{% endif %}">
+              {{ pages.page1.respondent_lawyer_name|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Address</div>
+            <div class="party-field-value {% if not pages.page1.respondent_lawyer_address %}empty{% endif %}">
+              {{ pages.page1.respondent_lawyer_address|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Phone & Fax</div>
+            <div class="party-field-value {% if not pages.page1.respondent_lawyer_phone %}empty{% endif %}">
+              {{ pages.page1.respondent_lawyer_phone|default:"Not provided" }}
+            </div>
+          </div>
+          <div class="party-field">
+            <div class="party-field-label">Email</div>
+            <div class="party-field-value {% if not pages.page1.respondent_lawyer_email %}empty{% endif %}">
+              {{ pages.page1.respondent_lawyer_email|default:"Not provided" }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1 continued: Part 1 Income -->
+<div class="section-card">
+  <div class="section-header">
+    <div class="section-icon green">💰</div>
+    <div>
+      <h2>Part 1: Income</h2>
+    </div>
+    <span class="page-badge">Page 1</span>
+  </div>
+  <div class="section-body">
+    <!-- Personal Info -->
+    <div class="data-grid" style="margin-bottom: 24px;">
+      <div class="data-item">
+        <div class="data-label">1. My Name Is</div>
+        <div class="data-value highlight {% if not pages.page1.my_name %}empty{% endif %}">
+          {{ pages.page1.my_name|default:"Not provided" }}
+        </div>
+      </div>
+      <div class="data-item">
+        <div class="data-label">I Live In</div>
+        <div class="data-value {% if not pages.page1.my_location %}empty{% endif %}">
+          {{ pages.page1.my_location|default:"Not provided" }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Employment Status -->
+    <div class="data-label" style="margin-bottom: 12px;">2. I am currently:</div>
+    
+    <div class="check-display">
+      <div class="check-box {% if pages.page1.employed %}checked{% endif %}">
+        {% if pages.page1.employed %}<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>{% endif %}
+      </div>
+      <div class="check-label">
+        <strong>Employed by</strong> (name and address of employer)
+        {% if pages.page1.employer_details %}
+          <div class="check-details">{{ pages.page1.employer_details }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="check-display">
+      <div class="check-box {% if pages.page1.self_employed %}checked{% endif %}">
+        {% if pages.page1.self_employed %}<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>{% endif %}
+      </div>
+      <div class="check-label">
+        <strong>Self-employed</strong>, carrying on business under the name of
+        {% if pages.page1.business_details %}
+          <div class="check-details">{{ pages.page1.business_details }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="check-display">
+      <div class="check-box {% if pages.page1.unemployed %}checked{% endif %}">
+        {% if pages.page1.unemployed %}<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>{% endif %}
+      </div>
+      <div class="check-label">
+        <strong>Unemployed since</strong>
+        {% if pages.page1.unemployed_since %}
+          <div class="check-details">{{ pages.page1.unemployed_since }}</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: Income Details -->
+<div class="section-card" id="page2">
+  <div class="section-header">
+    <div class="section-icon green">📊</div>
+    <div>
+      <h2>Income Details</h2>
+    </div>
+    <span class="page-badge">Page 2</span>
+  </div>
+  <div class="section-body">
+    <!-- Income Proof Attached -->
+    <div style="margin-bottom: 24px;">
+      <div class="data-label" style="margin-bottom: 12px;">Income Proof Documents Attached:</div>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+        {% if pages.page2.pay_cheque_stub %}<span class="status-badge applicant">✓ Pay Cheque Stub</span>{% endif %}
+        {% if pages.page2.social_assistance_stub %}<span class="status-badge applicant">✓ Social Assistance Stub</span>{% endif %}
+        {% if pages.page2.pension_stub %}<span class="status-badge applicant">✓ Pension Stub</span>{% endif %}
+        {% if pages.page2.workers_comp_stub %}<span class="status-badge applicant">✓ Workers' Comp Stub</span>{% endif %}
+        {% if pages.page2.ei_stub %}<span class="status-badge applicant">✓ EI Stub</span>{% endif %}
+        {% if pages.page2.self_employed_statement %}<span class="status-badge applicant">✓ Self-Employment Statement</span>{% endif %}
+        {% if pages.page2.employer_letter %}<span class="status-badge applicant">✓ Employer Letter</span>{% endif %}
+        {% if pages.page2.attach_tax_docs %}<span class="status-badge applicant">✓ Tax Documents</span>{% endif %}
+      </div>
+    </div>
+
+    <div class="data-grid" style="margin-bottom: 24px;">
+      <div class="data-item">
+        <div class="data-label">3. Last Year's Gross Income</div>
+        <div class="data-value money">${{ pages.page2.last_year_gross_income|default:"0.00" }}</div>
+      </div>
+    </div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 60%;">Income Source (Monthly)</th>
+          <th style="width: 40%; text-align: right;">Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>4a.</strong> Employment income</td>
+          <td class="money">${{ pages.page2.income_employment|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4b.</strong> Commissions, tips, bonuses</td>
+          <td class="money">${{ pages.page2.income_commissions|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4c.</strong> Self-employment income (before expenses: ${{ pages.page2.self_emp_before_expenses|default:"0.00" }})</td>
+          <td class="money">${{ pages.page2.income_self_employment|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4d.</strong> Employment insurance benefits</td>
+          <td class="money">${{ pages.page2.income_ei|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4e.</strong> Workers' compensation benefits</td>
+          <td class="money">${{ pages.page2.income_workers_comp|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4f.</strong> Social assistance income</td>
+          <td class="money">${{ pages.page2.income_social_assistance|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4g.</strong> Interest and investment income</td>
+          <td class="money">${{ pages.page2.income_interest|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4h.</strong> Pension income</td>
+          <td class="money">${{ pages.page2.income_pension|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4i.</strong> Spousal support received</td>
+          <td class="money">${{ pages.page2.income_spousal_support|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4j.</strong> Child Tax Benefit / CCB</td>
+          <td class="money">${{ pages.page2.income_child_tax|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>4k.</strong> Other income</td>
+          <td class="money">${{ pages.page2.income_other|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td><strong>TOTAL MONTHLY INCOME</strong></td>
+          <td class="money">${{ pages.page2.total_monthly_income|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td><strong>TOTAL ANNUAL INCOME</strong></td>
+          <td class="money" style="font-size: 16px;">${{ pages.page2.total_annual_income|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 3: Other Benefits & Expenses -->
+<div class="section-card" id="page3">
+  <div class="section-header">
+    <div class="section-icon purple">💼</div>
+    <div><h2>Other Benefits & Monthly Expenses</h2></div>
+    <span class="page-badge">Page 3</span>
+  </div>
+  <div class="section-body">
+    <!-- Other Benefits -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">5. Other Benefits</h4>
+    <table class="data-table" style="margin-bottom: 32px;">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Details</th>
+          <th style="text-align: right;">Monthly Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page3.benefit_1_item|default:"—" }}</td>
+          <td>{{ pages.page3.benefit_1_details|default:"—" }}</td>
+          <td class="money">${{ pages.page3.benefit_1_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page3.benefit_2_item|default:"—" }}</td>
+          <td>{{ pages.page3.benefit_2_details|default:"—" }}</td>
+          <td class="money">${{ pages.page3.benefit_2_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page3.benefit_3_item|default:"—" }}</td>
+          <td>{{ pages.page3.benefit_3_details|default:"—" }}</td>
+          <td class="money">${{ pages.page3.benefit_3_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page3.benefit_4_item|default:"—" }}</td>
+          <td>{{ pages.page3.benefit_4_details|default:"—" }}</td>
+          <td class="money">${{ pages.page3.benefit_4_value|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Monthly Expenses -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 2: Expenses</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 60%;">Expense Category</th>
+          <th style="width: 40%; text-align: right;">Monthly Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Automatic Deductions</td></tr>
+        <tr>
+          <td>CPP contributions</td>
+          <td class="money">${{ pages.page3.exp_cpp|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>EI contributions</td>
+          <td class="money">${{ pages.page3.exp_ei|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Income tax deducted</td>
+          <td class="money">${{ pages.page3.exp_income_tax|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Pension plan contributions</td>
+          <td class="money">${{ pages.page3.exp_pension_contrib|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Union dues</td>
+          <td class="money">${{ pages.page3.exp_union_dues|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Housing</td></tr>
+        <tr>
+          <td>Rent or mortgage</td>
+          <td class="money">${{ pages.page3.exp_rent_mortgage|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Property taxes</td>
+          <td class="money">${{ pages.page3.exp_property_tax|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Property insurance</td>
+          <td class="money">${{ pages.page3.exp_property_insurance|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Condominium fees</td>
+          <td class="money">${{ pages.page3.exp_condo_fees|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Repairs and maintenance</td>
+          <td class="money">${{ pages.page3.exp_housing_repairs|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Utilities</td></tr>
+        <tr>
+          <td>Water</td>
+          <td class="money">${{ pages.page3.exp_water|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Heat</td>
+          <td class="money">${{ pages.page3.exp_heat|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Electricity</td>
+          <td class="money">${{ pages.page3.exp_electricity|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Transportation</td></tr>
+        <tr>
+          <td>Public transit</td>
+          <td class="money">${{ pages.page3.exp_transit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Gas and oil</td>
+          <td class="money">${{ pages.page3.exp_gas|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Car insurance</td>
+          <td class="money">${{ pages.page3.exp_car_insurance|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Car repairs and maintenance</td>
+          <td class="money">${{ pages.page3.exp_car_repairs|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Parking</td>
+          <td class="money">${{ pages.page3.exp_parking|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Car payment / Lease</td>
+          <td class="money">${{ pages.page3.exp_car_payment|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Health</td></tr>
+        <tr>
+          <td>Health insurance</td>
+          <td class="money">${{ pages.page3.exp_health_insurance|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Dental expenses</td>
+          <td class="money">${{ pages.page3.exp_dental|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Medicine and drugs</td>
+          <td class="money">${{ pages.page3.exp_medicine|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Eye care</td>
+          <td class="money">${{ pages.page3.exp_eye_care|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Personal</td></tr>
+        <tr>
+          <td>Clothing</td>
+          <td class="money">${{ pages.page3.exp_clothing|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Hair care and toiletries</td>
+          <td class="money">${{ pages.page3.exp_hair_beauty|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Alcohol and tobacco</td>
+          <td class="money">${{ pages.page3.exp_alcohol_tobacco|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 4: Other Expenses & Support -->
+<div class="section-card" id="page4">
+  <div class="section-header">
+    <div class="section-icon yellow">📱</div>
+    <div><h2>Other Expenses & Support</h2></div>
+    <span class="page-badge">Page 4</span>
+  </div>
+  <div class="section-body">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width: 60%;">Expense Category</th>
+          <th style="width: 40%; text-align: right;">Monthly Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Communication</td></tr>
+        <tr>
+          <td>Telephone</td>
+          <td class="money">${{ pages.page4.exp_telephone|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Cell phone</td>
+          <td class="money">${{ pages.page4.exp_cellphone|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Cable TV</td>
+          <td class="money">${{ pages.page4.exp_cable|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Internet</td>
+          <td class="money">${{ pages.page4.exp_internet|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Food & Household</td></tr>
+        <tr>
+          <td>Groceries / Household supplies</td>
+          <td class="money">${{ pages.page4.exp_groceries|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Meals outside the home</td>
+          <td class="money">${{ pages.page4.exp_meals_out|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Household maintenance</td>
+          <td class="money">${{ pages.page4.exp_maintenance|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Laundry and dry cleaning</td>
+          <td class="money">${{ pages.page4.exp_laundry|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Children</td></tr>
+        <tr>
+          <td>Daycare / Babysitting</td>
+          <td class="money">${{ pages.page4.exp_daycare|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Tuition / School fees</td>
+          <td class="money">${{ pages.page4.exp_school_fees|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Children's activities</td>
+          <td class="money">${{ pages.page4.exp_children_activities|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Personal & Entertainment</td></tr>
+        <tr>
+          <td>Education (self)</td>
+          <td class="money">${{ pages.page4.exp_education|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Entertainment / Recreation</td>
+          <td class="money">${{ pages.page4.exp_entertainment|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Gifts</td>
+          <td class="money">${{ pages.page4.exp_gifts|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Vacation</td>
+          <td class="money">${{ pages.page4.exp_vacation|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Savings</td>
+          <td class="money">${{ pages.page4.exp_savings|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Support Payments</td></tr>
+        <tr>
+          <td>Spousal support (paying)</td>
+          <td class="money">${{ pages.page4.exp_spousal_support|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Child support (paying)</td>
+          <td class="money">${{ pages.page4.exp_child_support|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="2" style="background: var(--gray-100); font-weight: 700;">Other Expenses</td></tr>
+        <tr>
+          <td>{{ pages.page4.exp_other_1_desc|default:"Other expense 1" }}</td>
+          <td class="money">${{ pages.page4.exp_other_1|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page4.exp_other_2_desc|default:"Other expense 2" }}</td>
+          <td class="money">${{ pages.page4.exp_other_2|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td><strong>TOTAL MONTHLY EXPENSES</strong></td>
+          <td class="money">${{ pages.page4.total_monthly_expenses|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>TOTAL ANNUAL EXPENSES</strong></td>
+          <td class="money">${{ pages.page4.total_annual_expenses|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Living Arrangement -->
+    <h4 style="margin: 32px 0 16px; color: var(--gray-700);">Living Arrangement</h4>
+    <div class="info-grid">
+      <div class="info-item full-width">
+        <div class="checkbox-group">
+          <div class="checkbox-item {% if pages.page4.live_alone == 'on' %}checked{% endif %}">
+            {% if pages.page4.live_alone == 'on' %}☑{% else %}☐{% endif %} I live alone
+          </div>
+          <div class="checkbox-item {% if pages.page4.living_with_spouse == 'on' %}checked{% endif %}">
+            {% if pages.page4.living_with_spouse == 'on' %}☑{% else %}☐{% endif %} I live with: {{ pages.page4.spouse_name|default:"—" }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 5: Assets - Land & Household Items -->
+<div class="section-card" id="page5">
+  <div class="section-header">
+    <div class="section-icon orange">🏠</div>
+    <div><h2>Part 4: Assets - Land & Household Items</h2></div>
+    <span class="page-badge">Page 5</span>
+  </div>
+  <div class="section-body">
+    <!-- Important Dates -->
+    <div class="info-grid" style="margin-bottom: 24px;">
+      <div class="info-item">
+        <div class="info-label">Date of Marriage</div>
+        <div class="info-value">{{ pages.page5.date_of_marriage|default:"—" }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Valuation Date</div>
+        <div class="info-value">{{ pages.page5.valuation_date|default:"—" }}</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label">Cohabitation Date</div>
+        <div class="info-value">{{ pages.page5.cohabitation_date|default:"—" }}</div>
+      </div>
+    </div>
+
+    <!-- LAND -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 4(a): Land</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Nature & Type</th>
+          <th>Address</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page5.land_1_type|default:"—" }}</td>
+          <td>{{ pages.page5.land_1_address|default:"—" }}</td>
+          <td class="money">${{ pages.page5.land_1_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.land_1_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.land_1_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page5.land_2_type|default:"—" }}</td>
+          <td>{{ pages.page5.land_2_address|default:"—" }}</td>
+          <td class="money">${{ pages.page5.land_2_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.land_2_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.land_2_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page5.land_3_type|default:"—" }}</td>
+          <td>{{ pages.page5.land_3_address|default:"—" }}</td>
+          <td class="money">${{ pages.page5.land_3_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.land_3_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.land_3_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>15. TOTAL VALUE OF LAND</strong></td>
+          <td class="money">${{ pages.page5.total_land_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.total_land_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.total_land_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- HOUSEHOLD ITEMS & VEHICLES -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 4(b): General Household Items & Vehicles</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Description</th>
+          <th>Not in Possession?</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Household goods & furniture</td>
+          <td>{{ pages.page5.household_goods_desc|default:"—" }}</td>
+          <td>{{ pages.page5.household_goods_possession|default:"—" }}</td>
+          <td class="money">${{ pages.page5.household_goods_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.household_goods_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.household_goods_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Cars, boats, vehicles</td>
+          <td>{{ pages.page5.vehicles_desc|default:"—" }}</td>
+          <td>{{ pages.page5.vehicles_possession|default:"—" }}</td>
+          <td class="money">${{ pages.page5.vehicles_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.vehicles_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.vehicles_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Jewellery, art, electronics</td>
+          <td>{{ pages.page5.jewellery_desc|default:"—" }}</td>
+          <td>{{ pages.page5.jewellery_possession|default:"—" }}</td>
+          <td class="money">${{ pages.page5.jewellery_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.jewellery_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.jewellery_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Other special items</td>
+          <td>{{ pages.page5.other_items_desc|default:"—" }}</td>
+          <td>{{ pages.page5.other_items_possession|default:"—" }}</td>
+          <td class="money">${{ pages.page5.other_items_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.other_items_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.other_items_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3"><strong>16. TOTAL HOUSEHOLD ITEMS & VEHICLES</strong></td>
+          <td class="money">${{ pages.page5.total_items_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.total_items_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page5.total_items_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 6: Bank Accounts, Insurance & Business -->
+<div class="section-card" id="page6">
+  <div class="section-header">
+    <div class="section-icon blue">🏦</div>
+    <div><h2>Bank Accounts, Insurance & Business</h2></div>
+    <span class="page-badge">Page 6</span>
+  </div>
+  <div class="section-body">
+    <!-- Bank Accounts -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 4(c): Bank Accounts, Savings, Securities & Pensions</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Institution</th>
+          <th>Account #</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page6.bank_1_category|default:"—" }}</td>
+          <td>{{ pages.page6.bank_1_institution|default:"—" }}</td>
+          <td>{{ pages.page6.bank_1_account|default:"—" }}</td>
+          <td class="money">${{ pages.page6.bank_1_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_1_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_1_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.bank_2_category|default:"—" }}</td>
+          <td>{{ pages.page6.bank_2_institution|default:"—" }}</td>
+          <td>{{ pages.page6.bank_2_account|default:"—" }}</td>
+          <td class="money">${{ pages.page6.bank_2_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_2_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_2_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.bank_3_category|default:"—" }}</td>
+          <td>{{ pages.page6.bank_3_institution|default:"—" }}</td>
+          <td>{{ pages.page6.bank_3_account|default:"—" }}</td>
+          <td class="money">${{ pages.page6.bank_3_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_3_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_3_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.bank_4_category|default:"—" }}</td>
+          <td>{{ pages.page6.bank_4_institution|default:"—" }}</td>
+          <td>{{ pages.page6.bank_4_account|default:"—" }}</td>
+          <td class="money">${{ pages.page6.bank_4_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_4_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_4_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.bank_5_category|default:"—" }}</td>
+          <td>{{ pages.page6.bank_5_institution|default:"—" }}</td>
+          <td>{{ pages.page6.bank_5_account|default:"—" }}</td>
+          <td class="money">${{ pages.page6.bank_5_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_5_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_5_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.bank_6_category|default:"—" }}</td>
+          <td>{{ pages.page6.bank_6_institution|default:"—" }}</td>
+          <td>{{ pages.page6.bank_6_account|default:"—" }}</td>
+          <td class="money">${{ pages.page6.bank_6_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_6_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.bank_6_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3"><strong>17. TOTAL BANK ACCOUNTS & SECURITIES</strong></td>
+          <td class="money">${{ pages.page6.total_bank_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.total_bank_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.total_bank_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Insurance -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 4(d): Life and Disability Insurance</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Company & Policy #</th>
+          <th>Owner</th>
+          <th>Beneficiary</th>
+          <th style="text-align: right;">Face Amount</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page6.insurance_1_company|default:"—" }}</td>
+          <td>{{ pages.page6.insurance_1_owner|default:"—" }}</td>
+          <td>{{ pages.page6.insurance_1_beneficiary|default:"—" }}</td>
+          <td class="money">${{ pages.page6.insurance_1_face|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_1_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_1_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_1_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.insurance_2_company|default:"—" }}</td>
+          <td>{{ pages.page6.insurance_2_owner|default:"—" }}</td>
+          <td>{{ pages.page6.insurance_2_beneficiary|default:"—" }}</td>
+          <td class="money">${{ pages.page6.insurance_2_face|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_2_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_2_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_2_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.insurance_3_company|default:"—" }}</td>
+          <td>{{ pages.page6.insurance_3_owner|default:"—" }}</td>
+          <td>{{ pages.page6.insurance_3_beneficiary|default:"—" }}</td>
+          <td class="money">${{ pages.page6.insurance_3_face|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_3_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_3_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.insurance_3_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="4"><strong>18. TOTAL INSURANCE CASH VALUE</strong></td>
+          <td class="money">${{ pages.page6.total_insurance_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.total_insurance_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.total_insurance_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Business Interests -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 4(e): Business Interests</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Name of Firm</th>
+          <th>Interest</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page6.business_1_name|default:"—" }}</td>
+          <td>{{ pages.page6.business_1_interest|default:"—" }}</td>
+          <td class="money">${{ pages.page6.business_1_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.business_1_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.business_1_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page6.business_2_name|default:"—" }}</td>
+          <td>{{ pages.page6.business_2_interest|default:"—" }}</td>
+          <td class="money">${{ pages.page6.business_2_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.business_2_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.business_2_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>19. TOTAL BUSINESS INTERESTS</strong></td>
+          <td class="money">${{ pages.page6.total_business_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.total_business_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page6.total_business_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 7: Money Owed, Other Property & Debts -->
+<div class="section-card" id="page7">
+  <div class="section-header">
+    <div class="section-icon purple">💳</div>
+    <div><h2>Money Owed, Other Property & Debts</h2></div>
+    <span class="page-badge">Page 7</span>
+  </div>
+  <div class="section-body">
+    <!-- Money Owed To You -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 4(f): Money Owed to You</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Details</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page7.owed_1_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.owed_1_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_1_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_1_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.owed_2_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.owed_2_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_2_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_2_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.owed_3_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.owed_3_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_3_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_3_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.owed_4_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.owed_4_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_4_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.owed_4_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td><strong>20. TOTAL MONEY OWED TO YOU</strong></td>
+          <td class="money">${{ pages.page7.total_owed_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.total_owed_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.total_owed_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Other Property -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 4(g): Other Property</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Details</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page7.other_prop_1_category|default:"—" }}</td>
+          <td>{{ pages.page7.other_prop_1_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.other_prop_1_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_1_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_1_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.other_prop_2_category|default:"—" }}</td>
+          <td>{{ pages.page7.other_prop_2_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.other_prop_2_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_2_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_2_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.other_prop_3_category|default:"—" }}</td>
+          <td>{{ pages.page7.other_prop_3_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.other_prop_3_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_3_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_3_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.other_prop_4_category|default:"—" }}</td>
+          <td>{{ pages.page7.other_prop_4_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.other_prop_4_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_4_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.other_prop_4_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>21. TOTAL OTHER PROPERTY</strong></td>
+          <td class="money">${{ pages.page7.total_other_prop_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.total_other_prop_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.total_other_prop_today|default:"0.00" }}</td>
+        </tr>
+        <tr style="background: #4f46e5; color: white;">
+          <td colspan="2"><strong>22. TOTAL VALUE OF ALL PROPERTY</strong></td>
+          <td class="money" style="color: white;">${{ pages.page7.grand_total_marriage|default:"0.00" }}</td>
+          <td class="money" style="color: white;">${{ pages.page7.grand_total_valuation|default:"0.00" }}</td>
+          <td class="money" style="color: white;">${{ pages.page7.grand_total_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Debts -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 5: Debts and Other Liabilities</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Details</th>
+          <th style="text-align: right;">On Marriage</th>
+          <th style="text-align: right;">On Valuation</th>
+          <th style="text-align: right;">Today</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page7.debt_1_category|default:"—" }}</td>
+          <td>{{ pages.page7.debt_1_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.debt_1_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_1_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_1_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.debt_2_category|default:"—" }}</td>
+          <td>{{ pages.page7.debt_2_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.debt_2_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_2_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_2_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.debt_3_category|default:"—" }}</td>
+          <td>{{ pages.page7.debt_3_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.debt_3_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_3_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_3_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.debt_4_category|default:"—" }}</td>
+          <td>{{ pages.page7.debt_4_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.debt_4_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_4_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_4_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.debt_5_category|default:"—" }}</td>
+          <td>{{ pages.page7.debt_5_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.debt_5_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_5_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_5_today|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page7.debt_6_category|default:"—" }}</td>
+          <td>{{ pages.page7.debt_6_details|default:"—" }}</td>
+          <td class="money">${{ pages.page7.debt_6_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_6_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.debt_6_today|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>23. TOTAL DEBTS</strong></td>
+          <td class="money">${{ pages.page7.total_debt_marriage|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.total_debt_valuation|default:"0.00" }}</td>
+          <td class="money">${{ pages.page7.total_debt_today|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 8: Property on Date of Marriage & Excluded Property -->
+<div class="section-card" id="page8">
+  <div class="section-header">
+    <div class="section-icon green">📊</div>
+    <div><h2>Property on Date of Marriage & Excluded Property</h2></div>
+    <span class="page-badge">Page 8</span>
+  </div>
+  <div class="section-body">
+    <!-- Part 6: Property on Date of Marriage -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 6: Property, Debts and Liabilities on Date of Marriage</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Details</th>
+          <th style="text-align: right;">Assets</th>
+          <th style="text-align: right;">Liabilities</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Land</td>
+          <td>{{ pages.page8.dom_land_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_land_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_land_liab|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>General household items & vehicles</td>
+          <td>{{ pages.page8.dom_items_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_items_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_items_liab|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Bank accounts, savings, securities & pensions</td>
+          <td>{{ pages.page8.dom_bank_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_bank_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_bank_liab|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Life & disability insurance</td>
+          <td>{{ pages.page8.dom_insurance_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_insurance_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_insurance_liab|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Business interests</td>
+          <td>{{ pages.page8.dom_business_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_business_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_business_liab|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Money owed to you</td>
+          <td>{{ pages.page8.dom_owed_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_owed_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_owed_liab|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Other property</td>
+          <td>{{ pages.page8.dom_other_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_other_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_other_liab|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Debts and other liabilities</td>
+          <td>{{ pages.page8.dom_debts_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.dom_debts_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.dom_debts_liab|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>TOTALS</strong></td>
+          <td class="money">${{ pages.page8.total_dom_assets|default:"0.00" }}</td>
+          <td class="money">${{ pages.page8.total_dom_liab|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3"><strong>24. NET VALUE ON DATE OF MARRIAGE</strong></td>
+          <td class="money">${{ pages.page8.net_dom_value|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="3"><strong>25. VALUE OF ALL DEDUCTIONS</strong></td>
+          <td class="money">${{ pages.page8.total_deductions|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Part 7: Excluded Property -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 7: Excluded Property</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Details</th>
+          <th style="text-align: right;">Value on Valuation Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page8.excluded_1_category|default:"—" }}</td>
+          <td>{{ pages.page8.excluded_1_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.excluded_1_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page8.excluded_2_category|default:"—" }}</td>
+          <td>{{ pages.page8.excluded_2_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.excluded_2_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page8.excluded_3_category|default:"—" }}</td>
+          <td>{{ pages.page8.excluded_3_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.excluded_3_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page8.excluded_4_category|default:"—" }}</td>
+          <td>{{ pages.page8.excluded_4_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.excluded_4_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page8.excluded_5_category|default:"—" }}</td>
+          <td>{{ pages.page8.excluded_5_details|default:"—" }}</td>
+          <td class="money">${{ pages.page8.excluded_5_value|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>26. TOTAL EXCLUDED PROPERTY</strong></td>
+          <td class="money">${{ pages.page8.total_excluded|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PAGE 9: Disposed Property & Net Family Property -->
+<div class="section-card" id="page9">
+  <div class="section-header">
+    <div class="section-icon red">⚖️</div>
+    <div><h2>Disposed Property & Net Family Property Calculation</h2></div>
+    <span class="page-badge">Page 9</span>
+  </div>
+  <div class="section-body">
+    <!-- Part 8: Disposed Property -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 8: Disposed-of Property</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Category</th>
+          <th>Details</th>
+          <th style="text-align: right;">Value</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page9.disposed_1_category|default:"—" }}</td>
+          <td>{{ pages.page9.disposed_1_details|default:"—" }}</td>
+          <td class="money">${{ pages.page9.disposed_1_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page9.disposed_2_category|default:"—" }}</td>
+          <td>{{ pages.page9.disposed_2_details|default:"—" }}</td>
+          <td class="money">${{ pages.page9.disposed_2_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page9.disposed_3_category|default:"—" }}</td>
+          <td>{{ pages.page9.disposed_3_details|default:"—" }}</td>
+          <td class="money">${{ pages.page9.disposed_3_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page9.disposed_4_category|default:"—" }}</td>
+          <td>{{ pages.page9.disposed_4_details|default:"—" }}</td>
+          <td class="money">${{ pages.page9.disposed_4_value|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page9.disposed_5_category|default:"—" }}</td>
+          <td>{{ pages.page9.disposed_5_details|default:"—" }}</td>
+          <td class="money">${{ pages.page9.disposed_5_value|default:"0.00" }}</td>
+        </tr>
+        <tr class="total-row">
+          <td colspan="2"><strong>27. TOTAL DISPOSED PROPERTY</strong></td>
+          <td class="money">${{ pages.page9.total_disposed|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Part 9: Net Family Property Calculation -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Part 9: Calculation of Net Family Property</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <tbody>
+        <tr>
+          <td><strong>Value of all property owned on valuation date</strong> (from item 22)</td>
+          <td class="money" style="width: 150px;">${{ pages.page9.nfp_item22|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>Subtract value of all deductions</strong> (from item 25)</td>
+          <td class="money">${{ pages.page9.nfp_item25|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td><strong>Subtract total value of excluded property</strong> (from item 26)</td>
+          <td class="money">${{ pages.page9.nfp_item26|default:"0.00" }}</td>
+        </tr>
+        <tr style="background: #4f46e5; color: white;">
+          <td><strong>28. NET FAMILY PROPERTY</strong></td>
+          <td class="money" style="color: white; font-weight: bold; font-size: 16px;">${{ pages.page9.net_family_property|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Signature Section -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Declaration</h4>
+    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px;">
+      <div class="info-grid">
+        <div class="info-item">
+          <div class="info-label">Sworn/Affirmed at</div>
+          <div class="info-value">{{ pages.page9.sworn_municipality|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Province/State/Country</div>
+          <div class="info-value">{{ pages.page9.sworn_province|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Date</div>
+          <div class="info-value">{{ pages.page9.sworn_date|default:"—" }}</div>
+        </div>
+        <div class="info-item">
+          <div class="info-label">Commissioner</div>
+          <div class="info-value">{{ pages.page9.commissioner_name|default:"—" }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 10: Schedules -->
+<div class="section-card" id="page10">
+  <div class="section-header">
+    <div class="section-icon yellow">📋</div>
+    <div><h2>Schedule A & Schedule B</h2></div>
+    <span class="page-badge">Page 10</span>
+  </div>
+  <div class="section-body">
+    <!-- Schedule A: Additional Sources of Income -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Schedule A: Additional Sources of Income</h4>
+    <table class="data-table" style="margin-bottom: 24px;">
+      <thead>
+        <tr>
+          <th>Income Source</th>
+          <th style="text-align: right;">Annual Amount</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Net partnership income</td>
+          <td class="money">${{ pages.page10.sched_a_1|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Net rental income (Gross: ${{ pages.page10.sched_a_2_gross|default:"0.00" }})</td>
+          <td class="money">${{ pages.page10.sched_a_2|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Dividends from taxable Canadian corporations</td>
+          <td class="money">${{ pages.page10.sched_a_3|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Capital gains (${{ pages.page10.sched_a_4_gains|default:"0.00" }}) less losses (${{ pages.page10.sched_a_4_losses|default:"0.00" }})</td>
+          <td class="money">${{ pages.page10.sched_a_4|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>RRSP withdrawals</td>
+          <td class="money">${{ pages.page10.sched_a_5|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>RRIF or Annuity income</td>
+          <td class="money">${{ pages.page10.sched_a_6|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>Other income: {{ pages.page10.sched_a_7_source|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_a_7|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Schedule B: Special or Extraordinary Expenses for Children -->
+    <h4 style="margin: 0 0 16px; color: var(--gray-700);">Schedule B: Special or Extraordinary Expenses for Child(ren)</h4>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Child's Name</th>
+          <th>Expense</th>
+          <th style="text-align: right;">Amount/yr</th>
+          <th style="text-align: right;">Tax Credits</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ pages.page10.sched_b_1_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_1_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_1_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_1_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_2_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_2_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_2_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_2_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_3_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_3_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_3_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_3_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_4_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_4_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_4_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_4_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_5_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_5_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_5_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_5_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_6_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_6_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_6_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_6_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_7_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_7_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_7_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_7_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_8_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_8_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_8_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_8_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_9_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_9_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_9_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_9_credit|default:"0.00" }}</td>
+        </tr>
+        <tr>
+          <td>{{ pages.page10.sched_b_10_child|default:"—" }}</td>
+          <td>{{ pages.page10.sched_b_10_expense|default:"—" }}</td>
+          <td class="money">${{ pages.page10.sched_b_10_amount|default:"0.00" }}</td>
+          <td class="money">${{ pages.page10.sched_b_10_credit|default:"0.00" }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+</div>
+
+
+
+<!-- Footer -->
+<div class="view-footer">
+  <div>FLR 13.1 (May 1, 2021) • Form 13.1: Financial Statement (Property and Support Claims)</div>
+  <div>Record ID: #{{ statement.id }}</div>
+</div>
+
+{% endblock %}

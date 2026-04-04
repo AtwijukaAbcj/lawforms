@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block header %}Form 13.1: Financial Statement (Property and Support Claims){% endblock %}
+{% block subheader %}Page 4 of 10 • Expenses (continued) & Part 3: Other Income Earners{% endblock %}
+{% block content %}
+
+<style>
+  .page-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:rgba(99,102,241,0.04);border-radius:12px;border:1px solid #e2e8f0;}
+  .page-nav a{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;color:#64748b;background:white;border:1px solid #e2e8f0;transition:all 0.15s ease;}
+  .page-nav a:hover{background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3);color:#0f172a;}
+  .page-nav a.active{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:white;border-color:transparent;}
+  .form-header-131{display:flex;justify-content:space-between;align-items:flex-start;padding:18px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(16,185,129,0.05));border-radius:12px;margin-bottom:20px;border:1px solid #e2e8f0;}
+  .form-badge-131{padding:12px 16px;background:white;border:2px solid #222;border-radius:8px;text-align:center;font-weight:700;font-size:13px;line-height:1.4;}
+  .court-input{width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;}
+  .readonly-value{padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;min-height:20px;font-size:14px;}
+  .section-title{font-size:16px;font-weight:800;color:#0f172a;margin:24px 0 16px;padding:10px 16px;background:#f1f5f9;border-radius:8px;border-left:4px solid #4f46e5;}
+  .form-row{display:flex;gap:12px;margin-bottom:16px;}
+  .form-row .number{width:30px;font-weight:700;color:#64748b;}
+  .form-row .content{flex:1;}
+  .expense-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .expense-section{background:white;border:1px solid #e2e8f0;border-radius:12px;overflow:hidden;}
+  .expense-section-header{background:#f8fafc;padding:12px 16px;font-weight:700;font-size:14px;border-bottom:1px solid #e2e8f0;}
+  .expense-row{display:flex;justify-content:space-between;align-items:center;padding:10px 16px;border-bottom:1px solid #f1f5f9;}
+  .expense-row:last-child{border-bottom:none;}
+  .expense-row label{font-size:13px;flex:1;}
+  .expense-row input[type="number"]{width:120px;padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;text-align:right;}
+  .expense-row input[type="text"]{flex:1;padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;margin-right:8px;}
+  .expense-row.subtotal{background:#f8fafc;font-weight:700;}
+  .total-box{background:#4f46e5;color:white;padding:16px 20px;border-radius:12px;margin:20px 0;display:flex;justify-content:space-between;align-items:center;font-size:16px;font-weight:700;}
+  .checkbox-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:12px;}
+  .checkbox-row input[type="checkbox"]{margin-top:4px;}
+  .info-card{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 14px;font-size:12px;font-style:italic;margin:12px 0;}
+  .actions-131{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0;}
+  .btn-nav-131{padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.15s ease;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+  .btn-secondary-131{background:white;border:1px solid #e2e8f0;color:#0f172a;}
+  .btn-primary-131{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));border:none;color:white;}
+  .form-footer-131{display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-top:20px;}
+</style>
+
+{% include 'forms/financial_statement_131_nav.html' with current_page=4 pk=pk %}
+
+<form method="post">
+{% csrf_token %}
+
+<!-- Header Section -->
+<div class="form-header-131">
+  <div style="flex:1;">
+    <div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:8px;">Form 13.1: Financial Statement (Property and Support Claims)</div>
+    <div style="font-size:12px;color:#64748b;">(page 4)</div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Court file number</div>
+    <div class="readonly-value" style="width:150px;">{{ page1_data.court_file_number|default:"—" }}</div>
+  </div>
+</div>
+
+<div class="expense-grid">
+  <!-- Left Column -->
+  <div>
+    <!-- Utilities, continued -->
+    <div class="expense-section">
+      <div class="expense-section-header">Utilities, continued</div>
+      <div class="expense-row"><label>Telephone</label><input type="number" name="exp_telephone" step="0.01" value="{{ page_data.exp_telephone|default:'' }}" data-calc="utilities"></div>
+      <div class="expense-row"><label>Cell phone</label><input type="number" name="exp_cellphone" step="0.01" value="{{ page_data.exp_cellphone|default:'' }}" data-calc="utilities"></div>
+      <div class="expense-row"><label>Cable</label><input type="number" name="exp_cable" step="0.01" value="{{ page_data.exp_cable|default:'' }}" data-calc="utilities"></div>
+      <div class="expense-row"><label>Internet</label><input type="number" name="exp_internet" step="0.01" value="{{ page_data.exp_internet|default:'' }}" data-calc="utilities"></div>
+      <div class="expense-row subtotal"><label>SUBTOTAL</label><span id="subtotal_utilities">$ 0.00</span></div>
+    </div>
+
+    <!-- Household Expenses -->
+    <div class="expense-section" style="margin-top:16px;">
+      <div class="expense-section-header">Household Expenses</div>
+      <div class="expense-row"><label>Groceries</label><input type="number" name="exp_groceries" step="0.01" value="{{ page_data.exp_groceries|default:'' }}" data-calc="household"></div>
+      <div class="expense-row"><label>Household supplies</label><input type="number" name="exp_household_supplies" step="0.01" value="{{ page_data.exp_household_supplies|default:'' }}" data-calc="household"></div>
+      <div class="expense-row"><label>Meals outside the home</label><input type="number" name="exp_meals_out" step="0.01" value="{{ page_data.exp_meals_out|default:'' }}" data-calc="household"></div>
+      <div class="expense-row"><label>Pet care</label><input type="number" name="exp_pet_care" step="0.01" value="{{ page_data.exp_pet_care|default:'' }}" data-calc="household"></div>
+      <div class="expense-row"><label>Laundry and Dry Cleaning</label><input type="number" name="exp_laundry" step="0.01" value="{{ page_data.exp_laundry|default:'' }}" data-calc="household"></div>
+      <div class="expense-row subtotal"><label>SUBTOTAL</label><span id="subtotal_household">$ 0.00</span></div>
+    </div>
+
+    <!-- Childcare Costs -->
+    <div class="expense-section" style="margin-top:16px;">
+      <div class="expense-section-header">Childcare Costs</div>
+      <div class="expense-row"><label>Daycare expense</label><input type="number" name="exp_daycare" step="0.01" value="{{ page_data.exp_daycare|default:'' }}" data-calc="childcare"></div>
+      <div class="expense-row"><label>Babysitting costs</label><input type="number" name="exp_babysitting" step="0.01" value="{{ page_data.exp_babysitting|default:'' }}" data-calc="childcare"></div>
+      <div class="expense-row subtotal"><label>SUBTOTAL</label><span id="subtotal_childcare">$ 0.00</span></div>
+    </div>
+  </div>
+
+  <!-- Right Column -->
+  <div>
+    <!-- Personal, continued -->
+    <div class="expense-section">
+      <div class="expense-section-header">Personal, continued</div>
+      <div class="expense-row"><label>Education (specify)</label><input type="text" name="exp_education_desc" value="{{ page_data.exp_education_desc|default:'' }}" placeholder="Specify"><input type="number" name="exp_education" step="0.01" value="{{ page_data.exp_education|default:'' }}" data-calc="personal"></div>
+      <div class="expense-row"><label>Entertainment/recreation (including children)</label><input type="number" name="exp_entertainment" step="0.01" value="{{ page_data.exp_entertainment|default:'' }}" data-calc="personal"></div>
+      <div class="expense-row"><label>Gifts</label><input type="number" name="exp_gifts" step="0.01" value="{{ page_data.exp_gifts|default:'' }}" data-calc="personal"></div>
+      <div class="expense-row subtotal"><label>SUBTOTAL</label><span id="subtotal_personal">$ 0.00</span></div>
+    </div>
+
+    <!-- Other expenses -->
+    <div class="expense-section" style="margin-top:16px;">
+      <div class="expense-section-header">Other expenses</div>
+      <div class="expense-row"><label>Life Insurance premiums</label><input type="number" name="exp_life_insurance" step="0.01" value="{{ page_data.exp_life_insurance|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>RRSP/RESP withdrawals</label><input type="number" name="exp_rrsp" step="0.01" value="{{ page_data.exp_rrsp|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>Vacations</label><input type="number" name="exp_vacations" step="0.01" value="{{ page_data.exp_vacations|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>School fees and supplies</label><input type="number" name="exp_school_fees" step="0.01" value="{{ page_data.exp_school_fees|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>Clothing for children</label><input type="number" name="exp_child_clothing" step="0.01" value="{{ page_data.exp_child_clothing|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>Children's activities</label><input type="number" name="exp_child_activities" step="0.01" value="{{ page_data.exp_child_activities|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>Summer camp expenses</label><input type="number" name="exp_summer_camp" step="0.01" value="{{ page_data.exp_summer_camp|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>Debt payments</label><input type="number" name="exp_debt_payments" step="0.01" value="{{ page_data.exp_debt_payments|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>Support paid for other children</label><input type="number" name="exp_support_other" step="0.01" value="{{ page_data.exp_support_other|default:'' }}" data-calc="other"></div>
+      <div class="expense-row"><label>Other expenses not shown above (specify)</label><input type="text" name="exp_other_desc" value="{{ page_data.exp_other_desc|default:'' }}" placeholder="Specify"><input type="number" name="exp_other" step="0.01" value="{{ page_data.exp_other|default:'' }}" data-calc="other"></div>
+      <div class="expense-row subtotal"><label>SUBTOTAL</label><span id="subtotal_other">$ 0.00</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- Total Expenses -->
+<div class="total-box">
+  <span>Total Amount of Monthly Expenses</span>
+  <span>$ <span id="total_monthly_expenses">0.00</span></span>
+  <input type="hidden" name="total_monthly_expenses" id="total_monthly_expenses_input" value="{{ page_data.total_monthly_expenses|default:'0' }}">
+</div>
+<div class="total-box" style="background:#6366f1;">
+  <span>Total Amount of Yearly Expenses</span>
+  <span>$ <span id="total_yearly_expenses">0.00</span></span>
+  <input type="hidden" name="total_yearly_expenses" id="total_yearly_expenses_input" value="{{ page_data.total_yearly_expenses|default:'0' }}">
+</div>
+
+<!-- PART 3: OTHER INCOME EARNERS IN THE HOME -->
+<div class="section-title">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
+
+<div class="info-card">Complete this part only if you are making or responding to a claim for undue hardship or spousal support. Check and complete all sections that apply to your circumstances.</div>
+
+<div class="form-row">
+  <div class="number">1.</div>
+  <div class="content">
+    <div class="checkbox-row">
+      <input type="checkbox" name="live_alone" id="live_alone" {% if page_data.live_alone %}checked{% endif %}>
+      <label for="live_alone">I live alone.</label>
+    </div>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number">2.</div>
+  <div class="content">
+    <div class="checkbox-row">
+      <input type="checkbox" name="living_with_spouse" id="living_with_spouse" {% if page_data.living_with_spouse %}checked{% endif %}>
+      <label for="living_with_spouse">I am living with <em>(full legal name of person you are married to or cohabiting with)</em></label>
+    </div>
+    <input type="text" name="spouse_name" class="court-input" style="margin-top:8px;" value="{{ page_data.spouse_name|default:'' }}" placeholder="Full legal name">
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number">3.</div>
+  <div class="content">
+    <div class="checkbox-row">
+      <input type="checkbox" name="living_with_others" id="living_with_others" {% if page_data.living_with_others %}checked{% endif %}>
+      <label for="living_with_others">I/we live with the following other adult(s):</label>
+    </div>
+    <textarea name="other_adults" class="court-input" rows="2" style="margin-top:8px;">{{ page_data.other_adults|default:'' }}</textarea>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number">4.</div>
+  <div class="content">
+    <div class="checkbox-row">
+      <input type="checkbox" name="has_children_home" id="has_children_home" {% if page_data.has_children_home %}checked{% endif %}>
+      <label for="has_children_home">I/we have <input type="number" name="num_children_home" style="width:60px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:6px;margin:0 4px;" value="{{ page_data.num_children_home|default:'' }}"> <em>(give number)</em> child(ren) who live(s) in the home.</label>
+    </div>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number">5.</div>
+  <div class="content">
+    <div style="margin-bottom:8px;">My spouse/partner</div>
+    <div class="checkbox-row">
+      <input type="checkbox" name="spouse_works" id="spouse_works" {% if page_data.spouse_works %}checked{% endif %}>
+      <label for="spouse_works">works at <em>(place of work or business)</em></label>
+    </div>
+    <input type="text" name="spouse_workplace" class="court-input" style="margin:8px 0;" value="{{ page_data.spouse_workplace|default:'' }}" placeholder="Place of work or business">
+    <div class="checkbox-row">
+      <input type="checkbox" name="spouse_no_work" id="spouse_no_work" {% if page_data.spouse_no_work %}checked{% endif %}>
+      <label for="spouse_no_work">does not work outside the home.</label>
+    </div>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number">6.</div>
+  <div class="content">
+    <div style="margin-bottom:8px;">My spouse/partner</div>
+    <div class="checkbox-row">
+      <input type="checkbox" name="spouse_earns" id="spouse_earns" {% if page_data.spouse_earns %}checked{% endif %}>
+      <label for="spouse_earns">earns <em>(give amount)</em> $<input type="number" name="spouse_earnings" style="width:120px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:6px;margin:0 4px;" step="0.01" value="{{ page_data.spouse_earnings|default:'' }}"> per <input type="text" name="spouse_earnings_period" style="width:80px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:6px;" value="{{ page_data.spouse_earnings_period|default:'' }}" placeholder="week/month"></label>
+    </div>
+    <div class="checkbox-row">
+      <input type="checkbox" name="spouse_no_income" id="spouse_no_income" {% if page_data.spouse_no_income %}checked{% endif %}>
+      <label for="spouse_no_income">does not earn any income.</label>
+    </div>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number">7.</div>
+  <div class="content">
+    <div>My spouse/partner or other adult residing in the home contributes about $<input type="number" name="household_contribution" style="width:120px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:6px;margin:0 4px;" step="0.01" value="{{ page_data.household_contribution|default:'' }}"> per <input type="text" name="contribution_period" style="width:80px;padding:4px 8px;border:1px solid #cbd5e1;border-radius:6px;" value="{{ page_data.contribution_period|default:'' }}" placeholder="week/month"> towards the household expenses.</div>
+  </div>
+</div>
+
+<!-- Form Actions -->
+<div class="actions-131">
+  <button type="submit" name="prev" class="btn-nav-131 btn-secondary-131">← Previous Page</button>
+  <button type="submit" class="btn-nav-131 btn-primary-131">Save & Continue →</button>
+</div>
+
+<!-- Footer -->
+<div class="form-footer-131">
+  <div>FLR 13.1 (May 1, 2021)</div>
+  <div>Page 4 of 10</div>
+</div>
+
+</form>
+
+<script>
+const FORM_KEY = 'form131_page4_{{ pk }}';
+
+function calculateSubtotals() {
+  const groups = ['utilities', 'household', 'childcare', 'personal', 'other'];
+  let grandTotal = 0;
+  groups.forEach(group => {
+    let total = 0;
+    document.querySelectorAll(`[data-calc="${group}"]`).forEach(input => {
+      total += parseFloat(input.value) || 0;
+    });
+    const el = document.getElementById(`subtotal_${group}`);
+    if (el) el.textContent = '$ ' + total.toFixed(2);
+    grandTotal += total;
+  });
+  // Add page 3 subtotals from localStorage
+  const page3Data = JSON.parse(localStorage.getItem('form131_page3_{{ pk }}') || '{}');
+  ['exp_cpp', 'exp_ei', 'exp_income_tax', 'exp_pension_contrib', 'exp_union_dues', 'exp_rent_mortgage', 'exp_property_tax', 'exp_property_insurance', 'exp_condo_fees', 'exp_housing_repairs', 'exp_water', 'exp_heat', 'exp_electricity', 'exp_transit', 'exp_gas', 'exp_car_insurance', 'exp_car_repairs', 'exp_parking', 'exp_car_payment', 'exp_health_insurance', 'exp_dental', 'exp_medicine', 'exp_eye_care', 'exp_clothing', 'exp_hair_beauty', 'exp_alcohol_tobacco'].forEach(key => {
+    grandTotal += parseFloat(page3Data[key]) || 0;
+  });
+  document.getElementById('total_monthly_expenses').textContent = grandTotal.toFixed(2);
+  document.getElementById('total_monthly_expenses_input').value = grandTotal.toFixed(2);
+  document.getElementById('total_yearly_expenses').textContent = (grandTotal * 12).toFixed(2);
+  document.getElementById('total_yearly_expenses_input').value = (grandTotal * 12).toFixed(2);
+}
+
+function saveFormData() {
+  const formData = {};
+  document.querySelectorAll('input, textarea, select').forEach(input => {
+    if (input.name && input.type !== 'submit') {
+      formData[input.name] = input.type === 'checkbox' ? input.checked : input.value;
+    }
+  });
+  localStorage.setItem(FORM_KEY, JSON.stringify(formData));
+}
+
+function loadFormData() {
+  const saved = localStorage.getItem(FORM_KEY);
+  if (saved) {
+    const formData = JSON.parse(saved);
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+      if (input.name && formData.hasOwnProperty(input.name)) {
+        if (input.type === 'checkbox') {
+          input.checked = formData[input.name];
+        } else {
+          input.value = formData[input.name];
+        }
+      }
+    });
+  }
+  calculateSubtotals();
+}
+
+document.querySelectorAll('input, textarea').forEach(input => {
+  input.addEventListener('change', () => { saveFormData(); calculateSubtotals(); });
+  input.addEventListener('input', () => { saveFormData(); calculateSubtotals(); });
+});
+loadFormData();
+</script>
+{% endblock %}

@@ -567,6 +567,12 @@
         <h4>Financial Statement</h4>
         <p>Form 13 - Support Claims</p>
     </a>
+    <a href="{% url 'financial_statement_131_page1_new' %}" class="quick-action-card form131">
+        <span class="plus-icon">+</span>
+        <div class="icon">📝</div>
+        <h4>Financial Statement 13.1</h4>
+        <p>Form 13.1 - Property & Support</p>
+    </a>
     <a href="{% url 'net_family_property_13b_page1' %}" class="quick-action-card form13b">
         <span class="plus-icon">+</span>
         <div class="icon">📋</div>
@@ -627,6 +633,56 @@
         <div class="empty-state-icon">📄</div>
         <h4>No financial statements yet</h4>
         <p><a href="{% url 'financial_statement_page1_new' %}">Create your first one</a> to get started</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Financial Statements 13.1 Section -->
+<div class="form-section form131">
+    <div class="form-section-header">
+        <h3>
+            <span class="form-icon">📝</span>
+            Financial Statements (Form 13.1)
+            <span class="count-badge">{{ financial_statements_131_count }} forms</span>
+        </h3>
+        <div class="form-section-actions">
+            <a href="{% url 'financial_statement_131_page1_new' %}" class="btn-create">+ New Form</a>
+            <a href="{% url 'financial_statement_131_list' %}" class="btn-view-all">View All →</a>
+        </div>
+    </div>
+    {% if financial_statements_131 %}
+    <table class="form-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Court File #</th>
+                <th>Applicant</th>
+                <th>Respondent</th>
+                <th>Last Updated</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for form in financial_statements_131 %}
+            <tr>
+                <td class="id-cell">#{{ form.id }}</td>
+                <td>{{ form.court_file_number|default:"—" }}</td>
+                <td>{{ form.applicant_name|default:"—" }}</td>
+                <td>{{ form.respondent_name|default:"—" }}</td>
+                <td class="date-cell">{{ form.updated_at|date:"M d, Y" }}</td>
+                <td class="actions-cell">
+                    <a href="{% url 'financial_statement_131_page1' form.pk %}" class="btn-action btn-edit">✏️ Edit</a>
+                    <a href="{% url 'financial_statement_131_print' form.pk %}" class="btn-action btn-print" target="_blank">🖨️ Print</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📝</div>
+        <h4>No financial statement 13.1 yet</h4>
+        <p><a href="{% url 'financial_statement_131_page1_new' %}">Create your first one</a> to get started</p>
     </div>
     {% endif %}
 </div>

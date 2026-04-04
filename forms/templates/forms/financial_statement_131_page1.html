@@ -1,0 +1,333 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block header %}Form 13.1: Financial Statement (Property and Support Claims){% endblock %}
+{% block subheader %}Page 1 of 10 • Court Information, Parties & Instructions{% endblock %}
+{% block content %}
+
+<style>
+  .page-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:rgba(99,102,241,0.04);border-radius:12px;border:1px solid #e2e8f0;}
+  .page-nav a{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;color:#64748b;background:white;border:1px solid #e2e8f0;transition:all 0.15s ease;}
+  .page-nav a:hover{background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3);color:#0f172a;}
+  .page-nav a.active{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:white;border-color:transparent;}
+  .form-header-131{display:flex;justify-content:space-between;align-items:flex-start;padding:18px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(16,185,129,0.05));border-radius:12px;margin-bottom:20px;border:1px solid #e2e8f0;}
+  .form-title-green{font-size:22px;color:#6bbf4e;font-weight:700;font-style:italic;}
+  .form-badge-131{padding:12px 16px;background:white;border:2px solid #222;border-radius:8px;text-align:center;font-weight:700;font-size:13px;line-height:1.4;}
+  .court-input{width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;transition:all 0.15s ease;box-sizing:border-box;}
+  .court-input:focus{outline:none;border-color:rgba(99,102,241,0.5);box-shadow:0 0 0 3px rgba(99,102,241,0.1);}
+  .court-input:disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed;border-color:#d1d5db;}
+  .court-input:disabled::placeholder{color:#94a3b8;}
+  .sub-input .court-input:disabled{opacity:0.6;}
+  .input-hint{font-size:10px;font-style:italic;color:#64748b;margin-top:2px;}
+  .instructions-box-131{background:#fffbeb;border:1px solid #fbbf24;border-radius:12px;padding:20px;margin-bottom:24px;}
+  .instructions-box-131 h3{font-size:15px;font-weight:800;margin-bottom:14px;color:#0f172a;text-decoration:underline;}
+  .instructions-box-131 ol{margin:0;padding-left:20px;font-size:13px;line-height:1.7;}
+  .instructions-box-131 ol li{margin-bottom:10px;}
+  .instructions-box-131 ul{margin:6px 0 0 20px;font-size:12px;}
+  .panel-131{border:1px solid #e2e8f0;border-radius:12px;background:white;overflow:hidden;margin-bottom:20px;}
+  .panel-header-131{background:#f5f5f5;padding:12px 16px;font-weight:800;font-size:13px;border-bottom:1px solid #e2e8f0;}
+  .panel-body-131{display:grid;grid-template-columns:1fr 1fr;}
+  .panel-cell-131{padding:14px 16px;border-right:1px solid #e2e8f0;}
+  .panel-cell-131:last-child{border-right:none;}
+  .panel-cell-label{font-size:11px;font-style:italic;color:#64748b;margin-bottom:8px;}
+  .section-title{font-size:16px;font-weight:800;color:#0f172a;margin:24px 0 16px;padding:10px 16px;background:#f1f5f9;border-radius:8px;border-left:4px solid #4f46e5;}
+  .form-row{display:flex;gap:12px;margin-bottom:16px;}
+  .form-row .number{width:30px;font-weight:700;color:#64748b;}
+  .form-row .content{flex:1;}
+  .checkbox-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+  .checkbox-row input[type="checkbox"]{margin-top:4px;}
+  .sub-input{margin-left:24px;margin-bottom:12px;}
+  .actions-131{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0;}
+  .btn-nav-131{padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.15s ease;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+  .btn-secondary-131{background:white;border:1px solid #e2e8f0;color:#0f172a;}
+  .btn-secondary-131:hover{background:#f6f7fb;color:#0f172a;text-decoration:none;}
+  .btn-primary-131{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));border:none;color:white;}
+  .btn-primary-131:hover{filter:brightness(1.05);color:white;}
+  .form-footer-131{display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-top:20px;}
+</style>
+
+{% if pk %}{% include 'forms/financial_statement_131_nav.html' with current_page=1 pk=pk %}{% endif %}
+
+<form method="post">
+{% csrf_token %}
+
+<!-- Header Section -->
+<div class="form-header-131">
+  <div style="flex:1;">
+    <!-- <div class="form-title-green">MySupportCalculator.ca</div> -->
+    <div style="margin-top:14px;">
+      <div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:8px;">ONTARIO</div>
+      <div style="margin-bottom:10px;">
+        <input type="text" name="court_name" class="court-input" placeholder="Name of court" value="{{ page_data.court_name|default_if_none:'' }}">
+        <div class="input-hint">(Name of court)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:14px;">at</span>
+        <div style="flex:1;">
+          <input type="text" name="court_location" class="court-input" placeholder="Court office address" value="{{ page_data.court_location|default_if_none:'' }}">
+          <div class="input-hint">(Court office address)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:right;margin-left:20px;">
+    <div style="margin-bottom:8px;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Court File Number</div>
+      <input type="text" name="court_file_number" class="court-input" style="width:180px;" value="{{ page_data.court_file_number|default_if_none:'' }}">
+    </div>
+    <div class="form-badge-131">
+      Form 13.1: Financial<br>Statement (Property and<br>Support Claims)<br>
+      <span style="font-weight:normal;">sworn/affirmed</span>
+    </div>
+  </div>
+</div>
+
+<!-- Applicant / Applicant Lawyer Tables -->
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+  <div style="flex:1;">
+    <div style="font-weight:bold;margin-bottom:6px;">Applicant(s)</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;width:100px;font-style:italic;background:#f8fafc;">Full legal name:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_name" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_name|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Address:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_address" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_address|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Phone & fax:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_phone" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_phone|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Email:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_email" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_email|default_if_none:'' }}"></td></tr>
+    </table>
+  </div>
+  <div style="flex:1;">
+    <div style="font-weight:bold;margin-bottom:6px;">Applicant(s) Lawyer</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;width:100px;font-style:italic;background:#f8fafc;">Full legal name:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_lawyer_name" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_lawyer_name|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Address:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_lawyer_address" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_lawyer_address|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Phone & fax:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_lawyer_phone" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_lawyer_phone|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Email:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="applicant_lawyer_email" class="court-input" style="border:none;padding:4px;" value="{{ page_data.applicant_lawyer_email|default_if_none:'' }}"></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Respondent / Respondent Lawyer Tables -->
+<div style="display:flex;gap:12px;margin-bottom:12px;">
+  <div style="flex:1;">
+    <div style="font-weight:bold;margin-bottom:6px;">Respondent(s)</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;width:100px;font-style:italic;background:#f8fafc;">Full legal name:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_name" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_name|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Address:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_address" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_address|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Phone & fax:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_phone" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_phone|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Email:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_email" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_email|default_if_none:'' }}"></td></tr>
+    </table>
+  </div>
+  <div style="flex:1;">
+    <div style="font-weight:bold;margin-bottom:6px;">Respondent(s) Lawyer</div>
+    <table style="width:100%;border-collapse:collapse;">
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;width:100px;font-style:italic;background:#f8fafc;">Full legal name:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_lawyer_name" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_lawyer_name|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Address:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_lawyer_address" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_lawyer_address|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Phone & fax:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_lawyer_phone" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_lawyer_phone|default_if_none:'' }}"></td></tr>
+      <tr><td style="border:1px solid #cbd5e1;padding:6px;font-style:italic;background:#f8fafc;">Email:</td><td style="border:1px solid #cbd5e1;padding:4px;"><input type="text" name="respondent_lawyer_email" class="court-input" style="border:none;padding:4px;" value="{{ page_data.respondent_lawyer_email|default_if_none:'' }}"></td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- This form is filed by -->
+<div style="margin-bottom:20px;padding:16px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0;">
+  <strong>This form is filed by:</strong>
+  <div style="display:flex;gap:24px;margin-top:10px;">
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+      <input type="radio" name="filed_by" value="applicant" {% if page_data.filed_by == 'applicant' %}checked{% endif %}>
+      <span>applicant</span>
+    </label>
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+      <input type="radio" name="filed_by" value="respondent" {% if page_data.filed_by == 'respondent' %}checked{% endif %}>
+      <span>respondent</span>
+    </label>
+  </div>
+</div>
+
+<!-- Instructions -->
+<div class="instructions-box-131">
+  <h3>INSTRUCTIONS</h3>
+  <ol>
+    <li><strong>USE THIS FORM IF:</strong>
+      <ul>
+        <li>you are making or responding to a claim for property or exclusive possession of the matrimonial home and its contents; or</li>
+        <li>you are making or responding to a claim for property or exclusive possession of the matrimonial home and its contents together with other claims for relief.</li>
+      </ul>
+    </li>
+    <li><strong>USE FORM 13 INSTEAD OF THIS FORM IF:</strong>
+      <ul>
+        <li>you are making or responding to a claim for support but NOT making or responding to a claim for property or exclusive possession of the matrimonial home and its contents.</li>
+      </ul>
+    </li>
+    <li>If you have income that is not shown in Part I of the financial statement (for example, partnership income, dividends, rental income, capital gains or RRSP income), you must also complete <strong>Schedule A</strong>.</li>
+    <li>If you or the other party has sought a contribution towards special or extraordinary expenses for the child(ren), you must also complete <strong>Schedule B</strong>.</li>
+  </ol>
+  <p style="margin-top:12px;font-size:12px;"><em><strong>NOTE:</strong> You must fully and truthfully complete this financial statement, including any applicable schedules. You must also provide the other party with documents relating to support and property and a Certificate of Financial Disclosure (Form 13A) as required by Rule 13 of the Family Law Rules.</em></p>
+</div>
+
+<!-- PART 1: INCOME -->
+<div class="section-title">PART 1: INCOME</div>
+
+<div class="form-row">
+  <div class="number">1.</div>
+  <div class="content">
+    <div style="margin-bottom:10px;"><strong>My name is</strong> <em>(full legal name)</em></div>
+    <input type="text" name="my_name" class="court-input" value="{{ page_data.my_name|default:'' }}">
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number"></div>
+  <div class="content">
+    <div style="margin-bottom:10px;"><strong>I live in</strong> <em>(municipality & province)</em></div>
+    <input type="text" name="my_location" class="court-input" value="{{ page_data.my_location|default:'' }}">
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number"></div>
+  <div class="content">
+    <div style="margin-bottom:10px;"><strong>and I swear/affirm that the following is true:</strong></div>
+  </div>
+</div>
+
+<div class="form-row">
+  <div class="number">2.</div>
+  <div class="content">
+    <div style="margin-bottom:12px;"><strong>I am currently</strong></div>
+
+    <div class="checkbox-row">
+      <input type="radio" name="employment_status" id="employed" value="employed"
+             {% if page_data.employment_status == 'employed' %}checked{% endif %}>
+      <label for="employed">
+        <strong>employed by</strong> <em>(name and address of employer)</em>
+      </label>
+    </div>
+    <div class="sub-input">
+      <textarea id="employer_details" name="employer_details" class="court-input" rows="2" placeholder="Name and address of employer">{{ page_data.employer_details|default:'' }}</textarea>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="radio" name="employment_status" id="self_employed" value="self_employed"
+             {% if page_data.employment_status == 'self_employed' %}checked{% endif %}>
+      <label for="self_employed">
+        <strong>self-employed, carrying on business under the name of</strong> <em>(name and address of business)</em>
+      </label>
+    </div>
+    <div class="sub-input">
+      <textarea id="business_details" name="business_details" class="court-input" rows="2" placeholder="Name and address of business">{{ page_data.business_details|default:'' }}</textarea>
+    </div>
+
+    <div class="checkbox-row">
+      <input type="radio" name="employment_status" id="unemployed" value="unemployed"
+             {% if page_data.employment_status == 'unemployed' %}checked{% endif %}>
+      <label for="unemployed">
+        <strong>unemployed since</strong> <em>(date when last employed)</em>
+      </label>
+    </div>
+    <div class="sub-input">
+      <input id="unemployed_since" type="date" name="unemployed_since" class="court-input" style="width:200px;"
+             value="{{ page_data.unemployed_since|default:'' }}">
+    </div>
+  </div>
+</div>
+
+<!-- Form Actions -->
+<div class="actions-131">
+  <a href="{% url 'financial_statement_131_list' %}" class="btn-nav-131 btn-secondary-131">← Back to List</a>
+  <button type="submit" class="btn-nav-131 btn-primary-131">Save & Continue →</button>
+</div>
+
+<!-- Footer -->
+<div class="form-footer-131">
+  <div>FLR 13.1 (May 1, 2021)</div>
+  <div>Page 1 of 10</div>
+</div>
+
+</form>
+
+<script>
+const FORM_KEY = 'form131_page1_{{ pk }}';
+
+function saveFormData() {
+  const formData = {};
+  document.querySelectorAll('input, textarea, select').forEach(input => {
+    if (input.name && input.type !== 'submit') {
+      if (input.type === 'radio') {
+        if (input.checked) {
+          formData[input.name] = input.value;
+        }
+      } else {
+        formData[input.name] = input.value;
+      }
+    }
+  });
+  localStorage.setItem(FORM_KEY, JSON.stringify(formData));
+}
+
+function loadFormData() {
+  const saved = localStorage.getItem(FORM_KEY);
+  if (saved) {
+    const formData = JSON.parse(saved);
+
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+      if (input.name && formData.hasOwnProperty(input.name)) {
+        const hasServerValue =
+          input.type === 'radio'
+            ? false
+            : (input.value !== null && String(input.value).trim() !== '');
+
+        if (hasServerValue) return;
+
+        if (input.type === 'radio') {
+          input.checked = formData[input.name] === input.value;
+        } else {
+          input.value = formData[input.name];
+        }
+      }
+    });
+  }
+}
+
+function toggleConditionalFields() {
+  const selected = document.querySelector('input[name="employment_status"]:checked');
+
+  const employerDetails = document.getElementById('employer_details');
+  const businessDetails = document.getElementById('business_details');
+  const unemployedSince = document.getElementById('unemployed_since');
+
+  // Disable all fields first
+  if (employerDetails) employerDetails.disabled = true;
+  if (businessDetails) businessDetails.disabled = true;
+  if (unemployedSince) unemployedSince.disabled = true;
+
+  // Enable only the field corresponding to selected radio
+  if (selected) {
+    if (selected.value === 'employed' && employerDetails) {
+      employerDetails.disabled = false;
+    } else if (selected.value === 'self_employed' && businessDetails) {
+      businessDetails.disabled = false;
+    } else if (selected.value === 'unemployed' && unemployedSince) {
+      unemployedSince.disabled = false;
+    }
+  }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+  loadFormData();
+  toggleConditionalFields();
+});
+
+// Listen for changes
+document.querySelectorAll('input[name="employment_status"]').forEach(radio => {
+  radio.addEventListener('change', () => {
+    toggleConditionalFields();
+    saveFormData();
+  });
+});
+
+document.querySelectorAll('input, textarea, select').forEach(input => {
+  input.addEventListener('input', saveFormData);
+  if (input.type !== 'radio') {
+    input.addEventListener('change', saveFormData);
+  }
+});
+</script>
+{% endblock %}

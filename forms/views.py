@@ -1,32 +1,20 @@
-
-from django.contrib.auth.decorators import login_required, user_passes_test
-# Delete PrintEvent (admin/staff only)
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
-
-@login_required
-@user_passes_test(lambda u: u.is_superuser or u.is_staff)
-def delete_print_event(request, pk):
-    print_event = get_object_or_404(PrintEvent, pk=pk)
-    if request.method == "POST":
-        print_event.delete()
-        return redirect("billing_history")
-    return render(request, "forms/confirm_delete.html", {
-        "object": print_event,
-        "object_name": f"Print Event #{print_event.id}",
-        "cancel_url": reverse("billing_history"),
-    })
 # forms/views.py - Comprehensive version with all data saving properly
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponseRedirect, JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
 from django.forms import modelformset_factory, inlineformset_factory
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.utils import timezone
+from functools import lru_cache
+from pathlib import Path
+from collections import OrderedDict
+import re
 import json
 from decimal import Decimal, InvalidOperation
-
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from .models import (
     # Base single-page models
     NetFamilyPropertyStatement,
@@ -61,7 +49,7 @@ from .models import (
     # Billing & Print tracking
     PrintEvent,
 )
-
+from django.contrib.auth.decorators import login_required
 from .forms import (
     # Single-page forms
     NetFamilyPropertyStatementForm,
@@ -96,6 +84,8 @@ from .forms import (
     Form13CBusinessInterestForm,
 )
 
+
+from decimal import Decimal, InvalidOperation
 
 # ============================================================
 # HELPER FUNCTIONS
@@ -146,6 +136,1209 @@ def dashboard(request):
 # ============================================================
 # FINANCIAL STATEMENT (FORM 13) - 8 PAGES
 # ============================================================
+
+# ============================================================
+# FINANCIAL STATEMENT (FORM 13.1) - Property & Support Claims (Page 1)
+# ============================================================
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page1_new(request):
+    """View for Form 13.1 - Page 1 (new form creation)."""
+    if request.method == "POST":
+        from .models import Form131FinancialStatement
+        statement = Form131FinancialStatement.objects.create(draft={})
+        posted_data = request.POST
+        resolved_court_file_number = _resolve_form131_court_file_number(
+            statement,
+            posted_data.get('court_file_number', ''),
+        )
+        # Save all page1 fields from POST
+        data = {k: v for k, v in posted_data.items() if k != 'csrfmiddlewaretoken'}
+        data['court_file_number'] = resolved_court_file_number
+        # Handle checkboxes
+        for cb in ['filed_by_applicant', 'filed_by_respondent', 'employed', 'self_employed', 'unemployed']:
+            data[cb] = cb in posted_data
+        statement.court_file_number = data['court_file_number']
+        statement.applicant_name = data.get('applicant_name', '')
+        statement.respondent_name = data.get('respondent_name', '')
+        statement.save()
+        statement.save_page_data(1, data)
+        return redirect("financial_statement_131_page2", pk=statement.id)
+    return render(request, "forms/financial_statement_131_page1.html", {
+        "page_data": {},
+    })
+
+
+# ============================================================
+# FINANCIAL STATEMENT (FORM 13.1) - List, Edit, Print (Placeholders)
+# ============================================================
+@login_required
+def financial_statement_131_list(request):
+    """List view for Form 13.1 Financial Statements."""
+    from .models import Form131FinancialStatement
+    statements = Form131FinancialStatement.objects.filter(is_deleted=False).order_by('-updated_at')
+    return render(request, "forms/financial_statement_131_list.html", {"statements": statements})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page1(request, pk):
+    """Form 13.1 page 1 - Instructions."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = _get_form131_page1_data(form, persist=True)
+    if request.method == "POST":
+        posted_data = request.POST
+        resolved_court_file_number = _resolve_form131_court_file_number(
+            form,
+            posted_data.get('court_file_number', ''),
+        )
+        # Save all page1 fields from POST
+        data = {k: v for k, v in posted_data.items() if k != 'csrfmiddlewaretoken'}
+        data['court_file_number'] = resolved_court_file_number
+        # Handle checkboxes (they're absent from POST when unchecked)
+        for cb in ['filed_by_applicant', 'filed_by_respondent', 'employed', 'self_employed', 'unemployed']:
+            data[cb] = cb in posted_data
+        # Sync top-level fields for list/summary
+        form.court_file_number = resolved_court_file_number
+        form.applicant_name = posted_data.get('applicant_name', '')
+        form.respondent_name = posted_data.get('respondent_name', '')
+        form.save()
+        form.save_page_data(1, data)
+        return redirect("financial_statement_131_page2", pk=pk)
+    return render(request, "forms/financial_statement_131_page1.html", {
+        "pk": pk,
+        "form": form,
+        "page_data": page_data,
+    })
+def get_all_form131_data(form):
+    """Merge all page data from draft into a single dict for print/view."""
+    merged = {}
+    if not form.draft:
+        return merged
+    for k, v in form.draft.items():
+        if isinstance(v, dict):
+            merged.update(v)
+    return merged
+
+
+def _resolve_form131_court_file_number(statement, posted_value):
+    """Use manual court file number if provided, otherwise generate one."""
+    manual_value = (posted_value or "").strip()
+    if manual_value:
+        return manual_value
+
+    existing = (statement.court_file_number or "").strip()
+    if existing:
+        return existing
+
+    year = statement.created_at.year if statement.created_at else timezone.now().year
+    return f"AUTO-{year}-{statement.id:06d}"
+
+
+def _remove_div_block(html, class_name):
+    """Remove an entire <div class="...class_name..."> block including all nested content.
+    Tracks only <div> / </div> depth so other tags don't corrupt the counter.
+    """
+    start_pat = re.compile(
+        r'<div[^>]*\bclass="[^"]*\b' + re.escape(class_name) + r'\b[^"]*"[^>]*>',
+        re.IGNORECASE,
+    )
+    div_open = re.compile(r'<div[\s>]', re.IGNORECASE)
+    div_close = re.compile(r'</div\s*>', re.IGNORECASE)
+    result = []
+    pos = 0
+    for m in start_pat.finditer(html):
+        if m.start() < pos:
+            continue  # already consumed by a previous removal
+        result.append(html[pos:m.start()])
+        depth = 1
+        inner = m.end()
+        while inner < len(html) and depth > 0:
+            next_open = div_open.search(html, inner)
+            next_close = div_close.search(html, inner)
+            if next_close is None:
+                inner = len(html)
+                break
+            if next_open is not None and next_open.start() < next_close.start():
+                depth += 1
+                inner = next_open.end()
+            else:
+                depth -= 1
+                inner = next_close.end()
+        pos = inner
+    result.append(html[pos:])
+    return ''.join(result)
+
+
+@lru_cache(maxsize=10)
+def _get_form131_page_block_html(page_number):
+    """Return the pre-processed (style/nav/script stripped) block content for a page template."""
+    templates_dir = Path(__file__).resolve().parent / "templates" / "forms"
+    template_file = templates_dir / f"financial_statement_131_page{page_number}.html"
+    if not template_file.exists():
+        return ""
+    text = template_file.read_text(encoding="utf-8", errors="ignore")
+    # Extract {% block content %} ... {% endblock %}
+    m = re.search(r'\{%-?\s*block content\s*-?%\}([\s\S]*?)\{%-?\s*endblock\s*-?%\}', text, re.IGNORECASE)
+    html = m.group(1) if m else text
+    # Remove style and script blocks
+    html = re.sub(r'<style[^>]*>[\s\S]*?</style>', '', html, flags=re.IGNORECASE)
+    html = re.sub(r'<script[^>]*>[\s\S]*?</script>', '', html, flags=re.IGNORECASE)
+    # Remove page-specific chrome (nav, buttons, repeated form header)
+    for cls in ('page-nav', 'actions-131', 'form-footer-131', 'form-header-131'):
+        html = _remove_div_block(html, cls)
+    # Remove form wrapper and csrf token
+    html = re.sub(r'<form[^>]*>', '', html, flags=re.IGNORECASE)
+    html = re.sub(r'</form>', '', html, flags=re.IGNORECASE)
+    html = re.sub(r'\{%-?\s*csrf_token\s*-?%\}', '', html)
+    html = re.sub(r'<!--[\s\S]*?-->', '', html)
+    return html.strip()
+
+
+def _is_truthy(value):
+    """Return True when a saved value represents checked/true."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return value != 0
+    if value is None:
+        return False
+    text = str(value).strip().lower()
+    return text in {"1", "true", "yes", "y", "on", "checked"}
+
+
+def _format_form131_value(name, value):
+    """Normalize values loaded from JSON draft for cleaner read-only rendering."""
+    if value in (None, ""):
+        return ""
+
+    if isinstance(value, list):
+        items = [str(item).strip() for item in value if str(item).strip()]
+        return ", ".join(items)
+
+    if isinstance(value, dict):
+        parts = []
+        for key, item in value.items():
+            item_text = str(item).strip()
+            if item_text:
+                parts.append(f"{key}: {item_text}")
+        return "\n".join(parts)
+
+    text = str(value).strip()
+    if not text:
+        return ""
+
+    # Show DB value exactly as saved - no filtering.
+    return text
+
+
+def _apply_page_data_to_block(block_html, page_data):
+    """Substitute actual data values and replace form inputs with read-only divs."""
+    page_data = page_data or {}
+    html = block_html
+
+    # Replace {{ page_data.field|filter }} with actual values
+    def _sub_var(m):
+        expr = m.group(1).strip()
+        var_part = re.split(r'\|', expr)[0].strip()
+        parts = var_part.split('.')
+        if len(parts) == 2 and parts[0] == 'page_data':
+            val = _format_form131_value(parts[1], page_data.get(parts[1], ''))
+            return val if val not in (None, '') else ''
+        return ''
+    html = re.sub(r'\{\{(.*?)\}\}', _sub_var, html, flags=re.DOTALL)
+
+    # Remove remaining Django template tags
+    html = re.sub(r'\{%[^%]*%\}', '', html)
+
+    # Replace checkbox inputs — preserve checked state as disabled checkbox
+    def _replace_checkbox(m):
+        attrs_str = m.group(1)
+        name_m = re.search(r'name="([^"]+)"', attrs_str)
+        if not name_m:
+            return m.group(0)
+        name = name_m.group(1)
+        val = page_data.get(name, '')
+        checked = _is_truthy(val)
+        chk = ' checked' if checked else ''
+        return f'<input type="checkbox"{chk} disabled class="readonly-checkbox">'
+    html = re.sub(
+        r'<input\s([^>]*type=["\']checkbox["\'][^>]*)(/?)>',
+        _replace_checkbox, html, flags=re.IGNORECASE,
+    )
+
+    # Remove hidden/submit inputs
+    html = re.sub(
+        r'<input\s[^>]*type=["\'](?:hidden|submit)["\'][^>]*/?>',
+        '', html, flags=re.IGNORECASE,
+    )
+
+    # Replace radio inputs as disabled radios preserving selected option
+    def _replace_radio(m):
+        attrs_str = m.group(1)
+        name_m = re.search(r'name="([^"]+)"', attrs_str)
+        value_m = re.search(r'value="([^"]*)"', attrs_str)
+        if not name_m:
+            return ''
+        name = name_m.group(1)
+        option_value = value_m.group(1) if value_m else ''
+        selected = str(page_data.get(name, '')).strip() == option_value
+        chk = ' checked' if selected else ''
+        return f'<input type="radio"{chk} disabled class="readonly-checkbox">'
+    html = re.sub(
+        r'<input\s([^>]*type=["\']radio["\'][^>]*)(/?)>',
+        _replace_radio, html, flags=re.IGNORECASE,
+    )
+
+    # Replace remaining inputs with readonly value divs
+    def _replace_input(m):
+        attrs_str = m.group(1)
+        name_m = re.search(r'name="([^"]+)"', attrs_str)
+        if not name_m:
+            return ''
+        name = name_m.group(1)
+        if name in ('csrfmiddlewaretoken', 'prev', 'next', 'save'):
+            return ''
+        val = _format_form131_value(name, page_data.get(name, ''))
+        display = val if val not in (None, '') else ''
+        cls = 'readonly-value' if display else 'readonly-value empty'
+        return f'<div class="{cls}">{display or "—"}</div>'
+    html = re.sub(r'<input\s([^>]*)/?>', _replace_input, html, flags=re.IGNORECASE)
+
+    # Replace textarea with readonly div
+    def _replace_textarea(m):
+        attrs_str = m.group(1)
+        name_m = re.search(r'name="([^"]+)"', attrs_str)
+        if not name_m:
+            return ''
+        name = name_m.group(1)
+        val = _format_form131_value(name, page_data.get(name, ''))
+        display = val if val not in (None, '') else ''
+        cls = 'readonly-value' if display else 'readonly-value empty'
+        return f'<div class="{cls}" style="min-height:56px;white-space:pre-wrap;">{display or "—"}</div>'
+    html = re.sub(
+        r'<textarea\s([^>]*)>[\s\S]*?</textarea>',
+        _replace_textarea, html, flags=re.IGNORECASE,
+    )
+
+    # Replace select with readonly div
+    def _replace_select(m):
+        attrs_str = m.group(1)
+        name_m = re.search(r'name="([^"]+)"', attrs_str)
+        if not name_m:
+            return ''
+        name = name_m.group(1)
+        val = _format_form131_value(name, page_data.get(name, ''))
+        display = val if val not in (None, '') else ''
+        cls = 'readonly-value' if display else 'readonly-value empty'
+        return f'<div class="{cls}">{display or "—"}</div>'
+    html = re.sub(
+        r'<select\s([^>]*)>[\s\S]*?</select>',
+        _replace_select, html, flags=re.IGNORECASE,
+    )
+
+    return html
+
+
+@lru_cache(maxsize=1)
+def _get_form131_template_meta():
+    """Extract expected fields and page headers/subheaders for each Form 13.1 page."""
+    templates_dir = Path(__file__).resolve().parent / "templates" / "forms"
+    field_pattern = re.compile(r'name="([^"]+)"')
+    page_pattern = re.compile(r'_page(\d+)\.html$')
+
+    def _extract_block_text(template_text, block_name):
+        pattern = (
+            r'\{%-?\s*block\s+' + re.escape(block_name) +
+            r'\s*-?%\}([\s\S]*?)\{%-?\s*endblock\s*-?%\}'
+        )
+        m = re.search(pattern, template_text, re.IGNORECASE)
+        if not m:
+            return ""
+        raw = m.group(1)
+        raw = re.sub(r'<[^>]+>', ' ', raw)
+        raw = re.sub(r'\{\{[\s\S]*?\}\}|\{%[\s\S]*?%\}', ' ', raw)
+        raw = re.sub(r'\s+', ' ', raw).strip()
+        return raw
+
+    meta_by_page = {}
+    for template_file in sorted(templates_dir.glob("financial_statement_131_page*.html")):
+        match = page_pattern.search(template_file.name)
+        if not match:
+            continue
+        page_number = int(match.group(1))
+        text = template_file.read_text(encoding="utf-8", errors="ignore")
+        names = [
+            name
+            for name in field_pattern.findall(text)
+            if name not in {"csrfmiddlewaretoken", "prev", "next", "save", "submit"}
+            and not name.startswith("__prefix__")
+            and "${" not in name
+        ]
+        page_header = _extract_block_text(text, "header")
+        page_subheader = _extract_block_text(text, "subheader")
+        meta_by_page[page_number] = {
+            "fields": list(OrderedDict.fromkeys(names)),
+            "header": page_header,
+            "subheader": page_subheader,
+        }
+    return meta_by_page
+
+
+def _build_form131_page_display_data(page_number, data, expected_fields, page_html="", page_header="", page_subheader=""):
+    """Build complete display metadata for a Form 13.1 page."""
+    data = data or {}
+    expected_fields = expected_fields or []
+    populated_count = sum(1 for f in expected_fields if _format_form131_value(f, data.get(f)) not in (None, ''))
+    missing_count = max(len(expected_fields) - populated_count, 0)
+    extra_saved_count = max(len(data) - len(expected_fields), 0)
+    return {
+        "number": page_number,
+        "key": f"page{page_number}",
+        "data": data,
+        "has_data": bool(data),
+        "field_count": len(data),
+        "expected_field_count": len(expected_fields),
+        "populated_count": populated_count,
+        "missing_count": missing_count,
+        "extra_saved_count": extra_saved_count,
+        "page_header": page_header,
+        "page_subheader": page_subheader,
+        "html": page_html,
+    }
+
+
+def _get_form131_page1_data(statement, persist=False):
+    """Return page1 data with fallback to top-level fields for legacy records."""
+    page1 = statement.get_page_data(1) or {}
+    merged = dict(page1)
+    changed = False
+
+    fallbacks = {
+        "court_file_number": statement.court_file_number or "",
+        "applicant_name": statement.applicant_name or "",
+        "respondent_name": statement.respondent_name or "",
+    }
+
+    for key, value in fallbacks.items():
+        if not merged.get(key) and value:
+            merged[key] = value
+            changed = True
+
+    if persist and changed:
+        statement.save_page_data(1, merged)
+
+    return merged
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page2(request, pk):
+    """Form 13.1 page 2."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(2)
+    if request.method == "POST":
+        # Example: save all POSTed fields for page 2
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(2, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page1", pk=pk)
+        return redirect("financial_statement_131_page3", pk=pk)
+    return render(request, "forms/financial_statement_131_page2.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page3(request, pk):
+    """Form 13.1 page 3."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(3)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(3, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page2", pk=pk)
+        return redirect("financial_statement_131_page4", pk=pk)
+    return render(request, "forms/financial_statement_131_page3.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page4(request, pk):
+    """Form 13.1 page 4."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(4)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(4, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page3", pk=pk)
+        return redirect("financial_statement_131_page5", pk=pk)
+    return render(request, "forms/financial_statement_131_page4.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page5(request, pk):
+    """Form 13.1 page 5."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(5)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(5, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page4", pk=pk)
+        return redirect("financial_statement_131_page6", pk=pk)
+    return render(request, "forms/financial_statement_131_page5.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page6(request, pk):
+    """Form 13.1 page 6."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(6)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(6, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page5", pk=pk)
+        return redirect("financial_statement_131_page7", pk=pk)
+    return render(request, "forms/financial_statement_131_page6.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page7(request, pk):
+    """Form 13.1 page 7."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(7)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(7, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page6", pk=pk)
+        return redirect("financial_statement_131_page8", pk=pk)
+    return render(request, "forms/financial_statement_131_page7.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page8(request, pk):
+    """Form 13.1 page 8."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(8)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(8, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page7", pk=pk)
+        return redirect("financial_statement_131_page9", pk=pk)
+    return render(request, "forms/financial_statement_131_page8.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page9(request, pk):
+    """Form 13.1 page 9."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(9)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(9, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page8", pk=pk)
+        return redirect("financial_statement_131_page10", pk=pk)
+    return render(request, "forms/financial_statement_131_page9.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+@csrf_exempt
+@login_required
+def financial_statement_131_page10(request, pk):
+    """Form 13.1 page 10 - Schedule A & B (Final page)."""
+    from .models import Form131FinancialStatement
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    page_data = form.get_page_data(10)
+    if request.method == "POST":
+        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        form.save_page_data(10, data)
+        if "prev" in request.POST:
+            return redirect("financial_statement_131_page9", pk=pk)
+        return redirect("financial_statement_131_list")
+    return render(request, "forms/financial_statement_131_page10.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+
+def _calculate_form131_totals(pages):
+    """Calculate all totals for Form 13.1 print view."""
+    def safe_float(val):
+        try:
+            return float(val) if val else 0.0
+        except (ValueError, TypeError):
+            return 0.0
+    
+    # Get page data
+    page5 = pages.get("page5", {})
+    page6 = pages.get("page6", {})
+    page7 = pages.get("page7", {})
+    page8 = pages.get("page8", {})
+    page9 = pages.get("page9", {})
+    
+    # Page 9: Disposed property total
+    disposed_total = sum(safe_float(page9.get(f"disposed_{i}_value")) for i in range(1, 6))
+    page9["total_disposed"] = f"{disposed_total:.2f}" if disposed_total else ""
+    
+    # ============ CALCULATE ITEM 22: TOTAL PROPERTY ON VALUATION DATE ============
+    # Item 15: Land (page 5) - land_X_valuation
+    land_val = sum(safe_float(page5.get(f"land_{i}_valuation")) for i in range(1, 4))
+    land_marriage = sum(safe_float(page5.get(f"land_{i}_marriage")) for i in range(1, 4))
+    land_today = sum(safe_float(page5.get(f"land_{i}_today")) for i in range(1, 4))
+    
+    # Item 16: Household items & vehicles (page 5)
+    items_val = (safe_float(page5.get("household_goods_valuation")) + 
+                 safe_float(page5.get("vehicles_valuation")) + 
+                 safe_float(page5.get("jewellery_valuation")) + 
+                 safe_float(page5.get("other_items_valuation")))
+    items_marriage = (safe_float(page5.get("household_goods_marriage")) + 
+                      safe_float(page5.get("vehicles_marriage")) + 
+                      safe_float(page5.get("jewellery_marriage")) + 
+                      safe_float(page5.get("other_items_marriage")))
+    items_today = (safe_float(page5.get("household_goods_today")) + 
+                   safe_float(page5.get("vehicles_today")) + 
+                   safe_float(page5.get("jewellery_today")) + 
+                   safe_float(page5.get("other_items_today")))
+    
+    # Item 17: Bank accounts (page 6) - bank_X_valuation
+    bank_val = sum(safe_float(page6.get(f"bank_{i}_valuation")) for i in range(1, 7))
+    bank_marriage = sum(safe_float(page6.get(f"bank_{i}_marriage")) for i in range(1, 7))
+    bank_today = sum(safe_float(page6.get(f"bank_{i}_today")) for i in range(1, 7))
+    
+    # Item 18: Insurance (page 6) - insurance_X_valuation
+    insurance_val = sum(safe_float(page6.get(f"insurance_{i}_valuation")) for i in range(1, 4))
+    insurance_marriage = sum(safe_float(page6.get(f"insurance_{i}_marriage")) for i in range(1, 4))
+    insurance_today = sum(safe_float(page6.get(f"insurance_{i}_today")) for i in range(1, 4))
+    
+    # Item 19: Business interests (page 6) - business_X_valuation
+    business_val = sum(safe_float(page6.get(f"business_{i}_valuation")) for i in range(1, 4))
+    business_marriage = sum(safe_float(page6.get(f"business_{i}_marriage")) for i in range(1, 4))
+    business_today = sum(safe_float(page6.get(f"business_{i}_today")) for i in range(1, 4))
+    
+    # Item 20: Money owed to you (page 7) - owed_X_valuation  
+    owed_val = sum(safe_float(page7.get(f"owed_{i}_valuation")) for i in range(1, 5))
+    owed_marriage = sum(safe_float(page7.get(f"owed_{i}_marriage")) for i in range(1, 5))
+    owed_today = sum(safe_float(page7.get(f"owed_{i}_today")) for i in range(1, 5))
+    
+    # Item 21: Other property (page 7) - other_prop_X_valuation
+    other_val = sum(safe_float(page7.get(f"other_prop_{i}_valuation")) for i in range(1, 5))
+    other_marriage = sum(safe_float(page7.get(f"other_prop_{i}_marriage")) for i in range(1, 5))
+    other_today = sum(safe_float(page7.get(f"other_prop_{i}_today")) for i in range(1, 5))
+    
+    # Item 22 total
+    item_22_total = land_val + items_val + bank_val + insurance_val + business_val + owed_val + other_val
+    
+    # ============ CALCULATE ITEM 23: TOTAL DEBTS ============
+    # Debts (page 7) - debt_X_valuation
+    debt_val = sum(safe_float(page7.get(f"debt_{i}_valuation")) for i in range(1, 7))
+    debt_marriage = sum(safe_float(page7.get(f"debt_{i}_marriage")) for i in range(1, 7))
+    debt_today = sum(safe_float(page7.get(f"debt_{i}_today")) for i in range(1, 7))
+    
+    # ============ CALCULATE ITEM 24: NET VALUE ON DATE OF MARRIAGE ============
+    # DOM assets properties
+    dom_asset_keys = ['dom_land_assets', 'dom_items_assets', 'dom_bank_assets', 
+                      'dom_insurance_assets', 'dom_business_assets', 'dom_owed_assets', 
+                      'dom_other_assets', 'dom_debts_assets']
+    dom_liab_keys = ['dom_land_liab', 'dom_items_liab', 'dom_bank_liab', 
+                     'dom_insurance_liab', 'dom_business_liab', 'dom_owed_liab', 
+                     'dom_other_liab', 'dom_debts_liab']
+    
+    dom_assets = sum(safe_float(page8.get(k)) for k in dom_asset_keys)
+    dom_liab = sum(safe_float(page8.get(k)) for k in dom_liab_keys)
+    net_dom = dom_assets - dom_liab  # Item 24
+    
+    # ============ CALCULATE ITEM 25: VALUE OF ALL DEDUCTIONS ============
+    # Item 25 = Item 23 (debts) + Item 24 (net DOM value)
+    item_25_total = debt_val + net_dom
+    
+    # ============ CALCULATE ITEM 26: EXCLUDED PROPERTY ============
+    excluded_total = sum(safe_float(page8.get(f"excluded_{i}_value")) for i in range(1, 6))
+    
+    # ============ NFP CALCULATION ============
+    # Always use calculated values for accurate print output
+    nfp_item22 = item_22_total
+    nfp_item25 = item_25_total
+    nfp_item26 = excluded_total
+    
+    nfp_balance1 = nfp_item22 - nfp_item25
+    nfp_balance2 = nfp_balance1 - nfp_item26
+    
+    # Update page9 with all calculated values
+    page9["nfp_item22"] = f"{nfp_item22:.2f}" if nfp_item22 else ""
+    page9["nfp_item25"] = f"{nfp_item25:.2f}" if nfp_item25 else ""
+    page9["nfp_item26"] = f"{nfp_item26:.2f}" if nfp_item26 else ""
+    page9["nfp_balance1"] = f"{nfp_balance1:.2f}"
+    page9["nfp_balance2"] = f"{nfp_balance2:.2f}"
+    page9["net_family_property"] = f"{nfp_balance2:.2f}"
+    
+    # Store intermediate totals for debugging/display
+    page5["total_land_valuation"] = f"{land_val:.2f}" if land_val else ""
+    page5["total_land_marriage"] = f"{land_marriage:.2f}" if land_marriage else ""
+    page5["total_land_today"] = f"{land_today:.2f}" if land_today else ""
+    page5["total_items_valuation"] = f"{items_val:.2f}" if items_val else ""
+    page5["total_items_marriage"] = f"{items_marriage:.2f}" if items_marriage else ""
+    page5["total_items_today"] = f"{items_today:.2f}" if items_today else ""
+    page6["total_bank_valuation"] = f"{bank_val:.2f}" if bank_val else ""
+    page6["total_bank_marriage"] = f"{bank_marriage:.2f}" if bank_marriage else ""
+    page6["total_bank_today"] = f"{bank_today:.2f}" if bank_today else ""
+    page6["total_insurance_valuation"] = f"{insurance_val:.2f}" if insurance_val else ""
+    page6["total_insurance_marriage"] = f"{insurance_marriage:.2f}" if insurance_marriage else ""
+    page6["total_insurance_today"] = f"{insurance_today:.2f}" if insurance_today else ""
+    page6["total_business_valuation"] = f"{business_val:.2f}" if business_val else ""
+    page6["total_business_marriage"] = f"{business_marriage:.2f}" if business_marriage else ""
+    page6["total_business_today"] = f"{business_today:.2f}" if business_today else ""
+    page7["total_owed_valuation"] = f"{owed_val:.2f}" if owed_val else ""
+    page7["total_owed_marriage"] = f"{owed_marriage:.2f}" if owed_marriage else ""
+    page7["total_owed_today"] = f"{owed_today:.2f}" if owed_today else ""
+    page7["total_other_prop_valuation"] = f"{other_val:.2f}" if other_val else ""
+    page7["total_other_prop_marriage"] = f"{other_marriage:.2f}" if other_marriage else ""
+    page7["total_other_prop_today"] = f"{other_today:.2f}" if other_today else ""
+    page7["total_debt_valuation"] = f"{debt_val:.2f}" if debt_val else ""
+    page7["total_debt_marriage"] = f"{debt_marriage:.2f}" if debt_marriage else ""
+    page7["total_debt_today"] = f"{debt_today:.2f}" if debt_today else ""
+    page7["grand_total_valuation"] = f"{item_22_total:.2f}" if item_22_total else ""  # Item 22
+    page8["total_dom_assets"] = f"{dom_assets:.2f}" if dom_assets else ""
+    page8["total_dom_liab"] = f"{dom_liab:.2f}" if dom_liab else ""
+    page8["net_dom_value"] = f"{net_dom:.2f}"  # Item 24
+    page8["total_deductions"] = f"{item_25_total:.2f}" if item_25_total else ""  # Item 25
+    page8["total_excluded"] = f"{excluded_total:.2f}" if excluded_total else ""  # Item 26
+    
+    pages["page5"] = page5
+    pages["page6"] = page6
+    pages["page7"] = page7
+    pages["page8"] = page8
+    pages["page9"] = page9
+    
+    return pages
+
+def _money_decimal(value):
+    """
+    Convert user-entered money-like values to Decimal safely.
+    Handles '', None, commas, dollar signs, and spaces.
+    """
+    if value is None:
+        return Decimal("0")
+    if isinstance(value, Decimal):
+        return value
+    if isinstance(value, (int, float)):
+        return Decimal(str(value))
+
+    text = str(value).strip()
+    if not text:
+        return Decimal("0")
+
+    text = text.replace(",", "").replace("$", "").strip()
+    if not text:
+        return Decimal("0")
+
+    try:
+        return Decimal(text)
+    except (InvalidOperation, ValueError, TypeError):
+        return Decimal("0")
+
+
+def _money_str(value):
+    """
+    Return '' for zero/empty values to match your current display style,
+    otherwise return 2-decimal text.
+    """
+    dec = _money_decimal(value)
+    return f"{dec:.2f}" if dec != 0 else ""
+
+
+def _sum_money_fields(data, field_names):
+    total = Decimal("0")
+    for name in field_names:
+        total += _money_decimal(data.get(name))
+    return total
+
+
+def _calculate_form131_missing_totals(pages):
+    """
+    Fill totals/subtotals that the existing _calculate_form131_totals()
+    does not currently calculate:
+      - page 2 income totals
+      - page 3 subtotals
+      - page 4 subtotals + total monthly/yearly expenses
+      - page 10 Schedule A and Schedule B totals
+    """
+    pages = pages or {}
+
+    page2 = pages.get("page2", {}) or {}
+    page3 = pages.get("page3", {}) or {}
+    page4 = pages.get("page4", {}) or {}
+    page10 = pages.get("page10", {}) or {}
+
+    # --------------------------------------------------
+    # PAGE 2: income totals
+    # Your print template should use:
+    # income_self_employment_before_expenses
+    # income_investment
+    # income_tax_benefits
+    # not self_emp_gross / income_interest / income_child_tax
+    # --------------------------------------------------
+    income_monthly_fields = [
+        "income_employment",
+        "income_commissions",
+        "income_self_employment",
+        "income_ei",
+        "income_workers_comp",
+        "income_social_assistance",
+        "income_investment",
+        "income_pension",
+        "income_spousal_support",
+        "income_tax_benefits",
+        "income_other",
+    ]
+    income_total_monthly = _sum_money_fields(page2, income_monthly_fields)
+    income_total_annual = income_total_monthly * Decimal("12")
+
+    page2["income_total_monthly"] = _money_str(income_total_monthly)
+    page2["income_total_annual"] = _money_str(income_total_annual)
+
+    # Backward-compatible aliases in case old template lines still exist
+    if not page2.get("self_emp_gross"):
+        page2["self_emp_gross"] = page2.get("income_self_employment_before_expenses", "")
+    if not page2.get("income_interest"):
+        page2["income_interest"] = page2.get("income_investment", "")
+    if not page2.get("income_child_tax"):
+        page2["income_child_tax"] = page2.get("income_tax_benefits", "")
+
+    # --------------------------------------------------
+    # PAGE 3: subtotals
+    # --------------------------------------------------
+    subtotal_deductions = _sum_money_fields(page3, [
+        "exp_cpp",
+        "exp_ei",
+        "exp_income_tax",
+        "exp_pension_contrib",
+        "exp_union_dues",
+    ])
+
+    subtotal_housing = _sum_money_fields(page3, [
+        "exp_rent_mortgage",
+        "exp_property_tax",
+        "exp_property_insurance",
+        "exp_condo_fees",
+        "exp_repairs",
+    ])
+
+    subtotal_utilities_page3 = _sum_money_fields(page3, [
+        "exp_water",
+        "exp_heat",
+        "exp_electricity",
+    ])
+
+    subtotal_transportation = _sum_money_fields(page3, [
+        "exp_transit",
+        "exp_gas",
+        "exp_car_insurance",
+        "exp_car_repairs",
+        "exp_parking",
+        "exp_car_loan",
+    ])
+
+    subtotal_health = _sum_money_fields(page3, [
+        "exp_health_insurance",
+        "exp_dental",
+        "exp_medicine",
+        "exp_eye_care",
+    ])
+
+    subtotal_personal_page3 = _sum_money_fields(page3, [
+        "exp_clothing",
+        "exp_hair_care",
+        "exp_alcohol_tobacco",
+    ])
+
+    page3["subtotal_deductions"] = _money_str(subtotal_deductions)
+    page3["subtotal_housing"] = _money_str(subtotal_housing)
+    page3["subtotal_utilities"] = _money_str(subtotal_utilities_page3)
+    page3["subtotal_transportation"] = _money_str(subtotal_transportation)
+    page3["subtotal_health"] = _money_str(subtotal_health)
+    page3["subtotal_personal"] = _money_str(subtotal_personal_page3)
+
+    # --------------------------------------------------
+    # PAGE 4: subtotals + total expenses
+    # note: print template uses subtotal_utilities on page 4 too
+    # --------------------------------------------------
+    subtotal_utilities_page4 = _sum_money_fields(page4, [
+        "exp_telephone",
+        "exp_cell_phone",
+        "exp_cable",
+        "exp_internet",
+    ])
+
+    subtotal_household = _sum_money_fields(page4, [
+        "exp_groceries",
+        "exp_household_supplies",
+        "exp_meals_out",
+        "exp_pet_care",
+        "exp_laundry",
+    ])
+
+    subtotal_childcare = _sum_money_fields(page4, [
+        "exp_daycare",
+        "exp_babysitting",
+    ])
+
+    subtotal_personal_page4 = _sum_money_fields(page4, [
+        "exp_education",
+        "exp_entertainment",
+        "exp_gifts",
+    ])
+
+    subtotal_other = _sum_money_fields(page4, [
+        "exp_life_insurance",
+        "exp_rrsp",
+        "exp_vacations",
+        "exp_school_fees",
+        "exp_children_clothing",
+        "exp_children_activities",
+        "exp_summer_camp",
+        "exp_debt_payments",
+        "exp_other_support",
+        "exp_other",
+    ])
+
+    total_monthly_expenses = (
+        subtotal_deductions
+        + subtotal_housing
+        + subtotal_utilities_page3
+        + subtotal_transportation
+        + subtotal_health
+        + subtotal_personal_page3
+        + subtotal_utilities_page4
+        + subtotal_household
+        + subtotal_childcare
+        + subtotal_personal_page4
+        + subtotal_other
+    )
+    total_yearly_expenses = total_monthly_expenses * Decimal("12")
+
+    page4["subtotal_utilities"] = _money_str(subtotal_utilities_page4)
+    page4["subtotal_household"] = _money_str(subtotal_household)
+    page4["subtotal_childcare"] = _money_str(subtotal_childcare)
+    page4["subtotal_personal"] = _money_str(subtotal_personal_page4)
+    page4["subtotal_other"] = _money_str(subtotal_other)
+    page4["total_monthly_expenses"] = _money_str(total_monthly_expenses)
+    page4["total_yearly_expenses"] = _money_str(total_yearly_expenses)
+
+    # --------------------------------------------------
+    # PAGE 10: Schedule A + Schedule B totals
+    # --------------------------------------------------
+    sched_a_subtotal = _sum_money_fields(page10, [
+        "sched_a_1",
+        "sched_a_2",
+        "sched_a_3",
+        "sched_a_4",
+        "sched_a_5",
+        "sched_a_6",
+        "sched_a_7",
+    ])
+    page10["sched_a_subtotal"] = _money_str(sched_a_subtotal)
+
+    sched_b_net_annual = Decimal("0")
+    for i in range(1, 11):
+        amount = _money_decimal(page10.get(f"sched_b_{i}_amount"))
+        credit = _money_decimal(page10.get(f"sched_b_{i}_credit"))
+        sched_b_net_annual += (amount - credit)
+
+    sched_b_net_monthly = sched_b_net_annual / Decimal("12") if sched_b_net_annual != 0 else Decimal("0")
+
+    page10["sched_b_total_annual"] = _money_str(sched_b_net_annual)
+    page10["sched_b_total_monthly"] = _money_str(sched_b_net_monthly)
+
+    pages["page2"] = page2
+    pages["page3"] = page3
+    pages["page4"] = page4
+    pages["page10"] = page10
+
+    return pages
+
+from decimal import Decimal, InvalidOperation
+
+
+def _money_decimal(value):
+    """
+    Convert user-entered money-like values to Decimal safely.
+    Handles '', None, commas, dollar signs, and spaces.
+    """
+    if value is None:
+        return Decimal("0")
+    if isinstance(value, Decimal):
+        return value
+    if isinstance(value, (int, float)):
+        return Decimal(str(value))
+
+    text = str(value).strip()
+    if not text:
+        return Decimal("0")
+
+    text = text.replace(",", "").replace("$", "").strip()
+    if not text:
+        return Decimal("0")
+
+    try:
+        return Decimal(text)
+    except (InvalidOperation, ValueError, TypeError):
+        return Decimal("0")
+
+
+def _money_str(value):
+    """
+    Return '' for zero/empty values to match your current display style,
+    otherwise return 2-decimal text.
+    """
+    dec = _money_decimal(value)
+    return f"{dec:.2f}" if dec != 0 else ""
+
+
+def _sum_money_fields(data, field_names):
+    total = Decimal("0")
+    for name in field_names:
+        total += _money_decimal(data.get(name))
+    return total
+
+
+def _calculate_form131_missing_totals(pages):
+    """
+    Fill totals/subtotals that the existing _calculate_form131_totals()
+    does not currently calculate:
+      - page 2 income totals
+      - page 3 subtotals
+      - page 4 subtotals + total monthly/yearly expenses
+      - page 10 Schedule A and Schedule B totals
+    """
+    pages = pages or {}
+
+    page2 = pages.get("page2", {}) or {}
+    page3 = pages.get("page3", {}) or {}
+    page4 = pages.get("page4", {}) or {}
+    page10 = pages.get("page10", {}) or {}
+
+    # --------------------------------------------------
+    # PAGE 2: income totals
+    # Your print template should use:
+    # income_self_employment_before_expenses
+    # income_investment
+    # income_tax_benefits
+    # not self_emp_gross / income_interest / income_child_tax
+    # --------------------------------------------------
+    income_monthly_fields = [
+        "income_employment",
+        "income_commissions",
+        "income_self_employment",
+        "income_ei",
+        "income_workers_comp",
+        "income_social_assistance",
+        "income_investment",
+        "income_pension",
+        "income_spousal_support",
+        "income_tax_benefits",
+        "income_other",
+    ]
+    income_total_monthly = _sum_money_fields(page2, income_monthly_fields)
+    income_total_annual = income_total_monthly * Decimal("12")
+
+    page2["income_total_monthly"] = _money_str(income_total_monthly)
+    page2["income_total_annual"] = _money_str(income_total_annual)
+
+    # Backward-compatible aliases in case old template lines still exist
+    if not page2.get("self_emp_gross"):
+        page2["self_emp_gross"] = page2.get("income_self_employment_before_expenses", "")
+    if not page2.get("income_interest"):
+        page2["income_interest"] = page2.get("income_investment", "")
+    if not page2.get("income_child_tax"):
+        page2["income_child_tax"] = page2.get("income_tax_benefits", "")
+
+    # --------------------------------------------------
+    # PAGE 3: subtotals
+    # --------------------------------------------------
+    subtotal_deductions = _sum_money_fields(page3, [
+        "exp_cpp",
+        "exp_ei",
+        "exp_income_tax",
+        "exp_pension_contrib",
+        "exp_union_dues",
+    ])
+
+    subtotal_housing = _sum_money_fields(page3, [
+        "exp_rent_mortgage",
+        "exp_property_tax",
+        "exp_property_insurance",
+        "exp_condo_fees",
+        "exp_repairs",
+    ])
+
+    subtotal_utilities_page3 = _sum_money_fields(page3, [
+        "exp_water",
+        "exp_heat",
+        "exp_electricity",
+    ])
+
+    subtotal_transportation = _sum_money_fields(page3, [
+        "exp_transit",
+        "exp_gas",
+        "exp_car_insurance",
+        "exp_car_repairs",
+        "exp_parking",
+        "exp_car_loan",
+    ])
+
+    subtotal_health = _sum_money_fields(page3, [
+        "exp_health_insurance",
+        "exp_dental",
+        "exp_medicine",
+        "exp_eye_care",
+    ])
+
+    subtotal_personal_page3 = _sum_money_fields(page3, [
+        "exp_clothing",
+        "exp_hair_care",
+        "exp_alcohol_tobacco",
+    ])
+
+    page3["subtotal_deductions"] = _money_str(subtotal_deductions)
+    page3["subtotal_housing"] = _money_str(subtotal_housing)
+    page3["subtotal_utilities"] = _money_str(subtotal_utilities_page3)
+    page3["subtotal_transportation"] = _money_str(subtotal_transportation)
+    page3["subtotal_health"] = _money_str(subtotal_health)
+    page3["subtotal_personal"] = _money_str(subtotal_personal_page3)
+
+    # --------------------------------------------------
+    # PAGE 4: subtotals + total expenses
+    # note: print template uses subtotal_utilities on page 4 too
+    # --------------------------------------------------
+    subtotal_utilities_page4 = _sum_money_fields(page4, [
+        "exp_telephone",
+        "exp_cell_phone",
+        "exp_cable",
+        "exp_internet",
+    ])
+
+    subtotal_household = _sum_money_fields(page4, [
+        "exp_groceries",
+        "exp_household_supplies",
+        "exp_meals_out",
+        "exp_pet_care",
+        "exp_laundry",
+    ])
+
+    subtotal_childcare = _sum_money_fields(page4, [
+        "exp_daycare",
+        "exp_babysitting",
+    ])
+
+    subtotal_personal_page4 = _sum_money_fields(page4, [
+        "exp_education",
+        "exp_entertainment",
+        "exp_gifts",
+    ])
+
+    subtotal_other = _sum_money_fields(page4, [
+        "exp_life_insurance",
+        "exp_rrsp",
+        "exp_vacations",
+        "exp_school_fees",
+        "exp_children_clothing",
+        "exp_children_activities",
+        "exp_summer_camp",
+        "exp_debt_payments",
+        "exp_other_support",
+        "exp_other",
+    ])
+
+    total_monthly_expenses = (
+        subtotal_deductions
+        + subtotal_housing
+        + subtotal_utilities_page3
+        + subtotal_transportation
+        + subtotal_health
+        + subtotal_personal_page3
+        + subtotal_utilities_page4
+        + subtotal_household
+        + subtotal_childcare
+        + subtotal_personal_page4
+        + subtotal_other
+    )
+    total_yearly_expenses = total_monthly_expenses * Decimal("12")
+
+    page4["subtotal_utilities"] = _money_str(subtotal_utilities_page4)
+    page4["subtotal_household"] = _money_str(subtotal_household)
+    page4["subtotal_childcare"] = _money_str(subtotal_childcare)
+    page4["subtotal_personal"] = _money_str(subtotal_personal_page4)
+    page4["subtotal_other"] = _money_str(subtotal_other)
+    page4["total_monthly_expenses"] = _money_str(total_monthly_expenses)
+    page4["total_yearly_expenses"] = _money_str(total_yearly_expenses)
+
+    # --------------------------------------------------
+    # PAGE 10: Schedule A + Schedule B totals
+    # --------------------------------------------------
+    sched_a_subtotal = _sum_money_fields(page10, [
+        "sched_a_1",
+        "sched_a_2",
+        "sched_a_3",
+        "sched_a_4",
+        "sched_a_5",
+        "sched_a_6",
+        "sched_a_7",
+    ])
+    page10["sched_a_subtotal"] = _money_str(sched_a_subtotal)
+
+    sched_b_net_annual = Decimal("0")
+    for i in range(1, 11):
+        amount = _money_decimal(page10.get(f"sched_b_{i}_amount"))
+        credit = _money_decimal(page10.get(f"sched_b_{i}_credit"))
+        sched_b_net_annual += (amount - credit)
+
+    sched_b_net_monthly = sched_b_net_annual / Decimal("12") if sched_b_net_annual != 0 else Decimal("0")
+
+    page10["sched_b_total_annual"] = _money_str(sched_b_net_annual)
+    page10["sched_b_total_monthly"] = _money_str(sched_b_net_monthly)
+
+    pages["page2"] = page2
+    pages["page3"] = page3
+    pages["page4"] = page4
+    pages["page10"] = page10
+
+    return pages
+@login_required
+def financial_statement_131_print(request, pk):
+    """Print view for Form 13.1 - matches official form layout."""
+    import json
+    from .models import Form131FinancialStatement
+
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    merged_data = get_all_form131_data(form)
+
+    pages = form.draft or {}
+    page1 = _get_form131_page1_data(form, persist=True)
+    pages["page1"] = page1
+
+    # Existing totals logic (pages 5-9 in your current code)
+    pages = _calculate_form131_totals(pages)
+
+    # NEW: fill the missing totals/subtotals for pages 2, 3, 4, and 10
+    pages = _calculate_form131_missing_totals(pages)
+
+    return render(request, "forms/financial_statement_131_print.html", {
+        "form": form,
+        "pages": pages,
+        "pages_json": json.dumps(pages),
+        "court_file_number": page1.get("court_file_number") or form.court_file_number or "",
+        "applicant_name": page1.get("applicant_name") or form.applicant_name or "",
+        "respondent_name": page1.get("respondent_name") or form.respondent_name or "",
+        **merged_data,
+    })
+
 @login_required
 def financial_statement_list(request):
     """List all financial statements."""
@@ -1277,7 +2470,7 @@ def net_family_property_13b_create_page3(request, pk):
     totals['total5_resp'] = totals['total2_resp'] + totals['total3_resp'] + totals['total4_resp']
     totals['total6_app'] = totals['total1_app'] - totals['total5_app']
     totals['total6_resp'] = totals['total1_resp'] - totals['total5_resp']
-
+    
     return render(request, "forms/net_family_property_13b_page3.html", {
         "excluded_formset": excluded_formset,
         "statement": statement,
@@ -1958,8 +3151,8 @@ def comparison_nfp_print(request, pk):
     
     household_items = list(comparison.household_items.all())
     bank_accounts = list(comparison.bank_accounts.all())
-    insurance_policies = list(comparison.insurances.all())
-    business_interests = list(comparison.businesses.all())
+    insurances = list(comparison.insurances.all())
+    businesses = list(comparison.businesses.all())
     
     assets = []
     money_owed = []
@@ -1992,8 +3185,8 @@ def comparison_nfp_print(request, pk):
     total_a = [sum_items(assets, c) for c in cols]
     total_b = [sum_items(household_items, c) for c in cols]
     total_c = [sum_items(bank_accounts, c) for c in cols]
-    total_d = [sum_items(insurance_policies, c) for c in cols]
-    total_e = [sum_items(business_interests, c) for c in cols]
+    total_d = [sum_items(insurances, c) for c in cols]
+    total_e = [sum_items(businesses, c) for c in cols]
     total_f = [sum_items(money_owed, c) for c in cols]
     total_g = [sum_items(other_property, c) for c in cols]
     
@@ -2043,8 +3236,8 @@ def comparison_nfp_print(request, pk):
         'assets': assets,
         'household_items': household_items,
         'bank_accounts': bank_accounts,
-        'insurance_policies': insurance_policies,
-        'business_interests': business_interests,
+        'insurance_policies': insurances,
+        'business_interests': businesses,
         'money_owed': money_owed,
         'other_property': other_property,
         'debts': debts,
@@ -2189,7 +3382,7 @@ def comparison_nfp_full_view(request, pk):
 from django.db.models import Sum, Count
 from django.db.models.functions import TruncDate, TruncMonth
 from datetime import datetime, timedelta
-from .models import BillingSetting, Invoice
+from .models import BillingSetting
 
 
 @login_required
@@ -2257,8 +3450,7 @@ def billing_dashboard(request):
     # Get billing settings for price display
     billing_settings = BillingSetting.objects.filter(is_active=True)
     
-    # Get user's invoices
-    invoices = Invoice.objects.filter(user=user).order_by('-created_at')[:10]
+
     
     context = {
         'stats': stats,
@@ -2266,7 +3458,7 @@ def billing_dashboard(request):
         'prints_by_type': prints_by_type,
         'daily_prints': list(daily_prints),
         'billing_settings': billing_settings,
-        'invoices': invoices,
+        # 'invoices': invoices,  # Invoice model does not exist
         'showing_all': showing_all,
         'can_view_all': has_billing_permission,
     }
@@ -2437,3 +3629,75 @@ def admin_billing_report(request):
     }
     
     return render(request, 'forms/admin_billing_report.html', context)
+
+# ============================================================
+# FINANCIAL STATEMENT (FORM 13.1) - View Page (for /view/<int:pk>/)
+# ============================================================
+
+
+@login_required
+def financial_statement_131_view(request, pk):
+    """View page for Form 13.1 Financial Statement (read-only)."""
+    from .models import Form131FinancialStatement
+    statement = get_object_or_404(Form131FinancialStatement, pk=pk)
+    pages = {}
+    for page_num in range(1, 11):
+        pages[f"page{page_num}"] = statement.get_page_data(page_num)
+    page1 = _get_form131_page1_data(statement, persist=True)
+    pages["page1"] = page1
+    template_meta_by_page = _get_form131_template_meta()
+    ordered_pages = []
+    for page_num in range(1, 11):
+        page_data = pages.get(f"page{page_num}", {})
+        block_html = _get_form131_page_block_html(page_num)
+        page_html = _apply_page_data_to_block(block_html, page_data) if block_html else ""
+        page_meta = template_meta_by_page.get(page_num, {})
+        ordered_pages.append(_build_form131_page_display_data(
+            page_num,
+            page_data,
+            page_meta.get("fields", []),
+            page_html,
+            page_meta.get("header", ""),
+            page_meta.get("subheader", ""),
+        ))
+    return render(request, "forms/financial_statement_131_view.html", {
+        "statement": statement,
+        "pages": pages,
+        "ordered_pages": ordered_pages,
+        "court_file_number": page1.get("court_file_number") or statement.court_file_number or "",
+        "applicant_name": page1.get("applicant_name") or statement.applicant_name or "",
+        "respondent_name": page1.get("respondent_name") or statement.respondent_name or "",
+        "pk": pk,
+    })
+
+@login_required
+def financial_statement_131_delete(request, pk):
+    """Soft delete a Form 13.1 Financial Statement (move to recycle bin)."""
+    from .models import Form131FinancialStatement
+    statement = get_object_or_404(Form131FinancialStatement.all_objects, pk=pk)
+    if request.method == "POST":
+        statement.soft_delete()
+        return redirect("financial_statement_131_list")
+    return render(request, "forms/confirm_delete.html", {
+        "object": statement,
+        "object_name": f"Form 13.1 Financial Statement #{statement.id}",
+        "cancel_url": reverse("financial_statement_131_list"),
+    })
+
+from django.contrib.auth.decorators import login_required, user_passes_test
+# Delete PrintEvent (admin/staff only)
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser or u.is_staff)
+def delete_print_event(request, pk):
+    print_event = get_object_or_404(PrintEvent, pk=pk)
+    if request.method == "POST":
+        print_event.delete()
+        return redirect("billing_history")
+    return render(request, "forms/confirm_delete.html", {
+        "object": print_event,
+        "object_name": f"Print Event #{print_event.id}",
+        "cancel_url": reverse("billing_history"),
+    })

@@ -1,0 +1,1432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Form 13.1 - Financial Statement (Property and Support Claims)</title>
+<style>
+@page { size: letter; margin: 0.4in 0.5in; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; font-size: 9pt; line-height: 1.3; color: #000; background: #ddd; }
+.page { width: 8.5in; min-height: 11in; background: #fff; padding: 0.4in 0.5in; margin: 10px auto; box-shadow: 0 2px 8px rgba(0,0,0,0.2); page-break-after: always; position: relative; }
+.page:last-child { page-break-after: avoid; }
+.no-print { background: #333; color: #fff; padding: 10px 20px; text-align: center; position: sticky; top: 0; z-index: 999; }
+.no-print a { color: #fff; margin: 0 12px; }
+
+/* Database values - bold blue */
+.val { color: #0066cc; font-weight: bold; }
+
+/* Page header row for pages 2+ */
+.page-header-row { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #000; padding-bottom: 6px; margin-bottom: 8px; }
+.page-header-left { font-weight: bold; font-size: 9pt; }
+.page-header-right { text-align: right; }
+.page-num-indicator { font-size: 8pt; }
+
+/* Party tables */
+.party-tables { display: flex; gap: 10px; margin-bottom: 4px; }
+.party-table { flex: 1; border-collapse: collapse; font-size: 8pt; }
+.party-table th { font-weight: bold; text-align: left; border: 1px solid #000; padding: 2px 4px; }
+.party-table td { border: 1px solid #000; padding: 1px 4px; vertical-align: top; }
+.party-table td.lbl { font-style: italic; width: 75px; }
+
+/* Filed by */
+.filed-by { margin: 6px 0; font-size: 9pt; }
+.filed-by strong { font-weight: bold; }
+
+/* Instructions */
+.instructions { margin: 6px 0; font-size: 8pt; line-height: 1.2; }
+.instructions-title { font-weight: bold; text-align: center; margin-bottom: 4px; font-size: 9pt; }
+.instr-item { margin-bottom: 3px; }
+.instr-item-num { font-weight: bold; }
+.instr-sub { margin-left: 20px; }
+.note-text { font-size: 7.5pt; margin-top: 4px; }
+
+/* Part titles */
+.part-title { font-weight: bold; text-align: center; margin: 8px 0 6px; font-size: 10pt; }
+.sub-title { font-weight: bold; margin: 6px 0 4px; font-size: 9pt; }
+
+/* Numbered items */
+.item { display: flex; margin: 5px 0; font-size: 9pt; }
+.item-num { font-weight: bold; width: 22px; flex-shrink: 0; }
+.item-content { flex: 1; }
+.underline { border-bottom: 1px solid #000; display: inline-block; min-width: 200px; padding: 0 3px; }
+.underline.wide { min-width: 350px; }
+.fill-line { border-bottom: 1px solid #000; display: inline-block; min-width: 200px; padding: 0 3px; }
+.fill-line.short { min-width: 100px; }
+
+/* Checkbox */
+.cb { display: flex; align-items: flex-start; margin: 3px 0; }
+.cb-box { width: 11px; height: 11px; border: 1px solid #000; display: inline-block; margin-right: 6px; flex-shrink: 0; margin-top: 2px; text-align: center; font-size: 9pt; line-height: 9px; }
+.cb-checked { font-weight: bold; }
+.cb-label { flex: 1; }
+.cb-inline { display: inline-flex; align-items: center; margin-right: 20px; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; font-size: 8pt; margin: 5px 0; }
+th, td { border: 1px solid #000; padding: 2px 4px; text-align: left; vertical-align: top; }
+th { font-weight: bold; background: #fff; }
+.row-num { width: 25px; text-align: center; font-weight: bold; }
+.amount-col { width: 90px; text-align: right; }
+.amount-col::before { content: "$ "; }
+.total-row { font-weight: bold; }
+.col-header { text-align: center; font-weight: bold; }
+.section-header td { font-weight: bold; }
+
+/* Two column expense layout */
+.expense-cols { display: flex; gap: 10px; }
+.expense-col { flex: 1; }
+
+/* Footer */
+.page-footer { position: absolute; bottom: 0.3in; left: 0.5in; right: 0.5in; display: flex; justify-content: space-between; font-size: 7pt; }
+
+/* File box */
+.file-box { border: 1px solid #000; padding: 2px 6px; min-width: 120px; }
+.file-box-label { font-size: 7pt; }
+
+/* Signature */
+.sig-section { margin: 15px 0; }
+.sig-line { border-bottom: 1px solid #000; height: 25px; margin: 8px 0; }
+.sig-label { font-size: 7pt; font-style: italic; }
+
+@media print {
+  body { background: #fff; }
+  .no-print { display: none !important; }
+  .page { width: 100%; min-height: auto; margin: 0; padding: 0.4in 0.5in; box-shadow: none; }
+  .page-footer { position: absolute; }
+}
+
+.party-tables {
+  display: flex;
+  gap: 5px;
+}
+
+.party-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.party-table td {
+  border: 1px solid black;
+  padding: 3px;
+  vertical-align: top;
+}
+
+/* 🔥 Remove the middle vertical line */
+.party-table td.lbl {
+  border-right: none;
+}
+
+.party-table td.val {
+  border-left: none;
+}
+
+.lbl {
+  width: 20%;
+}
+
+.val {
+  width: 60%;
+}
+</style>
+</head>
+<body>
+
+<div class="no-print">
+  <a href="javascript:window.print()">🖨️ Print</a> |
+  <a href="{% url 'financial_statement_131_page1' form.pk %}">Edit</a> |
+  <a href="{% url 'financial_statement_131_list' %}">Back to List</a>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page">
+  <!-- Header -->
+  <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+    <div style="flex:1;"></div>
+    <div style="flex:2; text-align:center;">
+      <div style="font-weight:bold; font-size:11pt;">ONTARIO</div>
+      <div style="border-bottom:1px solid #000; min-height:16px; margin-top:8px;"><span class="val">{{ pages.page1.court_name|default:"" }}</span></div>
+      <div style="font-size:7pt; font-style:italic;">(Name of court)</div>
+    </div>
+    <div style="width:150px; text-align:right;">
+      <div class="file-box">
+        <div class="file-box-label">Court File Number</div>
+        <div><span class="val">{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex; margin-bottom:6px;">
+    <div style="flex:1;"></div>
+    <div style="flex:2; text-align:center;">
+      <div style="margin-top:4px;">at <span style="border-bottom:1px solid #000; display:inline-block; min-width:300px;"><span class="val">{{ pages.page1.court_location|default:"" }}</span></span></div>
+      <div style="font-size:7pt; font-style:italic;">Court office address</div>
+    </div>
+    <div style="width:150px; text-align:right; font-size:8pt; line-height:1.3;">
+      <strong>Form 13.1: Financial<br>Statement (Property and<br>Support Claims)</strong><br>sworn/affirmed
+    </div>
+  </div>
+
+
+<!-- Applicant / Applicant Lawyer tables -->
+<div class="party-tables">
+
+  <!-- Applicant -->
+  <div style="flex:1;">
+    <div style="font-weight:bold; margin-bottom:2px;">Applicant(s)</div>
+    <table class="party-table">
+
+      <tr>
+        <td class="lbl">Full legal name:</td>
+        <td class="val">{{ pages.page1.applicant_name|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Address:</td>
+        <td class="val">{{ pages.page1.applicant_address|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Phone & fax:</td>
+        <td class="val">{{ pages.page1.applicant_phone|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Email:</td>
+        <td class="val">{{ pages.page1.applicant_email|default:"" }}</td>
+      </tr>
+
+    </table>
+  </div>
+
+
+  <!-- Applicant Lawyer -->
+  <div style="flex:1;">
+    <div style="font-weight:bold; margin-bottom:2px;">Applicant(s) Lawyer</div>
+    <table class="party-table">
+
+      <tr>
+        <td class="lbl">Full legal name:</td>
+        <td class="val">{{ pages.page1.applicant_lawyer_name|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Address:</td>
+        <td class="val">{{ pages.page1.applicant_lawyer_address|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Phone & fax:</td>
+        <td class="val">{{ pages.page1.applicant_lawyer_phone|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Email:</td>
+        <td class="val">{{ pages.page1.applicant_lawyer_email|default:"" }}</td>
+      </tr>
+
+    </table>
+  </div>
+
+</div>
+
+
+<!-- Respondent / Respondent Lawyer tables -->
+<div class="party-tables">
+
+  <!-- Respondent -->
+  <div style="flex:1;">
+    <div style="font-weight:bold; margin-bottom:2px;">Respondent(s)</div>
+    <table class="party-table">
+
+      <tr>
+        <td class="lbl">Full legal name:</td>
+        <td class="val">{{ pages.page1.respondent_name|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Address:</td>
+        <td class="val">{{ pages.page1.respondent_address|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Phone & fax:</td>
+        <td class="val">{{ pages.page1.respondent_phone|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Email:</td>
+        <td class="val">{{ pages.page1.respondent_email|default:"" }}</td>
+      </tr>
+
+    </table>
+  </div>
+
+
+  <!-- Respondent Lawyer -->
+  <div style="flex:1;">
+    <div style="font-weight:bold; margin-bottom:2px;">Respondent(s) Lawyer</div>
+    <table class="party-table">
+
+      <tr>
+        <td class="lbl">Full legal name:</td>
+        <td class="val">{{ pages.page1.respondent_lawyer_name|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Address:</td>
+        <td class="val">{{ pages.page1.respondent_lawyer_address|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Phone & fax:</td>
+        <td class="val">{{ pages.page1.respondent_lawyer_phone|default:"" }}</td>
+      </tr>
+
+      <tr>
+        <td class="lbl">Email:</td>
+        <td class="val">{{ pages.page1.respondent_lawyer_email|default:"" }}</td>
+      </tr>
+
+    </table>
+  </div>
+
+</div>
+
+  <!-- Filed by -->
+  <div class="filed-by">
+    <strong>This form is filed by:</strong>
+    <span class="cb-inline"><span class="cb-box">{% if pages.page1.filed_by_applicant %}<span class="cb-checked">✓</span>{% endif %}</span> applicant</span>
+    <span class="cb-inline"><span class="cb-box">{% if pages.page1.filed_by_respondent %}<span class="cb-checked">✓</span>{% endif %}</span> respondent</span>
+  </div>
+
+  <!-- Instructions -->
+  <div class="instructions">
+    <div class="instructions-title">INSTRUCTIONS</div>
+    <div class="instr-item"><span class="instr-item-num">1.</span> USE THIS FORM IF:</div>
+    <div class="instr-sub">• you are making or responding to a claim for property or exclusive possession of the matrimonial home and its contents; or</div>
+    <div class="instr-sub">• you are making or responding to a claim for property or exclusive possession of the matrimonial home and its contents together with other claims for relief.</div>
+    <div class="instr-item"><span class="instr-item-num">2.</span> USE FORM 13 INSTEAD OF THIS FORM IF:</div>
+    <div class="instr-sub">• you are making or responding to a claim for support but NOT making or responding to a claim for property or exclusive possession of the matrimonial home and its contents.</div>
+    <div class="instr-item"><span class="instr-item-num">3.</span> If you have income that is not shown in Part I of the financial statement (for example, partnership income, dividends, rental income, capital gains or RRSP income), you must also complete <strong>Schedule A</strong>.</div>
+    <div class="instr-item"><span class="instr-item-num">4.</span> If you or the other party has sought a contribution towards special or extraordinary expenses for the child(ren), you must also complete <strong>Schedule B</strong>.</div>
+    <div class="note-text"><em>NOTE: You must <strong>fully and truthfully</strong> complete this financial statement, including any applicable schedules. You must also provide the other party with documents relating to support and property and a Certificate of Financial Disclosure (Form 13A) as required by Rule 13 of the Family Law Rules.</em></div>
+  </div>
+
+  <hr style="border:none; border-top:1px solid #000; margin:8px 0;">
+
+  <!-- Item 1 -->
+  <div class="item">
+    <span class="item-num">1.</span>
+    <span class="item-content">
+      <strong>My name is</strong> <span style="font-size:7pt; font-style:italic;">(full legal name)</span> <span class="underline wide"><span class="val">{{ pages.page1.my_name|default:"" }}</span></span><br><br>
+      <strong>I live in</strong> <span style="font-size:7pt; font-style:italic;">(municipality & province)</span> <span class="underline wide"><span class="val">{{ pages.page1.my_location|default:"" }}</span></span><br><br>
+      <strong>and I swear/affirm that the following is true:</strong>
+    </span>
+  </div>
+
+  <div class="part-title">PART 1: INCOME</div>
+
+  <!-- Item 2 -->
+<div class="item">
+  <span class="item-num">2.</span>
+  <span class="item-content">
+    I am currently<br>
+    <div class="cb">
+      <span class="cb-box">{% if pages.page1.employed %}<span class="cb-checked">✓</span>{% endif %}</span>
+      <span class="cb-label">employed by <span style="font-size:7pt; font-style:italic;">(name and address of employer)</span><br>
+      <span class="underline wide"><span class="val">{{ pages.page1.employer_details|default:"" }}</span></span></span>
+    </div>
+    <div class="cb">
+      <span class="cb-box">{% if pages.page1.self_employed %}<span class="cb-checked">✓</span>{% endif %}</span>
+      <span class="cb-label">self-employed, carrying on business under the name of <span style="font-size:7pt; font-style:italic;">(name and address of business)</span><br>
+      <span class="underline wide"><span class="val">{{ pages.page1.business_details|default:"" }}</span></span></span>
+    </div>
+    <div class="cb">
+      <span class="cb-box">{% if pages.page1.unemployed %}<span class="cb-checked">✓</span>{% endif %}</span>
+      <span class="cb-label">unemployed since <span style="font-size:7pt; font-style:italic;">(date when last employed)</span><br>
+      <span class="val">{{ pages.page1.unemployed_since|default:"" }}</span></span>
+    </div>
+  </span>
+</div>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 1 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 2)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="item">
+    <span class="item-num">3.</span>
+    <span class="item-content">
+      I attach proof of my year-to-date income from all sources, including my most recent <em>(attach all that are applicable)</em>:<br>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.pay_cheque_stub %}<span class="cb-checked">✓</span>{% endif %}</span> pay cheque stub</span>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.social_assistance_stub %}<span class="cb-checked">✓</span>{% endif %}</span> social assistance stub</span>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.pension_stub %}<span class="cb-checked">✓</span>{% endif %}</span> pension stub</span>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.workers_comp_stub %}<span class="cb-checked">✓</span>{% endif %}</span> workers' compensation stub</span><br>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.ei_stub %}<span class="cb-checked">✓</span>{% endif %}</span> employment insurance stub and last Record of Employment</span><br>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.statement_of_income %}<span class="cb-checked">✓</span>{% endif %}</span> statement of income and expenses/ professional activities (for self-employed individuals)</span><br>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.other_income_proof %}<span class="cb-checked">✓</span>{% endif %}</span> other (e.g. a letter from your employer confirming all income received to date this year)</span>
+    </span>
+  </div>
+
+  <div class="item">
+    <span class="item-num">4.</span>
+    <span class="item-content">Last year, my gross income from all sources was $ <span class="fill-line short">{{ pages.page2.last_year_gross_income|default:"" }}</span> <em>(do not subtract any taxes that have been deducted from this income).</em></span>
+  </div>
+
+  <div class="item">
+    <span class="item-num">5.</span>
+    <span class="item-content">
+      <div class="cb"><span class="cb-box">{% if pages.page2.attaching_tax_docs %}<span class="cb-checked">✓</span>{% endif %}</span><span class="cb-label">I am attaching all of the following required documents to this financial statement as proof of my income over the past three years, if they have not already been provided:</span></div>
+      <ul style="list-style:disc;margin-left:30px;font-size:9pt;">
+        <li>a copy of my personal income tax returns for each of the past three taxation years, including any materials that were filed with the returns.</li>
+        <li>a copy of my notices of assessment and any notices of reassessment for each of the past three taxation years;</li>
+        <li>where my notices of assessment and reassessment are unavailable for any of the past three taxation years or where I have not filed a return for any of the past three taxation years, an Income and Deductions printout from the Canada Revenue Agency for each of those years.</li>
+      </ul>
+      <p style="font-size:8pt;margin:8px 0;"><strong>OR</strong></p>
+      <div class="cb"><span class="cb-box">{% if pages.page2.indian_status %}<span class="cb-checked">✓</span>{% endif %}</span><span class="cb-label">I am an Indian within the meaning of the <em>Indian Act</em> (Canada) and I have chosen not to file income tax returns for the past three years. I am attaching the following proof of income for the last three years <em>(list documents you have provided)</em>: <span class="fill-line">{{ pages.page2.indian_status_docs|default:"" }}</span></span></div>
+    </span>
+  </div>
+
+  <p style="font-size:9pt;font-style:italic;margin:12px 0;">(In this table you must show all of the income that you are currently receiving, whether taxable or not.)</p>
+
+  <table>
+    <tr>
+      <th class="col-header" colspan="2">Income Source</th>
+      <th class="col-header" style="width:130px;">Amount Received/Month</th>
+    </tr>
+    <tr><td class="row-num">1.</td><td>Employment income (before deductions)</td><td class="amount-col">{{ pages.page2.income_employment|default:"" }}</td></tr>
+    <tr><td class="row-num">2.</td><td>Commissions, tips and bonuses</td><td class="amount-col">{{ pages.page2.income_commissions|default:"" }}</td></tr>
+    <tr><td class="row-num">3.</td><td>Self-employment income (Monthly amount before expenses: $ {{ pages.page2.income_self_employment_before_expenses|default:"" }} )</td><td class="amount-col">{{ pages.page2.income_self_employment|default:"" }}</td></tr>
+    <tr><td class="row-num">4.</td><td>Employment Insurance benefits</td><td class="amount-col">{{ pages.page2.income_ei|default:"" }}</td></tr>
+    <tr><td class="row-num">5.</td><td>Workers' compensation benefits</td><td class="amount-col">{{ pages.page2.income_workers_comp|default:"" }}</td></tr>
+    <tr><td class="row-num">6.</td><td>Social assistance income (including ODSP payments)</td><td class="amount-col">{{ pages.page2.income_social_assistance|default:"" }}</td></tr>
+    <tr><td class="row-num">7.</td><td>Interest and investment income</td><td class="amount-col">{{ pages.page2.income_investment|default:"" }}</td></tr>
+    <tr><td class="row-num">8.</td><td>Pension income (including CPP and OAS)</td><td class="amount-col">{{ pages.page2.income_pension|default:"" }}</td></tr>
+    <tr><td class="row-num">9.</td><td>Spousal support received from a former spouse/partner</td><td class="amount-col">{{ pages.page2.income_spousal_support|default:"" }}</td></tr>
+    <tr><td class="row-num">10.</td><td>Child Tax Benefits or Tax Rebates (e.g. GST)</td><td class="amount-col">{{ pages.page2.income_tax_benefits|default:"" }}</td></tr>
+    <tr><td class="row-num">11.</td><td>Other sources of income (e.g. RRSP withdrawals, capital gains) <em>(*attach Schedule A and divide annual amount by 12)</em></td><td class="amount-col">{{ pages.page2.income_other|default:"" }}</td></tr>
+    <tr class="total-row"><td class="row-num">12.</td><td>Total monthly income from all sources:</td><td class="amount-col">{{ pages.page2.income_total_monthly|default:"" }}</td></tr>
+    <tr class="total-row"><td class="row-num">13.</td><td>Total monthly income X 12 = Total annual income:</td><td class="amount-col">{{ pages.page2.income_total_annual|default:"" }}</td></tr>
+  </table>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 2 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 3)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">14. Other Benefits</div>
+  <p style="font-size:9pt;font-style:italic;margin-bottom:8px;">Provide details of any non-cash benefits that your employer provides to you or are paid for by your business such as medical insurance coverage, the use of a company car, or room and board.</p>
+
+  <table>
+    <tr><th>Item</th><th>Details</th><th style="width:130px;">Yearly Market Value</th></tr>
+    <tr><td>{{ pages.page3.benefit_1_item|default:"" }}</td><td>{{ pages.page3.benefit_1_details|default:"" }}</td><td class="amount-col">{{ pages.page3.benefit_1_value|default:"" }}</td></tr>
+    <tr><td>{{ pages.page3.benefit_2_item|default:"" }}</td><td>{{ pages.page3.benefit_2_details|default:"" }}</td><td class="amount-col">{{ pages.page3.benefit_2_value|default:"" }}</td></tr>
+    <tr><td>{{ pages.page3.benefit_3_item|default:"" }}</td><td>{{ pages.page3.benefit_3_details|default:"" }}</td><td class="amount-col">{{ pages.page3.benefit_3_value|default:"" }}</td></tr>
+    <tr><td>{{ pages.page3.benefit_4_item|default:"" }}</td><td>{{ pages.page3.benefit_4_details|default:"" }}</td><td class="amount-col">{{ pages.page3.benefit_4_value|default:"" }}</td></tr>
+  </table>
+
+  <div class="part-title">PART 2: EXPENSES</div>
+
+  <div class="expense-cols">
+    <div class="expense-col">
+      <table>
+        <tr><th>Expense</th><th style="width:100px;">Monthly Amount</th></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Automatic Deductions</td></tr>
+        <tr><td>CPP contributions</td><td class="amount-col">{{ pages.page3.exp_cpp|default:"" }}</td></tr>
+        <tr><td>EI premiums</td><td class="amount-col">{{ pages.page3.exp_ei|default:"" }}</td></tr>
+        <tr><td>Income taxes</td><td class="amount-col">{{ pages.page3.exp_income_tax|default:"" }}</td></tr>
+        <tr><td>Employee pension contributions</td><td class="amount-col">{{ pages.page3.exp_pension_contrib|default:"" }}</td></tr>
+        <tr><td>Union dues</td><td class="amount-col">{{ pages.page3.exp_union_dues|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page3.subtotal_deductions|default:"" }}</td></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Housing</td></tr>
+        <tr><td>Rent or mortgage</td><td class="amount-col">{{ pages.page3.exp_rent_mortgage|default:"" }}</td></tr>
+        <tr><td>Property taxes</td><td class="amount-col">{{ pages.page3.exp_property_tax|default:"" }}</td></tr>
+        <tr><td>Property insurance</td><td class="amount-col">{{ pages.page3.exp_property_insurance|default:"" }}</td></tr>
+        <tr><td>Condominium fees</td><td class="amount-col">{{ pages.page3.exp_condo_fees|default:"" }}</td></tr>
+        <tr><td>Repairs and maintenance</td><td class="amount-col">{{ pages.page3.exp_repairs|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page3.subtotal_housing|default:"" }}</td></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Utilities</td></tr>
+        <tr><td>Water</td><td class="amount-col">{{ pages.page3.exp_water|default:"" }}</td></tr>
+        <tr><td>Heat</td><td class="amount-col">{{ pages.page3.exp_heat|default:"" }}</td></tr>
+        <tr><td>Electricity</td><td class="amount-col">{{ pages.page3.exp_electricity|default:"" }}</td></tr>
+      </table>
+    </div>
+    <div class="expense-col">
+      <table>
+        <tr><th>Expense</th><th style="width:100px;">Monthly Amount</th></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Transportation</td></tr>
+        <tr><td>Public transit, taxis</td><td class="amount-col">{{ pages.page3.exp_transit|default:"" }}</td></tr>
+        <tr><td>Gas and oil</td><td class="amount-col">{{ pages.page3.exp_gas|default:"" }}</td></tr>
+        <tr><td>Car insurance and license</td><td class="amount-col">{{ pages.page3.exp_car_insurance|default:"" }}</td></tr>
+        <tr><td>Repairs and maintenance</td><td class="amount-col">{{ pages.page3.exp_car_repairs|default:"" }}</td></tr>
+        <tr><td>Parking</td><td class="amount-col">{{ pages.page3.exp_parking|default:"" }}</td></tr>
+        <tr><td>Car Loan or Lease Payments</td><td class="amount-col">{{ pages.page3.exp_car_loan|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page3.subtotal_transportation|default:"" }}</td></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Health</td></tr>
+        <tr><td>Health insurance premiums</td><td class="amount-col">{{ pages.page3.exp_health_insurance|default:"" }}</td></tr>
+        <tr><td>Dental expenses</td><td class="amount-col">{{ pages.page3.exp_dental|default:"" }}</td></tr>
+        <tr><td>Medicine and drugs</td><td class="amount-col">{{ pages.page3.exp_medicine|default:"" }}</td></tr>
+        <tr><td>Eye care</td><td class="amount-col">{{ pages.page3.exp_eye_care|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page3.subtotal_health|default:"" }}</td></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Personal</td></tr>
+        <tr><td>Clothing</td><td class="amount-col">{{ pages.page3.exp_clothing|default:"" }}</td></tr>
+        <tr><td>Hair care and beauty</td><td class="amount-col">{{ pages.page3.exp_hair_care|default:"" }}</td></tr>
+        <tr><td>Alcohol and tobacco</td><td class="amount-col">{{ pages.page3.exp_alcohol_tobacco|default:"" }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 3 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 4 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 4)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="expense-cols">
+    <div class="expense-col">
+      <table>
+        <tr><th>Expense</th><th style="width:100px;">Monthly Amount</th></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Utilities, continued</td></tr>
+        <tr><td>Telephone</td><td class="amount-col">{{ pages.page4.exp_telephone|default:"" }}</td></tr>
+        <tr><td>Cell phone</td><td class="amount-col">{{ pages.page4.exp_cell_phone|default:"" }}</td></tr>
+        <tr><td>Cable</td><td class="amount-col">{{ pages.page4.exp_cable|default:"" }}</td></tr>
+        <tr><td>Internet</td><td class="amount-col">{{ pages.page4.exp_internet|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page4.subtotal_utilities|default:"" }}</td></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Household Expenses</td></tr>
+        <tr><td>Groceries</td><td class="amount-col">{{ pages.page4.exp_groceries|default:"" }}</td></tr>
+        <tr><td>Household supplies</td><td class="amount-col">{{ pages.page4.exp_household_supplies|default:"" }}</td></tr>
+        <tr><td>Meals outside the home</td><td class="amount-col">{{ pages.page4.exp_meals_out|default:"" }}</td></tr>
+        <tr><td>Pet care</td><td class="amount-col">{{ pages.page4.exp_pet_care|default:"" }}</td></tr>
+        <tr><td>Laundry and Dry Cleaning</td><td class="amount-col">{{ pages.page4.exp_laundry|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page4.subtotal_household|default:"" }}</td></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Childcare Costs</td></tr>
+        <tr><td>Daycare expense</td><td class="amount-col">{{ pages.page4.exp_daycare|default:"" }}</td></tr>
+        <tr><td>Babysitting costs</td><td class="amount-col">{{ pages.page4.exp_babysitting|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page4.subtotal_childcare|default:"" }}</td></tr>
+      </table>
+    </div>
+    <div class="expense-col">
+      <table>
+        <tr><th>Expense</th><th style="width:100px;">Monthly Amount</th></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Personal, continued</td></tr>
+        <tr><td>Education <em>(specify)</em></td><td class="amount-col">{{ pages.page4.exp_education|default:"" }}</td></tr>
+        <tr><td>Entertainment/recreation (including children)</td><td class="amount-col">{{ pages.page4.exp_entertainment|default:"" }}</td></tr>
+        <tr><td>Gifts</td><td class="amount-col">{{ pages.page4.exp_gifts|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page4.subtotal_personal|default:"" }}</td></tr>
+        <tr><td colspan="2" style="font-weight:bold;">Other expenses</td></tr>
+        <tr><td>Life Insurance premiums</td><td class="amount-col">{{ pages.page4.exp_life_insurance|default:"" }}</td></tr>
+        <tr><td>RRSP/RESP withdrawals</td><td class="amount-col">{{ pages.page4.exp_rrsp|default:"" }}</td></tr>
+        <tr><td>Vacations</td><td class="amount-col">{{ pages.page4.exp_vacations|default:"" }}</td></tr>
+        <tr><td>School fees and supplies</td><td class="amount-col">{{ pages.page4.exp_school_fees|default:"" }}</td></tr>
+        <tr><td>Clothing for children</td><td class="amount-col">{{ pages.page4.exp_children_clothing|default:"" }}</td></tr>
+        <tr><td>Children's activities</td><td class="amount-col">{{ pages.page4.exp_children_activities|default:"" }}</td></tr>
+        <tr><td>Summer camp expenses</td><td class="amount-col">{{ pages.page4.exp_summer_camp|default:"" }}</td></tr>
+        <tr><td>Debt payments</td><td class="amount-col">{{ pages.page4.exp_debt_payments|default:"" }}</td></tr>
+        <tr><td>Support paid for other children</td><td class="amount-col">{{ pages.page4.exp_other_support|default:"" }}</td></tr>
+        <tr><td>Other expenses not shown above <em>(specify)</em></td><td class="amount-col">{{ pages.page4.exp_other|default:"" }}</td></tr>
+        <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page4.subtotal_other|default:"" }}</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <table style="width:60%;margin-left:auto;">
+    <tr class="total-row"><td>Total Amount of Monthly Expenses</td><td class="amount-col">{{ pages.page4.total_monthly_expenses|default:"" }}</td></tr>
+    <tr class="total-row"><td>Total Amount of Yearly Expenses</td><td class="amount-col">{{ pages.page4.total_yearly_expenses|default:"" }}</td></tr>
+  </table>
+
+  <div class="part-title">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
+  <p style="font-size:9pt;font-style:italic;margin-bottom:10px;">Complete this part only if you are making or responding to a claim for undue hardship or spousal support. Check and complete all sections that apply to your circumstances.</p>
+
+  <div class="item"><span class="item-num">1.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.live_alone %}<span class="cb-checked">✓</span>{% endif %}</span> I live alone.</span></span></div>
+  <div class="item"><span class="item-num">2.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.living_with_partner %}<span class="cb-checked">✓</span>{% endif %}</span> I am living with <span class="fill-line">{{ pages.page4.partner_name|default:"" }}</span> <em>(full legal name of person you are married to or cohabiting with)</em></span></span></div>
+  <div class="item"><span class="item-num">3.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.other_adults %}<span class="cb-checked">✓</span>{% endif %}</span> I/we live with the following other adult(s): <span class="fill-line">{{ pages.page4.other_adults_names|default:"" }}</span></span></span></div>
+  <div class="item"><span class="item-num">4.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.has_children %}<span class="cb-checked">✓</span>{% endif %}</span> I/we have <span class="fill-line short">{{ pages.page4.num_children|default:"" }}</span> child(ren) who live(s) in the home.</span></span></div>
+  <div class="item"><span class="item-num">5.</span><span class="item-content">My spouse/partner <span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_works %}<span class="cb-checked">✓</span>{% endif %}</span> works at <span class="fill-line">{{ pages.page4.partner_workplace|default:"" }}</span> <em>(place of work or business)</em></span><br><span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_not_work %}<span class="cb-checked">✓</span>{% endif %}</span> does not work outside the home.</span></span></div>
+  <div class="item"><span class="item-num">6.</span><span class="item-content">My spouse/partner <span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_earns %}<span class="cb-checked">✓</span>{% endif %}</span> earns <span class="fill-line short">{{ pages.page4.partner_income|default:"" }}</span> per <span class="fill-line short">{{ pages.page4.partner_income_period|default:"" }}</span></span><br><span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_no_income %}<span class="cb-checked">✓</span>{% endif %}</span> does not earn any income.</span></span></div>
+  <div class="item"><span class="item-num">7.</span><span class="item-content">My spouse/partner or other adult residing in the home contributes about $ <span class="fill-line short">{{ pages.page4.household_contribution|default:"" }}</span> per <span class="fill-line short">{{ pages.page4.contribution_period|default:"" }}</span> towards the household expenses.</span></div>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 4 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 5 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 5)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="part-title">PART 4: ASSETS IN AND OUT OF ONTARIO</div>
+  <p style="font-size:9pt;font-style:italic;margin-bottom:8px;"><em>If any sections of Parts 4 to 9 do not apply, do not leave blank, print "NONE" in the section.</em></p>
+
+  <p style="margin:8px 0;">The date of marriage is: <span class="fill-line">{{ pages.page5.date_of_marriage|default:"" }}</span> <em>(give date)</em></p>
+  <p style="margin:8px 0;">The valuation date is: <span class="fill-line">{{ pages.page5.valuation_date|default:"" }}</span> <em>(give date)</em></p>
+  <p style="margin:8px 0;">The date of commencement of cohabitation is (if different from date of marriage): <span class="fill-line">{{ pages.page5.cohabitation_date|default:"" }}</span> <em>(give date)</em></p>
+
+  <div class="sub-title">PART 4(a): LAND</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Include any interest in land <strong>owned</strong> on the dates in each of the columns below, including leasehold interests and mortgages. Show estimated market value of your interest, but do not deduct encumbrances or costs of disposition; these encumbrances and costs should be shown under Part 5, "Debts and Other Liabilities".</p>
+
+  <table>
+    <tr>
+      <th rowspan="2" style="width:25%;">Nature & Type of Ownership<br><em style="font-weight:normal;font-size:8pt;">(Give your percentage interest where relevant.)</em></th>
+      <th rowspan="2" style="width:25%;">Address of Property</th>
+      <th colspan="3" class="col-header">Estimated Market Value of YOUR Interest</th>
+    </tr>
+    <tr>
+      <th class="col-header" style="width:15%;">on date of marriage</th>
+      <th class="col-header" style="width:15%;">on valuation date</th>
+      <th class="col-header" style="width:15%;">today</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page5.land_1_type|default:"" }}</td>
+      <td>{{ pages.page5.land_1_address|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_1_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page5.land_2_type|default:"" }}</td>
+      <td>{{ pages.page5.land_2_address|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_2_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page5.land_3_type|default:"" }}</td>
+      <td>{{ pages.page5.land_3_address|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_3_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_3_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.land_3_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">15. TOTAL VALUE OF LAND</td>
+      <td class="amount-col"><span class="val">{{ pages.page5.total_land_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page5.total_land_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page5.total_land_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="sub-title">PART 4(b): GENERAL HOUSEHOLD ITEMS AND VEHICLES</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show estimated market value, not the cost of replacement for these items owned on the dates in each of the columns below. Do not deduct encumbrances or costs of disposition; these encumbrances and costs should be shown under Part 5, "Debts and Other Liabilities".</p>
+
+  <table>
+    <tr>
+      <th rowspan="2">Item</th>
+      <th rowspan="2">Description</th>
+      <th rowspan="2" style="width:12%;">Indicate if NOT in your possession</th>
+      <th colspan="3" class="col-header">Estimated Market Value of YOUR Interest</th>
+    </tr>
+    <tr>
+      <th class="col-header" style="width:12%;">on date of marriage</th>
+      <th class="col-header" style="width:12%;">on valuation date</th>
+      <th class="col-header" style="width:12%;">today</th>
+    </tr>
+    <tr>
+      <td>Household goods & furniture</td>
+      <td>{{ pages.page5.household_desc|default:"" }}</td>
+      <td>{{ pages.page5.household_not_possession|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.household_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.household_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.household_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>Cars, boats, vehicles</td>
+      <td>{{ pages.page5.vehicles_desc|default:"" }}</td>
+      <td>{{ pages.page5.vehicles_not_possession|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.vehicles_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.vehicles_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.vehicles_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>Jewellery, art, electronics, tools, sports & hobby equipment</td>
+      <td>{{ pages.page5.jewellery_desc|default:"" }}</td>
+      <td>{{ pages.page5.jewellery_not_possession|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.jewellery_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.jewellery_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.jewellery_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>Other special items</td>
+      <td>{{ pages.page5.other_items_desc|default:"" }}</td>
+      <td>{{ pages.page5.other_items_not_possession|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.other_items_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.other_items_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.other_items_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="3" style="text-align:right;">16. TOTAL VALUE OF GENERAL HOUSEHOLD ITEMS AND VEHICLES</td>
+      <td class="amount-col"><span class="val">{{ pages.page5.total_items_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page5.total_items_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page5.total_items_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 5 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 6 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 6)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">PART 4(c): BANK ACCOUNTS, SAVINGS, SECURITIES AND PENSIONS</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show the items owned on the dates in each of the columns below by category, including cash, accounts held in financial institutions, registered retirement or other savings plans, deposit receipts, pensions and any other savings.</p>
+
+  <table>
+    <tr>
+      <th rowspan="2">Category</th>
+      <th rowspan="2">Institution<br><em style="font-weight:normal;">(include description)</em></th>
+      <th rowspan="2">Account number</th>
+      <th colspan="3" class="col-header">Amount/Estimated Market Value</th>
+    </tr>
+    <tr>
+      <th class="col-header" style="width:13%;">on date of marriage</th>
+      <th class="col-header" style="width:13%;">on valuation date</th>
+      <th class="col-header" style="width:13%;">today</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.bank_1_category|default:"" }}</td>
+      <td>{{ pages.page6.bank_1_institution|default:"" }}</td>
+      <td>{{ pages.page6.bank_1_account|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_1_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.bank_2_category|default:"" }}</td>
+      <td>{{ pages.page6.bank_2_institution|default:"" }}</td>
+      <td>{{ pages.page6.bank_2_account|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_2_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.bank_3_category|default:"" }}</td>
+      <td>{{ pages.page6.bank_3_institution|default:"" }}</td>
+      <td>{{ pages.page6.bank_3_account|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_3_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_3_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_3_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.bank_4_category|default:"" }}</td>
+      <td>{{ pages.page6.bank_4_institution|default:"" }}</td>
+      <td>{{ pages.page6.bank_4_account|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_4_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_4_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_4_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.bank_5_category|default:"" }}</td>
+      <td>{{ pages.page6.bank_5_institution|default:"" }}</td>
+      <td>{{ pages.page6.bank_5_account|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_5_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_5_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.bank_5_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="3" style="text-align:right;">17. TOTAL VALUE OF ACCOUNTS, SAVINGS, SECURITIES AND PENSIONS</td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_bank_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_bank_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_bank_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="sub-title">PART 4(d): LIFE AND DISABILITY INSURANCE</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">List all policies in existence on the dates in each of the columns below.</p>
+
+  <table>
+    <tr>
+      <th rowspan="2">Company, Type & Policy No.</th>
+      <th rowspan="2">Owner</th>
+      <th rowspan="2">Beneficiary</th>
+      <th rowspan="2">Face Amount</th>
+      <th colspan="3" class="col-header">Cash Surrender Value</th>
+    </tr>
+    <tr>
+      <th class="col-header">on date of marriage</th>
+      <th class="col-header">on valuation date</th>
+      <th class="col-header">today</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.ins_1_company|default:"" }}</td>
+      <td>{{ pages.page6.ins_1_owner|default:"" }}</td>
+      <td>{{ pages.page6.ins_1_beneficiary|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_1_face|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_1_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.ins_2_company|default:"" }}</td>
+      <td>{{ pages.page6.ins_2_owner|default:"" }}</td>
+      <td>{{ pages.page6.ins_2_beneficiary|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_2_face|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.ins_2_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="4" style="text-align:right;">18. TOTAL CASH SURRENDER VALUE OF INSURANCE POLICIES</td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_insurance_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_insurance_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_insurance_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="sub-title">PART 4(e): BUSINESS INTERESTS</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show any interest in an unincorporated business owned on the dates in each of the columns below. An interest in an incorporated business may be shown in Part 4(c) under "securities".</p>
+
+  <table>
+    <tr>
+      <th rowspan="2">Name of Firm or Company</th>
+      <th rowspan="2">Interest</th>
+      <th colspan="3" class="col-header">Estimated Market Value of YOUR Interest</th>
+    </tr>
+    <tr>
+      <th class="col-header">on date of marriage</th>
+      <th class="col-header">on valuation date</th>
+      <th class="col-header">today</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.biz_1_name|default:"" }}</td>
+      <td>{{ pages.page6.biz_1_interest|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.biz_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.biz_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.biz_1_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page6.biz_2_name|default:"" }}</td>
+      <td>{{ pages.page6.biz_2_interest|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.biz_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.biz_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.biz_2_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">19. TOTAL VALUE OF BUSINESS INTERESTS</td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_business_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_business_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page6.total_business_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 6 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 7 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 7)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub-title">PART 4(f): MONEY OWED TO YOU</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Give details of all money that other persons owe to you on the dates in each of the columns below, whether because of business or from personal dealings.</p>
+
+  <table>
+    <tr>
+      <th rowspan="2">Details</th>
+      <th colspan="3" class="col-header">Amount Owed to You</th>
+    </tr>
+    <tr>
+      <th class="col-header">on date of marriage</th>
+      <th class="col-header">on valuation date</th>
+      <th class="col-header">today</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.owed_1_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.owed_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.owed_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.owed_1_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.owed_2_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.owed_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.owed_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.owed_2_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td style="text-align:right;">20. TOTAL OF MONEY OWED TO YOU</td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_owed_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_owed_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_owed_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="sub-title">PART 4(g): OTHER PROPERTY</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show other property or assets owned on the dates in each of the columns below. Include property of any kind not listed above.</p>
+
+  <table>
+    <tr>
+      <th rowspan="2">Category</th>
+      <th rowspan="2">Details</th>
+      <th colspan="3" class="col-header">Estimated Market Value of YOUR Interest</th>
+    </tr>
+    <tr>
+      <th class="col-header">on date of marriage</th>
+      <th class="col-header">on valuation date</th>
+      <th class="col-header">today</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.other_prop_1_category|default:"" }}</td>
+      <td>{{ pages.page7.other_prop_1_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_1_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.other_prop_2_category|default:"" }}</td>
+      <td>{{ pages.page7.other_prop_2_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_2_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.other_prop_3_category|default:"" }}</td>
+      <td>{{ pages.page7.other_prop_3_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_3_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_3_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_3_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.other_prop_4_category|default:"" }}</td>
+      <td>{{ pages.page7.other_prop_4_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_4_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_4_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.other_prop_4_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">21. TOTAL VALUE OF OTHER PROPERTY</td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_other_prop_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_other_prop_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_other_prop_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="sub-title" style="margin-top:20px;">22. TOTAL VALUE OF ALL PROPERTY OWNED ON THE VALUATION DATE</div>
+  <p style="font-size:9pt;margin:8px 0;">Add items [15] to [21] of the column "on valuation date."</p>
+  <p style="font-size:11pt;font-weight:bold;margin:8px 0;">Total = $ <span class="val">{{ pages.page7.grand_total_valuation|default:"" }}</span></p>
+
+  <div class="part-title">PART 5: DEBTS AND OTHER LIABILITIES</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show your debts and other liabilities on the dates in each of the columns below.</p>
+
+  <table>
+    <tr>
+      <th rowspan="2">Category</th>
+      <th rowspan="2">Details</th>
+      <th colspan="3" class="col-header">Amount Owing</th>
+    </tr>
+    <tr>
+      <th class="col-header">on date of marriage</th>
+      <th class="col-header">on valuation date</th>
+      <th class="col-header">today</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.debt_1_category|default:"" }}</td>
+      <td>{{ pages.page7.debt_1_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_1_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.debt_2_category|default:"" }}</td>
+      <td>{{ pages.page7.debt_2_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_2_today|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page7.debt_3_category|default:"" }}</td>
+      <td>{{ pages.page7.debt_3_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_3_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_3_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page7.debt_3_today|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">23. TOTAL OF DEBTS AND OTHER LIABILITIES</td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_debt_marriage|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_debt_valuation|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page7.total_debt_today|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 7 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 8 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 8)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="part-title">PART 6: PROPERTY, DEBTS AND OTHER LIABILITIES ON DATE OF MARRIAGE</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show by category the value of your property, debts and other liabilities, calculated as of the date of your marriage. (In this part, do not include the value of a matrimonial home or debts or other liabilities directly related to its purchase or significant improvement, if you and your spouse ordinarily occupied this property as your family residence at the time of separation.)</p>
+
+  <table>
+    <tr>
+      <th rowspan="2" colspan="2">Category and details</th>
+      <th colspan="2" class="col-header">Value on date of marriage</th>
+    </tr>
+    <tr>
+      <th class="col-header" style="width:15%;">Assets</th>
+      <th class="col-header" style="width:15%;">Liabilities</th>
+    </tr>
+    <tr>
+      <td colspan="2">Land</td>
+      <td class="amount-col">{{ pages.page8.dom_land_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_land_liab|default:"" }}</td>
+    </tr>
+    <tr>
+      <td colspan="2">General household items & vehicles</td>
+      <td class="amount-col">{{ pages.page8.dom_items_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_items_liab|default:"" }}</td>
+    </tr>
+    <tr>
+      <td colspan="2">Bank accounts, savings, securities & pensions</td>
+      <td class="amount-col">{{ pages.page8.dom_bank_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_bank_liab|default:"" }}</td>
+    </tr>
+    <tr>
+      <td colspan="2">Life & disability insurance</td>
+      <td class="amount-col">{{ pages.page8.dom_insurance_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_insurance_liab|default:"" }}</td>
+    </tr>
+    <tr>
+      <td colspan="2">Business interests</td>
+      <td class="amount-col">{{ pages.page8.dom_business_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_business_liab|default:"" }}</td>
+    </tr>
+    <tr>
+      <td colspan="2">Money owed to you</td>
+      <td class="amount-col">{{ pages.page8.dom_owed_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_owed_liab|default:"" }}</td>
+    </tr>
+    <tr>
+      <td colspan="2">Other property <em>(Specify.)</em></td>
+      <td class="amount-col">{{ pages.page8.dom_other_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_other_liab|default:"" }}</td>
+    </tr>
+    <tr>
+      <td colspan="2">Debts and other liabilities <em>(Specify.)</em></td>
+      <td class="amount-col">{{ pages.page8.dom_debts_assets|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.dom_debts_liab|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">TOTALS</td>
+      <td class="amount-col"><span class="val">{{ pages.page8.total_dom_assets|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page8.total_dom_liab|default:"" }}</span></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">24. NET VALUE OF PROPERTY OWNED ON DATE OF MARRIAGE<br><em style="font-weight:normal;font-size:8pt;">(From the total of the "Assets" column, subtract the total of the "Liabilities" column.)</em></td>
+      <td class="amount-col"></td>
+      <td class="amount-col"><span class="val">{{ pages.page8.net_dom_value|default:"" }}</span></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">25. VALUE OF ALL DEDUCTIONS <em style="font-weight:normal;font-size:8pt;">(Add items [23] and [24].)</em></td>
+      <td class="amount-col"></td>
+      <td class="amount-col"><span class="val">{{ pages.page8.total_deductions|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="part-title">PART 7: EXCLUDED PROPERTY</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show by category the value of property owned on the valuation date that is excluded from the definition of "net family property" (such as gifts or inheritances received after marriage).</p>
+
+  <table>
+    <tr>
+      <th style="width:20%;">Category</th>
+      <th>Details</th>
+      <th class="col-header" style="width:18%;">Value on valuation date</th>
+    </tr>
+    <tr>
+      <td>{{ pages.page8.excluded_1_category|default:"" }}</td>
+      <td>{{ pages.page8.excluded_1_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.excluded_1_value|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page8.excluded_2_category|default:"" }}</td>
+      <td>{{ pages.page8.excluded_2_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.excluded_2_value|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page8.excluded_3_category|default:"" }}</td>
+      <td>{{ pages.page8.excluded_3_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.excluded_3_value|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>{{ pages.page8.excluded_4_category|default:"" }}</td>
+      <td>{{ pages.page8.excluded_4_details|default:"" }}</td>
+      <td class="amount-col">{{ pages.page8.excluded_4_value|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">26. TOTAL VALUE OF EXCLUDED PROPERTY</td>
+      <td class="amount-col"><span class="val">{{ pages.page8.total_excluded|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 8 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 9 -->
+<div class="page">
+  <div class="page-header-row">
+    <div class="page-header-left">Form 13.1: Financial Statement (Property and<br>Support Claims)</div>
+    <div class="page-header-right">
+      <span class="page-num-indicator">(page 9)</span>
+      <div class="file-box" style="display:inline-block;min-width:120px;">
+        <div class="file-box-label">Court file number</div>
+        <div>{{ pages.page1.court_file_number|default:court_file_number|default:"" }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="part-title">PART 8: DISPOSED-OF PROPERTY</div>
+  <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show by category the value of all property that you disposed of during the two years immediately preceding the making of this statement, or during the marriage, whichever period is shorter.</p>
+
+  <table>
+    <tr>
+      <th style="width:20%;">Category</th>
+      <th>Details</th>
+      <th class="col-header" style="width:15%;">Value</th>
+    </tr>
+    <tr>
+      <td><span class="val">{{ pages.page9.disposed_1_category|default:"" }}</span></td>
+      <td><span class="val">{{ pages.page9.disposed_1_details|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.disposed_1_value|default:"" }}</span></td>
+    </tr>
+    <tr>
+      <td><span class="val">{{ pages.page9.disposed_2_category|default:"" }}</span></td>
+      <td><span class="val">{{ pages.page9.disposed_2_details|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.disposed_2_value|default:"" }}</span></td>
+    </tr>
+    <tr>
+      <td><span class="val">{{ pages.page9.disposed_3_category|default:"" }}</span></td>
+      <td><span class="val">{{ pages.page9.disposed_3_details|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.disposed_3_value|default:"" }}</span></td>
+    </tr>
+    <tr>
+      <td><span class="val">{{ pages.page9.disposed_4_category|default:"" }}</span></td>
+      <td><span class="val">{{ pages.page9.disposed_4_details|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.disposed_4_value|default:"" }}</span></td>
+    </tr>
+    <tr>
+      <td><span class="val">{{ pages.page9.disposed_5_category|default:"" }}</span></td>
+      <td><span class="val">{{ pages.page9.disposed_5_details|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.disposed_5_value|default:"" }}</span></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;">27. TOTAL VALUE OF DISPOSED-OF PROPERTY</td>
+      <td class="amount-col"><span class="val">{{ pages.page9.total_disposed|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div class="part-title">PART 9: CALCULATION OF NET FAMILY PROPERTY</div>
+
+  <table style="width:100%;">
+    <tr>
+      <th style="width:70%;"></th>
+      <th class="col-header" style="width:15%;">Deductions</th>
+      <th class="col-header" style="width:15%;">BALANCE</th>
+    </tr>
+    <tr>
+      <td><strong>Value of all property owned on valuation date</strong> <em style="font-size:8pt;">(from item [22] above)</em></td>
+      <td class="amount-col"></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.nfp_item22|default:"" }}</span></td>
+    </tr>
+    <tr>
+      <td><strong>Subtract value of all deductions</strong> <em style="font-size:8pt;">(from item [25] above)</em></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.nfp_item25|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.nfp_balance1|default:"" }}</span></td>
+    </tr>
+    <tr>
+      <td><strong>Subtract total value of excluded property</strong> <em style="font-size:8pt;">(from item [26] above)</em></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.nfp_item26|default:"" }}</span></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.nfp_balance2|default:"" }}</span></td>
+    </tr>
+    <tr class="total-row">
+      <td style="text-align:right;"><strong>28. NET FAMILY PROPERTY</strong></td>
+      <td class="amount-col"></td>
+      <td class="amount-col"><span class="val">{{ pages.page9.net_family_property|default:"" }}</span></td>
+    </tr>
+  </table>
+
+  <div style="margin-top:20px;font-size:9pt;">
+    <p style="margin-bottom:8px;"><strong>NOTE:</strong> <em>This financial statement must be updated before any court event if it is:</em></p>
+    <ul style="margin-left:20px;list-style:disc;">
+      <li>more than 60 days old by the time of the case conference,</li>
+      <li>more than 30 days old by the time the motion is heard, or</li>
+      <li>more than 40 days old by the start of the trial or the start of the trial sitting, whichever comes first.</li>
+    </ul>
+    <p style="margin-top:8px;"><em>You may update this financial statement by either completing and filing:</em></p>
+    <ul style="margin-left:20px;list-style:disc;">
+      <li>a new financial statement with updated information, or</li>
+      <li>an affidavit in Form 14A setting out the details of any minor changes or confirming that the information contained in this statement remains correct.</li>
+    </ul>
+  </div>
+
+  <div style="margin-top:25px;padding-top:20px;border-top:1px solid #000;">
+    <table style="width:100%;border:none;margin:0;">
+      <tr style="border:none;">
+        <td style="width:50%;vertical-align:top;border:none;padding-right:30px;">
+          <p style="margin-bottom:10px;">Sworn/Affirmed before me at <span class="fill-line"><span class="val">{{ pages.page9.sworn_municipality|default:"" }}</span></span></p>
+          <p style="font-size:8pt;font-style:italic;margin-bottom:15px;text-align:center;">municipality</p>
+          <p style="margin-bottom:10px;">in <span class="fill-line"><span class="val">{{ pages.page9.sworn_province|default:"" }}</span></span></p>
+          <p style="font-size:8pt;font-style:italic;margin-bottom:15px;text-align:center;">province, state or country</p>
+          <p style="margin-bottom:10px;">on <span class="fill-line short"><span class="val">{{ pages.page9.sworn_date|default:"" }}</span></span></p>
+          <p style="font-size:8pt;font-style:italic;margin-bottom:20px;">date</p>
+          <div class="sig-line"></div>
+          <p style="font-size:8pt;font-style:italic;text-align:center;">Commissioner for taking affidavits<br>(Type or print name below if signature is illegible.)</p>
+          <p><span class="val">{{ pages.page9.commissioner_name|default:"" }}</span></p>
+        </td>
+        <td style="width:50%;vertical-align:bottom;border:none;padding-left:30px;">
+          <div class="sig-line" style="margin-top:80px;"></div>
+          <p style="font-size:8pt;font-style:italic;text-align:center;">Signature<br>(This form is to be signed in front of a lawyer, justice of the peace, notary public or commissioner for taking affidavits.)</p>
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 9 of 10</span>
+  </div>
+</div>
+
+<!-- PAGE 10 -->
+<div class="page">
+  <div class="part-title" style="text-align:center;margin-top:0;">Schedule A: Additional Sources of Income</div>
+
+  <table>
+    <tr>
+      <th style="width:8%;">Line</th>
+      <th>Income Source</th>
+      <th class="col-header" style="width:18%;">Annual Amount</th>
+    </tr>
+    <tr>
+      <td class="row-num">1.</td>
+      <td>Net partnership income</td>
+      <td class="amount-col">{{ pages.page10.sched_a_1|default:"" }}</td>
+    </tr>
+    <tr>
+      <td class="row-num">2.</td>
+      <td>Net rental income (Gross annual rental income of $ <span class="fill-line short">{{ pages.page10.sched_a_2_gross|default:"" }}</span> )</td>
+      <td class="amount-col">{{ pages.page10.sched_a_2|default:"" }}</td>
+    </tr>
+    <tr>
+      <td class="row-num">3.</td>
+      <td>Total amount of dividends received from taxable Canadian corporations</td>
+      <td class="amount-col">{{ pages.page10.sched_a_3|default:"" }}</td>
+    </tr>
+    <tr>
+      <td class="row-num">4.</td>
+      <td>Total capital gains ($ <span class="fill-line short">{{ pages.page10.sched_a_4_gains|default:"" }}</span> ) less capital losses ($ <span class="fill-line short">{{ pages.page10.sched_a_4_losses|default:"" }}</span> )</td>
+      <td class="amount-col">{{ pages.page10.sched_a_4|default:"" }}</td>
+    </tr>
+    <tr>
+      <td class="row-num">5.</td>
+      <td>Registered retirement savings plan withdrawals</td>
+      <td class="amount-col">{{ pages.page10.sched_a_5|default:"" }}</td>
+    </tr>
+    <tr>
+      <td class="row-num">6.</td>
+      <td>Income from a Registered Retirement Income Fund or Annuity</td>
+      <td class="amount-col">{{ pages.page10.sched_a_6|default:"" }}</td>
+    </tr>
+    <tr>
+      <td class="row-num">7.</td>
+      <td>Any other income <em>(specify source)</em></td>
+      <td class="amount-col">{{ pages.page10.sched_a_7|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;"><strong>Subtotal:</strong></td>
+      <td class="amount-col">{{ pages.page10.sched_a_subtotal|default:"" }}</td>
+    </tr>
+  </table>
+
+  <div class="part-title" style="text-align:center;">Schedule B: Special or Extraordinary Expenses for the Child(ren)</div>
+
+  <table>
+    <tr>
+      <th style="width:25%;">Child's Name</th>
+      <th>Expense</th>
+      <th class="col-header" style="width:15%;">Amount/yr.</th>
+      <th class="col-header" style="width:18%;">Available Tax Credits or Deductions*</th>
+    </tr>
+    <tr>
+      <td>1. {{ pages.page10.sched_b_1_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_1_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_1_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_1_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>2. {{ pages.page10.sched_b_2_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_2_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_2_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_2_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>3. {{ pages.page10.sched_b_3_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_3_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_3_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_3_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>4. {{ pages.page10.sched_b_4_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_4_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_4_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_4_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>5. {{ pages.page10.sched_b_5_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_5_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_5_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_5_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>6. {{ pages.page10.sched_b_6_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_6_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_6_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_6_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>7. {{ pages.page10.sched_b_7_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_7_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_7_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_7_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>8. {{ pages.page10.sched_b_8_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_8_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_8_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_8_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>9. {{ pages.page10.sched_b_9_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_9_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_9_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_9_credit|default:"" }}</td>
+    </tr>
+    <tr>
+      <td>10. {{ pages.page10.sched_b_10_child|default:"" }}</td>
+      <td>{{ pages.page10.sched_b_10_expense|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_10_amount|default:"" }}</td>
+      <td class="amount-col">{{ pages.page10.sched_b_10_credit|default:"" }}</td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;"><strong>Total Net Annual Amount</strong></td>
+      <td class="amount-col">{{ pages.page10.sched_b_total_annual|default:"" }}</td>
+      <td></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;"><strong>Total Net Monthly Amount</strong></td>
+      <td class="amount-col">{{ pages.page10.sched_b_total_monthly|default:"" }}</td>
+      <td></td>
+    </tr>
+  </table>
+
+  <p style="font-size:8pt;margin-top:10px;">* Some of these expenses can be claimed in a parent's income tax return in relation to a tax credit or deduction (for example childcare costs). These credits or deductions must be shown in the above chart.</p>
+
+  <div style="margin:12px 0;">
+    <span class="cb-inline"><span class="cb-box">{% if pages.page10.income_share_checkbox %}<span class="cb-checked">✓</span>{% endif %}</span> I earn $ <span class="fill-line short">{{ pages.page10.income_share_amount|default:"" }}</span> per year which should be used to determine my share of the above expenses.</span>
+  </div>
+
+  <div style="font-size:9pt;margin-top:15px;">
+    <p><strong>NOTE:</strong> Pursuant to the Child Support Guidelines, a court can order that the parents of a child share the costs of the following expenses for the child:</p>
+    <ul style="margin-left:20px;list-style:disc;">
+      <li>Necessary childcare expenses;</li>
+      <li>Medical insurance premiums and certain health-related expenses for the child that cost more than $100 annually;</li>
+      <li>Extraordinary expenses for the child's education;</li>
+      <li>Post-secondary school expenses; and,</li>
+      <li>Extraordinary expenses for extracurricular activities.</li>
+    </ul>
+  </div>
+
+  <div class="page-footer">
+    <span>FLR 13.1 (May 1, 2021)</span>
+    <span>Page 10 of 10</span>
+  </div>
+</div>
+
+</body>
+</html>

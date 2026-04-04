@@ -1043,3 +1043,27 @@ class Invoice(models.Model):
         self.paid_at = timezone.now()
         self.save()
         self.print_events.update(is_billed=True, billed_at=timezone.now())
+class Form131FinancialStatement(SoftDeleteMixin, models.Model):
+    court_file_number = models.CharField(max_length=100, blank=True, null=True)
+    applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_name = models.CharField(max_length=255, blank=True, null=True)
+    draft = models.JSONField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self):
+        return f"Form 13.1: {self.court_file_number or self.id}"
+
+    def save_page_data(self, page_number, data):
+        if not self.draft:
+            self.draft = {}
+        self.draft[f"page{page_number}"] = data
+        self.save()
+
+    def get_page_data(self, page_number):
+        if not self.draft:
+            return {}
+        return self.draft.get(f"page{page_number}", {})

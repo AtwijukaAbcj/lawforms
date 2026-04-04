@@ -1,0 +1,459 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block header %}Form 13.1: Financial Statement (Property and Support Claims){% endblock %}
+{% block subheader %}Page 6 of 10 • Bank Accounts, Insurance & Business Interests{% endblock %}
+{% block content %}
+
+<style>
+  .page-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:rgba(99,102,241,0.04);border-radius:12px;border:1px solid #e2e8f0;}
+  .page-nav a{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;color:#64748b;background:white;border:1px solid #e2e8f0;transition:all 0.15s ease;}
+  .page-nav a:hover{background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3);color:#0f172a;}
+  .page-nav a.active{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:white;border-color:transparent;}
+  .form-header-131{display:flex;justify-content:space-between;align-items:flex-start;padding:18px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(16,185,129,0.05));border-radius:12px;margin-bottom:20px;border:1px solid #e2e8f0;}
+  .court-input{width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;}
+  .readonly-value{padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;min-height:20px;font-size:14px;}
+  .subsection-title{font-size:14px;font-weight:700;color:#0f172a;margin:20px 0 12px;padding:8px 12px;background:#fef3c7;border-radius:6px;border-left:3px solid #f59e0b;}
+  .asset-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:12px;}
+  .asset-table th,.asset-table td{border:1px solid #e2e8f0;padding:8px 10px;text-align:left;}
+  .asset-table th{background:#f8fafc;font-weight:700;font-size:11px;}
+  .asset-table input{width:100%;padding:5px 8px;border:1px solid #cbd5e1;border-radius:6px;font-size:12px;}
+  .asset-table input[type="number"]{text-align:right;}
+  .asset-table .amount{width:100px;}
+  .asset-table tr.total-row{background:#f1f5f9;font-weight:700;}
+  .actions-131{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0;}
+  .btn-nav-131{padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.15s ease;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+  .btn-secondary-131{background:white;border:1px solid #e2e8f0;color:#0f172a;}
+  .btn-primary-131{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));border:none;color:white;}
+  .form-footer-131{display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-top:20px;}
+  .btn-delete-row{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px;}
+  .btn-delete-row:hover{background:#fecaca;}
+  .btn-add-row{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;margin-top:8px;}
+  .btn-add-row:hover{background:#bbf7d0;}
+  .action-col{width:50px;text-align:center;}
+</style>
+
+{% include 'forms/financial_statement_131_nav.html' with current_page=6 pk=pk %}
+
+<form method="post">
+{% csrf_token %}
+
+<!-- Header Section -->
+<div class="form-header-131">
+  <div style="flex:1;">
+    <div style="font-weight:bold;font-size:15px;margin-bottom:4px;">Form 13.1: Financial Statement (Property and Support Claims)</div>
+    <div style="font-size:12px;color:#64748b;">(page 6)</div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Court file number</div>
+    <div class="readonly-value" style="width:150px;">{{ page1_data.court_file_number|default:"—" }}</div>
+  </div>
+</div>
+
+<!-- PART 4(c): BANK ACCOUNTS, SAVINGS, SECURITIES AND PENSIONS -->
+<div class="subsection-title">PART 4(c): BANK ACCOUNTS, SAVINGS, SECURITIES AND PENSIONS</div>
+
+<p style="font-size:11px;font-style:italic;margin-bottom:12px;">Show the items owned on the dates in each of the columns below by category, for example, cash, accounts in financial institutions, pensions, registered retirement or other savings plans, deposit receipts, any other savings, bonds, warrants, options, notes and other securities. Give your best estimate of the market value of the securities if the items were to be sold on the open market.</p>
+
+<table class="asset-table" id="bank-table">
+  <thead>
+    <tr>
+      <th>Category</th>
+      <th>INSTITUTION (including location)/<br>DESCRIPTION (including issuer and date)</th>
+      <th>Account number</th>
+      <th class="amount">on date of marriage</th>
+      <th class="amount">on valuation date</th>
+      <th class="amount">today</th>
+      <th class="action-col"></th>
+    </tr>
+  </thead>
+  <tbody id="bank-tbody">
+    <tr data-row="1">
+      <td><input type="text" name="bank_1_category" value="{{ page_data.bank_1_category|default:'' }}"></td>
+      <td><input type="text" name="bank_1_institution" value="{{ page_data.bank_1_institution|default:'' }}"></td>
+      <td><input type="text" name="bank_1_account" value="{{ page_data.bank_1_account|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="bank_1_marriage" step="0.01" value="{{ page_data.bank_1_marriage|default:'' }}" data-calc="bank_marriage"></td>
+      <td class="amount">$ <input type="number" name="bank_1_valuation" step="0.01" value="{{ page_data.bank_1_valuation|default:'' }}" data-calc="bank_valuation"></td>
+      <td class="amount">$ <input type="number" name="bank_1_today" step="0.01" value="{{ page_data.bank_1_today|default:'' }}" data-calc="bank_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBankRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="2">
+      <td><input type="text" name="bank_2_category" value="{{ page_data.bank_2_category|default:'' }}"></td>
+      <td><input type="text" name="bank_2_institution" value="{{ page_data.bank_2_institution|default:'' }}"></td>
+      <td><input type="text" name="bank_2_account" value="{{ page_data.bank_2_account|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="bank_2_marriage" step="0.01" value="{{ page_data.bank_2_marriage|default:'' }}" data-calc="bank_marriage"></td>
+      <td class="amount">$ <input type="number" name="bank_2_valuation" step="0.01" value="{{ page_data.bank_2_valuation|default:'' }}" data-calc="bank_valuation"></td>
+      <td class="amount">$ <input type="number" name="bank_2_today" step="0.01" value="{{ page_data.bank_2_today|default:'' }}" data-calc="bank_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBankRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="3">
+      <td><input type="text" name="bank_3_category" value="{{ page_data.bank_3_category|default:'' }}"></td>
+      <td><input type="text" name="bank_3_institution" value="{{ page_data.bank_3_institution|default:'' }}"></td>
+      <td><input type="text" name="bank_3_account" value="{{ page_data.bank_3_account|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="bank_3_marriage" step="0.01" value="{{ page_data.bank_3_marriage|default:'' }}" data-calc="bank_marriage"></td>
+      <td class="amount">$ <input type="number" name="bank_3_valuation" step="0.01" value="{{ page_data.bank_3_valuation|default:'' }}" data-calc="bank_valuation"></td>
+      <td class="amount">$ <input type="number" name="bank_3_today" step="0.01" value="{{ page_data.bank_3_today|default:'' }}" data-calc="bank_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBankRow(this)">✕</button></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="3"><strong>17. TOTAL VALUE OF ACCOUNTS, SAVINGS, SECURITIES AND PENSIONS</strong></td>
+      <td class="amount">$ <span id="total_bank_marriage">0.00</span></td>
+      <td class="amount">$ <span id="total_bank_valuation">0.00</span></td>
+      <td class="amount">$ <span id="total_bank_today">0.00</span></td>
+      <td class="action-col"></td>
+    </tr>
+  </tbody>
+</table>
+<button type="button" class="btn-add-row" onclick="addBankRow()">+ Add Row</button>
+
+<!-- PART 4(d): LIFE AND DISABILITY INSURANCE -->
+<div class="subsection-title">PART 4(d): LIFE AND DISABILITY INSURANCE</div>
+
+<p style="font-size:11px;font-style:italic;margin-bottom:12px;">List all policies in existence on the dates in each of the columns below.</p>
+
+<table class="asset-table" id="insurance-table">
+  <thead>
+    <tr>
+      <th>Company, Type & Policy No.</th>
+      <th>Owner</th>
+      <th>Beneficiary</th>
+      <th>Face Amount</th>
+      <th class="amount">on date of marriage</th>
+      <th class="amount">on valuation date</th>
+      <th class="amount">today</th>
+      <th class="action-col"></th>
+    </tr>
+  </thead>
+  <tbody id="insurance-tbody">
+    <tr data-row="1">
+      <td><input type="text" name="insurance_1_company" value="{{ page_data.insurance_1_company|default:'' }}"></td>
+      <td><input type="text" name="insurance_1_owner" value="{{ page_data.insurance_1_owner|default:'' }}"></td>
+      <td><input type="text" name="insurance_1_beneficiary" value="{{ page_data.insurance_1_beneficiary|default:'' }}"></td>
+      <td><input type="number" name="insurance_1_face" step="0.01" value="{{ page_data.insurance_1_face|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="insurance_1_marriage" step="0.01" value="{{ page_data.insurance_1_marriage|default:'' }}" data-calc="insurance_marriage"></td>
+      <td class="amount">$ <input type="number" name="insurance_1_valuation" step="0.01" value="{{ page_data.insurance_1_valuation|default:'' }}" data-calc="insurance_valuation"></td>
+      <td class="amount">$ <input type="number" name="insurance_1_today" step="0.01" value="{{ page_data.insurance_1_today|default:'' }}" data-calc="insurance_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteInsuranceRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="2">
+      <td><input type="text" name="insurance_2_company" value="{{ page_data.insurance_2_company|default:'' }}"></td>
+      <td><input type="text" name="insurance_2_owner" value="{{ page_data.insurance_2_owner|default:'' }}"></td>
+      <td><input type="text" name="insurance_2_beneficiary" value="{{ page_data.insurance_2_beneficiary|default:'' }}"></td>
+      <td><input type="number" name="insurance_2_face" step="0.01" value="{{ page_data.insurance_2_face|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="insurance_2_marriage" step="0.01" value="{{ page_data.insurance_2_marriage|default:'' }}" data-calc="insurance_marriage"></td>
+      <td class="amount">$ <input type="number" name="insurance_2_valuation" step="0.01" value="{{ page_data.insurance_2_valuation|default:'' }}" data-calc="insurance_valuation"></td>
+      <td class="amount">$ <input type="number" name="insurance_2_today" step="0.01" value="{{ page_data.insurance_2_today|default:'' }}" data-calc="insurance_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteInsuranceRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="3">
+      <td><input type="text" name="insurance_3_company" value="{{ page_data.insurance_3_company|default:'' }}"></td>
+      <td><input type="text" name="insurance_3_owner" value="{{ page_data.insurance_3_owner|default:'' }}"></td>
+      <td><input type="text" name="insurance_3_beneficiary" value="{{ page_data.insurance_3_beneficiary|default:'' }}"></td>
+      <td><input type="number" name="insurance_3_face" step="0.01" value="{{ page_data.insurance_3_face|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="insurance_3_marriage" step="0.01" value="{{ page_data.insurance_3_marriage|default:'' }}" data-calc="insurance_marriage"></td>
+      <td class="amount">$ <input type="number" name="insurance_3_valuation" step="0.01" value="{{ page_data.insurance_3_valuation|default:'' }}" data-calc="insurance_valuation"></td>
+      <td class="amount">$ <input type="number" name="insurance_3_today" step="0.01" value="{{ page_data.insurance_3_today|default:'' }}" data-calc="insurance_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteInsuranceRow(this)">✕</button></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="4"><strong>18. TOTAL CASH SURRENDER VALUE OF INSURANCE POLICIES</strong></td>
+      <td class="amount">$ <span id="total_insurance_marriage">0.00</span></td>
+      <td class="amount">$ <span id="total_insurance_valuation">0.00</span></td>
+      <td class="amount">$ <span id="total_insurance_today">0.00</span></td>
+      <td class="action-col"></td>
+    </tr>
+  </tbody>
+</table>
+<button type="button" class="btn-add-row" onclick="addInsuranceRow()">+ Add Row</button>
+
+<!-- PART 4(e): BUSINESS INTERESTS -->
+<div class="subsection-title">PART 4(e): BUSINESS INTERESTS</div>
+
+<p style="font-size:11px;font-style:italic;margin-bottom:12px;">Show any interest in an unincorporated business owned on the dates in each of the columns below. An interest in an incorporated business may be shown here or under "BANK ACCOUNTS, SAVINGS, SECURITIES, AND PENSIONS" in Part 4(c). Give your best estimate of the market value of your interest.</p>
+
+<table class="asset-table" id="business-table">
+  <thead>
+    <tr>
+      <th>Name of Firm or Company</th>
+      <th>Interest</th>
+      <th class="amount">on date of marriage</th>
+      <th class="amount">on valuation date</th>
+      <th class="amount">today</th>
+      <th class="action-col"></th>
+    </tr>
+  </thead>
+  <tbody id="business-tbody">
+    <tr data-row="1">
+      <td><input type="text" name="business_1_name" value="{{ page_data.business_1_name|default:'' }}"></td>
+      <td><input type="text" name="business_1_interest" value="{{ page_data.business_1_interest|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="business_1_marriage" step="0.01" value="{{ page_data.business_1_marriage|default:'' }}" data-calc="business_marriage"></td>
+      <td class="amount">$ <input type="number" name="business_1_valuation" step="0.01" value="{{ page_data.business_1_valuation|default:'' }}" data-calc="business_valuation"></td>
+      <td class="amount">$ <input type="number" name="business_1_today" step="0.01" value="{{ page_data.business_1_today|default:'' }}" data-calc="business_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBusinessRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="2">
+      <td><input type="text" name="business_2_name" value="{{ page_data.business_2_name|default:'' }}"></td>
+      <td><input type="text" name="business_2_interest" value="{{ page_data.business_2_interest|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="business_2_marriage" step="0.01" value="{{ page_data.business_2_marriage|default:'' }}" data-calc="business_marriage"></td>
+      <td class="amount">$ <input type="number" name="business_2_valuation" step="0.01" value="{{ page_data.business_2_valuation|default:'' }}" data-calc="business_valuation"></td>
+      <td class="amount">$ <input type="number" name="business_2_today" step="0.01" value="{{ page_data.business_2_today|default:'' }}" data-calc="business_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBusinessRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="3">
+      <td><input type="text" name="business_3_name" value="{{ page_data.business_3_name|default:'' }}"></td>
+      <td><input type="text" name="business_3_interest" value="{{ page_data.business_3_interest|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="business_3_marriage" step="0.01" value="{{ page_data.business_3_marriage|default:'' }}" data-calc="business_marriage"></td>
+      <td class="amount">$ <input type="number" name="business_3_valuation" step="0.01" value="{{ page_data.business_3_valuation|default:'' }}" data-calc="business_valuation"></td>
+      <td class="amount">$ <input type="number" name="business_3_today" step="0.01" value="{{ page_data.business_3_today|default:'' }}" data-calc="business_today"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBusinessRow(this)">✕</button></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2"><strong>19. TOTAL VALUE OF BUSINESS INTERESTS</strong></td>
+      <td class="amount">$ <span id="total_business_marriage">0.00</span></td>
+      <td class="amount">$ <span id="total_business_valuation">0.00</span></td>
+      <td class="amount">$ <span id="total_business_today">0.00</span></td>
+      <td class="action-col"></td>
+    </tr>
+  </tbody>
+</table>
+<button type="button" class="btn-add-row" onclick="addBusinessRow()">+ Add Row</button>
+
+<!-- Hidden totals -->
+<input type="hidden" name="total_bank_marriage" id="total_bank_marriage_input" value="{{ page_data.total_bank_marriage|default:'0' }}">
+<input type="hidden" name="total_bank_valuation" id="total_bank_valuation_input" value="{{ page_data.total_bank_valuation|default:'0' }}">
+<input type="hidden" name="total_bank_today" id="total_bank_today_input" value="{{ page_data.total_bank_today|default:'0' }}">
+<input type="hidden" name="total_insurance_marriage" id="total_insurance_marriage_input" value="{{ page_data.total_insurance_marriage|default:'0' }}">
+<input type="hidden" name="total_insurance_valuation" id="total_insurance_valuation_input" value="{{ page_data.total_insurance_valuation|default:'0' }}">
+<input type="hidden" name="total_insurance_today" id="total_insurance_today_input" value="{{ page_data.total_insurance_today|default:'0' }}">
+<input type="hidden" name="total_business_marriage" id="total_business_marriage_input" value="{{ page_data.total_business_marriage|default:'0' }}">
+<input type="hidden" name="total_business_valuation" id="total_business_valuation_input" value="{{ page_data.total_business_valuation|default:'0' }}">
+<input type="hidden" name="total_business_today" id="total_business_today_input" value="{{ page_data.total_business_today|default:'0' }}">
+
+<!-- Form Actions -->
+<div class="actions-131">
+  <button type="submit" name="prev" class="btn-nav-131 btn-secondary-131">← Previous Page</button>
+  <button type="submit" class="btn-nav-131 btn-primary-131">Save & Continue →</button>
+</div>
+
+<!-- Footer -->
+<div class="form-footer-131">
+  <div>FLR 13.1 (May 1, 2021)</div>
+  <div>Page 6 of 10</div>
+</div>
+
+</form>
+
+<script>
+const FORM_KEY = 'form131_page6_{{ pk }}';
+
+// Row management functions
+function getNextRowNumber(tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  const rows = tbody.querySelectorAll('tr[data-row]');
+  let maxNum = 0;
+  rows.forEach(row => {
+    const num = parseInt(row.getAttribute('data-row')) || 0;
+    if (num > maxNum) maxNum = num;
+  });
+  return maxNum + 1;
+}
+
+function attachInputListeners(container) {
+  container.querySelectorAll('input').forEach(input => {
+    input.addEventListener('change', () => { saveFormData(); calculateTotals(); });
+    input.addEventListener('input', () => { saveFormData(); calculateTotals(); });
+  });
+}
+
+// Bank Account rows
+function addBankRow() {
+  const tbody = document.getElementById('bank-tbody');
+  const totalRow = tbody.querySelector('.total-row');
+  const rowNum = getNextRowNumber('bank-tbody');
+  const newRow = document.createElement('tr');
+  newRow.setAttribute('data-row', rowNum);
+  newRow.innerHTML = `
+    <td><input type="text" name="bank_${rowNum}_category" value=""></td>
+    <td><input type="text" name="bank_${rowNum}_institution" value=""></td>
+    <td><input type="text" name="bank_${rowNum}_account" value=""></td>
+    <td class="amount">$ <input type="number" name="bank_${rowNum}_marriage" step="0.01" value="" data-calc="bank_marriage"></td>
+    <td class="amount">$ <input type="number" name="bank_${rowNum}_valuation" step="0.01" value="" data-calc="bank_valuation"></td>
+    <td class="amount">$ <input type="number" name="bank_${rowNum}_today" step="0.01" value="" data-calc="bank_today"></td>
+    <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBankRow(this)">✕</button></td>
+  `;
+  tbody.insertBefore(newRow, totalRow);
+  attachInputListeners(newRow);
+  saveFormData();
+}
+
+function deleteBankRow(btn) {
+  const row = btn.closest('tr');
+  const tbody = document.getElementById('bank-tbody');
+  if (tbody.querySelectorAll('tr[data-row]').length > 1) {
+    row.remove();
+    renumberBankRows();
+  } else {
+    row.querySelectorAll('input').forEach(input => input.value = '');
+  }
+  calculateTotals();
+  saveFormData();
+}
+
+function renumberBankRows() {
+  const tbody = document.getElementById('bank-tbody');
+  const rows = tbody.querySelectorAll('tr[data-row]');
+  rows.forEach((row, index) => {
+    const num = index + 1;
+    row.setAttribute('data-row', num);
+    const inputs = row.querySelectorAll('input');
+    inputs[0].name = `bank_${num}_category`;
+    inputs[1].name = `bank_${num}_institution`;
+    inputs[2].name = `bank_${num}_account`;
+    inputs[3].name = `bank_${num}_marriage`;
+    inputs[4].name = `bank_${num}_valuation`;
+    inputs[5].name = `bank_${num}_today`;
+  });
+}
+
+// Insurance rows
+function addInsuranceRow() {
+  const tbody = document.getElementById('insurance-tbody');
+  const totalRow = tbody.querySelector('.total-row');
+  const rowNum = getNextRowNumber('insurance-tbody');
+  const newRow = document.createElement('tr');
+  newRow.setAttribute('data-row', rowNum);
+  newRow.innerHTML = `
+    <td><input type="text" name="insurance_${rowNum}_company" value=""></td>
+    <td><input type="text" name="insurance_${rowNum}_owner" value=""></td>
+    <td><input type="text" name="insurance_${rowNum}_beneficiary" value=""></td>
+    <td><input type="number" name="insurance_${rowNum}_face" step="0.01" value=""></td>
+    <td class="amount">$ <input type="number" name="insurance_${rowNum}_marriage" step="0.01" value="" data-calc="insurance_marriage"></td>
+    <td class="amount">$ <input type="number" name="insurance_${rowNum}_valuation" step="0.01" value="" data-calc="insurance_valuation"></td>
+    <td class="amount">$ <input type="number" name="insurance_${rowNum}_today" step="0.01" value="" data-calc="insurance_today"></td>
+    <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteInsuranceRow(this)">✕</button></td>
+  `;
+  tbody.insertBefore(newRow, totalRow);
+  attachInputListeners(newRow);
+  saveFormData();
+}
+
+function deleteInsuranceRow(btn) {
+  const row = btn.closest('tr');
+  const tbody = document.getElementById('insurance-tbody');
+  if (tbody.querySelectorAll('tr[data-row]').length > 1) {
+    row.remove();
+    renumberInsuranceRows();
+  } else {
+    row.querySelectorAll('input').forEach(input => input.value = '');
+  }
+  calculateTotals();
+  saveFormData();
+}
+
+function renumberInsuranceRows() {
+  const tbody = document.getElementById('insurance-tbody');
+  const rows = tbody.querySelectorAll('tr[data-row]');
+  rows.forEach((row, index) => {
+    const num = index + 1;
+    row.setAttribute('data-row', num);
+    const inputs = row.querySelectorAll('input');
+    inputs[0].name = `insurance_${num}_company`;
+    inputs[1].name = `insurance_${num}_owner`;
+    inputs[2].name = `insurance_${num}_beneficiary`;
+    inputs[3].name = `insurance_${num}_face`;
+    inputs[4].name = `insurance_${num}_marriage`;
+    inputs[5].name = `insurance_${num}_valuation`;
+    inputs[6].name = `insurance_${num}_today`;
+  });
+}
+
+// Business Interest rows
+function addBusinessRow() {
+  const tbody = document.getElementById('business-tbody');
+  const totalRow = tbody.querySelector('.total-row');
+  const rowNum = getNextRowNumber('business-tbody');
+  const newRow = document.createElement('tr');
+  newRow.setAttribute('data-row', rowNum);
+  newRow.innerHTML = `
+    <td><input type="text" name="business_${rowNum}_name" value=""></td>
+    <td><input type="text" name="business_${rowNum}_interest" value=""></td>
+    <td class="amount">$ <input type="number" name="business_${rowNum}_marriage" step="0.01" value="" data-calc="business_marriage"></td>
+    <td class="amount">$ <input type="number" name="business_${rowNum}_valuation" step="0.01" value="" data-calc="business_valuation"></td>
+    <td class="amount">$ <input type="number" name="business_${rowNum}_today" step="0.01" value="" data-calc="business_today"></td>
+    <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteBusinessRow(this)">✕</button></td>
+  `;
+  tbody.insertBefore(newRow, totalRow);
+  attachInputListeners(newRow);
+  saveFormData();
+}
+
+function deleteBusinessRow(btn) {
+  const row = btn.closest('tr');
+  const tbody = document.getElementById('business-tbody');
+  if (tbody.querySelectorAll('tr[data-row]').length > 1) {
+    row.remove();
+    renumberBusinessRows();
+  } else {
+    row.querySelectorAll('input').forEach(input => input.value = '');
+  }
+  calculateTotals();
+  saveFormData();
+}
+
+function renumberBusinessRows() {
+  const tbody = document.getElementById('business-tbody');
+  const rows = tbody.querySelectorAll('tr[data-row]');
+  rows.forEach((row, index) => {
+    const num = index + 1;
+    row.setAttribute('data-row', num);
+    const inputs = row.querySelectorAll('input');
+    inputs[0].name = `business_${num}_name`;
+    inputs[1].name = `business_${num}_interest`;
+    inputs[2].name = `business_${num}_marriage`;
+    inputs[3].name = `business_${num}_valuation`;
+    inputs[4].name = `business_${num}_today`;
+  });
+}
+
+function calculateTotals() {
+  ['bank', 'insurance', 'business'].forEach(prefix => {
+    ['marriage', 'valuation', 'today'].forEach(suffix => {
+      let total = 0;
+      document.querySelectorAll(`[data-calc="${prefix}_${suffix}"]`).forEach(input => {
+        total += parseFloat(input.value) || 0;
+      });
+      document.getElementById(`total_${prefix}_${suffix}`).textContent = total.toFixed(2);
+      document.getElementById(`total_${prefix}_${suffix}_input`).value = total.toFixed(2);
+    });
+  });
+}
+
+function saveFormData() {
+  const formData = {};
+  document.querySelectorAll('input, textarea, select').forEach(input => {
+    if (input.name && input.type !== 'submit') {
+      formData[input.name] = input.type === 'checkbox' ? input.checked : input.value;
+    }
+  });
+  localStorage.setItem(FORM_KEY, JSON.stringify(formData));
+}
+
+function loadFormData() {
+  const saved = localStorage.getItem(FORM_KEY);
+  if (saved) {
+    const formData = JSON.parse(saved);
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+      if (input.name && formData.hasOwnProperty(input.name)) {
+        input.value = formData[input.name];
+      }
+    });
+  }
+  calculateTotals();
+}
+
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('change', () => { saveFormData(); calculateTotals(); });
+  input.addEventListener('input', () => { saveFormData(); calculateTotals(); });
+});
+loadFormData();
+</script>
+{% endblock %}

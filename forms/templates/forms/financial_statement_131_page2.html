@@ -1,0 +1,222 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block header %}Form 13.1: Financial Statement (Property and Support Claims){% endblock %}
+{% block subheader %}Page 2 of 10 • Income Proof & Income Sources{% endblock %}
+{% block content %}
+
+<style>
+  .page-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:rgba(99,102,241,0.04);border-radius:12px;border:1px solid #e2e8f0;}
+  .page-nav a{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;color:#64748b;background:white;border:1px solid #e2e8f0;transition:all 0.15s ease;}
+  .page-nav a:hover{background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3);color:#0f172a;}
+  .page-nav a.active{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:white;border-color:transparent;}
+  .form-header-131{display:flex;justify-content:space-between;align-items:flex-start;padding:18px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(16,185,129,0.05));border-radius:12px;margin-bottom:20px;border:1px solid #e2e8f0;}
+  .form-title-green{font-size:22px;color:#6bbf4e;font-weight:700;font-style:italic;}
+  .form-badge-131{padding:12px 16px;background:white;border:2px solid #222;border-radius:8px;text-align:center;font-weight:700;font-size:13px;line-height:1.4;}
+  .court-input{width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;transition:all 0.15s ease;}
+  .court-input:focus{outline:none;border-color:rgba(99,102,241,0.5);box-shadow:0 0 0 3px rgba(99,102,241,0.1);}
+  .input-hint{font-size:10px;font-style:italic;color:#64748b;margin-top:2px;}
+  .readonly-value{padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;min-height:20px;font-size:14px;}
+  .readonly-value.empty{color:#94a3b8;font-style:italic;}
+  .readonly-value.mono{font-family:monospace;}
+  .section-title{font-size:16px;font-weight:800;color:#0f172a;margin:24px 0 16px;padding:10px 16px;background:#f1f5f9;border-radius:8px;border-left:4px solid #4f46e5;}
+  .form-row{display:flex;gap:12px;margin-bottom:16px;}
+  .form-row .number{width:30px;font-weight:700;color:#64748b;}
+  .form-row .content{flex:1;}
+  .checkbox-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;}
+  .checkbox-row input[type="checkbox"]{margin-top:4px;}
+  .checkbox-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+  .info-card{background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:10px 14px;font-size:12px;margin:8px 0;}
+  .income-table{width:100%;border-collapse:collapse;margin:16px 0;}
+  .income-table th,.income-table td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left;}
+  .income-table th{background:#f8fafc;font-weight:700;font-size:13px;}
+  .income-table .row-num{width:40px;text-align:center;font-weight:700;color:#64748b;}
+  .income-table .amount{width:180px;}
+  .income-table .amount input{width:100%;padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;text-align:right;}
+  .income-table tr.total-row{background:#f1f5f9;font-weight:700;}
+  .actions-131{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0;}
+  .btn-nav-131{padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.15s ease;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+  .btn-secondary-131{background:white;border:1px solid #e2e8f0;color:#0f172a;}
+  .btn-secondary-131:hover{background:#f6f7fb;color:#0f172a;text-decoration:none;}
+  .btn-primary-131{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));border:none;color:white;}
+  .btn-primary-131:hover{filter:brightness(1.05);color:white;}
+  .form-footer-131{display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-top:20px;}
+</style>
+
+{% include 'forms/financial_statement_131_nav.html' with current_page=2 pk=pk %}
+
+<form method="post">
+{% csrf_token %}
+
+<!-- Header Section -->
+<div class="form-header-131">
+  <div style="flex:1;">
+    <!-- <div class="form-title-green">MySupportCalculator.ca</div> -->
+    <div style="margin-top:14px;">
+      <div style="text-align:center;font-weight:bold;font-size:15px;margin-bottom:8px;">ONTARIO</div>
+      <div style="margin-bottom:10px;">
+        <div class="readonly-value {% if not page1_data.court_name %}empty{% endif %}">{{ page1_data.court_name|default:"—" }}</div>
+        <div class="input-hint">(Name of court)</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:14px;">at</span>
+        <div style="flex:1;">
+          <div class="readonly-value {% if not page1_data.court_location %}empty{% endif %}">{{ page1_data.court_location|default:"—" }}</div>
+          <div class="input-hint">(Court office address)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="text-align:right;margin-left:20px;">
+    <div style="margin-bottom:8px;">
+      <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Court File Number</div>
+      <div class="readonly-value mono {% if not page1_data.court_file_number %}empty{% endif %}">{{ page1_data.court_file_number|default:"—" }}</div>
+    </div>
+    <div class="form-badge-131">
+      Form 13.1: Financial<br>Statement (Property and<br>Support Claims)<br>
+      <span style="font-weight:normal;">(page 2)</span>
+    </div>
+  </div>
+</div>
+
+<!-- Item 3: Income Proof -->
+<div class="form-row">
+  <div class="number">3.</div>
+  <div class="content">
+    <div style="margin-bottom:12px;"><strong>I attach proof of my year-to-date income from all sources, including my most recent</strong> <em>(attach all that are applicable):</em></div>
+    <div class="checkbox-grid">
+      <div class="checkbox-row"><input type="checkbox" name="pay_cheque_stub" id="pay_cheque_stub" {% if page_data.pay_cheque_stub %}checked{% endif %}><label for="pay_cheque_stub">pay cheque stub</label></div>
+      <div class="checkbox-row"><input type="checkbox" name="social_assistance_stub" id="social_assistance_stub" {% if page_data.social_assistance_stub %}checked{% endif %}><label for="social_assistance_stub">social assistance stub</label></div>
+      <div class="checkbox-row"><input type="checkbox" name="pension_stub" id="pension_stub" {% if page_data.pension_stub %}checked{% endif %}><label for="pension_stub">pension stub</label></div>
+      <div class="checkbox-row"><input type="checkbox" name="workers_comp_stub" id="workers_comp_stub" {% if page_data.workers_comp_stub %}checked{% endif %}><label for="workers_comp_stub">workers' compensation stub</label></div>
+    </div>
+    <div class="checkbox-row"><input type="checkbox" name="ei_stub" id="ei_stub" {% if page_data.ei_stub %}checked{% endif %}><label for="ei_stub">employment insurance stub and last Record of Employment</label></div>
+    <div class="checkbox-row"><input type="checkbox" name="self_employed_statement" id="self_employed_statement" {% if page_data.self_employed_statement %}checked{% endif %}><label for="self_employed_statement">statement of income and expenses/professional activities (for self-employed individuals)</label></div>
+    <div class="checkbox-row"><input type="checkbox" name="employer_letter" id="employer_letter" {% if page_data.employer_letter %}checked{% endif %}><label for="employer_letter">other (e.g. a letter from your employer confirming all income received to date this year)</label></div>
+  </div>
+</div>
+
+<!-- Item 4: Last Year Gross Income -->
+<div class="form-row">
+  <div class="number">4.</div>
+  <div class="content">
+    <div style="margin-bottom:10px;"><strong>Last year, my gross income from all sources was $</strong> <em>(do not subtract any taxes that have been deducted from this income).</em></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span>$</span>
+      <input type="number" name="last_year_gross_income" class="court-input" style="width:200px;" step="0.01" value="{{ page_data.last_year_gross_income|default:'' }}">
+    </div>
+  </div>
+</div>
+
+<!-- Item 5: Attach Documents -->
+<div class="form-row">
+  <div class="number">5.</div>
+  <div class="content">
+    <div class="checkbox-row">
+      <input type="checkbox" name="attach_tax_docs" id="attach_tax_docs" {% if page_data.attach_tax_docs %}checked{% endif %}>
+      <label for="attach_tax_docs"><strong>I am attaching all of the following required documents to this financial statement as proof of my income over the past three years</strong>, if they have not already been provided:</label>
+    </div>
+    <ul style="margin:12px 0 12px 30px;font-size:13px;line-height:1.7;">
+      <li>a copy of my personal income tax returns for each of the past three taxation years, including any materials that were filed with the returns. <em>(Income tax returns must be served but should NOT be filed in the continuing record, unless they are filed with a motion to refrain a driver's license suspension.)</em></li>
+      <li>a copy of my notices of assessment and any notices of reassessment for each of the past three taxation years;</li>
+      <li>where my notices of assessment and reassessment are unavailable for any of the past three taxation years or where I have not filed a return for any of the past three taxation years, an Income and Deductions printout from the Canada Revenue Agency for each of those years, whether or not I filed an income tax return.</li>
+    </ul>
+    <div class="info-card"><em>Note: An Income and Deductions printout is available from Canada Revenue Agency. Please call customer service at 1-800-959-8281.</em></div>
+    <div style="margin:16px 0;font-weight:700;text-align:center;">OR</div>
+    <div class="checkbox-row">
+      <input type="checkbox" name="indian_act" id="indian_act" {% if page_data.indian_act %}checked{% endif %}>
+      <label for="indian_act">I am an Indian within the meaning of the <em>Indian Act</em> (Canada) and I have chosen not to file income tax returns for the past three years. I am attaching the following proof of income for the last three years <em>(list documents you have provided):</em></label>
+    </div>
+    <textarea name="indian_act_docs" class="court-input" rows="2" style="margin-top:8px;">{{ page_data.indian_act_docs|default:'' }}</textarea>
+  </div>
+</div>
+
+<!-- Income Table -->
+<p style="font-size:12px;font-style:italic;margin:20px 0 10px;">(In this table you must show all of the income that you are currently receiving whether taxable or not.)</p>
+
+<table class="income-table">
+  <thead>
+    <tr>
+      <th class="row-num">#</th>
+      <th>Income Source</th>
+      <th class="amount">Amount Received/Month</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="row-num">1.</td><td>Employment income (before deductions)</td><td class="amount"><input type="number" name="income_employment" step="0.01" value="{{ page_data.income_employment|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">2.</td><td>Commissions, tips and bonuses</td><td class="amount"><input type="number" name="income_commissions" step="0.01" value="{{ page_data.income_commissions|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">3.</td><td>Self-employment income (Monthly amount before expenses: $<input type="number" name="self_emp_before_expenses" step="0.01" value="{{ page_data.self_emp_before_expenses|default:'' }}" style="width:100px;margin:0 4px;">)</td><td class="amount"><input type="number" name="income_self_employment" step="0.01" value="{{ page_data.income_self_employment|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">4.</td><td>Employment Insurance benefits</td><td class="amount"><input type="number" name="income_ei" step="0.01" value="{{ page_data.income_ei|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">5.</td><td>Workers' compensation benefits</td><td class="amount"><input type="number" name="income_workers_comp" step="0.01" value="{{ page_data.income_workers_comp|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">6.</td><td>Social assistance income (including ODSP payments)</td><td class="amount"><input type="number" name="income_social_assistance" step="0.01" value="{{ page_data.income_social_assistance|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">7.</td><td>Interest and investment income</td><td class="amount"><input type="number" name="income_interest" step="0.01" value="{{ page_data.income_interest|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">8.</td><td>Pension income (including CPP and OAS)</td><td class="amount"><input type="number" name="income_pension" step="0.01" value="{{ page_data.income_pension|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">9.</td><td>Spousal support received from a former spouse/partner</td><td class="amount"><input type="number" name="income_spousal_support" step="0.01" value="{{ page_data.income_spousal_support|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">10.</td><td>Child Tax Benefits or Tax Rebates (e.g. GST)</td><td class="amount"><input type="number" name="income_child_tax" step="0.01" value="{{ page_data.income_child_tax|default:'' }}" data-calc="income"></td></tr>
+    <tr><td class="row-num">11.</td><td>Other sources of income (e.g. RRSP withdrawals, capital gains) <em>(*attach Schedule A and divide annual amount by 12)</em></td><td class="amount"><input type="number" name="income_other" step="0.01" value="{{ page_data.income_other|default:'' }}" data-calc="income"></td></tr>
+    <tr class="total-row"><td class="row-num">12.</td><td><strong>Total monthly income from all sources:</strong></td><td class="amount">$ <span id="total_monthly_income">0.00</span><input type="hidden" name="total_monthly_income" id="total_monthly_income_input" value="{{ page_data.total_monthly_income|default:'0' }}"></td></tr>
+    <tr class="total-row"><td class="row-num">13.</td><td><strong>Total monthly income X 12 = Total annual income:</strong></td><td class="amount">$ <span id="total_annual_income">0.00</span><input type="hidden" name="total_annual_income" id="total_annual_income_input" value="{{ page_data.total_annual_income|default:'0' }}"></td></tr>
+  </tbody>
+</table>
+
+<!-- Form Actions -->
+<div class="actions-131">
+  <button type="submit" name="prev" class="btn-nav-131 btn-secondary-131">← Previous Page</button>
+  <button type="submit" class="btn-nav-131 btn-primary-131">Save & Continue →</button>
+</div>
+
+<!-- Footer -->
+<div class="form-footer-131">
+  <div>FLR 13.1 (May 1, 2021)</div>
+  <div>Page 2 of 10</div>
+</div>
+
+</form>
+
+<script>
+const FORM_KEY = 'form131_page2_{{ pk }}';
+
+function calculateTotals() {
+  let total = 0;
+  document.querySelectorAll('[data-calc="income"]').forEach(input => {
+    total += parseFloat(input.value) || 0;
+  });
+  document.getElementById('total_monthly_income').textContent = total.toFixed(2);
+  document.getElementById('total_monthly_income_input').value = total.toFixed(2);
+  document.getElementById('total_annual_income').textContent = (total * 12).toFixed(2);
+  document.getElementById('total_annual_income_input').value = (total * 12).toFixed(2);
+}
+
+function saveFormData() {
+  const formData = {};
+  document.querySelectorAll('input, textarea, select').forEach(input => {
+    if (input.name && input.type !== 'submit') {
+      formData[input.name] = input.type === 'checkbox' ? input.checked : input.value;
+    }
+  });
+  localStorage.setItem(FORM_KEY, JSON.stringify(formData));
+}
+
+function loadFormData() {
+  const saved = localStorage.getItem(FORM_KEY);
+  if (saved) {
+    const formData = JSON.parse(saved);
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+      if (input.name && formData.hasOwnProperty(input.name)) {
+        if (input.type === 'checkbox') {
+          input.checked = formData[input.name];
+        } else {
+          input.value = formData[input.name];
+        }
+      }
+    });
+  }
+  calculateTotals();
+}
+
+document.querySelectorAll('input, textarea, select').forEach(input => {
+  input.addEventListener('change', () => { saveFormData(); calculateTotals(); });
+  input.addEventListener('input', () => { saveFormData(); calculateTotals(); });
+});
+loadFormData();
+</script>
+{% endblock %}

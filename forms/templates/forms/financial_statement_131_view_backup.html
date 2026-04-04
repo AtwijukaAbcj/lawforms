@@ -1,0 +1,494 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  :root {
+    --bg: #f2f4f8;
+    --paper: #ffffff;
+    --text: #0f172a;
+    --muted: #64748b;
+    --line: #dbe3ef;
+    --indigo: 99, 102, 241;
+    --emerald: 16, 185, 129;
+  }
+
+  body { background: var(--bg); }
+
+  .view-wrap {
+    max-width: 1280px;
+    margin: 18px auto;
+    padding: 0 12px;
+  }
+
+  .top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    background: var(--paper);
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.06);
+  }
+
+  .top-actions h2 {
+    margin: 0;
+    font-size: 20px;
+    color: var(--text);
+  }
+
+  .top-actions p {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .btn-nav-131 {
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--line);
+    background: #ffffff;
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 800;
+    font-size: 13px;
+    transition: all 0.15s ease;
+  }
+
+  .btn-nav-131:hover {
+    color: var(--text);
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.10);
+  }
+
+  .btn-primary-131 {
+    border: none;
+    background: linear-gradient(135deg, rgba(var(--indigo), 0.95), rgba(79, 70, 229, 0.95));
+    color: #ffffff;
+  }
+
+  .btn-primary-131:hover {
+    color: #ffffff;
+  }
+
+  .a4-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    align-items: center;
+  }
+
+  .a4-page {
+    width: 210mm;
+    min-height: 297mm;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
+    padding: 12mm;
+    box-sizing: border-box;
+    page-break-after: always;
+  }
+
+  .a4-page:last-child {
+    page-break-after: auto;
+  }
+
+  .form-header-131 {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: linear-gradient(135deg, rgba(var(--indigo), 0.08), rgba(var(--emerald), 0.06));
+    margin-bottom: 12px;
+  }
+
+  .form-title-green {
+    font-size: 20px;
+    color: #6bbf4e;
+    font-style: italic;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .form-badge-131 {
+    border: 2px solid #1f2937;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: center;
+    padding: 10px 12px;
+    width: 210px;
+  }
+
+  .readonly-value {
+    width: 100%;
+    min-height: 32px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 700;
+    box-sizing: border-box;
+  }
+
+  .readonly-value.empty {
+    color: var(--muted);
+    font-weight: 500;
+  }
+
+  .input-hint {
+    margin-top: 2px;
+    font-size: 10px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .section-title {
+    margin: 12px 0 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(var(--indigo), 0.12), rgba(var(--emerald), 0.08));
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+  }
+
+  .stats-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .chip {
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 11px;
+    font-weight: 800;
+    border: 1px solid var(--line);
+    color: var(--muted);
+    background: #f8fafc;
+  }
+
+  .chip.ok {
+    color: #065f46;
+    background: rgba(var(--emerald), 0.12);
+    border-color: rgba(var(--emerald), 0.28);
+  }
+
+  .page-header-card {
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #f8fbff;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+  }
+
+  .page-header-card h3 {
+    margin: 0;
+    font-size: 14px;
+    color: #0f172a;
+    font-weight: 900;
+  }
+
+  .page-header-card p {
+    margin: 4px 0 0;
+    font-size: 12px;
+    color: #475569;
+  }
+
+  .mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  /* ── Styles copied from page templates so injected HTML renders correctly ── */
+  .panel-131 {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: white;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+  .panel-header-131 {
+    background: #f5f5f5;
+    padding: 12px 16px;
+    font-weight: 800;
+    font-size: 13px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  .panel-body-131 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .panel-cell-131 {
+    padding: 14px 16px;
+    border-right: 1px solid #e2e8f0;
+  }
+  .panel-cell-131:last-child { border-right: none; }
+  .panel-cell-label {
+    font-size: 11px;
+    font-style: italic;
+    color: #64748b;
+    margin-bottom: 8px;
+  }
+  .instructions-box-131 {
+    background: #e8edc8;
+    border: 1px solid #b0b894;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .instructions-box-131 h3 {
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 14px;
+    color: #0f172a;
+    text-decoration: underline;
+  }
+  .instructions-box-131 p {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    color: #0f172a;
+  }
+  .instructions-box-131 ol,
+  .instructions-box-131 ul {
+    padding-left: 20px;
+    margin: 0 0 10px;
+  }
+  .instructions-box-131 li {
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 6px;
+    color: #0f172a;
+  }
+  /* Blue section-title used by pages 2-33 */
+  .section-title-blue {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 14px;
+    margin: 24px 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  /* Pages 2-33 reuse the class name "section-title" with a blue gradient */
+  .a4-page .section-title[class="section-title"] {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 800;
+    font-size: 14px;
+    margin: 24px 0 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .form-row .number {
+    font-weight: 800;
+    font-size: 14px;
+    min-width: 30px;
+    color: #0f172a;
+  }
+  .form-row .content { flex: 1; }
+  .checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  .checkbox-row label {
+    font-size: 13px;
+    color: #0f172a;
+    flex: 1;
+  }
+  .checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin: 12px 0;
+  }
+  .sub-input {
+    margin-top: 8px;
+    padding-left: 28px;
+  }
+  .info-card {
+    background: #e8edc8;
+    border: 1px solid #b0b894;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 16px 0;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  /* Read-only value boxes shown instead of inputs */
+  .readonly-value {
+    width: 100%;
+    min-height: 32px;
+    padding: 7px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #f8fafc;
+    color: #0f172a;
+    font-size: 13px;
+    font-weight: 600;
+    box-sizing: border-box;
+    display: block;
+  }
+  .readonly-value.empty {
+    color: #94a3b8;
+    font-style: italic;
+    font-weight: 400;
+  }
+  .readonly-checkbox {
+    width: 18px;
+    height: 18px;
+    margin-top: 3px;
+  }
+  .input-hint {
+    margin-top: 2px;
+    font-size: 10px;
+    color: #64748b;
+    font-style: italic;
+  }
+  /* Neutralise court-input styling on any leftover elements */
+  .a4-page .court-input {
+    pointer-events: none;
+    background: #f8fafc;
+    border-color: #cbd5e1;
+  }
+
+  @media (max-width: 900px) {
+    .a4-page { width: 100%; min-height: auto; padding: 14px; }
+    .form-header-131 { flex-direction: column; }
+    .form-badge-131 { width: 100%; }
+    .panel-body-131 { grid-template-columns: 1fr; }
+  }
+
+  @media print {
+    .no-print { display: none !important; }
+    .view-wrap { max-width: 100%; margin: 0; padding: 0; }
+    .a4-stack { gap: 0; }
+    .a4-page {
+      width: 210mm;
+      min-height: 297mm;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      margin: 0;
+      page-break-after: always;
+    }
+    .a4-page:last-child { page-break-after: auto; }
+  }
+</style>
+
+<div class="view-wrap">
+  <div class="top-actions no-print">
+    <div>
+      <h2>Form 13.1 — Read-Only View</h2>
+      <p>One A4 sheet per page section. All fields and instructions are shown exactly as in the edit form.</p>
+    </div>
+    <div class="action-group">
+      <a class="btn-nav-131 btn-primary-131" href="{% url 'financial_statement_131_print' statement.id %}" target="_blank">Print Form</a>
+      <a class="btn-nav-131" href="{% url 'financial_statement_131_page1' statement.id %}">Edit</a>
+      <a class="btn-nav-131" href="{% url 'financial_statement_131_list' %}">Back to List</a>
+    </div>
+  </div>
+
+  <div class="a4-stack">
+    {% for page in ordered_pages %}
+    <section class="a4-page">
+
+      {% if page.number == 1 %}
+      <!-- Full header for page 1 -->
+      <div class="form-header-131">
+        <div style="flex:1; min-width:0;">
+          <!-- <div class="form-title-green">MySupportCalculator.ca</div> -->
+          <div style="font-weight:800; text-align:center; font-size:14px; margin-bottom:8px;">ONTARIO</div>
+          <div style="margin-bottom:8px;">
+            <div class="readonly-value {% if not pages.page1.court_name %}empty{% endif %}">{{ pages.page1.court_name|default:"—" }}</div>
+            <div class="input-hint">(Name of court)</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-size:13px;">at</span>
+            <div style="flex:1; min-width:0;">
+              <div class="readonly-value {% if not pages.page1.court_location %}empty{% endif %}">{{ pages.page1.court_location|default:"—" }}</div>
+              <div class="input-hint">(Court office address)</div>
+            </div>
+          </div>
+        </div>
+        <div style="width:230px;">
+          <div style="font-size:12px; font-weight:800; margin-bottom:4px; text-align:right;">Court File Number</div>
+          <div class="readonly-value mono {% if not pages.page1.court_file_number %}empty{% endif %}" style="margin-bottom:8px; text-align:right;">{{ pages.page1.court_file_number|default:court_file_number|default:"—" }}</div>
+          <div class="form-badge-131">Form 13.1: Financial<br>Statement (Property and<br>Support Claims)<br><span style="font-weight:500;">sworn/affirmed</span></div>
+        </div>
+      </div>
+      {% else %}
+      <!-- Simplified header for pages 2-33 -->
+      <div class="form-header-131">
+        <div style="flex:1;">
+          <!-- <div class="form-title-green">MySupportCalculator.ca</div> -->
+          <div style="margin-top:8px; font-size:13px;"><strong>Form 13.1:</strong> Financial Statement (Property and Support Claims) <span style="color:#64748b;">(page {{ page.number }})</span></div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-size:12px; color:#64748b;">Court File Number:</div>
+          <div class="readonly-value mono {% if not pages.page1.court_file_number %}empty{% endif %}" style="width:160px; text-align:right;">{{ pages.page1.court_file_number|default:court_file_number|default:"—" }}</div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Stats chips -->
+      <!-- <div class="stats-row">
+        <span class="chip {% if page.has_data %}ok{% endif %}">{% if page.has_data %}Saved{% else %}Empty{% endif %}</span>
+        <span class="chip">Page {{ page.number }} of 33</span>
+        <span class="chip">Fields: {{ page.populated_count }}/{{ page.expected_field_count }}</span>
+        <span class="chip">Missing: {{ page.missing_count }}</span>
+        <span class="chip">Record: #{{ statement.id }}</span>
+      </div> -->
+
+      <!-- Transformed page content (labels, instructions, readonly fields) -->
+      {% if page.html %}
+        {{ page.html|safe }}
+      {% else %}
+        <div style="padding:20px; color:#94a3b8; font-style:italic; text-align:center;">
+          No template content found for page {{ page.number }}.
+        </div>
+      {% endif %}
+
+    </section>
+    {% endfor %}
+  </div>
+</div>
+
+{% endblock %}
+

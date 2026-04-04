@@ -1,0 +1,348 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block header %}Form 13.1: Financial Statement (Property and Support Claims){% endblock %}
+{% block subheader %}Page 10 of 10 • Schedule A & Schedule B{% endblock %}
+{% block content %}
+
+<style>
+  .page-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:rgba(99,102,241,0.04);border-radius:12px;border:1px solid #e2e8f0;}
+  .page-nav a{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;color:#64748b;background:white;border:1px solid #e2e8f0;transition:all 0.15s ease;}
+  .page-nav a:hover{background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3);color:#0f172a;}
+  .page-nav a.active{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:white;border-color:transparent;}
+  .form-header-131{display:flex;justify-content:space-between;align-items:flex-start;padding:18px;background:linear-gradient(135deg,rgba(99,102,241,0.08),rgba(16,185,129,0.05));border-radius:12px;margin-bottom:20px;border:1px solid #e2e8f0;}
+  .court-input{width:100%;padding:8px 12px;border:1px solid #cbd5e1;border-radius:8px;font-size:14px;}
+  .readonly-value{padding:8px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;min-height:20px;font-size:14px;}
+  .section-title{font-size:16px;font-weight:800;color:#0f172a;margin:24px 0 16px;padding:10px 16px;background:#f1f5f9;border-radius:8px;border-left:4px solid #4f46e5;}
+  .schedule-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px;}
+  .schedule-table th,.schedule-table td{border:1px solid #e2e8f0;padding:10px 12px;text-align:left;}
+  .schedule-table th{background:#f8fafc;font-weight:700;}
+  .schedule-table input{width:100%;padding:6px 10px;border:1px solid #cbd5e1;border-radius:6px;}
+  .schedule-table input[type="number"]{text-align:right;}
+  .schedule-table .line-num{width:40px;text-align:center;font-weight:700;color:#64748b;}
+  .schedule-table .amount{width:140px;}
+  .schedule-table tr.total-row{background:#f1f5f9;font-weight:700;}
+  .info-card{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:12px 14px;font-size:11px;margin:16px 0;}
+  .checkbox-row{display:flex;align-items:center;gap:8px;margin:12px 0;}
+  .actions-131{display:flex;justify-content:space-between;align-items:center;margin-top:24px;padding-top:20px;border-top:1px solid #e2e8f0;}
+  .btn-nav-131{padding:12px 24px;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;transition:all 0.15s ease;display:inline-flex;align-items:center;gap:8px;cursor:pointer;}
+  .btn-secondary-131{background:white;border:1px solid #e2e8f0;color:#0f172a;}
+  .btn-primary-131{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));border:none;color:white;}
+  .btn-success-131{background:linear-gradient(135deg,#10b981,#059669);border:none;color:white;}
+  .form-footer-131{display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-top:20px;}
+  .btn-delete-row{background:#fee2e2;color:#dc2626;border:1px solid #fecaca;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:12px;}
+  .btn-delete-row:hover{background:#fecaca;}
+  .btn-add-row{background:#dcfce7;color:#16a34a;border:1px solid #bbf7d0;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;font-weight:600;margin-top:8px;}
+  .btn-add-row:hover{background:#bbf7d0;}
+  .action-col{width:50px;text-align:center;}
+</style>
+
+{% include 'forms/financial_statement_131_nav.html' with current_page=10 pk=pk %}
+
+<form method="post">
+{% csrf_token %}
+
+<!-- Header Section -->
+<div class="form-header-131">
+  <div style="flex:1;">
+    <div style="font-weight:bold;font-size:15px;margin-bottom:4px;">Form 13.1: Financial Statement (Property and Support Claims)</div>
+    <div style="font-size:12px;color:#64748b;">(page 10)</div>
+  </div>
+  <div style="text-align:right;">
+    <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Court file number</div>
+    <div class="readonly-value" style="width:150px;">{{ page1_data.court_file_number|default:"—" }}</div>
+  </div>
+</div>
+
+<!-- Schedule A: Additional Sources of Income -->
+<div class="section-title">Schedule A: Additional Sources of Income</div>
+
+<table class="schedule-table">
+  <thead>
+    <tr>
+      <th class="line-num">Line</th>
+      <th>Income Source</th>
+      <th class="amount">Annual Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="line-num">1.</td>
+      <td>Net partnership income</td>
+      <td class="amount">$ <input type="number" name="sched_a_1" step="0.01" value="{{ page_data.sched_a_1|default:'' }}" data-calc="sched_a"></td>
+    </tr>
+    <tr>
+      <td class="line-num">2.</td>
+      <td>Net rental income (Gross annual rental income of $ <input type="number" name="sched_a_2_gross" step="0.01" value="{{ page_data.sched_a_2_gross|default:'' }}" style="width:100px;text-align:right;"> )</td>
+      <td class="amount">$ <input type="number" name="sched_a_2" step="0.01" value="{{ page_data.sched_a_2|default:'' }}" data-calc="sched_a"></td>
+    </tr>
+    <tr>
+      <td class="line-num">3.</td>
+      <td>Total amount of dividends received from taxable Canadian corporations</td>
+      <td class="amount">$ <input type="number" name="sched_a_3" step="0.01" value="{{ page_data.sched_a_3|default:'' }}" data-calc="sched_a"></td>
+    </tr>
+    <tr>
+      <td class="line-num">4.</td>
+      <td>Total capital gains ($ <input type="number" name="sched_a_4_gains" step="0.01" value="{{ page_data.sched_a_4_gains|default:'' }}" style="width:80px;text-align:right;"> ) less capital losses ($ <input type="number" name="sched_a_4_losses" step="0.01" value="{{ page_data.sched_a_4_losses|default:'' }}" style="width:80px;text-align:right;"> )</td>
+      <td class="amount">$ <input type="number" name="sched_a_4" step="0.01" value="{{ page_data.sched_a_4|default:'' }}" data-calc="sched_a"></td>
+    </tr>
+    <tr>
+      <td class="line-num">5.</td>
+      <td>Registered retirement savings plan withdrawals</td>
+      <td class="amount">$ <input type="number" name="sched_a_5" step="0.01" value="{{ page_data.sched_a_5|default:'' }}" data-calc="sched_a"></td>
+    </tr>
+    <tr>
+      <td class="line-num">6.</td>
+      <td>Income from a Registered Retirement Income Fund or Annuity</td>
+      <td class="amount">$ <input type="number" name="sched_a_6" step="0.01" value="{{ page_data.sched_a_6|default:'' }}" data-calc="sched_a"></td>
+    </tr>
+    <tr>
+      <td class="line-num">7.</td>
+      <td>Any other income (specify source) <input type="text" name="sched_a_7_source" value="{{ page_data.sched_a_7_source|default:'' }}" style="width:200px;margin-left:8px;"></td>
+      <td class="amount">$ <input type="number" name="sched_a_7" step="0.01" value="{{ page_data.sched_a_7|default:'' }}" data-calc="sched_a"></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="2" style="text-align:right;"><strong>Subtotal:</strong></td>
+      <td class="amount">$ <span id="sched_a_subtotal">0.00</span></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Schedule B: Special or Extraordinary Expenses for the Child(ren) -->
+<div class="section-title">Schedule B: Special or Extraordinary Expenses for the Child(ren)</div>
+
+<table class="schedule-table" id="sched-b-table">
+  <thead>
+    <tr>
+      <th></th>
+      <th>Child's Name</th>
+      <th>Expense</th>
+      <th class="amount">Amount/yr.</th>
+      <th class="amount">Available Tax Credits or Deductions*</th>
+      <th class="action-col"></th>
+    </tr>
+  </thead>
+  <tbody id="sched-b-tbody">
+    <tr data-row="1">
+      <td class="line-num">1.</td>
+      <td><input type="text" name="sched_b_1_child" value="{{ page_data.sched_b_1_child|default:'' }}"></td>
+      <td><input type="text" name="sched_b_1_expense" value="{{ page_data.sched_b_1_expense|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="sched_b_1_amount" step="0.01" value="{{ page_data.sched_b_1_amount|default:'' }}" data-calc="sched_b_amount"></td>
+      <td class="amount">$ <input type="number" name="sched_b_1_credit" step="0.01" value="{{ page_data.sched_b_1_credit|default:'' }}" data-calc="sched_b_credit"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteSchedBRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="2">
+      <td class="line-num">2.</td>
+      <td><input type="text" name="sched_b_2_child" value="{{ page_data.sched_b_2_child|default:'' }}"></td>
+      <td><input type="text" name="sched_b_2_expense" value="{{ page_data.sched_b_2_expense|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="sched_b_2_amount" step="0.01" value="{{ page_data.sched_b_2_amount|default:'' }}" data-calc="sched_b_amount"></td>
+      <td class="amount">$ <input type="number" name="sched_b_2_credit" step="0.01" value="{{ page_data.sched_b_2_credit|default:'' }}" data-calc="sched_b_credit"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteSchedBRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="3">
+      <td class="line-num">3.</td>
+      <td><input type="text" name="sched_b_3_child" value="{{ page_data.sched_b_3_child|default:'' }}"></td>
+      <td><input type="text" name="sched_b_3_expense" value="{{ page_data.sched_b_3_expense|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="sched_b_3_amount" step="0.01" value="{{ page_data.sched_b_3_amount|default:'' }}" data-calc="sched_b_amount"></td>
+      <td class="amount">$ <input type="number" name="sched_b_3_credit" step="0.01" value="{{ page_data.sched_b_3_credit|default:'' }}" data-calc="sched_b_credit"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteSchedBRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="4">
+      <td class="line-num">4.</td>
+      <td><input type="text" name="sched_b_4_child" value="{{ page_data.sched_b_4_child|default:'' }}"></td>
+      <td><input type="text" name="sched_b_4_expense" value="{{ page_data.sched_b_4_expense|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="sched_b_4_amount" step="0.01" value="{{ page_data.sched_b_4_amount|default:'' }}" data-calc="sched_b_amount"></td>
+      <td class="amount">$ <input type="number" name="sched_b_4_credit" step="0.01" value="{{ page_data.sched_b_4_credit|default:'' }}" data-calc="sched_b_credit"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteSchedBRow(this)">✕</button></td>
+    </tr>
+    <tr data-row="5">
+      <td class="line-num">5.</td>
+      <td><input type="text" name="sched_b_5_child" value="{{ page_data.sched_b_5_child|default:'' }}"></td>
+      <td><input type="text" name="sched_b_5_expense" value="{{ page_data.sched_b_5_expense|default:'' }}"></td>
+      <td class="amount">$ <input type="number" name="sched_b_5_amount" step="0.01" value="{{ page_data.sched_b_5_amount|default:'' }}" data-calc="sched_b_amount"></td>
+      <td class="amount">$ <input type="number" name="sched_b_5_credit" step="0.01" value="{{ page_data.sched_b_5_credit|default:'' }}" data-calc="sched_b_credit"></td>
+      <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteSchedBRow(this)">✕</button></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="3" style="text-align:right;"><strong>Total Net Annual Amount</strong></td>
+      <td class="amount">$ <span id="sched_b_annual">0.00</span></td>
+      <td class="amount"></td>
+      <td class="action-col"></td>
+    </tr>
+    <tr class="total-row">
+      <td colspan="3" style="text-align:right;"><strong>Total Net Monthly Amount</strong></td>
+      <td class="amount">$ <span id="sched_b_monthly">0.00</span></td>
+      <td class="amount"></td>
+      <td class="action-col"></td>
+    </tr>
+  </tbody>
+</table>
+<button type="button" class="btn-add-row" onclick="addSchedBRow()">+ Add Row</button>
+
+<div class="info-card">
+  <strong>*</strong> Some of these expenses can be claimed in a parent's income tax return in relation to a tax credit or deduction (for example childcare costs). These credits or deductions must be shown in the above chart.
+</div>
+
+<div class="checkbox-row">
+  <input type="checkbox" name="sched_b_income_checkbox" id="sched_b_income_checkbox" {% if page_data.sched_b_income_checkbox %}checked{% endif %}>
+  <label for="sched_b_income_checkbox">I earn $ <input type="number" name="sched_b_income" step="0.01" value="{{ page_data.sched_b_income|default:'' }}" style="width:120px;"> per year which should be used to determine my share of the above expenses.</label>
+</div>
+
+<div class="info-card" style="background:#f0fdf4;border-color:#86efac;">
+  <strong>NOTE:</strong> Pursuant to the Child Support Guidelines, a court can order that the parents of a child share the costs of the following expenses for the child:
+  <ul style="margin:8px 0 0 16px;">
+    <li>Necessary childcare expenses;</li>
+    <li>Medical insurance premiums and certain health-related expenses for the child that cost more than $100 annually;</li>
+    <li>Extraordinary expenses for the child's education;</li>
+    <li>Post-secondary school expenses; and,</li>
+    <li>Extraordinary expenses for extracurricular activities.</li>
+  </ul>
+</div>
+
+<!-- Hidden inputs -->
+<input type="hidden" name="sched_a_subtotal" id="sched_a_subtotal_input" value="">
+<input type="hidden" name="sched_b_annual" id="sched_b_annual_input" value="">
+<input type="hidden" name="sched_b_monthly" id="sched_b_monthly_input" value="">
+
+<!-- Form Actions -->
+<div class="actions-131">
+  <button type="submit" name="prev" class="btn-nav-131 btn-secondary-131">← Previous Page</button>
+  <div style="display:flex;gap:12px;">
+    <button type="submit" class="btn-nav-131 btn-primary-131">Save Form</button>
+    <!-- <a href="{% url 'financial_statement_131_print' pk %}" class="btn-nav-131 btn-success-131" target="_blank">🖨️ Print/PDF</a> -->
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="form-footer-131">
+  <div>FLR 13.1 (May 1, 2021)</div>
+  <div>Page 10 of 10</div>
+</div>
+
+</form>
+
+<script>
+const FORM_KEY = 'form131_page10_{{ pk }}';
+
+// Row management functions
+function getNextRowNumber(tbodyId) {
+  const tbody = document.getElementById(tbodyId);
+  const rows = tbody.querySelectorAll('tr[data-row]');
+  let maxNum = 0;
+  rows.forEach(row => {
+    const num = parseInt(row.getAttribute('data-row')) || 0;
+    if (num > maxNum) maxNum = num;
+  });
+  return maxNum + 1;
+}
+
+function addSchedBRow() {
+  const tbody = document.getElementById('sched-b-tbody');
+  const totalRows = tbody.querySelectorAll('.total-row');
+  const rowNum = getNextRowNumber('sched-b-tbody');
+  const newRow = document.createElement('tr');
+  newRow.setAttribute('data-row', rowNum);
+  newRow.innerHTML = `
+    <td class="line-num">${rowNum}.</td>
+    <td><input type="text" name="sched_b_${rowNum}_child" value=""></td>
+    <td><input type="text" name="sched_b_${rowNum}_expense" value=""></td>
+    <td class="amount">$ <input type="number" name="sched_b_${rowNum}_amount" step="0.01" value="" data-calc="sched_b_amount"></td>
+    <td class="amount">$ <input type="number" name="sched_b_${rowNum}_credit" step="0.01" value="" data-calc="sched_b_credit"></td>
+    <td class="action-col"><button type="button" class="btn-delete-row" onclick="deleteSchedBRow(this)">✕</button></td>
+  `;
+  tbody.insertBefore(newRow, totalRows[0]);
+  attachInputListeners(newRow);
+  saveFormData();
+}
+
+function deleteSchedBRow(btn) {
+  const row = btn.closest('tr');
+  const tbody = document.getElementById('sched-b-tbody');
+  if (tbody.querySelectorAll('tr[data-row]').length > 1) {
+    row.remove();
+    renumberSchedBRows();
+  } else {
+    row.querySelectorAll('input').forEach(input => input.value = '');
+  }
+  calculateTotals();
+  saveFormData();
+}
+
+function renumberSchedBRows() {
+  const tbody = document.getElementById('sched-b-tbody');
+  const rows = tbody.querySelectorAll('tr[data-row]');
+  rows.forEach((row, index) => {
+    const num = index + 1;
+    row.setAttribute('data-row', num);
+    row.querySelector('.line-num').textContent = num + '.';
+    const inputs = row.querySelectorAll('input');
+    inputs[0].name = `sched_b_${num}_child`;
+    inputs[1].name = `sched_b_${num}_expense`;
+    inputs[2].name = `sched_b_${num}_amount`;
+    inputs[3].name = `sched_b_${num}_credit`;
+  });
+}
+
+function attachInputListeners(container) {
+  container.querySelectorAll('input').forEach(input => {
+    input.addEventListener('change', () => { saveFormData(); calculateTotals(); });
+    input.addEventListener('input', () => { saveFormData(); calculateTotals(); });
+  });
+}
+
+function calculateTotals() {
+  // Schedule A subtotal
+  let schedATotal = 0;
+  document.querySelectorAll('[data-calc="sched_a"]').forEach(input => {
+    schedATotal += parseFloat(input.value) || 0;
+  });
+  document.getElementById('sched_a_subtotal').textContent = schedATotal.toFixed(2);
+  document.getElementById('sched_a_subtotal_input').value = schedATotal.toFixed(2);
+  // Schedule B totals
+  let schedBAmount = 0, schedBCredit = 0;
+  document.querySelectorAll('[data-calc="sched_b_amount"]').forEach(input => {
+    schedBAmount += parseFloat(input.value) || 0;
+  });
+  document.querySelectorAll('[data-calc="sched_b_credit"]').forEach(input => {
+    schedBCredit += parseFloat(input.value) || 0;
+  });
+  const netAnnual = schedBAmount - schedBCredit;
+  document.getElementById('sched_b_annual').textContent = netAnnual.toFixed(2);
+  document.getElementById('sched_b_annual_input').value = netAnnual.toFixed(2);
+  document.getElementById('sched_b_monthly').textContent = (netAnnual / 12).toFixed(2);
+  document.getElementById('sched_b_monthly_input').value = (netAnnual / 12).toFixed(2);
+}
+
+function saveFormData() {
+  const formData = {};
+  document.querySelectorAll('input, textarea, select').forEach(input => {
+    if (input.name && input.type !== 'submit') {
+      formData[input.name] = input.type === 'checkbox' ? input.checked : input.value;
+    }
+  });
+  localStorage.setItem(FORM_KEY, JSON.stringify(formData));
+}
+
+function loadFormData() {
+  const saved = localStorage.getItem(FORM_KEY);
+  if (saved) {
+    const formData = JSON.parse(saved);
+    document.querySelectorAll('input, textarea, select').forEach(input => {
+      if (input.name && formData.hasOwnProperty(input.name)) {
+        if (input.type === 'checkbox') {
+          input.checked = formData[input.name];
+        } else {
+          input.value = formData[input.name];
+        }
+      }
+    });
+  }
+  calculateTotals();
+}
+
+document.querySelectorAll('input').forEach(input => {
+  input.addEventListener('change', () => { saveFormData(); calculateTotals(); });
+  input.addEventListener('input', () => { saveFormData(); calculateTotals(); });
+});
+loadFormData();
+</script>
+{% endblock %}

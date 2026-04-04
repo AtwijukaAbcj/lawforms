@@ -4,6 +4,7 @@ from .models import (
     FinancialStatement, 
     NetFamilyPropertyStatement, 
     ComparisonNetFamilyProperty, 
+    Form131FinancialStatement,
     NetFamilyPropertyAsset,
     PrintEvent,
     BillingSetting,
@@ -30,6 +31,14 @@ class NetFamilyPropertyStatementAdmin(admin.ModelAdmin):
 	inlines = [NetFamilyPropertyAssetInline]
 
 admin.site.register(NetFamilyPropertyAsset)
+
+
+@admin.register(Form131FinancialStatement)
+class Form131FinancialStatementAdmin(admin.ModelAdmin):
+    list_display = ('id', 'court_file_number', 'applicant_name', 'respondent_name', 'updated_at')
+    search_fields = ('court_file_number', 'applicant_name', 'respondent_name')
+    list_filter = ('updated_at', 'created_at')
+    readonly_fields = ('created_at', 'updated_at')
 
 
 # ============================================================

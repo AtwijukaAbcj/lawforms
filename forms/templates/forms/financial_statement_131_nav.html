@@ -1,0 +1,22 @@
+<!-- Form 13.1 Page Navigation Include -->
+<!-- Usage: { % include 'forms/financial_statement_131_nav.html' with current_page=4 pk=pk % } -->
+
+<style>
+  .page-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;padding:12px;background:rgba(99,102,241,0.04);border-radius:12px;border:1px solid #e2e8f0;}
+  .page-nav a{padding:8px 14px;border-radius:8px;font-size:12px;font-weight:700;text-decoration:none;color:#64748b;background:white;border:1px solid #e2e8f0;transition:all 0.15s ease;}
+  .page-nav a:hover{background:rgba(99,102,241,0.08);border-color:rgba(99,102,241,0.3);color:#0f172a;}
+  .page-nav a.active{background:linear-gradient(135deg,rgba(99,102,241,0.95),rgba(79,70,229,0.95));color:white;border-color:transparent;}
+</style>
+
+<div class="page-nav">
+  <a href="{% url 'financial_statement_131_page1' pk=pk %}"{% if current_page == 1 %} class="active"{% endif %}>1</a>
+  <a href="{% url 'financial_statement_131_page2' pk=pk %}"{% if current_page == 2 %} class="active"{% endif %}>2</a>
+  <a href="{% url 'financial_statement_131_page3' pk=pk %}"{% if current_page == 3 %} class="active"{% endif %}>3</a>
+  <a href="{% url 'financial_statement_131_page4' pk=pk %}"{% if current_page == 4 %} class="active"{% endif %}>4</a>
+  <a href="{% url 'financial_statement_131_page5' pk=pk %}"{% if current_page == 5 %} class="active"{% endif %}>5</a>
+  <a href="{% url 'financial_statement_131_page6' pk=pk %}"{% if current_page == 6 %} class="active"{% endif %}>6</a>
+  <a href="{% url 'financial_statement_131_page7' pk=pk %}"{% if current_page == 7 %} class="active"{% endif %}>7</a>
+  <a href="{% url 'financial_statement_131_page8' pk=pk %}"{% if current_page == 8 %} class="active"{% endif %}>8</a>
+  <a href="{% url 'financial_statement_131_page9' pk=pk %}"{% if current_page == 9 %} class="active"{% endif %}>9</a>
+  <a href="{% url 'financial_statement_131_page10' pk=pk %}"{% if current_page == 10 %} class="active"{% endif %}>10</a>
+</div>
