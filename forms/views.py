@@ -1420,8 +1420,8 @@ def financial_statement_delete(request, pk):
     if request.method == "POST":
         statement.soft_delete()
         log_audit(request, 'delete', 'financial_statement', pk, 
-                  f"Financial Statement #{pk}", 
-                  f"Moved to recycle bin - Applicant: {statement.applicant_full_name or 'N/A'}")
+              f"Financial Statement #{pk}", 
+              f"Moved to recycle bin - Applicant: {statement.applicant_name or 'N/A'}")
         return redirect("financial_statement_list")
     return render(request, "forms/confirm_delete.html", {
         "object": statement,
