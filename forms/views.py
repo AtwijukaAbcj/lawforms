@@ -162,15 +162,19 @@ def dashboard(request):
     financial_statements = FinancialStatement.objects.all().order_by('-updated_at')
     net_family_13b = NetFamilyProperty13B.objects.all().order_by('-updated_at')
     comparison_nfp = ComparisonNetFamilyProperty.objects.all().order_by('-updated_at')
-    
+    from .models import Form131FinancialStatement
+    financial_statements_131 = Form131FinancialStatement.objects.all().order_by('-updated_at')
+
     context = {
         'financial_statements': financial_statements[:5],
         'financial_statements_count': financial_statements.count(),
+        'financial_statements_131': financial_statements_131[:5],
+        'financial_statements_131_count': financial_statements_131.count(),
         'net_family_13b': net_family_13b[:5],
         'net_family_13b_count': net_family_13b.count(),
         'comparison_nfp': comparison_nfp[:5],
         'comparison_nfp_count': comparison_nfp.count(),
-        'total_forms': financial_statements.count() + net_family_13b.count() + comparison_nfp.count(),
+        'total_forms': financial_statements.count() + financial_statements_131.count() + net_family_13b.count() + comparison_nfp.count(),
     }
     return render(request, "forms/dashboard.html", context)
 
