@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}View Printed Comparison NFP{% endblock %}
+{% block content %}
+<style>
+@media print {
+  body { visibility: hidden !important; }
+}
+.screenshot-blocker {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.12);
+  z-index: 9999;
+  pointer-events: none;
+}
+</style>
+<script>
+window.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+    e.preventDefault();
+    alert('Printing is disabled for this view-only copy.');
+  }
+  if (e.key === 'PrintScreen') {
+    document.body.innerHTML = '';
+  }
+});
+window.onbeforeprint = function() {
+  document.body.innerHTML = '';
+};
+</script>
+<div class="screenshot-blocker"></div>
+<div class="alert alert-warning" style="margin: 24px 0;">
+  <strong>View Only:</strong> This is a secure, view-only copy. Printing and screenshots are disabled.
+</div>
+<div class="printed-form">
+  {% include 'forms/comparison_nfp_print.html' with comparison=form view_only=view_only pk=pk %}
+</div>
+{% endblock %}

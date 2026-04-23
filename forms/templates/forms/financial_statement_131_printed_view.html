@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}View Printed Form 13.1{% endblock %}
+{% block content %}
+<style>
+/* Block printing: blank page on print */
+@media print {
+  body { visibility: hidden !important; }
+}
+/* Overlay to deter screenshots */
+.screenshot-blocker {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.12);
+  z-index: 9999;
+  pointer-events: none;
+}
+</style>
+<script>
+// Block Ctrl+P, Cmd+P, PrintScreen
+window.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+    e.preventDefault();
+    alert('Printing is disabled for this view-only copy.');
+  }
+  if (e.key === 'PrintScreen') {
+    document.body.innerHTML = '';
+  }
+});
+// Optionally blank page on print event
+window.onbeforeprint = function() {
+  document.body.innerHTML = '';
+};
+</script>
+<div class="screenshot-blocker"></div>
+<div class="alert alert-warning" style="margin: 24px 0;">
+  <strong>View Only:</strong> This is a secure, view-only copy. Printing and screenshots are disabled.
+</div>
+<div class="printed-form">
+  {% include 'forms/financial_statement_131_print.html' with form=form pages=pages court_file_number=court_file_number applicant_name=applicant_name respondent_name=respondent_name %}
+</div>
+{% endblock %}

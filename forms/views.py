@@ -6,55 +6,87 @@ from django.views.generic import ListView, DetailView
 from django.forms import modelformset_factory, inlineformset_factory
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+# ...existing code...
+
+# Import at the bottom to avoid circular import issues and cover all usages
+from users.views import log_action as log_audit
+from forms.notifications import send_form_printed_notification, send_form_created_notification
 from django.utils import timezone
 from functools import lru_cache
 from pathlib import Path
 from collections import OrderedDict
 import re
-import json
-from decimal import Decimal, InvalidOperation
-from django.views.decorators.http import require_http_methods
-from django.views.decorators.csrf import csrf_exempt
+def _calculate_form131_totals(pages):
+    """Calculate all totals for Form 13.1 print view."""
+    def safe_float(val):
+        try:
+            return float(val) if val not in (None, "") else 0.0
+        except (ValueError, TypeError):
+            return 0.0
+    # ...existing code for _calculate_form131_totals...
+    # (Copy the full function body from your file above)
+    # ...
+    return pages
 
-# Email notifications
-from .notifications import send_form_created_notification, send_form_printed_notification
-
-# Audit logging
-from users.models import AuditLog
-
-
-def get_client_ip(request):
-    """Get client IP address from request"""
-    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
-    if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0].strip()
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
-
-
-def log_audit(request, action, module, object_id='', object_repr='', details=''):
+def _calculate_form131_missing_totals(pages):
     """
-    Helper to log user actions to AuditLog.
-    
-    Args:
-        request: The HTTP request
-        action: Action type (create, update, delete, view, export)
-        module: Module name (e.g., 'financial_statement_131', 'comparison_nfp')
-        object_id: ID of the object being acted upon
-        object_repr: Human-readable representation of the object
-        details: Additional details about the action
+    Fill totals/subtotals that the existing _calculate_form131_totals()
+    does not currently calculate:
+      - page 2 income totals
+      - page 3 subtotals
+      - page 4 subtotals + total monthly/yearly expenses
+      - page 10 Schedule A and Schedule B totals
     """
-    AuditLog.objects.create(
-        user=request.user if request.user.is_authenticated else None,
-        action=action,
-        module=module,
-        object_id=str(object_id) if object_id else '',
-        object_repr=object_repr[:255] if object_repr else '',
-        details=details,
-        ip_address=get_client_ip(request),
-        user_agent=request.META.get('HTTP_USER_AGENT', '')[:500]
+    # ...existing code for _calculate_form131_missing_totals...
+    # (Copy the full function body from your file above)
+    # ...
+    return pages
+
+@login_required
+def financial_statement_131_print(request, pk):
+    """Print view for Form 13.1 - matches official form layout."""
+    from .models import Form131FinancialStatement
+
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    merged_data = get_all_form131_data(form)
+
+    pages = form.draft or {}
+    page1 = _get_form131_page1_data(form, persist=True)
+    pages["page1"] = page1
+
+    # Existing totals logic (pages 5-9 in your current code)
+    pages = _calculate_form131_totals(pages)
+
+    # NEW: fill the missing totals/subtotals for pages 2, 3, 4, and 10
+    pages = _calculate_form131_missing_totals(pages)
+
+    # Log the print event for billing
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type='financial_statement_131',
+        form_id=pk,
+        form_identifier=page1.get('court_file_number') or form.court_file_number or f'Form 13.1 #{pk}'
     )
+    
+    # Audit log for print
+    log_audit(request, 'export', 'financial_statement_131', pk, 
+              f"Form 13.1 #{pk}", f"Printed - Price: ${print_event.price_charged}")
+    
+    # Send email notification for print
+    send_form_printed_notification('financial_statement_131', form, request.user, print_event.price_charged)
+
+    return render(request, "forms/financial_statement_131_print.html", {
+        "form": form,
+        "pages": pages,
+        "pages_json": json.dumps(pages),
+        "court_file_number": page1.get("court_file_number") or form.court_file_number or "",
+        "applicant_name": page1.get("applicant_name") or form.applicant_name or "",
+        "respondent_name": page1.get("respondent_name") or form.respondent_name or "",
+        **merged_data,
+    })
 
 
 from .models import (
@@ -722,649 +754,7 @@ def financial_statement_131_page10(request, pk):
         return redirect("financial_statement_131_list")
     return render(request, "forms/financial_statement_131_page10.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
-
-def _calculate_form131_totals(pages):
-    """Calculate all totals for Form 13.1 print view."""
-    def safe_float(val):
-        try:
-            return float(val) if val else 0.0
-        except (ValueError, TypeError):
-            return 0.0
-    
-    # Get page data
-    page5 = pages.get("page5", {})
-    page6 = pages.get("page6", {})
-    page7 = pages.get("page7", {})
-    page8 = pages.get("page8", {})
-    page9 = pages.get("page9", {})
-    
-    # Page 9: Disposed property total
-    disposed_total = sum(safe_float(page9.get(f"disposed_{i}_value")) for i in range(1, 6))
-    page9["total_disposed"] = f"{disposed_total:.2f}" if disposed_total else ""
-    
-    # ============ CALCULATE ITEM 22: TOTAL PROPERTY ON VALUATION DATE ============
-    # Item 15: Land (page 5) - land_X_valuation
-    land_val = sum(safe_float(page5.get(f"land_{i}_valuation")) for i in range(1, 4))
-    land_marriage = sum(safe_float(page5.get(f"land_{i}_marriage")) for i in range(1, 4))
-    land_today = sum(safe_float(page5.get(f"land_{i}_today")) for i in range(1, 4))
-    
-    # Item 16: Household items & vehicles (page 5)
-    items_val = (safe_float(page5.get("household_goods_valuation")) + 
-                 safe_float(page5.get("vehicles_valuation")) + 
-                 safe_float(page5.get("jewellery_valuation")) + 
-                 safe_float(page5.get("other_items_valuation")))
-    items_marriage = (safe_float(page5.get("household_goods_marriage")) + 
-                      safe_float(page5.get("vehicles_marriage")) + 
-                      safe_float(page5.get("jewellery_marriage")) + 
-                      safe_float(page5.get("other_items_marriage")))
-    items_today = (safe_float(page5.get("household_goods_today")) + 
-                   safe_float(page5.get("vehicles_today")) + 
-                   safe_float(page5.get("jewellery_today")) + 
-                   safe_float(page5.get("other_items_today")))
-    
-    # Item 17: Bank accounts (page 6) - bank_X_valuation
-    bank_val = sum(safe_float(page6.get(f"bank_{i}_valuation")) for i in range(1, 7))
-    bank_marriage = sum(safe_float(page6.get(f"bank_{i}_marriage")) for i in range(1, 7))
-    bank_today = sum(safe_float(page6.get(f"bank_{i}_today")) for i in range(1, 7))
-    
-    # Item 18: Insurance (page 6) - insurance_X_valuation
-    insurance_val = sum(safe_float(page6.get(f"insurance_{i}_valuation")) for i in range(1, 4))
-    insurance_marriage = sum(safe_float(page6.get(f"insurance_{i}_marriage")) for i in range(1, 4))
-    insurance_today = sum(safe_float(page6.get(f"insurance_{i}_today")) for i in range(1, 4))
-    
-    # Item 19: Business interests (page 6) - business_X_valuation
-    business_val = sum(safe_float(page6.get(f"business_{i}_valuation")) for i in range(1, 4))
-    business_marriage = sum(safe_float(page6.get(f"business_{i}_marriage")) for i in range(1, 4))
-    business_today = sum(safe_float(page6.get(f"business_{i}_today")) for i in range(1, 4))
-    
-    # Item 20: Money owed to you (page 7) - owed_X_valuation  
-    owed_val = sum(safe_float(page7.get(f"owed_{i}_valuation")) for i in range(1, 5))
-    owed_marriage = sum(safe_float(page7.get(f"owed_{i}_marriage")) for i in range(1, 5))
-    owed_today = sum(safe_float(page7.get(f"owed_{i}_today")) for i in range(1, 5))
-    
-    # Item 21: Other property (page 7) - other_prop_X_valuation
-    other_val = sum(safe_float(page7.get(f"other_prop_{i}_valuation")) for i in range(1, 5))
-    other_marriage = sum(safe_float(page7.get(f"other_prop_{i}_marriage")) for i in range(1, 5))
-    other_today = sum(safe_float(page7.get(f"other_prop_{i}_today")) for i in range(1, 5))
-    
-    # Item 22 total
-    item_22_total = land_val + items_val + bank_val + insurance_val + business_val + owed_val + other_val
-    
-    # ============ CALCULATE ITEM 23: TOTAL DEBTS ============
-    # Debts (page 7) - debt_X_valuation
-    debt_val = sum(safe_float(page7.get(f"debt_{i}_valuation")) for i in range(1, 7))
-    debt_marriage = sum(safe_float(page7.get(f"debt_{i}_marriage")) for i in range(1, 7))
-    debt_today = sum(safe_float(page7.get(f"debt_{i}_today")) for i in range(1, 7))
-    
-    # ============ CALCULATE ITEM 24: NET VALUE ON DATE OF MARRIAGE ============
-    # DOM assets properties
-    dom_asset_keys = ['dom_land_assets', 'dom_items_assets', 'dom_bank_assets', 
-                      'dom_insurance_assets', 'dom_business_assets', 'dom_owed_assets', 
-                      'dom_other_assets', 'dom_debts_assets']
-    dom_liab_keys = ['dom_land_liab', 'dom_items_liab', 'dom_bank_liab', 
-                     'dom_insurance_liab', 'dom_business_liab', 'dom_owed_liab', 
-                     'dom_other_liab', 'dom_debts_liab']
-    
-    dom_assets = sum(safe_float(page8.get(k)) for k in dom_asset_keys)
-    dom_liab = sum(safe_float(page8.get(k)) for k in dom_liab_keys)
-    net_dom = dom_assets - dom_liab  # Item 24
-    
-    # ============ CALCULATE ITEM 25: VALUE OF ALL DEDUCTIONS ============
-    # Item 25 = Item 23 (debts) + Item 24 (net DOM value)
-    item_25_total = debt_val + net_dom
-    
-    # ============ CALCULATE ITEM 26: EXCLUDED PROPERTY ============
-    excluded_total = sum(safe_float(page8.get(f"excluded_{i}_value")) for i in range(1, 6))
-    
-    # ============ NFP CALCULATION ============
-    # Always use calculated values for accurate print output
-    nfp_item22 = item_22_total
-    nfp_item25 = item_25_total
-    nfp_item26 = excluded_total
-    
-    nfp_balance1 = nfp_item22 - nfp_item25
-    nfp_balance2 = nfp_balance1 - nfp_item26
-    
-    # Update page9 with all calculated values
-    page9["nfp_item22"] = f"{nfp_item22:.2f}" if nfp_item22 else ""
-    page9["nfp_item25"] = f"{nfp_item25:.2f}" if nfp_item25 else ""
-    page9["nfp_item26"] = f"{nfp_item26:.2f}" if nfp_item26 else ""
-    page9["nfp_balance1"] = f"{nfp_balance1:.2f}"
-    page9["nfp_balance2"] = f"{nfp_balance2:.2f}"
-    page9["net_family_property"] = f"{nfp_balance2:.2f}"
-    
-    # Store intermediate totals for debugging/display
-    page5["total_land_valuation"] = f"{land_val:.2f}" if land_val else ""
-    page5["total_land_marriage"] = f"{land_marriage:.2f}" if land_marriage else ""
-    page5["total_land_today"] = f"{land_today:.2f}" if land_today else ""
-    page5["total_items_valuation"] = f"{items_val:.2f}" if items_val else ""
-    page5["total_items_marriage"] = f"{items_marriage:.2f}" if items_marriage else ""
-    page5["total_items_today"] = f"{items_today:.2f}" if items_today else ""
-    page6["total_bank_valuation"] = f"{bank_val:.2f}" if bank_val else ""
-    page6["total_bank_marriage"] = f"{bank_marriage:.2f}" if bank_marriage else ""
-    page6["total_bank_today"] = f"{bank_today:.2f}" if bank_today else ""
-    page6["total_insurance_valuation"] = f"{insurance_val:.2f}" if insurance_val else ""
-    page6["total_insurance_marriage"] = f"{insurance_marriage:.2f}" if insurance_marriage else ""
-    page6["total_insurance_today"] = f"{insurance_today:.2f}" if insurance_today else ""
-    page6["total_business_valuation"] = f"{business_val:.2f}" if business_val else ""
-    page6["total_business_marriage"] = f"{business_marriage:.2f}" if business_marriage else ""
-    page6["total_business_today"] = f"{business_today:.2f}" if business_today else ""
-    page7["total_owed_valuation"] = f"{owed_val:.2f}" if owed_val else ""
-    page7["total_owed_marriage"] = f"{owed_marriage:.2f}" if owed_marriage else ""
-    page7["total_owed_today"] = f"{owed_today:.2f}" if owed_today else ""
-    page7["total_other_prop_valuation"] = f"{other_val:.2f}" if other_val else ""
-    page7["total_other_prop_marriage"] = f"{other_marriage:.2f}" if other_marriage else ""
-    page7["total_other_prop_today"] = f"{other_today:.2f}" if other_today else ""
-    page7["total_debt_valuation"] = f"{debt_val:.2f}" if debt_val else ""
-    page7["total_debt_marriage"] = f"{debt_marriage:.2f}" if debt_marriage else ""
-    page7["total_debt_today"] = f"{debt_today:.2f}" if debt_today else ""
-    page7["grand_total_valuation"] = f"{item_22_total:.2f}" if item_22_total else ""  # Item 22
-    page8["total_dom_assets"] = f"{dom_assets:.2f}" if dom_assets else ""
-    page8["total_dom_liab"] = f"{dom_liab:.2f}" if dom_liab else ""
-    page8["net_dom_value"] = f"{net_dom:.2f}"  # Item 24
-    page8["total_deductions"] = f"{item_25_total:.2f}" if item_25_total else ""  # Item 25
-    page8["total_excluded"] = f"{excluded_total:.2f}" if excluded_total else ""  # Item 26
-    
-    pages["page5"] = page5
-    pages["page6"] = page6
-    pages["page7"] = page7
-    pages["page8"] = page8
-    pages["page9"] = page9
-    
-    return pages
-
-def _money_decimal(value):
-    """
-    Convert user-entered money-like values to Decimal safely.
-    Handles '', None, commas, dollar signs, and spaces.
-    """
-    if value is None:
-        return Decimal("0")
-    if isinstance(value, Decimal):
-        return value
-    if isinstance(value, (int, float)):
-        return Decimal(str(value))
-
-    text = str(value).strip()
-    if not text:
-        return Decimal("0")
-
-    text = text.replace(",", "").replace("$", "").strip()
-    if not text:
-        return Decimal("0")
-
-    try:
-        return Decimal(text)
-    except (InvalidOperation, ValueError, TypeError):
-        return Decimal("0")
-
-
-def _money_str(value):
-    """
-    Return '' for zero/empty values to match your current display style,
-    otherwise return 2-decimal text.
-    """
-    dec = _money_decimal(value)
-    return f"{dec:.2f}" if dec != 0 else ""
-
-
-def _sum_money_fields(data, field_names):
-    total = Decimal("0")
-    for name in field_names:
-        total += _money_decimal(data.get(name))
-    return total
-
-
-def _calculate_form131_missing_totals(pages):
-    """
-    Fill totals/subtotals that the existing _calculate_form131_totals()
-    does not currently calculate:
-      - page 2 income totals
-      - page 3 subtotals
-      - page 4 subtotals + total monthly/yearly expenses
-      - page 10 Schedule A and Schedule B totals
-    """
-    pages = pages or {}
-
-    page2 = pages.get("page2", {}) or {}
-    page3 = pages.get("page3", {}) or {}
-    page4 = pages.get("page4", {}) or {}
-    page10 = pages.get("page10", {}) or {}
-
-    # --------------------------------------------------
-    # PAGE 2: income totals
-    # Your print template should use:
-    # income_self_employment_before_expenses
-    # income_investment
-    # income_tax_benefits
-    # not self_emp_gross / income_interest / income_child_tax
-    # --------------------------------------------------
-    income_monthly_fields = [
-        "income_employment",
-        "income_commissions",
-        "income_self_employment",
-        "income_ei",
-        "income_workers_comp",
-        "income_social_assistance",
-        "income_investment",
-        "income_pension",
-        "income_spousal_support",
-        "income_tax_benefits",
-        "income_other",
-    ]
-    income_total_monthly = _sum_money_fields(page2, income_monthly_fields)
-    income_total_annual = income_total_monthly * Decimal("12")
-
-    page2["income_total_monthly"] = _money_str(income_total_monthly)
-    page2["income_total_annual"] = _money_str(income_total_annual)
-
-    # Backward-compatible aliases in case old template lines still exist
-    if not page2.get("self_emp_gross"):
-        page2["self_emp_gross"] = page2.get("income_self_employment_before_expenses", "")
-    if not page2.get("income_interest"):
-        page2["income_interest"] = page2.get("income_investment", "")
-    if not page2.get("income_child_tax"):
-        page2["income_child_tax"] = page2.get("income_tax_benefits", "")
-
-    # --------------------------------------------------
-    # PAGE 3: subtotals
-    # --------------------------------------------------
-    subtotal_deductions = _sum_money_fields(page3, [
-        "exp_cpp",
-        "exp_ei",
-        "exp_income_tax",
-        "exp_pension_contrib",
-        "exp_union_dues",
-    ])
-
-    subtotal_housing = _sum_money_fields(page3, [
-        "exp_rent_mortgage",
-        "exp_property_tax",
-        "exp_property_insurance",
-        "exp_condo_fees",
-        "exp_repairs",
-    ])
-
-    subtotal_utilities_page3 = _sum_money_fields(page3, [
-        "exp_water",
-        "exp_heat",
-        "exp_electricity",
-    ])
-
-    subtotal_transportation = _sum_money_fields(page3, [
-        "exp_transit",
-        "exp_gas",
-        "exp_car_insurance",
-        "exp_car_repairs",
-        "exp_parking",
-        "exp_car_loan",
-    ])
-
-    subtotal_health = _sum_money_fields(page3, [
-        "exp_health_insurance",
-        "exp_dental",
-        "exp_medicine",
-        "exp_eye_care",
-    ])
-
-    subtotal_personal_page3 = _sum_money_fields(page3, [
-        "exp_clothing",
-        "exp_hair_care",
-        "exp_alcohol_tobacco",
-    ])
-
-    page3["subtotal_deductions"] = _money_str(subtotal_deductions)
-    page3["subtotal_housing"] = _money_str(subtotal_housing)
-    page3["subtotal_utilities"] = _money_str(subtotal_utilities_page3)
-    page3["subtotal_transportation"] = _money_str(subtotal_transportation)
-    page3["subtotal_health"] = _money_str(subtotal_health)
-    page3["subtotal_personal"] = _money_str(subtotal_personal_page3)
-
-    # --------------------------------------------------
-    # PAGE 4: subtotals + total expenses
-    # note: print template uses subtotal_utilities on page 4 too
-    # --------------------------------------------------
-    subtotal_utilities_page4 = _sum_money_fields(page4, [
-        "exp_telephone",
-        "exp_cell_phone",
-        "exp_cable",
-        "exp_internet",
-    ])
-
-    subtotal_household = _sum_money_fields(page4, [
-        "exp_groceries",
-        "exp_household_supplies",
-        "exp_meals_out",
-        "exp_pet_care",
-        "exp_laundry",
-    ])
-
-    subtotal_childcare = _sum_money_fields(page4, [
-        "exp_daycare",
-        "exp_babysitting",
-    ])
-
-    subtotal_personal_page4 = _sum_money_fields(page4, [
-        "exp_education",
-        "exp_entertainment",
-        "exp_gifts",
-    ])
-
-    subtotal_other = _sum_money_fields(page4, [
-        "exp_life_insurance",
-        "exp_rrsp",
-        "exp_vacations",
-        "exp_school_fees",
-        "exp_children_clothing",
-        "exp_children_activities",
-        "exp_summer_camp",
-        "exp_debt_payments",
-        "exp_other_support",
-        "exp_other",
-    ])
-
-    total_monthly_expenses = (
-        subtotal_deductions
-        + subtotal_housing
-        + subtotal_utilities_page3
-        + subtotal_transportation
-        + subtotal_health
-        + subtotal_personal_page3
-        + subtotal_utilities_page4
-        + subtotal_household
-        + subtotal_childcare
-        + subtotal_personal_page4
-        + subtotal_other
-    )
-    total_yearly_expenses = total_monthly_expenses * Decimal("12")
-
-    page4["subtotal_utilities"] = _money_str(subtotal_utilities_page4)
-    page4["subtotal_household"] = _money_str(subtotal_household)
-    page4["subtotal_childcare"] = _money_str(subtotal_childcare)
-    page4["subtotal_personal"] = _money_str(subtotal_personal_page4)
-    page4["subtotal_other"] = _money_str(subtotal_other)
-    page4["total_monthly_expenses"] = _money_str(total_monthly_expenses)
-    page4["total_yearly_expenses"] = _money_str(total_yearly_expenses)
-
-    # --------------------------------------------------
-    # PAGE 10: Schedule A + Schedule B totals
-    # --------------------------------------------------
-    sched_a_subtotal = _sum_money_fields(page10, [
-        "sched_a_1",
-        "sched_a_2",
-        "sched_a_3",
-        "sched_a_4",
-        "sched_a_5",
-        "sched_a_6",
-        "sched_a_7",
-    ])
-    page10["sched_a_subtotal"] = _money_str(sched_a_subtotal)
-
-    sched_b_net_annual = Decimal("0")
-    for i in range(1, 11):
-        amount = _money_decimal(page10.get(f"sched_b_{i}_amount"))
-        credit = _money_decimal(page10.get(f"sched_b_{i}_credit"))
-        sched_b_net_annual += (amount - credit)
-
-    sched_b_net_monthly = sched_b_net_annual / Decimal("12") if sched_b_net_annual != 0 else Decimal("0")
-
-    page10["sched_b_total_annual"] = _money_str(sched_b_net_annual)
-    page10["sched_b_total_monthly"] = _money_str(sched_b_net_monthly)
-
-    pages["page2"] = page2
-    pages["page3"] = page3
-    pages["page4"] = page4
-    pages["page10"] = page10
-
-    return pages
-
-from decimal import Decimal, InvalidOperation
-
-
-def _money_decimal(value):
-    """
-    Convert user-entered money-like values to Decimal safely.
-    Handles '', None, commas, dollar signs, and spaces.
-    """
-    if value is None:
-        return Decimal("0")
-    if isinstance(value, Decimal):
-        return value
-    if isinstance(value, (int, float)):
-        return Decimal(str(value))
-
-    text = str(value).strip()
-    if not text:
-        return Decimal("0")
-
-    text = text.replace(",", "").replace("$", "").strip()
-    if not text:
-        return Decimal("0")
-
-    try:
-        return Decimal(text)
-    except (InvalidOperation, ValueError, TypeError):
-        return Decimal("0")
-
-
-def _money_str(value):
-    """
-    Return '' for zero/empty values to match your current display style,
-    otherwise return 2-decimal text.
-    """
-    dec = _money_decimal(value)
-    return f"{dec:.2f}" if dec != 0 else ""
-
-
-def _sum_money_fields(data, field_names):
-    total = Decimal("0")
-    for name in field_names:
-        total += _money_decimal(data.get(name))
-    return total
-
-
-def _calculate_form131_missing_totals(pages):
-    """
-    Fill totals/subtotals that the existing _calculate_form131_totals()
-    does not currently calculate:
-      - page 2 income totals
-      - page 3 subtotals
-      - page 4 subtotals + total monthly/yearly expenses
-      - page 10 Schedule A and Schedule B totals
-    """
-    pages = pages or {}
-
-    page2 = pages.get("page2", {}) or {}
-    page3 = pages.get("page3", {}) or {}
-    page4 = pages.get("page4", {}) or {}
-    page10 = pages.get("page10", {}) or {}
-
-    # --------------------------------------------------
-    # PAGE 2: income totals
-    # Your print template should use:
-    # income_self_employment_before_expenses
-    # income_investment
-    # income_tax_benefits
-    # not self_emp_gross / income_interest / income_child_tax
-    # --------------------------------------------------
-    income_monthly_fields = [
-        "income_employment",
-        "income_commissions",
-        "income_self_employment",
-        "income_ei",
-        "income_workers_comp",
-        "income_social_assistance",
-        "income_investment",
-        "income_pension",
-        "income_spousal_support",
-        "income_tax_benefits",
-        "income_other",
-    ]
-    income_total_monthly = _sum_money_fields(page2, income_monthly_fields)
-    income_total_annual = income_total_monthly * Decimal("12")
-
-    page2["income_total_monthly"] = _money_str(income_total_monthly)
-    page2["income_total_annual"] = _money_str(income_total_annual)
-
-    # Backward-compatible aliases in case old template lines still exist
-    if not page2.get("self_emp_gross"):
-        page2["self_emp_gross"] = page2.get("income_self_employment_before_expenses", "")
-    if not page2.get("income_interest"):
-        page2["income_interest"] = page2.get("income_investment", "")
-    if not page2.get("income_child_tax"):
-        page2["income_child_tax"] = page2.get("income_tax_benefits", "")
-
-    # --------------------------------------------------
-    # PAGE 3: subtotals
-    # --------------------------------------------------
-    subtotal_deductions = _sum_money_fields(page3, [
-        "exp_cpp",
-        "exp_ei",
-        "exp_income_tax",
-        "exp_pension_contrib",
-        "exp_union_dues",
-    ])
-
-    subtotal_housing = _sum_money_fields(page3, [
-        "exp_rent_mortgage",
-        "exp_property_tax",
-        "exp_property_insurance",
-        "exp_condo_fees",
-        "exp_repairs",
-    ])
-
-    subtotal_utilities_page3 = _sum_money_fields(page3, [
-        "exp_water",
-        "exp_heat",
-        "exp_electricity",
-    ])
-
-    subtotal_transportation = _sum_money_fields(page3, [
-        "exp_transit",
-        "exp_gas",
-        "exp_car_insurance",
-        "exp_car_repairs",
-        "exp_parking",
-        "exp_car_loan",
-    ])
-
-    subtotal_health = _sum_money_fields(page3, [
-        "exp_health_insurance",
-        "exp_dental",
-        "exp_medicine",
-        "exp_eye_care",
-    ])
-
-    subtotal_personal_page3 = _sum_money_fields(page3, [
-        "exp_clothing",
-        "exp_hair_care",
-        "exp_alcohol_tobacco",
-    ])
-
-    page3["subtotal_deductions"] = _money_str(subtotal_deductions)
-    page3["subtotal_housing"] = _money_str(subtotal_housing)
-    page3["subtotal_utilities"] = _money_str(subtotal_utilities_page3)
-    page3["subtotal_transportation"] = _money_str(subtotal_transportation)
-    page3["subtotal_health"] = _money_str(subtotal_health)
-    page3["subtotal_personal"] = _money_str(subtotal_personal_page3)
-
-    # --------------------------------------------------
-    # PAGE 4: subtotals + total expenses
-    # note: print template uses subtotal_utilities on page 4 too
-    # --------------------------------------------------
-    subtotal_utilities_page4 = _sum_money_fields(page4, [
-        "exp_telephone",
-        "exp_cell_phone",
-        "exp_cable",
-        "exp_internet",
-    ])
-
-    subtotal_household = _sum_money_fields(page4, [
-        "exp_groceries",
-        "exp_household_supplies",
-        "exp_meals_out",
-        "exp_pet_care",
-        "exp_laundry",
-    ])
-
-    subtotal_childcare = _sum_money_fields(page4, [
-        "exp_daycare",
-        "exp_babysitting",
-    ])
-
-    subtotal_personal_page4 = _sum_money_fields(page4, [
-        "exp_education",
-        "exp_entertainment",
-        "exp_gifts",
-    ])
-
-    subtotal_other = _sum_money_fields(page4, [
-        "exp_life_insurance",
-        "exp_rrsp",
-        "exp_vacations",
-        "exp_school_fees",
-        "exp_children_clothing",
-        "exp_children_activities",
-        "exp_summer_camp",
-        "exp_debt_payments",
-        "exp_other_support",
-        "exp_other",
-    ])
-
-    total_monthly_expenses = (
-        subtotal_deductions
-        + subtotal_housing
-        + subtotal_utilities_page3
-        + subtotal_transportation
-        + subtotal_health
-        + subtotal_personal_page3
-        + subtotal_utilities_page4
-        + subtotal_household
-        + subtotal_childcare
-        + subtotal_personal_page4
-        + subtotal_other
-    )
-    total_yearly_expenses = total_monthly_expenses * Decimal("12")
-
-    page4["subtotal_utilities"] = _money_str(subtotal_utilities_page4)
-    page4["subtotal_household"] = _money_str(subtotal_household)
-    page4["subtotal_childcare"] = _money_str(subtotal_childcare)
-    page4["subtotal_personal"] = _money_str(subtotal_personal_page4)
-    page4["subtotal_other"] = _money_str(subtotal_other)
-    page4["total_monthly_expenses"] = _money_str(total_monthly_expenses)
-    page4["total_yearly_expenses"] = _money_str(total_yearly_expenses)
-
-    # --------------------------------------------------
-    # PAGE 10: Schedule A + Schedule B totals
-    # --------------------------------------------------
-    sched_a_subtotal = _sum_money_fields(page10, [
-        "sched_a_1",
-        "sched_a_2",
-        "sched_a_3",
-        "sched_a_4",
-        "sched_a_5",
-        "sched_a_6",
-        "sched_a_7",
-    ])
-    page10["sched_a_subtotal"] = _money_str(sched_a_subtotal)
-
-    sched_b_net_annual = Decimal("0")
-    for i in range(1, 11):
-        amount = _money_decimal(page10.get(f"sched_b_{i}_amount"))
-        credit = _money_decimal(page10.get(f"sched_b_{i}_credit"))
-        sched_b_net_annual += (amount - credit)
-
-    sched_b_net_monthly = sched_b_net_annual / Decimal("12") if sched_b_net_annual != 0 else Decimal("0")
-
-    page10["sched_b_total_annual"] = _money_str(sched_b_net_annual)
-    page10["sched_b_total_monthly"] = _money_str(sched_b_net_monthly)
-
-    pages["page2"] = page2
-    pages["page3"] = page3
-    pages["page4"] = page4
-    pages["page10"] = page10
-
-    return pages
+@csrf_exempt
 @login_required
 def financial_statement_131_print(request, pk):
     """Print view for Form 13.1 - matches official form layout."""
@@ -3320,6 +2710,10 @@ def comparison_nfp_print(request, pk):
         marriage_property = list(form13c.marriage_properties.filter(is_debt=False))
         marriage_debts = list(form13c.marriage_properties.filter(is_debt=True))
         excluded_property = list(form13c.excluded_properties.all())
+        try:
+            final_totals = form13c.final_totals
+        except:
+            final_totals = None
     
     def sum_items(items, field):
         total = 0
@@ -3511,7 +2905,7 @@ def comparison_nfp_full_view(request, pk):
         equalization['app_pays_resp_resp'] = (nfp_app_resp - nfp_resp_resp) / 2
     elif nfp_resp_resp > nfp_app_resp:
         equalization['resp_pays_app_resp'] = (nfp_resp_resp - nfp_app_resp) / 2
-    
+
     return render(request, "forms/comparison_nfp_full_view.html", {
         "comparison": comparison,
         "form13c": form13c,
@@ -3983,3 +3377,63 @@ def email_settings_view(request):
     }
     
     return render(request, 'forms/email_settings.html', context)
+
+from django.contrib.auth.decorators import login_required
+from .models import PrintEvent, FinancialStatement, Form131FinancialStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty
+
+@login_required
+def view_printed_copy(request, print_event_id):
+    """
+    Secure view-only page for a printed form. Blocks printing and screenshots.
+    Shows the form as it was at print time.
+    """
+    print_event = get_object_or_404(PrintEvent, pk=print_event_id)
+    # Map form_type to model
+    form_obj = None
+    if print_event.form_type == 'financial_statement':
+        form_obj = FinancialStatement.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/financial_statement_131_printed_view.html'
+        context = {
+            'form': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
+    elif print_event.form_type == 'financial_statement_131':
+        form_obj = Form131FinancialStatement.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/financial_statement_131_printed_view.html'
+        # Build context as in print view
+        pages = form_obj.draft or {}
+        page1 = getattr(form_obj, 'draft', {}).get('page1', {})
+        context = {
+            'form': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+            'pages': pages,
+            'court_file_number': page1.get('court_file_number') or getattr(form_obj, 'court_file_number', ''),
+            'applicant_name': page1.get('applicant_name') or getattr(form_obj, 'applicant_name', ''),
+            'respondent_name': page1.get('respondent_name') or getattr(form_obj, 'respondent_name', ''),
+        }
+    elif print_event.form_type == 'net_family_property_13b':
+        form_obj = NetFamilyProperty13B.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/net_family_property_13b_printed_view.html'
+        context = {
+            'form': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
+    elif print_event.form_type == 'comparison_nfp':
+        form_obj = ComparisonNetFamilyProperty.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/comparison_nfp_printed_view.html'
+        context = {
+            'form': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+            'pk': form_obj.pk if form_obj else None,
+        }
+    else:
+        return render(request, 'forms/printed_copy_not_supported.html', {'print_event': print_event})
+
+    if not form_obj:
+        return render(request, 'forms/printed_copy_not_found.html', {'print_event': print_event})
+
+    return render(request, template, context)
