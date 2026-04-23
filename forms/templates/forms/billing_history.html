@@ -307,13 +307,46 @@
                     {% endif %}
                 </td>
                 <td>
-                    <a href="{% url 'view_printed_copy' print.id %}" class="btn btn-primary btn-sm" target="_blank">View</a>
+                    <a href="{% url 'view_printed_copy' print.id %}" class="themed-btn themed-btn-view" target="_blank">👁 View</a>
                     {% if request.user.is_superuser or request.user.is_staff %}
                     <form method="post" action="{% url 'delete_print_event' print.id %}" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this print event?');">Delete</button>
+                            <button type="submit" class="themed-btn themed-btn-delete" onclick="return confirm('Are you sure you want to delete this print event?');">🗑 Delete</button>
                     </form>
                     {% endif %}
+                        <!-- <a href="{% url 'view_printed_copy' print.id %}" class="themed-btn themed-btn-view" target="_blank">👁 View</a> -->
+                <style>
+                    .themed-btn {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        padding: 8px 18px;
+                        border-radius: 8px;
+                        font-weight: 600;
+                        font-size: 14px;
+                        border: none;
+                        text-decoration: none;
+                        cursor: pointer;
+                        transition: background 0.18s, box-shadow 0.18s;
+                        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.08);
+                    }
+                    .themed-btn-view {
+                        background: linear-gradient(135deg, #667eea, #764ba2);
+                        color: #fff;
+                    }
+                    .themed-btn-view:hover {
+                        background: linear-gradient(135deg, #5a67d8, #6b21a8);
+                        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.18);
+                    }
+                    .themed-btn-delete {
+                        background: linear-gradient(135deg, #f87171, #fbbf24);
+                        color: #fff;
+                    }
+                    .themed-btn-delete:hover {
+                        background: linear-gradient(135deg, #dc2626, #f59e42);
+                        box-shadow: 0 4px 16px rgba(251, 191, 36, 0.18);
+                    }
+                </style>
                 </td>
             </tr>
             {% endfor %}
