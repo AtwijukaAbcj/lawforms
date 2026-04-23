@@ -163,11 +163,13 @@ th { font-weight: bold; background: #fff; }
 </head>
 <body>
 
+{% if not view_only %}
 <div class="print-controls">
   <button class="btn-print" onclick="window.print()"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>Print Form</button>
   <a href="{% url 'financial_statement_131_page1' form.pk %}">Edit</a>
   <a href="{% url 'financial_statement_131_list' %}">Back to List</a>
 </div>
+{% endif %}
 
 <!-- PAGE 1 -->
 <div class="page">

@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block title %}Printed Copy Not Found{% endblock %}
+{% block content %}
+<div class="alert alert-danger" style="margin: 32px 0;">
+  <h2>Printed Copy Not Found</h2>
+  <p>The printed copy you are trying to view could not be found. It may have been deleted or the form no longer exists.</p>
+  <a href="{% url 'billing_history' %}" class="btn btn-primary">Back to Billing History</a>
+</div>
+{% endblock %}

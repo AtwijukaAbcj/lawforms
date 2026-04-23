@@ -306,14 +306,15 @@
                         <span class="status-badge pending">Pending</span>
                     {% endif %}
                 </td>
-                {% if request.user.is_superuser or request.user.is_staff %}
                 <td>
+                    <a href="{% url 'view_printed_copy' print.id %}" class="btn btn-primary btn-sm" target="_blank">View</a>
+                    {% if request.user.is_superuser or request.user.is_staff %}
                     <form method="post" action="{% url 'delete_print_event' print.id %}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this print event?');">Delete</button>
                     </form>
+                    {% endif %}
                 </td>
-                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

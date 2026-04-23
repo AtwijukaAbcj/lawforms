@@ -70,6 +70,8 @@ urlpatterns = [
     path('billing/history/delete/<int:pk>/', views.delete_print_event, name='delete_print_event'),
     path('billing/settings/', views.billing_settings_view, name='billing_settings'),
     path('billing/admin-report/', views.admin_billing_report, name='admin_billing_report'),
+    # View-only printed copy (secure, no print/screenshot)
+    path('billing/printed-copy/<int:print_event_id>/', views.view_printed_copy, name='view_printed_copy'),
     # Settings
     path('settings/', views.settings_page_view, name='settings_page'),
     path('settings/email/', views.email_settings_view, name='email_settings'),
