@@ -257,6 +257,27 @@
     font-size: 13px;
   }
 
+  /* Numbered form rows (Part 1) */
+  .form-num-row {
+    display: flex;
+    gap: 14px;
+    padding: 16px 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .form-num-row:last-child { border-bottom: none; }
+  .form-num {
+    width: 26px;
+    min-width: 26px;
+    font-weight: 700;
+    font-size: 13px;
+    color: #0f172a;
+    padding-top: 3px;
+  }
+  .form-num-body {
+    flex: 1;
+    min-width: 0;
+  }
+
   /* Buttons */
   .actions{
     display:flex;
@@ -459,44 +480,52 @@
         <div class="section-label"><span>Part 1 — Income</span></div>
 
         <div class="panel">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <label class="ui-label" for="id_my_name">1. My name is</label>
-              <input type="text" class="form-control ui-input" id="id_my_name" name="my_name" placeholder="Full legal name" value="{{ statement.my_name|default:'' }}">
-            </div>
-            <div class="col-md-6">
-              <label class="ui-label" for="id_my_location">I live in</label>
-              <input type="text" class="form-control ui-input" id="id_my_location" name="my_location" placeholder="Municipality & province" value="{{ statement.my_location|default:'' }}">
-            </div>
 
-            <div class="col-12">
-              <div class="ui-label">2. I am currently</div>
-              <div class="ui-help">Check all that apply.</div>
+          <!-- Item 1 -->
+          <div class="form-num-row">
+            <div class="form-num">1.</div>
+            <div class="form-num-body">
+              <div class="row g-2">
+                <div class="col-md-6">
+                  <label class="ui-label" for="id_my_name">My name is <span style="font-weight:500;color:#94a3b8;">(full legal name)</span></label>
+                  <input type="text" class="form-control ui-input" id="id_my_name" name="my_name" placeholder="Full legal name" value="{{ statement.my_name|default:'' }}">
+                </div>
+                <div class="col-md-6">
+                  <label class="ui-label" for="id_my_location">I live in <span style="font-weight:500;color:#94a3b8;">(municipality &amp; province)</span></label>
+                  <input type="text" class="form-control ui-input" id="id_my_location" name="my_location" placeholder="Municipality & province" value="{{ statement.my_location|default:'' }}">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="form-num-row">
+            <div class="form-num">2.</div>
+            <div class="form-num-body">
+              <div class="ui-label mb-2">I am currently <span class="ui-help" style="display:inline;">(check all that apply)</span></div>
 
               <div class="checklist">
                 <label class="check-item" for="id_is_employed">
                   <input class="form-check-input" type="checkbox" id="id_is_employed" name="is_employed" {% if statement.is_employed %}checked{% endif %}>
-                  <div class="text">employed by</div>
+                  <div class="text">employed by <span style="font-weight:500;color:#94a3b8;">(name and address of employer)</span></div>
                 </label>
-                <label class="ui-label" for="id_employer_name_address" style="display:none;">Name and address of employer</label>
                 <input type="text" class="form-control ui-input mb-2" id="id_employer_name_address" name="employer_name_address" placeholder="Name and address of employer" value="{{ statement.employer_name_address|default:'' }}">
 
                 <label class="check-item" for="id_is_self_employed">
                   <input class="form-check-input" type="checkbox" id="id_is_self_employed" name="is_self_employed" {% if statement.is_self_employed %}checked{% endif %}>
-                  <div class="text">self-employed, carrying on business under the name of</div>
+                  <div class="text">self-employed, carrying on business under the name of <span style="font-weight:500;color:#94a3b8;">(name and address of business)</span></div>
                 </label>
-                <label class="ui-label" for="id_business_name_address" style="display:none;">Name and address of business</label>
                 <input type="text" class="form-control ui-input mb-2" id="id_business_name_address" name="business_name_address" placeholder="Name and address of business" value="{{ statement.business_name_address|default:'' }}">
 
                 <label class="check-item" for="id_is_unemployed">
                   <input class="form-check-input" type="checkbox" id="id_is_unemployed" name="is_unemployed" {% if statement.is_unemployed %}checked{% endif %}>
-                  <div class="text">unemployed since</div>
+                  <div class="text">unemployed since <span style="font-weight:500;color:#94a3b8;">(date when last employed)</span></div>
                 </label>
-                <label class="ui-label" for="id_unemployed_since" style="display:none;">Unemployed since (date)</label>
                 <input type="date" class="form-control ui-input" id="id_unemployed_since" name="unemployed_since" value="{{ statement.unemployed_since|date:'Y-m-d'|default:'' }}">
               </div>
             </div>
           </div>
+
         </div>
 
         <!-- Actions -->

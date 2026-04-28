@@ -1,28 +1,55 @@
-{% extends 'base.html' %}
-
+﻿{% extends 'base.html' %}
 {% block title %}Delete User{% endblock %}
+{% block header %}Delete User{% endblock %}
+{% block subheader %}Permanently remove this user account{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">⚠️ Confirm Delete</h5>
-                </div>
-                <div class="card-body">
-                    <p>Are you sure you want to delete the user <strong>"{{ user_obj.username }}"</strong>?</p>
-                    <p class="text-muted small mb-0">This action cannot be undone. All data associated with this user will be permanently removed.</p>
-                </div>
-                <div class="card-footer d-flex gap-2">
-                    <form method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Yes, Delete User</button>
-                    </form>
-                    <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                </div>
-            </div>
-        </div>
+<style>
+  .cd-wrap { max-width: 480px; margin: 0 auto; }
+  .cd-card { background: #fff; border: 1px solid #fecaca; border-radius: 10px; overflow: hidden; }
+  .cd-head {
+    padding: 14px 18px; background: #fef2f2; border-bottom: 1px solid #fecaca;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .cd-head-icon svg { flex-shrink: 0; }
+  .cd-head h2 { font-size: 15px; font-weight: 700; color: #991b1b; margin: 0; }
+  .cd-body { padding: 18px 24px; font-size: 13px; color: #475569; }
+  .cd-subject { font-weight: 700; color: #0f172a; font-size: 15px; margin: 6px 0 12px; }
+  .cd-warning { font-size: 12px; color: #dc2626; margin-top: 8px; }
+  .cd-actions {
+    padding: 14px 18px; background: #f8fafc; border-top: 1px solid #e2e8f0;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .cd-btn {
+    padding: 9px 20px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background .15s; border: none; text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .cd-btn-delete { background: #dc2626; color: #fff; }
+  .cd-btn-delete:hover { background: #b91c1c; }
+  .cd-btn-cancel { background: #fff; border: 1px solid #e2e8f0; color: #0f172a; }
+  .cd-btn-cancel:hover { background: #f1f5f9; text-decoration: none; color: #0f172a; }
+</style>
+
+<div class="cd-wrap">
+  <div class="cd-card">
+    <div class="cd-head">
+      <div class="cd-head-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      </div>
+      <h2>Delete User Account</h2>
     </div>
+    <div class="cd-body">
+      <p>You are about to delete the user:</p>
+      <div class="cd-subject">{{ user_obj.username }}</div>
+      <p>This action is permanent and cannot be undone. All data associated with this account will be removed.</p>
+    </div>
+    <div class="cd-actions">
+      <form method="post" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="cd-btn cd-btn-delete">Delete User</button>
+      </form>
+      <a href="{% url 'users:user_list' %}" class="cd-btn cd-btn-cancel">Cancel</a>
+    </div>
+  </div>
 </div>
 {% endblock %}

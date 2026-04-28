@@ -15,10 +15,11 @@
   }
   
   .confirm-header {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: #fee2e2;
     padding: 24px;
     text-align: center;
-    color: white;
+    color: #991b1b;
+    border-bottom: 1px solid #fecaca;
   }
   
   .confirm-header .icon {
@@ -100,25 +101,26 @@
   
   .btn-confirm-delete {
     padding: 12px 24px;
-    background: linear-gradient(135deg, #ef4444, #dc2626);
+    background: #dc2626;
     color: white;
     border: none;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: background .15s;
   }
   
   .btn-confirm-delete:hover {
-    filter: brightness(1.1);
-    transform: translateY(-1px);
+    background: #b91c1c;
   }
 </style>
 
 <div class="confirm-card">
   <div class="confirm-header">
-    <div class="icon">⚠️</div>
+    <div class="icon">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#991b1b" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+    </div>
     <h2>Permanently Delete?</h2>
   </div>
   

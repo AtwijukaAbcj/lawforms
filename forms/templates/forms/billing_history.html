@@ -1,236 +1,224 @@
 {% extends 'base.html' %}
 {% block content %}
 <style>
-    .page-header {
+    /* ── Page header ── */
+    .bh-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 20px;
         flex-wrap: wrap;
-        gap: 16px;
+        gap: 12px;
     }
-    
-    .page-header h1 {
+    .bh-header h1 {
         margin: 0;
-        font-size: 28px;
+        font-size: 20px;
         font-weight: 700;
-        color: #1a1a2e;
+        color: #1e293b;
     }
-    
-    .back-btn {
+    .bh-header .sub {
+        font-size: 13px;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
+    .bh-back-btn {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 10px 20px;
-        border-radius: 10px;
+        gap: 6px;
+        padding: 7px 16px;
+        border-radius: 7px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 13px;
         text-decoration: none;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        transition: all 0.2s;
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #e2e8f0;
+        transition: background 0.15s;
     }
-    
-    .back-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-    
-    .filter-card {
-        background: white;
-        border-radius: 16px;
-        padding: 24px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        margin-bottom: 24px;
-        border: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .filter-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 16px;
-        align-items: end;
-    }
-    
-    .filter-group label {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        color: #64748b;
-        margin-bottom: 8px;
-    }
-    
-    .filter-group input,
-    .filter-group select {
-        width: 100%;
-        padding: 10px 14px;
-        border: 2px solid #e2e8f0;
-        border-radius: 10px;
-        font-size: 14px;
-        transition: border-color 0.2s;
-    }
-    
-    .filter-group input:focus,
-    .filter-group select:focus {
-        outline: none;
-        border-color: #667eea;
-    }
-    
-    .filter-btn {
-        padding: 10px 24px;
-        background: linear-gradient(135deg, #667eea, #764ba2);
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-    
-    .filter-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
-    }
-    
-    .summary-bar {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px 24px;
-        border-radius: 12px;
-        margin-bottom: 24px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 16px;
-    }
-    
-    .summary-item {
-        text-align: center;
-    }
-    
-    .summary-item .value {
-        font-size: 24px;
-        font-weight: 700;
-    }
-    
-    .summary-item .label {
-        font-size: 13px;
-        opacity: 0.9;
-    }
-    
-    .table-card {
-        background: white;
-        border-radius: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-        overflow: hidden;
-        border: 1px solid rgba(0,0,0,0.05);
-    }
-    
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .data-table th {
-        background: #f8fafc;
-        padding: 16px 20px;
-        text-align: left;
-        font-size: 13px;
-        font-weight: 700;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        border-bottom: 2px solid #e2e8f0;
-    }
-    
-    .data-table td {
-        padding: 16px 20px;
-        border-bottom: 1px solid #f1f5f9;
-        font-size: 14px;
-        color: #1a1a2e;
-    }
-    
-    .data-table tr:hover {
-        background: #f8fafc;
-    }
-    
-    .data-table tr:last-child td {
-        border-bottom: none;
-    }
-    
-    .form-badge {
-        display: inline-block;
-        padding: 6px 12px;
-        border-radius: 8px;
+    .bh-back-btn:hover { background: #e2e8f0; color: #1e293b; }
+
+    /* ── View toggle pills ── */
+    .bh-toggle { display: flex; gap: 6px; margin-top: 8px; }
+    .bh-toggle a {
+        padding: 4px 12px;
+        border-radius: 20px;
         font-size: 12px;
         font-weight: 600;
+        text-decoration: none;
+        border: 1px solid #e2e8f0;
+        color: #64748b;
+        background: #f8fafc;
+        transition: all 0.15s;
     }
-    
-    .form-badge.form13 { background: #dbeafe; color: #2563eb; }
-    .form-badge.form13b { background: #fef3c7; color: #d97706; }
-    .form-badge.form13c { background: #d1fae5; color: #059669; }
-    
-    .status-badge {
+    .bh-toggle a.active { background: #1e293b; color: #fff; border-color: #1e293b; }
+
+    /* ── Filter card ── */
+    .bh-filter {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+    }
+    .bh-filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: flex-end;
+    }
+    .bh-filter-group { display: flex; flex-direction: column; gap: 4px; min-width: 140px; flex: 1; }
+    .bh-filter-group label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.4px; }
+    .bh-filter-group input,
+    .bh-filter-group select {
+        padding: 6px 10px;
+        border: 1px solid #e2e8f0;
+        border-radius: 7px;
+        font-size: 13px;
+        color: #1e293b;
+        background: #f8fafc;
+        transition: border-color 0.15s;
+    }
+    .bh-filter-group input:focus,
+    .bh-filter-group select:focus { outline: none; border-color: #94a3b8; background: #fff; }
+    .bh-filter-btn {
+        padding: 7px 18px;
+        background: #1e293b;
+        color: #fff;
+        border: none;
+        border-radius: 7px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        transition: background 0.15s;
+        align-self: flex-end;
+    }
+    .bh-filter-btn:hover { background: #334155; }
+
+    /* ── Summary strip ── */
+    .bh-summary {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+    }
+    .bh-stat {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 12px 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 130px;
+    }
+    .bh-stat .sv { font-size: 20px; font-weight: 700; color: #1e293b; }
+    .bh-stat .sl { font-size: 11px; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.4px; }
+
+    /* ── Table ── */
+    .bh-table-wrap {
+        background: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    .bh-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+    }
+    .bh-table thead th {
+        background: #f8fafc;
+        padding: 10px 14px;
+        text-align: left;
+        font-size: 11px;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .bh-table tbody td {
+        padding: 10px 14px;
+        border-bottom: 1px solid #f1f5f9;
+        color: #334155;
+        vertical-align: middle;
+    }
+    .bh-table tbody tr:last-child td { border-bottom: none; }
+    .bh-table tbody tr:hover { background: #fafafa; }
+
+    /* ── Badges ── */
+    .fb {
         display: inline-block;
-        padding: 4px 10px;
+        padding: 3px 9px;
+        border-radius: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .fb-13  { background: #eff6ff; color: #3b82f6; }
+    .fb-13b { background: #fffbeb; color: #d97706; }
+    .fb-13c { background: #f0fdf4; color: #16a34a; }
+    .fb-131 { background: #f5f3ff; color: #7c3aed; }
+
+    .sb {
+        display: inline-block;
+        padding: 2px 8px;
         border-radius: 20px;
         font-size: 11px;
         font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
     }
-    
-    .status-badge.billed { background: #d1fae5; color: #059669; }
-    .status-badge.pending { background: #fef3c7; color: #d97706; }
-    
-    .price-cell {
-        font-weight: 700;
-        color: #059669;
+    .sb-billed  { background: #f0fdf4; color: #16a34a; }
+    .sb-pending { background: #fffbeb; color: #d97706; }
+
+    .price-val { font-weight: 700; color: #16a34a; font-variant-numeric: tabular-nums; }
+
+    /* ── Action buttons ── */
+    .act-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        border-radius: 5px;
+        font-weight: 600;
+        font-size: 12px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.15s;
     }
-    
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #64748b;
-    }
-    
-    .empty-state .icon {
-        font-size: 64px;
-        margin-bottom: 20px;
-        opacity: 0.5;
-    }
-    
-    .empty-state h3 {
-        margin: 0 0 8px;
-        color: #1a1a2e;
-    }
+    .act-btn-view   { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+    .act-btn-view:hover   { background: #dbeafe; color: #1d4ed8; }
+    .act-btn-delete { background: #fff1f2; color: #e11d48; border-color: #fecdd3; }
+    .act-btn-delete:hover { background: #ffe4e6; color: #be123c; }
+
+    /* ── Empty state ── */
+    .bh-empty { text-align: center; padding: 48px 20px; color: #94a3b8; }
+    .bh-empty h3 { font-size: 15px; margin: 8px 0 4px; color: #475569; }
+    .bh-empty p  { font-size: 13px; }
 </style>
 
-<div class="page-header">
+<!-- Header -->
+<div class="bh-header">
     <div>
-        <h1>📜 Print History {% if showing_all %}<span style="font-size: 16px; opacity: 0.7;">(All Users)</span>{% endif %}</h1>
+        <h1>Print History{% if showing_all %} <span style="font-size:14px;color:#94a3b8;font-weight:400;">— All Users</span>{% endif %}</h1>
         {% if can_view_all %}
-        <div style="display: flex; gap: 8px; margin-top: 12px;">
-            <a href="?view=all{% if filters.form_type %}&form_type={{ filters.form_type }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.billed %}&billed={{ filters.billed }}{% endif %}" 
-               class="btn btn-sm {% if showing_all %}btn-primary{% else %}btn-outline-primary{% endif %}" style="font-size: 12px; padding: 6px 12px; border-radius: 6px;">
-                👥 All Users
-            </a>
-            <a href="?view=mine{% if filters.form_type %}&form_type={{ filters.form_type }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.billed %}&billed={{ filters.billed }}{% endif %}" 
-               class="btn btn-sm {% if not showing_all %}btn-primary{% else %}btn-outline-primary{% endif %}" style="font-size: 12px; padding: 6px 12px; border-radius: 6px;">
-                👤 My Prints
-            </a>
+        <div class="bh-toggle">
+            <a href="?view=all{% if filters.form_type %}&form_type={{ filters.form_type }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.billed %}&billed={{ filters.billed }}{% endif %}" class="{% if showing_all %}active{% endif %}">All Users</a>
+            <a href="?view=mine{% if filters.form_type %}&form_type={{ filters.form_type }}{% endif %}{% if filters.date_from %}&date_from={{ filters.date_from }}{% endif %}{% if filters.date_to %}&date_to={{ filters.date_to }}{% endif %}{% if filters.billed %}&billed={{ filters.billed }}{% endif %}" class="{% if not showing_all %}active{% endif %}">My Prints</a>
         </div>
         {% endif %}
     </div>
-    <a href="{% url 'billing_dashboard' %}{% if showing_all %}?view=all{% endif %}" class="back-btn">← Back to Dashboard</a>
+    <a href="{% url 'billing_dashboard' %}{% if showing_all %}?view=all{% endif %}" class="bh-back-btn">← Back to Dashboard</a>
 </div>
 
-<div class="filter-card">
+<!-- Filters -->
+<div class="bh-filter">
     <form method="get" action="">
         {% if showing_all %}<input type="hidden" name="view" value="all">{% endif %}
-        <div class="filter-grid">
-            <div class="filter-group">
+        <div class="bh-filter-row">
+            <div class="bh-filter-group">
                 <label>Form Type</label>
                 <select name="form_type">
                     <option value="">All Forms</option>
@@ -239,15 +227,15 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="filter-group">
-                <label>From Date</label>
+            <div class="bh-filter-group">
+                <label>From</label>
                 <input type="date" name="date_from" value="{{ filters.date_from }}">
             </div>
-            <div class="filter-group">
-                <label>To Date</label>
+            <div class="bh-filter-group">
+                <label>To</label>
                 <input type="date" name="date_to" value="{{ filters.date_to }}">
             </div>
-            <div class="filter-group">
+            <div class="bh-filter-group">
                 <label>Status</label>
                 <select name="billed">
                     <option value="">All</option>
@@ -255,27 +243,27 @@
                     <option value="unbilled" {% if filters.billed == 'unbilled' %}selected{% endif %}>Unbilled</option>
                 </select>
             </div>
-            <div class="filter-group">
-                <button type="submit" class="filter-btn">Apply Filters</button>
-            </div>
+            <button type="submit" class="bh-filter-btn">Filter</button>
         </div>
     </form>
 </div>
 
-<div class="summary-bar">
-    <div class="summary-item">
-        <div class="value">{{ totals.count|default:0 }}</div>
-        <div class="label">Total Prints</div>
+<!-- Summary -->
+<div class="bh-summary">
+    <div class="bh-stat">
+        <span class="sv">{{ totals.count|default:0 }}</span>
+        <span class="sl">Total Prints</span>
     </div>
-    <div class="summary-item">
-        <div class="value">${{ totals.total_amount|floatformat:2|default:"0.00" }}</div>
-        <div class="label">Total Amount</div>
+    <div class="bh-stat">
+        <span class="sv">${{ totals.total_amount|floatformat:2|default:"0.00" }}</span>
+        <span class="sl">Total Amount</span>
     </div>
 </div>
 
-<div class="table-card">
+<!-- Table -->
+<div class="bh-table-wrap">
     {% if prints %}
-    <table class="data-table">
+    <table class="bh-table">
         <thead>
             <tr>
                 <th>Date & Time</th>
@@ -284,81 +272,48 @@
                 <th>Identifier</th>
                 <th>Price</th>
                 <th>Status</th>
-                {% if request.user.is_superuser or request.user.is_staff %}<th>Action</th>{% endif %}
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             {% for print in prints %}
             <tr>
-                <td>{{ print.printed_at|date:"M d, Y H:i" }}</td>
+                <td style="white-space:nowrap; color:#64748b;">{{ print.printed_at|date:"M d, Y H:i" }}</td>
                 {% if showing_all %}<td><strong>{{ print.user.username }}</strong></td>{% endif %}
                 <td>
-                    <span class="form-badge {% if print.form_type == 'financial_statement' %}form13{% elif print.form_type == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
+                    <span class="fb {% if print.form_type == 'financial_statement' %}fb-13{% elif print.form_type == 'net_family_property_13b' %}fb-13b{% elif print.form_type == 'comparison_nfp' %}fb-13c{% else %}fb-131{% endif %}">
                         {{ print.get_form_type_display }}
                     </span>
                 </td>
                 <td>{{ print.form_identifier }}</td>
-                <td class="price-cell">${{ print.price_charged|floatformat:2 }}</td>
+                <td class="price-val">${{ print.price_charged|floatformat:2 }}</td>
                 <td>
                     {% if print.is_billed %}
-                        <span class="status-badge billed">Billed</span>
+                        <span class="sb sb-billed">Billed</span>
                     {% else %}
-                        <span class="status-badge pending">Pending</span>
+                        <span class="sb sb-pending">Pending</span>
                     {% endif %}
                 </td>
                 <td>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <a href="{% url 'view_printed_copy' print.id %}" class="themed-btn themed-btn-view" target="_blank"> View</a>
+                    <div style="display:flex; gap:6px; align-items:center;">
+                        <a href="{% url 'view_printed_copy' print.id %}" class="act-btn act-btn-view" target="_blank">View</a>
                         {% if request.user.is_superuser or request.user.is_staff %}
-                        <form method="post" action="{% url 'delete_print_event' print.id %}" style="display:inline; margin: 0;">
+                        <form method="post" action="{% url 'delete_print_event' print.id %}" style="display:inline; margin:0;">
                             {% csrf_token %}
-                            <button type="submit" class="themed-btn themed-btn-delete" onclick="return confirm('Are you sure you want to delete this print event?');">Delete</button>
+                            <button type="submit" class="act-btn act-btn-delete" onclick="return confirm('Delete this print event?');">Delete</button>
                         </form>
                         {% endif %}
                     </div>
-                        <!-- <a href="{% url 'view_printed_copy' print.id %}" class="themed-btn themed-btn-view" target="_blank">👁 View</a> -->
-                <style>
-                    .themed-btn {
-                        display: inline-flex;
-                        align-items: center;
-                        gap: 4px;
-                        padding: 4px 10px;
-                        border-radius: 6px;
-                        font-weight: 600;
-                        font-size: 12px;
-                        border: none;
-                        text-decoration: none;
-                        cursor: pointer;
-                        transition: background 0.18s, box-shadow 0.18s;
-                        box-shadow: 0 1px 4px rgba(102, 126, 234, 0.08);
-                    }
-                    .themed-btn-view {
-                        background: linear-gradient(135deg, #667eea, #764ba2);
-                        color: #fff;
-                    }
-                    .themed-btn-view:hover {
-                        background: linear-gradient(135deg, #5a67d8, #6b21a8);
-                        box-shadow: 0 4px 16px rgba(102, 126, 234, 0.18);
-                    }
-                    .themed-btn-delete {
-                        background: linear-gradient(135deg, #f87171, #fbbf24);
-                        color: #fff;
-                    }
-                    .themed-btn-delete:hover {
-                        background: linear-gradient(135deg, #dc2626, #f59e42);
-                        box-shadow: 0 4px 16px rgba(251, 191, 36, 0.18);
-                    }
-                </style>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
     {% else %}
-    <div class="empty-state">
-        <div class="icon">📋</div>
+    <div class="bh-empty">
+        <div style="font-size:40px; opacity:0.3;">📋</div>
         <h3>No prints found</h3>
-        <p>Try adjusting your filters or print some forms to see them here.</p>
+        <p>Adjust your filters or print some forms to see them here.</p>
     </div>
     {% endif %}
 </div>

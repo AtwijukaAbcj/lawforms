@@ -3416,8 +3416,54 @@ def view_printed_copy(request, print_event_id):
     elif print_event.form_type == 'net_family_property_13b':
         form_obj = NetFamilyProperty13B.objects.filter(pk=print_event.form_id).first()
         template = 'forms/net_family_property_13b_printed_view.html'
+        if form_obj:
+            assets = list(form_obj.assets.all())
+            debts = list(form_obj.debts.all())
+            marriage_properties = list(form_obj.marriage_properties.all())
+            marriage_debts = list(form_obj.marriage_debts.all())
+            excluded_properties = list(form_obj.excluded_properties.all())
+            try:
+                final_totals = form_obj.final_totals
+            except Exception:
+                final_totals = None
+
+            def _sum(items, field):
+                return sum(float(getattr(i, field) or 0) for i in items)
+
+            m_prop_app = _sum(marriage_properties, 'applicant_value')
+            m_prop_resp = _sum(marriage_properties, 'respondent_value')
+            m_debt_app = _sum(marriage_debts, 'applicant_value')
+            m_debt_resp = _sum(marriage_debts, 'respondent_value')
+            t1a = _sum(assets, 'applicant_value')
+            t1r = _sum(assets, 'respondent_value')
+            t2a = _sum(debts, 'applicant_value')
+            t2r = _sum(debts, 'respondent_value')
+            totals = {
+                'total1_app': t1a, 'total1_resp': t1r,
+                'total2_app': t2a, 'total2_resp': t2r,
+                'total3_app': m_prop_app - m_debt_app,
+                'total3_resp': m_prop_resp - m_debt_resp,
+                'total4_app': _sum(excluded_properties, 'applicant_value'),
+                'total4_resp': _sum(excluded_properties, 'respondent_value'),
+            }
+            totals['total5_app'] = totals['total2_app'] + totals['total3_app'] + totals['total4_app']
+            totals['total5_resp'] = totals['total2_resp'] + totals['total3_resp'] + totals['total4_resp']
+            totals['total6_app'] = t1a - totals['total5_app']
+            totals['total6_resp'] = t1r - totals['total5_resp']
+        else:
+            assets = debts = marriage_properties = marriage_debts = excluded_properties = []
+            final_totals = None
+            totals = {}
         context = {
             'form': form_obj,
+            'statement': form_obj,
+            'assets': assets,
+            'debts': debts,
+            'marriage_properties': marriage_properties,
+            'marriage_debts': marriage_debts,
+            'excluded_properties': excluded_properties,
+            'final_totals': final_totals,
+            'totals': totals,
             'print_event': print_event,
             'view_only': True,
         }

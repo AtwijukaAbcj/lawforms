@@ -23,10 +23,7 @@
         font-size: 28px;
         font-weight: 800;
         margin: 0;
-        background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
+        color: #0f172a;
     }
 
     .um-header-actions {
@@ -49,15 +46,14 @@
     }
 
     .btn-primary-gradient {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        background: #1e293b;
         color: white;
-        box-shadow: 0 4px 14px rgba(79, 70, 229, 0.35);
     }
 
     .btn-primary-gradient:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+        background: #334155;
         color: white;
+        text-decoration: none;
     }
 
     /* Stats Grid */
@@ -90,9 +86,7 @@
     }
 
     .stat-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1);
-        border-color: transparent;
+        box-shadow: 0 4px 14px rgba(0,0,0,.07);
     }
 
     .stat-card::before {
@@ -104,12 +98,12 @@
         height: 4px;
     }
 
-    .stat-card.blue::before { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-    .stat-card.green::before { background: linear-gradient(90deg, #10b981, #34d399); }
-    .stat-card.purple::before { background: linear-gradient(90deg, #8b5cf6, #a78bfa); }
-    .stat-card.amber::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
-    .stat-card.rose::before { background: linear-gradient(90deg, #f43f5e, #fb7185); }
-    .stat-card.cyan::before { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+    .stat-card.blue::before { background: #3b82f6; }
+    .stat-card.green::before { background: #10b981; }
+    .stat-card.purple::before { background: #8b5cf6; }
+    .stat-card.amber::before { background: #f59e0b; }
+    .stat-card.rose::before { background: #f43f5e; }
+    .stat-card.cyan::before { background: #06b6d4; }
 
     .stat-icon {
         width: 48px;
@@ -245,10 +239,9 @@
 
     .quick-action-btn:hover {
         background: white;
-        border-color: #c7d2fe;
-        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.08);
-        transform: translateY(-2px);
-        color: #4f46e5;
+        border-color: #94a3b8;
+        box-shadow: 0 2px 6px rgba(0,0,0,.06);
+        color: #1e293b;
     }
 
     .quick-action-icon {
@@ -262,10 +255,10 @@
         flex-shrink: 0;
     }
 
-    .quick-action-btn.user .quick-action-icon { background: linear-gradient(135deg, #dbeafe, #e0e7ff); }
-    .quick-action-btn.role .quick-action-icon { background: linear-gradient(135deg, #fce7f3, #ede9fe); }
-    .quick-action-btn.module .quick-action-icon { background: linear-gradient(135deg, #fef3c7, #fde68a); }
-    .quick-action-btn.audit .quick-action-icon { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
+    .quick-action-btn.user .quick-action-icon { background: #eff6ff; }
+    .quick-action-btn.role .quick-action-icon { background: #f5f3ff; }
+    .quick-action-btn.module .quick-action-icon { background: #fffbeb; }
+    .quick-action-btn.audit .quick-action-icon { background: #f0fdf4; }
 
     /* Activity List */
     .activity-item {
@@ -289,13 +282,13 @@
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+        background: #eff6ff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 14px;
         font-weight: 700;
-        color: #4f46e5;
+        color: #2563eb;
         flex-shrink: 0;
     }
 
@@ -436,9 +429,9 @@
         font-size: 20px;
     }
 
-    .mini-stat-icon.new { background: linear-gradient(135deg, #d1fae5, #a7f3d0); }
-    .mini-stat-icon.reset { background: linear-gradient(135deg, #fef3c7, #fde68a); }
-    .mini-stat-icon.logins { background: linear-gradient(135deg, #dbeafe, #bfdbfe); }
+    .mini-stat-icon.new { background: #f0fdf4; }
+    .mini-stat-icon.reset { background: #fffbeb; }
+    .mini-stat-icon.logins { background: #eff6ff; }
 
     .mini-stat-content h4 {
         font-size: 22px;
@@ -458,7 +451,7 @@
     .view-all-link {
         font-size: 13px;
         font-weight: 600;
-        color: #4f46e5;
+        color: #475569;
         text-decoration: none;
         display: flex;
         align-items: center;
@@ -467,7 +460,7 @@
     }
 
     .view-all-link:hover {
-        color: #4338ca;
+        color: #0f172a;
     }
 
     .view-all-link svg {
@@ -581,7 +574,7 @@
         <div class="panel">
             <div class="panel-header">
                 <h3 class="panel-title">
-                    <span class="panel-title-icon" style="background: linear-gradient(135deg, #e0e7ff, #c7d2fe);"><svg width="16" height="16" fill="none" stroke="#4f46e5" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
+                    <span class="panel-title-icon" style="background:#eff6ff;"><svg width="16" height="16" fill="none" stroke="#2563eb" stroke-width="2" viewBox="0 0 24 24"><path d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></span>
                     Quick Actions
                 </h3>
             </div>
@@ -611,7 +604,7 @@
         <div class="panel">
             <div class="panel-header">
                 <h3 class="panel-title">
-                    <span class="panel-title-icon" style="background: linear-gradient(135deg, #d1fae5, #a7f3d0);"><svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span>
+                    <span class="panel-title-icon" style="background:#f0fdf4;"><svg width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></span>
                     Recent Activity
                 </h3>
                 <a href="{% url 'users:audit_log_list' %}" class="view-all-link">
@@ -650,7 +643,7 @@
         <div class="panel">
             <div class="panel-header">
                 <h3 class="panel-title">
-                    <span class="panel-title-icon" style="background: linear-gradient(135deg, #fce7f3, #ede9fe);"><svg width="16" height="16" fill="none" stroke="#8b5cf6" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
+                    <span class="panel-title-icon" style="background:#f5f3ff;"><svg width="16" height="16" fill="none" stroke="#7c3aed" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg></span>
                     Role Distribution
                 </h3>
                 <a href="{% url 'users:role_list' %}" class="view-all-link">

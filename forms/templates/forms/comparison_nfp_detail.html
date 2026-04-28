@@ -1,31 +1,87 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
+{% block title %}Comparison NFP Details{% endblock %}
+{% block header %}Form 13C Details{% endblock %}
+{% block subheader %}Comparison of Net Family Property{% endblock %}
+
 {% block content %}
-  <h2>Comparison of Net Family Property Details</h2>
-  <a class="btn btn-secondary mb-3" href="/forms/comparison-nfp/">Back to List</a>
-  <table class="table table-striped">
-    <tr><th>ID</th><td>{{ nfp.id }}</td></tr>
-    <tr><th>Court File #</th><td>{{ nfp.court_file_number }}</td></tr>
-    <tr><th>Court Name</th><td>{{ nfp.court_name }}</td></tr>
-    <tr><th>Prepared By</th><td>{{ nfp.prepared_by }}</td></tr>
-    <tr><th>Applicant Name</th><td>{{ nfp.applicant_name }}</td></tr>
-    <tr><th>Applicant Address</th><td>{{ nfp.applicant_address }}</td></tr>
-    <tr><th>Applicant Phone</th><td>{{ nfp.applicant_phone }}</td></tr>
-    <tr><th>Applicant Email</th><td>{{ nfp.applicant_email }}</td></tr>
-    <tr><th>Applicant Lawyer Name</th><td>{{ nfp.applicant_lawyer_name }}</td></tr>
-    <tr><th>Applicant Lawyer Address</th><td>{{ nfp.applicant_lawyer_address }}</td></tr>
-    <tr><th>Applicant Lawyer Phone</th><td>{{ nfp.applicant_lawyer_phone }}</td></tr>
-    <tr><th>Applicant Lawyer Email</th><td>{{ nfp.applicant_lawyer_email }}</td></tr>
-    <tr><th>Respondent Name</th><td>{{ nfp.respondent_name }}</td></tr>
-    <tr><th>Respondent Address</th><td>{{ nfp.respondent_address }}</td></tr>
-    <tr><th>Respondent Phone</th><td>{{ nfp.respondent_phone }}</td></tr>
-    <tr><th>Respondent Email</th><td>{{ nfp.respondent_email }}</td></tr>
-    <tr><th>Respondent Lawyer Name</th><td>{{ nfp.respondent_lawyer_name }}</td></tr>
-    <tr><th>Respondent Lawyer Address</th><td>{{ nfp.respondent_lawyer_address }}</td></tr>
-    <tr><th>Respondent Lawyer Phone</th><td>{{ nfp.respondent_lawyer_phone }}</td></tr>
-    <tr><th>Respondent Lawyer Email</th><td>{{ nfp.respondent_lawyer_email }}</td></tr>
-    <tr><th>Valuation Date</th><td>{{ nfp.valuation_date }}</td></tr>
-    <tr><th>Statement Date</th><td>{{ nfp.statement_date }}</td></tr>
-    <tr><th>Created</th><td>{{ nfp.created_at }}</td></tr>
-    <tr><th>Updated</th><td>{{ nfp.updated_at }}</td></tr>
-  </table>
+<style>
+  .det-back {
+    display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px;
+    border-radius: 7px; font-size: 13px; font-weight: 600; text-decoration: none;
+    background: #fff; border: 1px solid #e2e8f0; color: #0f172a;
+    margin-bottom: 16px; transition: background .15s;
+  }
+  .det-back:hover { background: #f1f5f9; color: #0f172a; text-decoration: none; }
+  .det-card {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 14px;
+  }
+  .det-head {
+    padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: #64748b;
+  }
+  .det-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 0;
+  }
+  .det-row {
+    display: flex; flex-direction: column; padding: 12px 18px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .det-row:last-child { border-bottom: none; }
+  .det-label { font-size: 11px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 2px; }
+  .det-value { font-size: 13px; color: #0f172a; font-weight: 500; }
+  .det-value.empty { color: #94a3b8; font-style: italic; }
+</style>
+
+<a href="/forms/comparison-nfp/" class="det-back">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+  Back to List
+</a>
+
+<div class="det-card">
+  <div class="det-head">Court Information</div>
+  <div class="det-grid">
+    <div class="det-row"><span class="det-label">ID</span><span class="det-value">#{{ nfp.id }}</span></div>
+    <div class="det-row"><span class="det-label">Court File #</span><span class="det-value {% if not nfp.court_file_number %}empty{% endif %}">{{ nfp.court_file_number|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Court Name</span><span class="det-value {% if not nfp.court_name %}empty{% endif %}">{{ nfp.court_name|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Prepared By</span><span class="det-value {% if not nfp.prepared_by %}empty{% endif %}">{{ nfp.prepared_by|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Valuation Date</span><span class="det-value {% if not nfp.valuation_date %}empty{% endif %}">{{ nfp.valuation_date|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Statement Date</span><span class="det-value {% if not nfp.statement_date %}empty{% endif %}">{{ nfp.statement_date|default:"—" }}</span></div>
+  </div>
+</div>
+
+<div class="det-card">
+  <div class="det-head">Applicant</div>
+  <div class="det-grid">
+    <div class="det-row"><span class="det-label">Name</span><span class="det-value {% if not nfp.applicant_name %}empty{% endif %}">{{ nfp.applicant_name|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Address</span><span class="det-value {% if not nfp.applicant_address %}empty{% endif %}">{{ nfp.applicant_address|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Phone</span><span class="det-value {% if not nfp.applicant_phone %}empty{% endif %}">{{ nfp.applicant_phone|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Email</span><span class="det-value {% if not nfp.applicant_email %}empty{% endif %}">{{ nfp.applicant_email|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Name</span><span class="det-value {% if not nfp.applicant_lawyer_name %}empty{% endif %}">{{ nfp.applicant_lawyer_name|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Address</span><span class="det-value {% if not nfp.applicant_lawyer_address %}empty{% endif %}">{{ nfp.applicant_lawyer_address|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Phone</span><span class="det-value {% if not nfp.applicant_lawyer_phone %}empty{% endif %}">{{ nfp.applicant_lawyer_phone|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Email</span><span class="det-value {% if not nfp.applicant_lawyer_email %}empty{% endif %}">{{ nfp.applicant_lawyer_email|default:"—" }}</span></div>
+  </div>
+</div>
+
+<div class="det-card">
+  <div class="det-head">Respondent</div>
+  <div class="det-grid">
+    <div class="det-row"><span class="det-label">Name</span><span class="det-value {% if not nfp.respondent_name %}empty{% endif %}">{{ nfp.respondent_name|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Address</span><span class="det-value {% if not nfp.respondent_address %}empty{% endif %}">{{ nfp.respondent_address|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Phone</span><span class="det-value {% if not nfp.respondent_phone %}empty{% endif %}">{{ nfp.respondent_phone|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Email</span><span class="det-value {% if not nfp.respondent_email %}empty{% endif %}">{{ nfp.respondent_email|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Name</span><span class="det-value {% if not nfp.respondent_lawyer_name %}empty{% endif %}">{{ nfp.respondent_lawyer_name|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Address</span><span class="det-value {% if not nfp.respondent_lawyer_address %}empty{% endif %}">{{ nfp.respondent_lawyer_address|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Phone</span><span class="det-value {% if not nfp.respondent_lawyer_phone %}empty{% endif %}">{{ nfp.respondent_lawyer_phone|default:"—" }}</span></div>
+    <div class="det-row"><span class="det-label">Lawyer Email</span><span class="det-value {% if not nfp.respondent_lawyer_email %}empty{% endif %}">{{ nfp.respondent_lawyer_email|default:"—" }}</span></div>
+  </div>
+</div>
+
+<div class="det-card">
+  <div class="det-head">Record Info</div>
+  <div class="det-grid">
+    <div class="det-row"><span class="det-label">Created</span><span class="det-value">{{ nfp.created_at|date:"M d, Y H:i" }}</span></div>
+    <div class="det-row"><span class="det-label">Last Updated</span><span class="det-value">{{ nfp.updated_at|date:"M d, Y H:i" }}</span></div>
+  </div>
+</div>
 {% endblock %}

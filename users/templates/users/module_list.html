@@ -1,66 +1,108 @@
-{% extends 'base.html' %}
-
+﻿{% extends 'base.html' %}
 {% block title %}Modules{% endblock %}
+{% block header %}Modules{% endblock %}
+{% block subheader %}Manage permission modules{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Modules</h1>
-        <a href="{% url 'users:module_create' %}" class="btn btn-primary">
-            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="vertical-align: -2px; margin-right: 4px;"><path d="M12 5v14M5 12h14"/></svg> Create Module
-        </a>
-    </div>
+<style>
+  .ml-top {
+    display: flex; justify-content: flex-end; margin-bottom: 14px;
+  }
+  .ml-btn-new {
+    display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px;
+    background: #1e293b; color: #fff; border-radius: 7px; font-size: 13px; font-weight: 600;
+    text-decoration: none; transition: background .15s;
+  }
+  .ml-btn-new:hover { background: #334155; color: #fff; text-decoration: none; }
+  .ml-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; }
+  table.ml-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .ml-table thead th {
+    background: #f8fafc; padding: 10px 14px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em; color: #64748b;
+    border-bottom: 1px solid #e2e8f0; text-align: left; white-space: nowrap;
+  }
+  .ml-table tbody td { padding: 10px 14px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+  .ml-table tbody tr:last-child td { border-bottom: none; }
+  .ml-table tbody tr:hover td { background: #f8fafc; }
+  .ml-code {
+    font-family: monospace; font-size: 12px; background: #f1f5f9;
+    padding: 2px 6px; border-radius: 4px; color: #475569;
+  }
+  .ml-perm-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+  .ml-perm-chip {
+    display: inline-block; padding: 2px 7px; background: #eff6ff; color: #2563eb;
+    border-radius: 20px; font-size: 11px; font-weight: 600;
+  }
+  .ml-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 700; text-transform: uppercase;
+  }
+  .ml-badge-active   { background: #f0fdf4; color: #16a34a; }
+  .ml-badge-inactive { background: #fef2f2; color: #dc2626; }
+  .ml-action-btn {
+    display: inline-flex; align-items: center; padding: 4px 10px;
+    border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none;
+    transition: background .15s; border: 1px solid #e2e8f0; background: #fff; color: #475569; margin-right: 4px;
+  }
+  .ml-action-btn:hover { background: #f1f5f9; color: #0f172a; text-decoration: none; }
+  .ml-action-del { color: #dc2626; }
+  .ml-action-del:hover { background: #fef2f2; color: #dc2626; }
+  .ml-empty { padding: 40px; text-align: center; color: #94a3b8; font-size: 13px; }
+  .ml-icon { font-size: 18px; }
+  .ml-muted { color: #94a3b8; font-size: 12px; }
+</style>
 
-    <div class="card">
-        <div class="card-body p-0">
-            <table class="table table-hover mb-0">
-                <thead class="table-light">
-                    <tr>
-                        <th>Icon</th>
-                        <th>Name</th>
-                        <th>Code</th>
-                        <th>Description</th>
-                        <th>Permissions</th>
-                        <th>Status</th>
-                        <th width="120">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for module in modules %}
-                    <tr>
-                        <td class="fs-4">{{ module.icon }}</td>
-                        <td><strong>{{ module.name }}</strong></td>
-                        <td><code>{{ module.code }}</code></td>
-                        <td>{{ module.description|truncatewords:10|default:"-" }}</td>
-                        <td>
-                            {% for perm in module.permissions.all %}
-                            <span class="badge bg-light text-dark">{{ perm.get_permission_type_display }}</span>
-                            {% endfor %}
-                        </td>
-                        <td>
-                            {% if module.is_active %}
-                            <span class="badge bg-success">Active</span>
-                            {% else %}
-                            <span class="badge bg-secondary">Inactive</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{% url 'users:module_edit' module.pk %}" class="btn btn-outline-primary">Edit</a>
-                                <a href="{% url 'users:module_delete' module.pk %}" class="btn btn-outline-danger">Delete</a>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="7" class="text-center py-4 text-muted">
-                            No modules created yet. <a href="{% url 'users:module_create' %}">Create your first module</a>.
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="ml-top">
+  <a href="{% url 'users:module_create' %}" class="ml-btn-new">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+    New Module
+  </a>
+</div>
+
+<div class="ml-card">
+  <table class="ml-table">
+    <thead>
+      <tr>
+        <th>Icon</th>
+        <th>Name</th>
+        <th>Code</th>
+        <th>Description</th>
+        <th>Permissions</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for module in modules %}
+      <tr>
+        <td class="ml-icon">{{ module.icon }}</td>
+        <td style="font-weight:600;color:#0f172a;">{{ module.name }}</td>
+        <td><span class="ml-code">{{ module.code }}</span></td>
+        <td class="ml-muted">{{ module.description|default:"&#8212;" }}</td>
+        <td>
+          <div class="ml-perm-chips">
+            {% for perm in module.permissions.all %}
+            <span class="ml-perm-chip">{{ perm.name }}</span>
+            {% empty %}
+            <span class="ml-muted">None</span>
+            {% endfor %}
+          </div>
+        </td>
+        <td>
+          {% if module.is_active %}
+          <span class="ml-badge ml-badge-active">Active</span>
+          {% else %}
+          <span class="ml-badge ml-badge-inactive">Inactive</span>
+          {% endif %}
+        </td>
+        <td>
+          <a href="{% url 'users:module_edit' module.pk %}" class="ml-action-btn">Edit</a>
+          <a href="{% url 'users:module_delete' module.pk %}" class="ml-action-btn ml-action-del">Delete</a>
+        </td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="7" class="ml-empty">No modules have been created yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </div>
 {% endblock %}

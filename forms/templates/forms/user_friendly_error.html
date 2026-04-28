@@ -1,31 +1,56 @@
-{% extends "base.html" %}
+﻿{% extends 'base.html' %}
+{% block title %}Submission Error{% endblock %}
+{% block header %}Submission Error{% endblock %}
+{% block subheader %}There was a problem with your submission{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-    <div class="alert alert-warning" role="alert">
-        <h4 class="alert-heading">Submission Error</h4>
-        <p>{{ message }}</p>
-        {% if details %}
-        <details style="margin-bottom:12px;">
-            <summary>Technical details</summary>
-            <pre style="white-space:pre-wrap;">{{ details }}</pre>
-        </details>
-        {% endif %}
-        <hr>
-        <form method="post">
-            {% csrf_token %}
-            {# Re-render the form and formset if available #}
-            {% if form and land_formset %}
-                {{ form.as_p }}
-                {{ land_formset.management_form }}
-                {% for f in land_formset.forms %}
-                    {{ f.as_p }}
-                {% endfor %}
-                <button type="submit" class="btn btn-primary">Try Again</button>
-            {% else %}
-                <a href="/forms/comparison-nfp/" class="btn btn-primary">Go to Comparison NFP Dashboard</a>
-                <a href="/forms/comparison-nfp/page1/" class="btn btn-secondary">Start New Comparison NFP</a>
-            {% endif %}
-        </form>
+<style>
+  .ue-card {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+    max-width: 640px; overflow: hidden; margin-bottom: 14px;
+  }
+  .ue-head {
+    padding: 12px 18px; background: #fef3c7; border-bottom: 1px solid #fde68a;
+    font-size: 13px; font-weight: 700; color: #92400e;
+  }
+  .ue-body { padding: 16px 18px; }
+  .ue-msg { font-size: 13px; color: #78350f; }
+  .ue-details { margin-top: 12px; font-size: 12px; color: #92400e; }
+  .ue-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .ue-btn {
+    padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    transition: background .15s; border: none; cursor: pointer;
+  }
+  .ue-btn-primary { background: #1e293b; color: #fff; }
+  .ue-btn-primary:hover { background: #334155; color: #fff; text-decoration: none; }
+  .ue-btn-secondary { background: #fff; border: 1px solid #e2e8f0; color: #0f172a; }
+  .ue-btn-secondary:hover { background: #f1f5f9; color: #0f172a; text-decoration: none; }
+</style>
+
+<div class="ue-card">
+  <div class="ue-head">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+    Please review the errors below
+  </div>
+  <div class="ue-body">
+    <div class="ue-msg">{{ error_message|default:"There was a problem processing your submission. Please review the form and try again." }}</div>
+    {% if error_details %}
+    <div class="ue-details">{{ error_details }}</div>
+    {% endif %}
+    {% if formset %}
+    <div style="margin-top:14px;">{{ formset }}</div>
+    {% endif %}
+    <div class="ue-actions">
+      {% if try_again_url %}
+      <a href="{{ try_again_url }}" class="ue-btn ue-btn-primary">Try Again</a>
+      {% else %}
+      <button onclick="history.back()" class="ue-btn ue-btn-primary">Go Back</button>
+      {% endif %}
+      {% if dashboard_url %}
+      <a href="{{ dashboard_url }}" class="ue-btn ue-btn-secondary">Back to Dashboard</a>
+      {% endif %}
     </div>
+  </div>
 </div>
 {% endblock %}

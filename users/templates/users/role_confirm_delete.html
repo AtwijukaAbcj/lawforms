@@ -1,36 +1,48 @@
-{% extends 'base.html' %}
-
+﻿{% extends 'base.html' %}
 {% block title %}Delete Role{% endblock %}
+{% block header %}Delete Role{% endblock %}
+{% block subheader %}Remove this role from the system{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card border-danger">
-                <div class="card-header bg-danger text-white">
-                    <h5 class="mb-0">⚠️ Confirm Delete</h5>
-                </div>
-                <div class="card-body">
-                    <p>Are you sure you want to delete the role <strong>"{{ role.name }}"</strong>?</p>
-                    
-                    {% if role.users.count > 0 %}
-                    <div class="alert alert-warning">
-                        <strong>Warning:</strong> This role is currently assigned to {{ role.users.count }} user(s). 
-                        They will lose this role's permissions.
-                    </div>
-                    {% endif %}
-                    
-                    <p class="text-muted small mb-0">This action cannot be undone.</p>
-                </div>
-                <div class="card-footer d-flex gap-2">
-                    <form method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Yes, Delete Role</button>
-                    </form>
-                    <a href="{% url 'users:role_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                </div>
-            </div>
-        </div>
+<style>
+  .cd-wrap { max-width: 480px; margin: 0 auto; }
+  .cd-card { background: #fff; border: 1px solid #fecaca; border-radius: 10px; overflow: hidden; }
+  .cd-head { padding: 14px 18px; background: #fef2f2; border-bottom: 1px solid #fecaca; display: flex; align-items: center; gap: 10px; }
+  .cd-head h2 { font-size: 15px; font-weight: 700; color: #991b1b; margin: 0; }
+  .cd-body { padding: 18px 24px; font-size: 13px; color: #475569; }
+  .cd-subject { font-weight: 700; color: #0f172a; font-size: 15px; margin: 6px 0 12px; }
+  .cd-warn-box { background: #fffbeb; border: 1px solid #fde68a; border-radius: 7px; padding: 10px 14px; font-size: 12px; color: #92400e; margin-top: 10px; }
+  .cd-actions { padding: 14px 18px; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 8px; }
+  .cd-btn { padding: 9px 20px; border-radius: 7px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background .15s; border: none; text-decoration: none; display: inline-flex; align-items: center; }
+  .cd-btn-delete { background: #dc2626; color: #fff; }
+  .cd-btn-delete:hover { background: #b91c1c; }
+  .cd-btn-cancel { background: #fff; border: 1px solid #e2e8f0; color: #0f172a; }
+  .cd-btn-cancel:hover { background: #f1f5f9; text-decoration: none; color: #0f172a; }
+</style>
+
+<div class="cd-wrap">
+  <div class="cd-card">
+    <div class="cd-head">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/></svg>
+      <h2>Delete Role</h2>
     </div>
+    <div class="cd-body">
+      <p>You are about to delete the role:</p>
+      <div class="cd-subject">{{ role.name }}</div>
+      {% if role.users.count > 0 %}
+      <div class="cd-warn-box">
+        This role is assigned to {{ role.users.count }} user{{ role.users.count|pluralize }}.
+        Deleting it will remove their role assignment.
+      </div>
+      {% endif %}
+    </div>
+    <div class="cd-actions">
+      <form method="post" style="margin:0;">
+        {% csrf_token %}
+        <button type="submit" class="cd-btn cd-btn-delete">Delete Role</button>
+      </form>
+      <a href="{% url 'users:role_list' %}" class="cd-btn cd-btn-cancel">Cancel</a>
+    </div>
+  </div>
 </div>
 {% endblock %}

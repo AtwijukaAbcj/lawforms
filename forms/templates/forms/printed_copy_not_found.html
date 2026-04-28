@@ -1,9 +1,27 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
 {% block title %}Printed Copy Not Found{% endblock %}
+{% block header %}Printed Copy Not Found{% endblock %}
+{% block subheader %}The requested printed copy is unavailable{% endblock %}
+
 {% block content %}
-<div class="alert alert-danger" style="margin: 32px 0;">
-  <h2>Printed Copy Not Found</h2>
-  <p>The printed copy you are trying to view could not be found. It may have been deleted or the form no longer exists.</p>
-  <a href="{% url 'billing_history' %}" class="btn btn-primary">Back to Billing History</a>
+<style>
+  .pnf-card {
+    background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px;
+    padding: 28px 24px; max-width: 480px;
+  }
+  .pnf-title { font-size: 15px; font-weight: 700; color: #991b1b; margin-bottom: 8px; }
+  .pnf-msg { font-size: 13px; color: #7f1d1d; margin-bottom: 18px; }
+  .pnf-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px; background: #1e293b; color: #fff; border-radius: 7px;
+    font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s;
+  }
+  .pnf-btn:hover { background: #334155; color: #fff; text-decoration: none; }
+</style>
+
+<div class="pnf-card">
+  <div class="pnf-title">Printed Copy Not Found</div>
+  <div class="pnf-msg">The printed copy you are looking for no longer exists or has been removed.</div>
+  <a href="{% url 'forms:billing_history' %}" class="pnf-btn">Back to Billing History</a>
 </div>
 {% endblock %}

@@ -1,111 +1,141 @@
-{% extends 'base.html' %}
-
+﻿{% extends 'base.html' %}
 {% block title %}{{ title }}{% endblock %}
+{% block header %}{{ title }}{% endblock %}
+{% block subheader %}{% if user_obj %}Edit user account{% else %}Create a new user account{% endif %}{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>{{ title }}</h1>
-        <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">← Back to Users</a>
-    </div>
+<style>
+  .uf-layout { display: grid; grid-template-columns: 1fr 280px; gap: 14px; }
+  @media (max-width: 700px) { .uf-layout { grid-template-columns: 1fr; } }
+  .uf-card, .uf-sidebar {
+    background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;
+  }
+  .uf-card-head, .uf-sidebar-head {
+    padding: 12px 18px; background: #f8fafc; border-bottom: 1px solid #e2e8f0;
+    font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: #64748b;
+  }
+  .uf-body { padding: 18px; }
+  .uf-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .uf-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .uf-field:last-child { margin-bottom: 0; }
+  .uf-label { font-size: 12px; font-weight: 600; color: #475569; }
+  .uf-input, .uf-select {
+    height: 38px; padding: 0 10px; border: 1px solid #e2e8f0; border-radius: 7px;
+    font-size: 13px; color: #0f172a; background: #fff; width: 100%;
+  }
+  .uf-input:focus, .uf-select:focus { outline: none; border-color: #94a3b8; }
+  .uf-check-label { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #0f172a; cursor: pointer; }
+  .uf-errors { margin-top: 4px; }
+  .uf-error { font-size: 12px; color: #dc2626; }
+  .uf-actions {
+    padding: 14px 18px; background: #f8fafc; border-top: 1px solid #e2e8f0;
+    display: flex; gap: 8px; align-items: center;
+  }
+  .uf-btn {
+    padding: 9px 20px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background .15s; border: none; text-decoration: none; display: inline-flex; align-items: center;
+  }
+  .uf-btn-save { background: #1e293b; color: #fff; }
+  .uf-btn-save:hover { background: #334155; }
+  .uf-btn-cancel { background: #fff; border: 1px solid #e2e8f0; color: #0f172a; }
+  .uf-btn-cancel:hover { background: #f1f5f9; text-decoration: none; color: #0f172a; }
+  .uf-help-list { list-style: none; padding: 0; margin: 0; }
+  .uf-help-list li { padding: 6px 0; font-size: 13px; color: #475569; border-bottom: 1px solid #f1f5f9; }
+  .uf-help-list li:last-child { border-bottom: none; }
+</style>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Username <span class="text-danger">*</span></label>
-                                {{ form.username }}
-                                {% if form.username.errors %}
-                                <div class="text-danger small">{{ form.username.errors.0 }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                {{ form.email }}
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">First Name</label>
-                                {{ form.first_name }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
-                                {{ form.last_name }}
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Password {% if not user_obj %}<span class="text-danger">*</span>{% endif %}</label>
-                                {{ form.password }}
-                                <small class="text-muted">{% if user_obj %}Leave blank to keep current password{% else %}Minimum 8 characters{% endif %}</small>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Confirm Password</label>
-                                {{ form.confirm_password }}
-                            </div>
-                        </div>
-
-                        <hr class="my-4">
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Role</label>
-                                {{ form.role }}
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Department</label>
-                                {{ form.department }}
-                            </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Phone</label>
-                                {{ form.phone }}
-                            </div>
-                            <div class="col-md-6 d-flex align-items-end">
-                                <div class="form-check">
-                                    {{ form.is_active }}
-                                    <label class="form-check-label ms-2">Active User</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger">
-                            {{ form.non_field_errors.0 }}
-                        </div>
-                        {% endif %}
-
-                        <div class="d-flex gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary">{{ action }} User</button>
-                            <a href="{% url 'users:user_list' %}" class="btn btn-outline-secondary">Cancel</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="uf-layout">
+  <div class="uf-card">
+    <div class="uf-card-head">Account Details</div>
+    <form method="post">
+      {% csrf_token %}
+      <div class="uf-body">
+        <div class="uf-row">
+          <div class="uf-field">
+            <label class="uf-label">Username</label>
+            {{ form.username }}
+            {% if form.username.errors %}<div class="uf-errors">{% for e in form.username.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
+          <div class="uf-field">
+            <label class="uf-label">Email</label>
+            {{ form.email }}
+            {% if form.email.errors %}<div class="uf-errors">{% for e in form.email.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
         </div>
-
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-header">
-                    <h6 class="mb-0">Help</h6>
-                </div>
-                <div class="card-body">
-                    <p class="small text-muted mb-2"><strong>Username:</strong> Must be unique and will be used for login.</p>
-                    <p class="small text-muted mb-2"><strong>Role:</strong> Determines what the user can access in the system.</p>
-                    <p class="small text-muted mb-0"><strong>Active:</strong> Inactive users cannot log in.</p>
-                </div>
-            </div>
+        <div class="uf-row">
+          <div class="uf-field">
+            <label class="uf-label">First Name</label>
+            {{ form.first_name }}
+            {% if form.first_name.errors %}<div class="uf-errors">{% for e in form.first_name.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
+          <div class="uf-field">
+            <label class="uf-label">Last Name</label>
+            {{ form.last_name }}
+            {% if form.last_name.errors %}<div class="uf-errors">{% for e in form.last_name.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
         </div>
+        {% if not user_obj %}
+        <div class="uf-row">
+          <div class="uf-field">
+            <label class="uf-label">Password</label>
+            {{ form.password }}
+            {% if form.password.errors %}<div class="uf-errors">{% for e in form.password.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
+          <div class="uf-field">
+            <label class="uf-label">Confirm Password</label>
+            {{ form.confirm_password }}
+            {% if form.confirm_password.errors %}<div class="uf-errors">{% for e in form.confirm_password.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
+        </div>
+        {% endif %}
+        <div class="uf-row">
+          <div class="uf-field">
+            <label class="uf-label">Role</label>
+            {{ form.role }}
+            {% if form.role.errors %}<div class="uf-errors">{% for e in form.role.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
+          <div class="uf-field">
+            <label class="uf-label">Department</label>
+            {{ form.department }}
+            {% if form.department.errors %}<div class="uf-errors">{% for e in form.department.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
+        </div>
+        <div class="uf-row">
+          <div class="uf-field">
+            <label class="uf-label">Phone</label>
+            {{ form.phone }}
+            {% if form.phone.errors %}<div class="uf-errors">{% for e in form.phone.errors %}<div class="uf-error">{{ e }}</div>{% endfor %}</div>{% endif %}
+          </div>
+          <div class="uf-field" style="justify-content:flex-end;padding-bottom:4px;">
+            <label class="uf-check-label">
+              {{ form.is_active }}
+              <span>Active Account</span>
+            </label>
+          </div>
+        </div>
+        {% if form.non_field_errors %}
+        <div class="uf-errors" style="margin-bottom:10px;">
+          {% for e in form.non_field_errors %}<div class="uf-error">{{ e }}</div>{% endfor %}
+        </div>
+        {% endif %}
+      </div>
+      <div class="uf-actions">
+        <button type="submit" class="uf-btn uf-btn-save">{{ action }}</button>
+        <a href="{% url 'users:user_list' %}" class="uf-btn uf-btn-cancel">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="uf-sidebar">
+    <div class="uf-sidebar-head">Help</div>
+    <div class="uf-body">
+      <ul class="uf-help-list">
+        <li>Username must be unique</li>
+        <li>Password min 8 characters</li>
+        <li>Role controls permissions</li>
+        <li>Inactive users cannot log in</li>
+      </ul>
     </div>
+  </div>
 </div>
 {% endblock %}

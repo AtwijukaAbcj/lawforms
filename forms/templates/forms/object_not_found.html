@@ -1,12 +1,34 @@
-{% extends 'base.html' %}
+﻿{% extends 'base.html' %}
+{% block title %}Not Found{% endblock %}
+{% block header %}Not Found{% endblock %}
+{% block subheader %}The requested record could not be located{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-  <div class="alert alert-warning" role="alert">
-    <h4 class="alert-heading">Not Found</h4>
-    <p>{{ message }}</p>
-    <hr>
-    <a href="/forms/comparison-nfp/page1/" class="btn btn-primary">Start a New Form 13C</a>
-    <a href="/forms/dashboard/" class="btn btn-secondary ms-2">Back to Dashboard</a>
+<style>
+  .nf-card {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 10px;
+    padding: 28px 24px; max-width: 520px;
+  }
+  .nf-title { font-size: 15px; font-weight: 700; color: #92400e; margin-bottom: 8px; }
+  .nf-msg { font-size: 13px; color: #78350f; margin-bottom: 18px; }
+  .nf-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .nf-btn {
+    padding: 9px 18px; border-radius: 7px; font-size: 13px; font-weight: 600;
+    text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    transition: background .15s; border: none; cursor: pointer;
+  }
+  .nf-btn-primary { background: #1e293b; color: #fff; }
+  .nf-btn-primary:hover { background: #334155; color: #fff; text-decoration: none; }
+  .nf-btn-secondary { background: #fff; border: 1px solid #e2e8f0; color: #0f172a; }
+  .nf-btn-secondary:hover { background: #f1f5f9; color: #0f172a; text-decoration: none; }
+</style>
+
+<div class="nf-card">
+  <div class="nf-title">Record Not Found</div>
+  <div class="nf-msg">{{ message|default:"The requested Form 13C comparison record could not be found." }}</div>
+  <div class="nf-actions">
+    <a href="{% url 'forms:comparison_nfp_start' %}" class="nf-btn nf-btn-primary">Start New Form 13C</a>
+    <a href="{% url 'forms:dashboard' %}" class="nf-btn nf-btn-secondary">Back to Dashboard</a>
   </div>
 </div>
 {% endblock %}

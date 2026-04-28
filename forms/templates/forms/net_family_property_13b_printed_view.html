@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View-Only Copy — Form 13B Net Family Property</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f1f5f9; }
+
+    /* Block printing */
+    @media print { body { visibility: hidden !important; } }
+
+    /* Screenshot deterrent */
+    .screenshot-blocker {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.05); z-index: 9999; pointer-events: none;
+    }
+
+    /* Top notice bar */
+    .view-only-bar {
+      position: sticky; top: 0; z-index: 100;
+      background: #1e293b; color: #fff;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 20px; gap: 12px; flex-wrap: wrap;
+    }
+    .view-only-bar .left { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+    .view-only-bar .badge {
+      background: #f59e0b; color: #000; font-size: 11px; font-weight: 700;
+      padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: .04em;
+    }
+    .view-only-bar a.back-btn {
+      background: rgba(255,255,255,.12); color: #fff; text-decoration: none;
+      border: 1px solid rgba(255,255,255,.2); border-radius: 6px;
+      padding: 6px 14px; font-size: 13px; font-weight: 600;
+    }
+    .view-only-bar a.back-btn:hover { background: rgba(255,255,255,.2); }
+
+    /* Print info row */
+    .print-info {
+      background: #fff; border-bottom: 1px solid #e2e8f0;
+      padding: 10px 20px; display: flex; gap: 24px; flex-wrap: wrap; font-size: 12px; color: #64748b;
+    }
+    .print-info strong { color: #0f172a; }
+
+    /* Scale form to fit screen */
+    .form-wrapper {
+      padding: 16px;
+    }
+    .form-inner {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+  </style>
+  <script>
+    // Block Ctrl+P / Cmd+P
+    window.addEventListener('keydown', function(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        alert('Printing is disabled for this view-only copy.');
+      }
+      if (e.key === 'PrintScreen') {
+        document.body.innerHTML = '<p style="padding:40px;font-size:18px;">Screenshot blocked.</p>';
+      }
+    });
+    window.onbeforeprint = function() {
+      document.body.innerHTML = '';
+    };
+  </script>
+</head>
+<body>
+
+<div class="screenshot-blocker"></div>
+
+<div class="view-only-bar">
+  <div class="left">
+    <span class="badge">View Only</span>
+    <span>Form 13B — Net Family Property Statement
+      {% if form %} &mdash; {{ form.applicant_name|default:"" }}{% endif %}
+    </span>
+  </div>
+  <a class="back-btn" href="/forms/billing/history/">&#8592; Back to Billing History</a>
+</div>
+
+{% if print_event %}
+<div class="print-info">
+  <span><strong>Purchased:</strong> {{ print_event.created_at|date:"Y-m-d H:i" }}</span>
+  <span><strong>Form ID:</strong> #{{ print_event.form_id }}</span>
+  <span><strong>Access:</strong> Secured view-only — printing &amp; screenshots disabled</span>
+</div>
+{% endif %}
+
+<div class="form-wrapper">
+  <div class="form-inner">
+    {% include 'forms/net_family_property_13b_print.html' with statement=form assets=assets debts=debts marriage_properties=marriage_properties marriage_debts=marriage_debts excluded_properties=excluded_properties final_totals=final_totals totals=totals view_only=True %}
+  </div>
+</div>
+
+</body>
+</html>
