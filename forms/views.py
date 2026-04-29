@@ -310,17 +310,13 @@ def get_all_form131_data(form):
 
 
 def _resolve_form131_court_file_number(statement, posted_value):
-    """Use manual court file number if provided, otherwise generate one."""
+    """Use manual court file number if provided, otherwise keep existing or return empty."""
     manual_value = (posted_value or "").strip()
     if manual_value:
         return manual_value
 
     existing = (statement.court_file_number or "").strip()
-    if existing:
-        return existing
-
-    year = statement.created_at.year if statement.created_at else timezone.now().year
-    return f"AUTO-{year}-{statement.id:06d}"
+    return existing
 
 
 def _remove_div_block(html, class_name):

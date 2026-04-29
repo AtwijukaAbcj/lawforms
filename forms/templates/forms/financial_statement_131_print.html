@@ -1279,23 +1279,39 @@ th { font-weight: bold; background: #fff; }
     </ul>
   </div>
 
-  <div style="margin-top:25px;padding-top:20px;border-top:1px solid #000;">
-    <table style="width:100%;border:none;margin:0;">
-      <tr style="border:none;">
-        <td style="width:50%;vertical-align:top;border:none;padding-right:30px;">
-          <p style="margin-bottom:10px;">Sworn/Affirmed before me at <span class="fill-line"><span class="val">{{ pages.page9.sworn_municipality|default:"" }}</span></span></p>
-          <p style="font-size:8pt;font-style:italic;margin-bottom:15px;text-align:center;">municipality</p>
-          <p style="margin-bottom:10px;">in <span class="fill-line"><span class="val">{{ pages.page9.sworn_province|default:"" }}</span></span></p>
-          <p style="font-size:8pt;font-style:italic;margin-bottom:15px;text-align:center;">province, state or country</p>
-          <p style="margin-bottom:10px;">on <span class="fill-line short"><span class="val">{{ pages.page9.sworn_date|default:"" }}</span></span></p>
-          <p style="font-size:8pt;font-style:italic;margin-bottom:20px;">date</p>
-          <div class="sig-line"></div>
-          <p style="font-size:8pt;font-style:italic;text-align:center;">Commissioner for taking affidavits<br>(Type or print name below if signature is illegible.)</p>
-          <p><span class="val">{{ pages.page9.commissioner_name|default:"" }}</span></p>
+  <div style="margin-top:25px;padding-top:20px;border-top:2px solid #000;">
+    <table style="width:100%;border-collapse:collapse;border:none;margin:0;">
+      <tr>
+        <!-- LEFT column -->
+        <td style="width:63%;vertical-align:top;border:none;border-right:1px solid #000;padding-right:24px;">
+
+          <!-- Sworn/Affirmed before me at [long line] -->
+          <p style="margin:0 0 2px 0;white-space:nowrap;">Sworn/Affirmed before me at <span style="display:inline-block;border-bottom:1px solid #000;min-width:180px;width:calc(100% - 220px);vertical-align:bottom;padding-bottom:1px;"><span class="val">{{ pages.page9.sworn_municipality|default:"" }}</span></span></p>
+          <p style="font-size:8pt;font-style:italic;text-align:center;margin:0 0 12px 0;">municipality</p>
+
+          <!-- in [long line] -->
+          <p style="margin:0 0 2px 0;">in <span style="display:inline-block;border-bottom:1px solid #000;min-width:200px;width:calc(100% - 20px);vertical-align:bottom;padding-bottom:1px;"><span class="val">{{ pages.page9.sworn_province|default:"" }}</span></span></p>
+          <p style="font-size:8pt;font-style:italic;text-align:center;margin:0 0 12px 0;">province, state or country</p>
+
+          <!-- on [date line]   [commissioner line] -->
+          <table style="width:100%;border:none;border-collapse:collapse;margin:0;">
+            <tr style="border:none;">
+              <td style="width:38%;border:none;vertical-align:bottom;padding:0 16px 0 0;">
+                <p style="margin:0 0 2px 0;white-space:nowrap;">on <span style="display:inline-block;border-bottom:1px solid #000;min-width:80px;width:calc(100% - 24px);vertical-align:bottom;padding-bottom:1px;"><span class="val">{{ pages.page9.sworn_date|default:"" }}</span></span></p>
+                <p style="font-size:8pt;font-style:italic;text-align:center;margin:0;">date</p>
+              </td>
+              <td style="border:none;vertical-align:bottom;padding:0;">
+                <span style="display:block;border-bottom:1px solid #000;min-width:80px;padding-bottom:1px;"><span class="val">{{ pages.page9.commissioner_name|default:"" }}</span></span>
+                <p style="font-size:8pt;font-style:italic;text-align:center;margin:0;">Commissioner for taking affidavits<br>(Type or print name below if signature is illegible.)</p>
+              </td>
+            </tr>
+          </table>
+
         </td>
-        <td style="width:50%;vertical-align:bottom;border:none;padding-left:30px;">
-          <div class="sig-line" style="margin-top:80px;"></div>
-          <p style="font-size:8pt;font-style:italic;text-align:center;">Signature<br>(This form is to be signed in front of a lawyer, justice of the peace, notary public or commissioner for taking affidavits.)</p>
+        <!-- RIGHT column: signature -->
+        <td style="width:37%;vertical-align:bottom;border:none;padding-left:24px;">
+          <span style="display:block;border-bottom:1px solid #000;margin-bottom:4px;">&nbsp;</span>
+          <p style="font-size:8pt;font-style:italic;text-align:center;margin:0;">Signature<br>(This form is to be signed in front of a lawyer, justice of the peace, notary public or commissioner for taking affidavits.)</p>
         </td>
       </tr>
     </table>
