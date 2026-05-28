@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block title %}New Form 36B — Certificate of Divorce{% endblock %}
+{% block header %}New Form 36B — Certificate of Divorce{% endblock %}
+{% block subheader %}Create a new divorce certificate record{% endblock %}
+{% block content %}
+{% if case_list %}
+  <div class="mb-4">
+    <form method="get" class="d-flex flex-wrap gap-2 align-items-end">
+      <div>
+        <label class="form-label mb-1">Select Case</label>
+        <select name="case_id" class="form-select">
+          <option value="">— None —</option>
+          {% for case in case_list %}
+            <option value="{{ case.id }}" {% if selected_case and selected_case.id == case.id %}selected{% endif %}>
+              {{ case.court_file_number|default:"" }} — {{ case.applicant_name|default:"" }} vs {{ case.respondent_name|default:"" }}
+            </option>
+          {% endfor %}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-secondary">Load Case</button>
+    </form>
+  </div>
+{% endif %}
+<style>
+  .form-section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 24px; margin-bottom: 20px; }
+  .form-section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .form-section-desc { color: #64748b; font-size: 0.95rem; margin-bottom: 18px; }
+  .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 16px; }
+  .form-row.full { grid-template-columns: 1fr; }
+  .form-group { display: grid; gap: 8px; }
+  .form-label-req { font-weight: 600; font-size: 0.95rem; }
+  .party-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 16px; }
+  @media (max-width: 992px) { .party-cards, .form-row { grid-template-columns: 1fr; } }
+</style>
+
+<form method="post">
+  {% csrf_token %}
+
+  {% if selected_case %}
+    <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+  {% endif %}
+
+  {% if form.non_field_errors or form.errors %}
+    <div class="alert alert-danger alert-dismissible fade show">
+      <h5 class="alert-heading mb-2">Form Validation Errors</h5>
+      <hr>
+      {% if form.non_field_errors %}
+        <div class="mb-2">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <div>{{ form.errors }}</div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+  {% endif %}
+
+  <!-- Court Information -->
+  <div class="form-section">
+      <div class="mb-4">
+        <h4 class="mb-2">Court Information</h4>
+        <p class="text-muted">Enter the court details for this divorce certificate.</p>
+      </div>
+
+      <div class="row gy-3">
+        <div class="col-lg-6">
+          <label class="form-label">Court Name</label>
+          {{ form.court_name }}
+        </div>
+        <div class="col-lg-6">
+          <label class="form-label">Court File Number</label>
+          {{ form.court_file_number }}
+        </div>
+        <div class="col-lg-12">
+          <label class="form-label">Court Office Address</label>
+          {{ form.court_office_address }}
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="mb-4">
+        <h4 class="mb-2">Applicant Details</h4>
+        <p class="text-muted">Provide the applicant and their lawyer information.</p>
+      </div>
+
+      <div class="row gy-4">
+        <div class="col-lg-6">
+          <div class="card h-100 border-1 shadow-sm">
+            <div class="card-body">
+              <h5 class="mb-3">Applicant(s)</h5>
+              <p class="text-muted small mb-4">Full legal name & address for service — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any).</p>
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                {{ form.applicant_name }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Address</label>
+                {{ form.applicant_address }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100 border-1 shadow-sm">
+            <div class="card-body">
+              <h5 class="mb-3">Applicant's Lawyer</h5>
+              <p class="text-muted small mb-4">Lawyer’s name & address — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any).</p>
+              <div class="mb-3">
+                <label class="form-label">Lawyer Name</label>
+                {{ form.applicant_lawyer_name }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Lawyer Address</label>
+                {{ form.applicant_lawyer_address }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="mb-4">
+        <h4 class="mb-2">Respondent Details</h4>
+        <p class="text-muted">Provide the respondent and their lawyer information.</p>
+      </div>
+
+      <div class="row gy-4">
+        <div class="col-lg-6">
+          <div class="card h-100 border-1 shadow-sm">
+            <div class="card-body">
+              <h5 class="mb-3">Respondent(s)</h5>
+              <p class="text-muted small mb-4">Full legal name & address for service — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any).</p>
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                {{ form.respondent_name }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Address</label>
+                {{ form.respondent_address }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card h-100 border-1 shadow-sm">
+            <div class="card-body">
+              <h5 class="mb-3">Respondent's Lawyer</h5>
+              <p class="text-muted small mb-4">Lawyer’s name & address — street & number, municipality, postal code, telephone & fax numbers and e-mail address (if any).</p>
+              <div class="mb-3">
+                <label class="form-label">Lawyer Name</label>
+                {{ form.respondent_lawyer_name }}
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Lawyer Address</label>
+                {{ form.respondent_lawyer_address }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="mb-4">
+        <h4 class="mb-2">Marriage & Divorce Dates</h4>
+        <p class="text-muted">Capture the key dates for the marriage and the divorce order.</p>
+      </div>
+
+      <div class="row gy-3">
+        <div class="col-lg-6">
+          <label class="form-label">Marriage Place</label>
+          {{ form.marriage_place }}
+        </div>
+        <div class="col-lg-6">
+          <label class="form-label">Marriage Date</label>
+          {{ form.marriage_date }}
+        </div>
+        <div class="col-lg-6">
+          <label class="form-label">Divorce Order Date</label>
+          {{ form.divorce_order_date }}
+        </div>
+        <div class="col-lg-6">
+          <label class="form-label">Effective Date</label>
+          {{ form.divorce_effective_date }}
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <div class="mb-4">
+        <h4 class="mb-2">Certification</h4>
+        <p class="text-muted">Record the signing clerk and the date the certificate is signed.</p>
+      </div>
+
+      <div class="row gy-3">
+        <div class="col-lg-6">
+          <label class="form-label">Clerk Signature</label>
+          {{ form.clerk_signature }}
+        </div>
+        <div class="col-lg-6">
+          <label class="form-label">Date of Signature</label>
+          {{ form.date_of_signature }}
+        </div>
+      </div>
+
+      <div class="d-flex flex-wrap gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">Create Certificate</button>
+        <a href="{% url 'certificate_of_divorce_list' %}" class="btn btn-secondary">Cancel</a>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

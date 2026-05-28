@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Form 25A — Print View{% endblock %}
+{% block header %}Form 25A — Divorce Order Print View{% endblock %}
+{% block subheader %}Review the printable version before export{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-start gap-3">
+  <div>
+    <h2 class="mb-1">Print Preview</h2>
+    <p class="text-muted mb-0">Printable version of the divorce order.</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <button type="button" onclick="window.print()" class="btn btn-primary">🖨 Print</button>
+    <a href="{% url 'divorce_order_view' order.pk %}" class="btn btn-secondary">Back to Order</a>
+  </div>
+</div>
+
+<div class="card shadow-sm border-0 p-4">
+  <h3 class="mb-3">Divorce Order</h3>
+  <div class="mb-3"><strong>Court File Number:</strong> {{ order.court_file_number|default:'—' }}</div>
+  <div class="row gy-3">
+    <div class="col-12 col-lg-6"><strong>Court Name:</strong> {{ order.court_name|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Judge:</strong> {{ order.judge_name|default:'Not provided' }} {{ order.judge_title|default:'' }}</div>
+    <div class="col-12"><strong>Court Office Address:</strong> {{ order.court_office_address|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Applicant:</strong> {{ order.applicant_name|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Respondent:</strong> {{ order.respondent_name|default:'Not provided' }}</div>
+    <div class="col-12"><strong>Applicant Address:</strong> {{ order.applicant_address|default:'Not provided' }}</div>
+    <div class="col-12"><strong>Respondent Address:</strong> {{ order.respondent_address|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Application Text:</strong> {{ order.application_of_name|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Evidence Submissions:</strong> {{ order.evidence_submissions|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Marriage Place:</strong> {{ order.marriage_place|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Marriage Date:</strong> {{ order.marriage_date|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Effective Days:</strong> {{ order.divorce_effective_days|default:'Not provided' }}</div>
+    <div class="col-12"><strong>Other Relief:</strong> {{ order.other_relief_details|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Date of Order:</strong> {{ order.date_of_order|default:'Not provided' }}</div>
+    <div class="col-12 col-lg-6"><strong>Date of Signature:</strong> {{ order.date_of_signature|default:'Not provided' }}</div>
+    <div class="col-12"><strong>Judge or Clerk Signature:</strong> {{ order.judge_or_clerk_signature|default:'Not provided' }}</div>
+  </div>
+</div>
+{% endblock %}

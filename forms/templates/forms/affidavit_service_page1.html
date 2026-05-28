@@ -1,0 +1,603 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 6B — Affidavit of Service — Page 1{% endblock %}
+{% block header %}Form 6B — Affidavit of Service{% endblock %}
+{% block subheader %}Page 1 — Service Information{% endblock %}
+
+{% block content %}
+
+<style>
+  .form6b-wrap{
+    max-width:980px;
+    margin:0 auto;
+    background:#fff;
+    padding:28px;
+    border:1px solid #d8dee9;
+  }
+
+  .case-load-bar{
+    max-width:980px;
+    margin:0 auto 18px;
+    display:flex;
+    gap:10px;
+    align-items:end;
+  }
+
+  .case-load-bar select{
+    min-width:340px;
+  }
+
+  .form6b-top{
+    display:grid;
+    grid-template-columns:1fr 220px;
+    gap:22px;
+    align-items:start;
+    margin-bottom:12px;
+  }
+
+  .ontario-title{
+    text-align:center;
+    font-style:italic;
+    font-weight:700;
+    margin-bottom:14px;
+  }
+
+  .court-line{
+    margin-bottom:8px;
+  }
+
+  .court-line label,
+  .small-label{
+    display:block;
+    font-size:11px;
+    font-style:italic;
+    text-align:center;
+    font-weight:700;
+  }
+
+  .court-at{
+    display:grid;
+    grid-template-columns:28px 1fr;
+    gap:8px;
+    align-items:center;
+  }
+
+  .court-at span{
+    font-weight:700;
+  }
+
+  .file-box{
+    border:2px solid #333;
+    padding:6px;
+  }
+
+  .file-box label{
+    font-size:11px;
+    font-weight:700;
+  }
+
+  .form-title-box{
+    margin-top:10px;
+    text-align:center;
+    font-weight:800;
+    font-size:13px;
+  }
+
+  .form6b-input,
+  .form6b-textarea,
+  .form6b-select{
+    width:100%;
+    border:0;
+    border-bottom:1px solid #333;
+    background:#eef3ff;
+    min-height:26px;
+    padding:3px 6px;
+    font-size:13px;
+    border-radius:0;
+  }
+
+  .form6b-textarea{
+    border:1px solid #333;
+    min-height:46px;
+    resize:vertical;
+  }
+
+  .party-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:10px;
+  }
+
+  .party-title{
+    font-weight:800;
+    font-size:13px;
+    margin-bottom:2px;
+  }
+
+  .party-box{
+    border:1px solid #333;
+    background:#eef3ff;
+  }
+
+  .party-box .hint{
+    font-size:10px;
+    font-style:italic;
+    font-weight:700;
+    padding:3px 5px;
+    border-bottom:1px solid #333;
+    background:#fff;
+  }
+
+  .party-box textarea{
+    border:0;
+    background:#eef3ff;
+    width:100%;
+    min-height:48px;
+    padding:5px;
+    resize:vertical;
+  }
+
+  .statement-line{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:8px;
+    align-items:center;
+    margin-top:8px;
+    font-size:13px;
+    font-weight:700;
+  }
+
+  .served-line{
+    display:grid;
+    grid-template-columns:22px auto 130px auto 100px 1fr;
+    gap:6px;
+    align-items:center;
+    margin-top:10px;
+    font-size:12px;
+    font-weight:700;
+  }
+
+  .doc-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:12px;
+    font-size:12px;
+  }
+
+  .doc-table th,
+  .doc-table td{
+    border:1px solid #333;
+    padding:4px;
+    vertical-align:top;
+  }
+
+  .doc-table th{
+    text-align:center;
+    font-style:italic;
+    font-size:11px;
+  }
+
+  .doc-table textarea{
+    width:100%;
+    border:0;
+    background:#eef3ff;
+    min-height:24px;
+    resize:vertical;
+  }
+
+  .note-box{
+    border:2px solid #333;
+    text-align:center;
+    font-size:12px;
+    font-weight:800;
+    padding:4px;
+    margin-top:8px;
+  }
+
+  .service-methods{
+    margin-top:12px;
+    display:grid;
+    grid-template-columns:42px 1fr;
+    gap:10px;
+  }
+
+  .service-methods .left-note{
+    font-size:11px;
+    font-style:italic;
+    line-height:1.15;
+  }
+
+  .service-option{
+    display:flex;
+    align-items:flex-start;
+    gap:7px;
+    margin-bottom:6px;
+    font-size:12px;
+  }
+
+  .service-option input{
+    margin-top:2px;
+  }
+
+  .service-option em{
+    font-size:11px;
+  }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    margin-top:24px;
+  }
+
+  @media(max-width:800px){
+    .form6b-top,
+    .party-grid{
+      grid-template-columns:1fr;
+    }
+
+    .served-line{
+      grid-template-columns:1fr;
+    }
+
+    .case-load-bar{
+      flex-direction:column;
+      align-items:stretch;
+    }
+
+    .case-load-bar select{
+      min-width:100%;
+    }
+  }
+</style>
+
+{% if case_list %}
+<div class="case-load-bar">
+  <form method="get" class="d-flex flex-wrap gap-2 align-items-end">
+    <div>
+      <label class="form-label mb-1">Select Case</label>
+      <select name="case_id" class="form-select">
+        <option value="">— None —</option>
+        {% for c in case_list %}
+          <option value="{{ c.id }}" {% if selected_case and selected_case.id == c.id %}selected{% endif %}>
+            {{ c.court_file_number|default:"" }} — {{ c.applicant_name|default:"" }} vs {{ c.respondent_name|default:"" }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    {% if variant %}
+      <input type="hidden" name="variant" value="{{ variant }}">
+    {% endif %}
+
+    <button type="submit" class="btn btn-secondary">Load Case</button>
+  </form>
+</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  {% if selected_case %}
+    <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+  {% endif %}
+
+  <div class="form6b-wrap">
+
+    <div class="form6b-top">
+
+      <div>
+        <div class="ontario-title">ONTARIO</div>
+
+        <div class="court-line">
+          {{ form.court_name|add_class:"form6b-input" }}
+          <label>(Name of court)</label>
+        </div>
+
+        <div class="court-at">
+          <span>at</span>
+          <div>
+            {{ form.court_office_address|add_class:"form6b-input" }}
+            <label class="small-label">Court office address</label>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="file-box">
+          <label>Court File Number</label>
+          {{ form.court_file_number|add_class:"form6b-input" }}
+        </div>
+
+        <div class="form-title-box">
+          Form 6B: Affidavit of Service<br>
+          sworn/affirmed
+        </div>
+      </div>
+
+    </div>
+
+    <div class="party-grid">
+
+      <div>
+        <div class="party-title">Applicant(s)</div>
+        <div class="party-box">
+          <div class="hint">
+            Full legal name & address for service — street & number, municipality,
+            postal code, telephone & fax numbers and e-mail address (if any).
+          </div>
+          {{ form.plaintiff_name|add_class:"form6b-textarea" }}
+        </div>
+      </div>
+
+      <div>
+        <div class="party-title">&nbsp;</div>
+        <div class="party-box">
+          <div class="hint">
+            Lawyer’s name & address — street & number, municipality, postal code,
+            telephone & fax numbers and e-mail address (if any).
+          </div>
+          {{ form.applicant_lawyer_details|add_class:"form6b-textarea" }}
+        </div>
+      </div>
+
+      <div>
+        <div class="party-title">Respondent(s)</div>
+        <div class="party-box">
+          <div class="hint">
+            Full legal name & address for service — street & number, municipality,
+            postal code, telephone & fax numbers and e-mail address (if any).
+          </div>
+          {{ form.defendant_name|add_class:"form6b-textarea" }}
+        </div>
+      </div>
+
+      <div>
+        <div class="party-title">&nbsp;</div>
+        <div class="party-box">
+          <div class="hint">
+            Lawyer’s name & address — street & number, municipality, postal code,
+            telephone & fax numbers and e-mail address (if any).
+          </div>
+          {{ form.respondent_lawyer_details|add_class:"form6b-textarea" }}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="statement-line">
+      <span>My name is <em>(full legal name)</em></span>
+      {{ form.server_name|add_class:"form6b-input" }}
+    </div>
+
+    <div class="statement-line">
+      <span>I live in <em>(municipality & province)</em></span>
+      {{ form.server_city|add_class:"form6b-input" }}
+    </div>
+
+    <div style="font-weight:800; margin-top:8px; font-size:13px;">
+      and I swear/affirm that the following is true:
+    </div>
+
+    <div class="served-line">
+      <span>1.</span>
+      <span>On <em>(date)</em></span>
+      {{ form.served_date|add_class:"form6b-input"|attr:"type:date" }}
+      <span>, at <em>(time)</em></span>
+      {{ form.served_time|add_class:"form6b-input"|attr:"type:time" }}
+      <span>, I served <em>(name of person to be served)</em></span>
+    </div>
+
+    <div style="margin-top:6px;">
+      {{ form.served_name|add_class:"form6b-input" }}
+    </div>
+
+<div style="font-size:12px; font-weight:700; margin-top:6px;">
+  with the following document(s) in this case:
+</div>
+
+<table class="doc-table" id="documentTable">
+  <thead>
+    <tr>
+      <th style="width:36%;">Name of document</th>
+      <th style="width:25%;">Author (if applicable)</th>
+      <th style="width:27%;">Date when document signed, issued, sworn, etc.</th>
+      <th style="width:12%;">Action</th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <tr class="doc-row">
+      <td>{{ form.document_1_name|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_1_author|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_1_date|add_class:"form6b-input"|attr:"type:date" }}</td>
+      <td><button type="button" class="btn btn-sm btn-outline-danger delete-doc-row">Delete</button></td>
+    </tr>
+
+    <tr class="doc-row">
+      <td>{{ form.document_2_name|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_2_author|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_2_date|add_class:"form6b-input"|attr:"type:date" }}</td>
+      <td><button type="button" class="btn btn-sm btn-outline-danger delete-doc-row">Delete</button></td>
+    </tr>
+
+    <tr class="doc-row">
+      <td>{{ form.document_3_name|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_3_author|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_3_date|add_class:"form6b-input"|attr:"type:date" }}</td>
+      <td><button type="button" class="btn btn-sm btn-outline-danger delete-doc-row">Delete</button></td>
+    </tr>
+
+    <tr class="doc-row">
+      <td>{{ form.document_4_name|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_4_author|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_4_date|add_class:"form6b-input"|attr:"type:date" }}</td>
+      <td><button type="button" class="btn btn-sm btn-outline-danger delete-doc-row">Delete</button></td>
+    </tr>
+
+    <tr class="doc-row">
+      <td>{{ form.document_5_name|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_5_author|add_class:"form6b-textarea" }}</td>
+      <td>{{ form.document_5_date|add_class:"form6b-input"|attr:"type:date" }}</td>
+      <td><button type="button" class="btn btn-sm btn-outline-danger delete-doc-row">Delete</button></td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="mt-2">
+  <button type="button" id="addDocumentRow" class="btn btn-sm btn-outline-primary">
+    + Add Row
+  </button>
+</div>
+
+    <div class="note-box">
+      NOTE: <em>You can leave out any part of this form that is not applicable.</em>
+    </div>
+
+    <div style="font-size:13px; font-weight:800; margin-top:12px;">
+      2. I served the documents mentioned in paragraph 1 by:
+    </div>
+
+    <div class="service-methods">
+
+      <div class="left-note">
+        Check one box only and go to indicated paragraph.
+      </div>
+
+      <div>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_special" name="service_special" value="on" {% if form.service_special.value %}checked{% endif %}>
+          <span>special service. <em>(Go to paragraph 3 below if you used special service.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_mail" name="service_mail" value="on" {% if form.service_mail.value %}checked{% endif %}>
+          <span>mail. <em>(Go to paragraph 4 if you used mailed service.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_same_day_courier" name="service_same_day_courier" value="on" {% if form.service_same_day_courier.value %}checked{% endif %}>
+          <span>same day courier. <em>(Go to paragraph 5 if you used courier.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_next_day_courier" name="service_next_day_courier" value="on" {% if form.service_next_day_courier.value %}checked{% endif %}>
+          <span>next day courier. <em>(Go to paragraph 5 if you used courier.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_document_exchange" name="service_document_exchange" value="on" {% if form.service_document_exchange.value %}checked{% endif %}>
+          <span>deposit at a document exchange. <em>(Go to paragraph 6 if you used a document exchange.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_electronic_document_exchange" name="service_electronic_document_exchange" value="on" {% if form.service_electronic_document_exchange.value %}checked{% endif %}>
+          <span>an electronic document exchange. <em>(Go to paragraph 7 if you used an electronic document exchange.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_fax" name="service_fax" value="on" {% if form.service_fax.value %}checked{% endif %}>
+          <span>fax. <em>(Go to paragraph 8 if you used fax.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_email" name="service_email" value="on" {% if form.service_email.value %}checked{% endif %}>
+          <span>email. <em>(Go to paragraph 9 if you used email.)</em></span>
+        </label>
+
+        <label class="service-option">
+          <input type="checkbox" id="id_service_substituted" name="service_substituted" value="on" {% if form.service_substituted.value %}checked{% endif %}>
+          <span>substituted service or advertisement. <em>(Go to paragraph 10 if you used substituted service or advertisement.)</em></span>
+        </label>
+
+      </div>
+    </div>
+
+    <div class="actions">
+      <a href="{% url 'affidavit_service_list' %}" class="btn btn-light border">
+        Cancel
+      </a>
+
+      <button type="submit" class="btn btn-primary px-4">
+        Save & Continue →
+      </button>
+    </div>
+
+  </div>
+
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const serviceBoxes = [
+    "id_service_special",
+    "id_service_mail",
+    "id_service_same_day_courier",
+    "id_service_next_day_courier",
+    "id_service_document_exchange",
+    "id_service_electronic_document_exchange",
+    "id_service_fax",
+    "id_service_email",
+    "id_service_substituted"
+  ];
+
+  serviceBoxes.forEach(function(id) {
+    const checkbox = document.getElementById(id);
+    if (!checkbox) return;
+
+    checkbox.addEventListener("change", function() {
+      if (!checkbox.checked) return;
+
+      serviceBoxes.forEach(function(otherId) {
+        if (otherId === id) return;
+
+        const otherBox = document.getElementById(otherId);
+        if (otherBox) {
+          otherBox.checked = false;
+        }
+      });
+    });
+  });
+});
+</script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const rows = Array.from(document.querySelectorAll("#documentTable .doc-row"));
+  const addBtn = document.getElementById("addDocumentRow");
+
+  function rowHasValue(row) {
+    return Array.from(row.querySelectorAll("input, textarea")).some(el => el.value.trim() !== "");
+  }
+
+  rows.forEach((row, index) => {
+    if (index > 0 && !rowHasValue(row)) {
+      row.style.display = "none";
+    }
+  });
+
+  addBtn.addEventListener("click", function () {
+    const hiddenRow = rows.find(row => row.style.display === "none");
+
+    if (hiddenRow) {
+      hiddenRow.style.display = "";
+    } else {
+      alert("You can only add up to 5 document rows unless we add a separate document model/formset.");
+    }
+  });
+
+  document.querySelectorAll(".delete-doc-row").forEach(btn => {
+    btn.addEventListener("click", function () {
+      const row = btn.closest("tr");
+
+      row.querySelectorAll("input, textarea").forEach(el => {
+        el.value = "";
+      });
+
+      row.style.display = "none";
+    });
+  });
+});
+</script>
+{% endblock %}s

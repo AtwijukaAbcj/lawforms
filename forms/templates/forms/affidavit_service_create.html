@@ -1,0 +1,154 @@
+<!-- forms/templates/forms/affidavit_service_create.html -->
+
+{% extends "base.html" %}
+
+{% block title %}
+Affidavit of Service
+{% endblock %}
+
+{% block header %}
+Affidavit of Service
+{% endblock %}
+
+{% block subheader %}
+Create Affidavit of Service
+{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+  <form method="post">
+    {% csrf_token %}
+
+    <div class="page-card">
+
+      <h4 class="mb-4">Court Information</h4>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Court Name</label>
+          {{ form.court_name }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Court File Number</label>
+          {{ form.court_file_number }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Court Office Address</label>
+        {{ form.court_office_address }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Court Phone Number</label>
+        {{ form.court_phone_number }}
+      </div>
+
+      <hr class="my-4">
+
+      <h4 class="mb-4">Parties</h4>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Plaintiff</label>
+          {{ form.plaintiff_name }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Defendant</label>
+          {{ form.defendant_name }}
+        </div>
+      </div>
+
+      <hr class="my-4">
+
+      <h4 class="mb-4">Service Details</h4>
+
+      <div class="row">
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Person Served</label>
+          {{ form.served_name }}
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label">Date Served</label>
+          {{ form.served_date }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Address Served</label>
+        {{ form.served_at_address }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Documents Served</label>
+        {{ form.documents_served }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Service Method</label>
+        {{ form.service_method }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Fax Number</label>
+        {{ form.service_fax_number }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Substituted Service Details</label>
+        {{ form.substituted_service_details }}
+      </div>
+
+      <hr class="my-4">
+
+      <h4 class="mb-4">Commissioner Information</h4>
+
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Municipality</label>
+          {{ form.commissioner_municipality }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Province</label>
+          {{ form.commissioner_province }}
+        </div>
+
+        <div class="col-md-4 mb-3">
+          <label class="form-label">Sworn Date</label>
+          {{ form.sworn_date }}
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Commissioner Name</label>
+        {{ form.commissioner_name }}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Signature</label>
+        {{ form.signature }}
+      </div>
+
+      <div class="d-flex gap-2 mt-4">
+        <button type="submit" class="btn btn-primary">
+          Save Affidavit
+        </button>
+
+        <a href="{% url 'case_list' %}" class="btn btn-secondary">
+          Cancel
+        </a>
+      </div>
+
+    </div>
+
+  </form>
+
+</div>
+
+{% endblock %}

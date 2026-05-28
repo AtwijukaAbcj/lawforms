@@ -1,0 +1,388 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 6B — Affidavit of Service — Page 3{% endblock %}
+{% block header %}Form 6B — Affidavit of Service{% endblock %}
+{% block subheader %}Page 3 — Electronic Service, Order, Relationship & Signature{% endblock %}
+
+{% block content %}
+
+<style>
+  .form6b-wrap{
+    max-width:980px;
+    margin:0 auto;
+    background:#fff;
+    padding:24px 28px;
+    border:1px solid #d8dee9;
+    font-size:12px;
+    color:#000;
+  }
+
+  .form6b-top{
+    display:grid;
+    grid-template-columns:1fr 220px;
+    gap:20px;
+    align-items:start;
+    border-bottom:2px solid #333;
+    padding-bottom:6px;
+    margin-bottom:10px;
+  }
+
+  .form6b-title{
+    display:flex;
+    gap:35px;
+    font-weight:800;
+  }
+
+  .form6b-page{
+    text-align:center;
+    font-weight:800;
+    margin-bottom:4px;
+  }
+
+  .file-box{
+    border:2px solid #333;
+    padding:5px;
+  }
+
+  .file-box label{
+    font-size:11px;
+    font-weight:700;
+    display:block;
+  }
+
+  .form6b-input{
+    width:100%;
+    border:0;
+    border-bottom:1px solid #333;
+    background:#eef3ff;
+    min-height:24px;
+    padding:2px 5px;
+    border-radius:0;
+    font-size:12px;
+  }
+
+  .form6b-textarea{
+    width:100%;
+    border:0;
+    border-bottom:1px solid #333;
+    background:#eef3ff;
+    min-height:24px;
+    padding:3px 5px;
+    resize:vertical;
+    border-radius:0;
+    font-size:12px;
+  }
+
+  .para{
+    margin:9px 0;
+    line-height:1.35;
+  }
+
+  .para-num{
+    font-weight:800;
+    margin-right:7px;
+  }
+
+  .order-options{
+    margin-left:55px;
+    margin-top:5px;
+  }
+
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap:7px;
+    margin-bottom:5px;
+  }
+
+  .option input{
+    margin-top:2px;
+  }
+
+  .inline-field{
+    display:inline-block;
+    min-width:210px;
+    vertical-align:middle;
+  }
+
+  .small-field{
+    display:inline-block;
+    width:120px;
+    vertical-align:middle;
+  }
+
+  .money-field{
+    display:inline-block;
+    width:135px;
+    vertical-align:middle;
+  }
+
+  .signature-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:14px;
+    margin-top:18px;
+    border-top:2px solid #333;
+    padding-top:5px;
+  }
+
+  .commissioner-grid{
+    display:grid;
+    grid-template-columns:115px 1fr;
+    gap:6px;
+    align-items:center;
+  }
+
+  .signature-box{
+    border-left:2px solid #333;
+    padding-left:12px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+  }
+
+  .signature-line{
+    border-bottom:1px solid #333;
+    min-height:30px;
+    margin-bottom:4px;
+  }
+
+  .small-note{
+    font-size:11px;
+    font-style:italic;
+    text-align:center;
+  }
+
+  em{
+    font-size:11px;
+  }
+
+  .actions{
+    max-width:980px;
+    margin:24px auto 0;
+    display:flex;
+    justify-content:space-between;
+  }
+
+  @media(max-width:800px){
+    .form6b-top,
+    .signature-grid{
+      grid-template-columns:1fr;
+    }
+
+    .signature-box{
+      border-left:0;
+      border-top:2px solid #333;
+      padding-left:0;
+      padding-top:10px;
+    }
+
+    .inline-field,
+    .small-field,
+    .money-field{
+      display:block;
+      width:100%;
+      margin-top:4px;
+    }
+  }
+</style>
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="form6b-wrap">
+
+    <div class="form6b-top">
+
+      <div>
+        <div class="form6b-title">
+          <span>Form 6B:</span>
+          <span>Affidavit of Service</span>
+        </div>
+
+        <div style="margin-top:8px;">
+          sworn/affirmed
+          <span class="inline-field">
+            {{ form.commissioner_name|add_class:"form6b-input" }}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <div class="form6b-page">(page 3)</div>
+
+        <div class="file-box">
+          <label>Court File Number</label>
+          {{ form.court_file_number|add_class:"form6b-input" }}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="para">
+      <span class="para-num">6.</span>
+      The document(s) was/were deposited at a document exchange. The exchange’s date stamp on the attached copy shows the date of deposit.
+      <em>(Strike out paragraphs 3, 4, 5, 7, 8, 9, 10 and 13.)</em>
+      {{ form.document_exchange_service }}
+      {{ form.document_exchange_details|add_class:"form6b-textarea"|attr:"rows:2" }}
+    </div>
+
+    <div class="para">
+      <span class="para-num">7.</span>
+      The documents were served through an electronic document exchange. The record of service from the exchange is attached to this affidavit.
+      <em>(Strike out paragraphs 3, 4, 5, 6, 8, 9, 10 and 13.)</em>
+      {{ form.electronic_document_exchange_service }}
+      {{ form.electronic_document_exchange_details|add_class:"form6b-textarea"|attr:"rows:2" }}
+    </div>
+
+    <div class="para">
+      <span class="para-num">8.</span>
+      The document(s) to be served was/were faxed. The fax confirmation is attached to this affidavit.
+      <em>(Strike out paragraphs 3, 4, 5, 6, 7, 9, 10 and 13.)</em>
+      {{ form.fax_service }}
+      {{ form.fax_service_details|add_class:"form6b-textarea"|attr:"rows:2" }}
+    </div>
+
+    <div class="para">
+      <span class="para-num">9.</span>
+      The documents were served by email. Attached to this Affidavit is a copy of the email that the document was attached to.
+      <em>(Strike out paragraphs 3, 4, 5, 6, 7, 8, 10 and 13.)</em>
+      {{ form.email_service }}
+      {{ form.email_service_details|add_class:"form6b-textarea"|attr:"rows:2" }}
+    </div>
+
+    <div class="para">
+      <span class="para-num">10.</span>
+      An order of this court made on <em>(date)</em>
+      <span class="small-field">
+        {{ form.service_order_date|add_class:"form6b-input"|attr:"type:date" }}
+      </span>
+      allowed
+    </div>
+
+    <div class="order-options">
+
+      <label class="option">
+        {{ form.service_order_substituted_service }}
+        <span>substituted service.</span>
+      </label>
+
+      <label class="option">
+        {{ form.service_order_advertisement }}
+        <span>service by advertisement. <em>(Attach advertisement.)</em></span>
+      </label>
+
+    </div>
+
+    <div class="para">
+      The order was carried out as follows:
+      <em>(Give details. Then go to paragraph 13 if you had to travel to serve substitutionally or by advertisement.)</em>
+      {{ form.service_order_details|add_class:"form6b-textarea"|attr:"rows:5" }}
+    </div>
+
+    <div class="para">
+      <span class="para-num">11.</span>
+      My relationship to, or affiliation with, any party in this case is as follows:
+      {{ form.relationship_to_party|add_class:"form6b-textarea"|attr:"rows:4" }}
+    </div>
+
+    <div class="para">
+      <span class="para-num">12.</span>
+      {{ form.is_at_least_18 }}
+      I am at least 18 years of age.
+    </div>
+
+    <div class="para">
+      <span class="para-num">13.</span>
+      To serve the document(s), I had to travel
+      <span class="small-field">
+        {{ form.kilometres_travelled|add_class:"form6b-input" }}
+      </span>
+      kilometres. My fee for service of the document(s) is
+      <br>
+      $
+      <span class="money-field">
+        {{ form.service_fee|add_class:"form6b-input" }}
+      </span>
+      including travel.
+      <!-- <span class="money-field">
+        {{ form.travel_fee|add_class:"form6b-input" }}
+      </span> -->
+    </div>
+
+    <div class="signature-grid">
+
+      <div>
+
+        <div class="commissioner-grid">
+          <span>Sworn/Affirmed before me at</span>
+          {{ form.commissioner_municipality|add_class:"form6b-input" }}
+
+          <span></span>
+          <div class="small-note">municipality</div>
+
+          <span>in</span>
+          {{ form.commissioner_province|add_class:"form6b-input" }}
+
+          <span></span>
+          <div class="small-note">province, state or country</div>
+
+          <span>on</span>
+          {{ form.sworn_date|add_class:"form6b-input"|attr:"type:date" }}
+
+          <span></span>
+          <div class="small-note">date</div>
+        </div>
+
+        <div style="margin-top:10px;">
+          {{ form.commissioner_name|add_class:"form6b-input" }}
+          <div class="small-note">
+            Commissioner for taking affidavits<br>
+            (Type or print name below if signature is illegible.)
+          </div>
+        </div>
+
+      </div>
+
+      <div class="signature-box">
+        <div>
+          {{ form.signature|add_class:"form6b-input" }}
+          <div class="small-note">
+            Signature<br>
+            (This form is to be signed in front of a lawyer, justice of the peace,
+            notary public or commissioner for taking affidavits.)
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class="actions">
+
+    <a href="{% url 'affidavit_service_page2' affidavit.id %}"
+       class="btn btn-light border">
+      ← Back
+    </a>
+
+    <div class="d-flex gap-2">
+
+      <a href="{% url 'affidavit_service_view' affidavit.id %}"
+         class="btn btn-outline-dark">
+        Preview
+      </a>
+
+      <button type="submit"
+              class="btn btn-primary px-4">
+        Save Affidavit
+      </button>
+
+    </div>
+
+  </div>
+
+</form>
+
+{% endblock %}

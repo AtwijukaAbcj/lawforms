@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block title %}View-Only Copy — Form 8A{% endblock %}
+
+{% block header %}Form 8A — View-Only Print Copy{% endblock %}
+{% block subheader %}Application (Divorce){% endblock %}
+
+{% block content %}
+
+<style>
+  @media print {
+    body {
+      visibility: hidden !important;
+    }
+  }
+
+  .view-only-banner {
+    background: #1e293b;
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .view-only-badge {
+    background: #f59e0b;
+    color: #000;
+    font-weight: 800;
+    font-size: 11px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+  }
+
+  .print-copy-frame {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+</style>
+
+<script>
+  window.addEventListener("keydown", function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "p") {
+      e.preventDefault();
+      alert("Printing is disabled for this view-only copy.");
+    }
+  });
+
+  window.onbeforeprint = function() {
+    document.body.innerHTML = "";
+  };
+</script>
+
+<div class="view-only-banner">
+  <div>
+    <span class="view-only-badge">View Only</span>
+    <span class="ms-2">
+      Form 8A — Application (Divorce)
+    </span>
+  </div>
+
+  <a href="{% url 'application_divorce_8a_view' application.id %}"
+     class="btn btn-sm btn-light">
+    Back to Application
+  </a>
+</div>
+
+{% if print_event %}
+<div class="alert alert-light border small">
+  <strong>Purchased:</strong> {{ print_event.created_at|date:"Y-m-d H:i" }}
+  &nbsp; | &nbsp;
+  <strong>Form ID:</strong> #{{ print_event.form_id }}
+  &nbsp; | &nbsp;
+  <strong>Access:</strong> Secured view-only copy
+</div>
+{% endif %}
+
+<div class="print-copy-frame">
+  {% include "forms/application_divorce_8a_print.html" with application=application view_only=True %}
+</div>
+
+{% endblock %}

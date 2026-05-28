@@ -1,0 +1,322 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 8A — Application (Divorce) — Page 6{% endblock %}
+{% block header %}Form 8A — Application (Divorce){% endblock %}
+{% block subheader %}Page 6 — Lawyer’s Certificate{% endblock %}
+
+{% block content %}
+<style>
+  .form8a-page6-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 0 40px;
+  }
+
+  .page6-top,
+  .actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .page6-top {
+    margin-bottom: 18px;
+  }
+
+  .page6-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .page6-subtitle {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .page-badge {
+    background: #0f172a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .section-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    background: #fff;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  }
+
+  .section-head {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 13px 16px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: .03em;
+  }
+
+  .section-body {
+    padding: 18px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+  }
+
+  .form8a-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .field-group input,
+  .field-group textarea,
+  .field-group select,
+  .signature-field input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 13px;
+    box-sizing: border-box;
+    background: #fff;
+  }
+
+  .certificate-text {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #111827;
+    margin-top: 12px;
+  }
+
+  .certificate-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .signature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-top: 22px;
+  }
+
+  .signature-caption {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    font-style: italic;
+  }
+
+  .btn-back,
+  .btn-preview,
+  .btn-next {
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 900;
+    text-decoration: none;
+    border: 0;
+  }
+
+  .btn-back {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+  }
+
+  .btn-preview {
+    background: #fff;
+    border: 1px solid #0f172a;
+    color: #0f172a;
+  }
+
+  .btn-next {
+    background: #15803d;
+    color: #fff;
+  }
+
+  .actions-right {
+    display: flex;
+    gap: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .signature-grid,
+    .page6-top,
+    .actions-bar {
+      grid-template-columns: 1fr;
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .actions-right {
+      flex-direction: column;
+    }
+  }
+</style>
+
+<div class="form8a-page6-wrap">
+  <form method="post">
+    {% csrf_token %}
+
+    {% if selected_case %}
+      <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+    {% endif %}
+
+    <div class="page6-top">
+      <div>
+        <h2 class="page6-title">Lawyer’s Certificate</h2>
+        <p class="page6-subtitle">Complete the lawyer certificates for the applicant and respondent/joint applicant.</p>
+      </div>
+      <span class="page-badge">PAGE 6 OF 6</span>
+    </div>
+
+    {% if form.non_field_errors or form.errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
+    <div class="section-card">
+      <div class="section-head">COURT FILE</div>
+      <div class="section-body">
+        <div class="field-group" style="max-width:300px; margin-left:auto; margin-top:0;">
+          <label class="form8a-label">Court File Number</label>
+          {{ form.court_file_number|add_class:"" }}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">APPLICANT’S LAWYER CERTIFICATE</div>
+      <div class="section-body">
+
+        <div class="field-group">
+          <label class="form8a-label">My name is</label>
+          {% if form.applicant_lawyer_certificate_name %}
+            {{ form.applicant_lawyer_certificate_name }}
+          {% else %}
+            {{ form.lawyer_signature_name }}
+          {% endif %}
+        </div>
+
+        <div class="certificate-text">
+          I am the applicant’s lawyer in this case. I certify that I have complied with the
+          requirements of section 7.7 of the <em>Divorce Act</em> and section 33.2 of the
+          <em>Children’s Law Reform Act</em> regarding reconciliation and the duty to discuss and inform.
+        </div>
+
+        <div class="signature-grid">
+          <div>
+            <div class="signature-field">
+              {% if form.applicant_lawyer_certificate_date %}
+                {{ form.applicant_lawyer_certificate_date|attr:"type:date" }}
+              {% else %}
+                {{ form.lawyer_signature_date|attr:"type:date" }}
+              {% endif %}
+            </div>
+            <div class="signature-caption">Date</div>
+          </div>
+
+          <div>
+            <div class="signature-field">
+              {% if form.applicant_lawyer_certificate_signature %}
+                {{ form.applicant_lawyer_certificate_signature }}
+              {% else %}
+                {{ form.lawyer_signature }}
+              {% endif %}
+            </div>
+            <div class="signature-caption">Lawyer’s signature</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">RESPONDENT / JOINT APPLICANT LAWYER CERTIFICATE</div>
+      <div class="section-body">
+
+        <div class="field-group">
+          <label class="form8a-label">My name is</label>
+          {% if form.respondent_lawyer_certificate_name %}
+            {{ form.respondent_lawyer_certificate_name }}
+          {% else %}
+            {{ form.respondent_lawyer_name }}
+          {% endif %}
+        </div>
+
+        <div class="certificate-text">
+          I am the applicant’s lawyer in this case. I certify that I have complied with the
+          requirements of section 7.7 of the <em>Divorce Act</em> and section 33.2 of the
+          <em>Children’s Law Reform Act</em> regarding reconciliation and the duty to discuss and inform.
+        </div>
+
+        <div class="signature-grid">
+          <div>
+            <div class="signature-field">
+              {% if form.respondent_lawyer_certificate_date %}
+                {{ form.respondent_lawyer_certificate_date|attr:"type:date" }}
+              {% else %}
+                <input type="date" name="respondent_lawyer_certificate_date">
+              {% endif %}
+            </div>
+            <div class="signature-caption">Date</div>
+          </div>
+
+          <div>
+            <div class="signature-field">
+              {% if form.respondent_lawyer_certificate_signature %}
+                {{ form.respondent_lawyer_certificate_signature }}
+              {% else %}
+                <input type="text" name="respondent_lawyer_certificate_signature">
+              {% endif %}
+            </div>
+            <div class="signature-caption">Lawyer’s signature</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <a href="{% url 'application_divorce_8a_page5' application.id %}" class="btn-back">
+        ← Back
+      </a>
+
+      <div class="actions-right">
+        <a href="{% url 'application_divorce_8a_view' application.id %}" class="btn-preview">
+          Preview
+        </a>
+
+        <button type="submit" class="btn-next">
+          Save Application
+        </button>
+      </div>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

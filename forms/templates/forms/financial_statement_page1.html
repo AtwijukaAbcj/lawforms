@@ -12,317 +12,282 @@
     --line2:#cbd5e1;
     --radius:18px;
     --indigo:99,102,241;
-    --green:34,197,94;
   }
 
-  body{ background: var(--bg); }
+  body{ background:var(--bg); }
 
   .page-wrap{
-    max-width: 1120px;
-    margin: 22px auto 56px;
-    padding: 0 14px;
+    max-width:1120px;
+    margin:22px auto 56px;
+    padding:0 14px;
   }
 
   .page-card{
-    background:
-      radial-gradient(1100px 480px at 10% 0%, rgba(var(--indigo),.06), transparent 60%),
-      radial-gradient(900px 420px at 100% 0%, rgba(16,185,129,.05), transparent 55%),
-      var(--card);
-    border: 1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: 0 18px 50px rgba(2,6,23,.08);
-    overflow: hidden;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    box-shadow:0 18px 50px rgba(2,6,23,.08);
+    overflow:hidden;
   }
 
   .page-header{
-    padding: 18px;
-    border-bottom: 1px solid var(--line);
-    background: linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
+    padding:18px;
+    border-bottom:1px solid var(--line);
+    background:linear-gradient(135deg, rgba(var(--indigo),.12), rgba(16,185,129,.07));
     display:flex;
-    align-items:flex-start;
     justify-content:space-between;
-    gap: 14px;
-    flex-wrap: wrap;
+    gap:14px;
+    flex-wrap:wrap;
   }
+
   .page-header h1{
     margin:0;
-    font-weight: 950;
-    letter-spacing: -.02em;
-    color: var(--text);
-    font-size: 18px;
-    line-height: 1.2;
+    font-weight:900;
+    color:var(--text);
+    font-size:18px;
   }
+
   .page-header p{
     margin:6px 0 0;
-    color: var(--muted);
-    font-size: 13px;
-    font-weight: 600;
+    color:var(--muted);
+    font-size:13px;
+    font-weight:600;
   }
+
   .badge-soft{
-    font-size: 12px;
-    font-weight: 900;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    background: rgba(255,255,255,.85);
-    border: 1px solid var(--line);
-    padding: 6px 10px;
-    border-radius: 8px;
-    white-space: nowrap;
-    height: fit-content;
+    font-size:12px;
+    font-weight:900;
+    color:var(--muted);
+    background:#fff;
+    border:1px solid var(--line);
+    padding:6px 10px;
+    border-radius:8px;
   }
 
-  .page-body{ padding: 18px; }
+  .page-body{ padding:18px; }
 
-  /* Inputs */
   .ui-label{
-    font-weight: 900;
-    color: var(--text);
-    font-size: 13px;
-    margin-bottom: 6px;
+    font-weight:800;
+    color:var(--text);
+    font-size:13px;
+    margin-bottom:6px;
   }
+
   .ui-help{
-    color: var(--muted);
-    font-size: 12px;
-    margin-top: 6px;
-    font-weight: 600;
+    color:var(--muted);
+    font-size:12px;
+    margin-top:6px;
+    font-weight:600;
   }
 
   .ui-input{
     width:100%;
-    height: 44px;
-    border-radius: 8px !important;
-    border: 1px solid var(--line2) !important;
-    background: #fff;
-    padding: 10px 12px !important;
-    font-size: .95rem;
-    outline: none;
-    transition: box-shadow .15s ease, border-color .15s ease;
+    height:44px;
+    border-radius:8px !important;
+    border:1px solid var(--line2) !important;
+    background:#fff;
+    padding:10px 12px !important;
+    font-size:.95rem;
   }
+
   .ui-input:focus{
-    border-color: rgba(var(--indigo), .65) !important;
-    box-shadow: 0 0 0 4px rgba(var(--indigo), .18);
-  }
-  textarea.ui-input{
-    height:auto;
-    min-height: 90px;
+    border-color:rgba(var(--indigo),.65) !important;
+    box-shadow:0 0 0 4px rgba(var(--indigo),.18);
+    outline:none;
   }
 
   .panel{
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: rgba(255,255,255,.92);
-    box-shadow: 0 10px 30px rgba(2,6,23,.05);
-    padding: 14px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:#fff;
+    padding:14px;
+    box-shadow:0 10px 30px rgba(2,6,23,.05);
   }
 
   .panel-head{
     display:flex;
-    align-items:center;
     justify-content:space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .panel-title{
-    margin:0;
-    font-size: 13px;
-    font-weight: 950;
-    color: var(--text);
-    letter-spacing: .02em;
-    text-transform: uppercase;
-  }
-  .panel-pill{
-    font-size: 11px;
-    font-weight: 900;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    border: 1px solid var(--line);
-    background: rgba(248,250,252,.85);
-    padding: 6px 10px;
-    border-radius: 8px;
-    white-space: nowrap;
+    gap:10px;
+    margin-bottom:10px;
   }
 
-  /* Prepared by (radio/choice) */
-  .choice-wrap{
-    display:flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items:center;
+  .panel-title{
+    margin:0;
+    font-size:13px;
+    font-weight:900;
+    color:var(--text);
+    text-transform:uppercase;
   }
+
+  .panel-pill{
+    font-size:11px;
+    font-weight:800;
+    color:var(--muted);
+    border:1px solid var(--line);
+    background:#f8fafc;
+    padding:6px 10px;
+    border-radius:8px;
+  }
+
   .choice-wrap label{
     display:inline-flex !important;
     align-items:center;
-    gap: 8px;
-    padding: 10px 12px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: rgba(255,255,255,.9);
-    font-weight: 800;
-    color: var(--text);
+    gap:8px;
+    padding:10px 12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    font-weight:700;
     cursor:pointer;
-    transition: background .12s ease, border-color .12s ease, transform .08s ease;
-  }
-  .choice-wrap label:hover{
-    background: rgba(var(--indigo), .06);
-    border-color: rgba(var(--indigo), .25);
-    transform: translateY(-1px);
-  }
-  .choice-wrap input{
-    transform: translateY(1px);
+    margin-right:8px;
+    margin-bottom:8px;
   }
 
-  /* Instructions */
   .info-card{
-    border: 1px solid rgba(var(--indigo), .22);
-    background: rgba(var(--indigo), .06);
-    border-radius: 8px;
-    padding: 14px;
-    color: var(--text);
+    border:1px solid rgba(var(--indigo),.22);
+    background:rgba(var(--indigo),.06);
+    border-radius:10px;
+    padding:14px;
   }
+
   .info-card .k{
-    font-weight: 950;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--muted);
-    font-size: 12px;
-    margin-bottom: 8px;
+    font-weight:900;
+    text-transform:uppercase;
+    color:var(--muted);
+    font-size:12px;
+    margin-bottom:8px;
   }
+
   .info-card p{
     margin:0;
-    font-size: 13px;
-    line-height: 1.45;
-    color: var(--text);
-    font-weight: 600;
+    font-size:13px;
+    line-height:1.45;
+    font-weight:600;
   }
 
-  /* Part sections */
   .section-label{
     display:flex;
     align-items:center;
     justify-content:center;
-    gap: 10px;
-    margin: 18px 0 12px;
-    font-weight: 950;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    font-size: 12px;
-    color: var(--muted);
+    gap:10px;
+    margin:18px 0 12px;
   }
+
   .section-label:before,
   .section-label:after{
     content:"";
-    height: 1px;
-    background: var(--line);
-    flex: 1;
-  }
-  .section-label span{
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid var(--line);
-    background: rgba(255,255,255,.9);
-    color: var(--text);
-    letter-spacing: .02em;
-    text-transform:none;
-    font-weight: 950;
-    font-size: 13px;
-    text-align:center;
+    height:1px;
+    background:var(--line);
+    flex:1;
   }
 
-  /* Checkbox list */
+  .section-label span{
+    padding:8px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-weight:900;
+    font-size:13px;
+  }
+
+  .form-num-row{
+    display:flex;
+    gap:14px;
+    padding:16px 0;
+    border-bottom:1px solid #f1f5f9;
+  }
+
+  .form-num-row:last-child{ border-bottom:none; }
+
+  .form-num{
+    width:26px;
+    min-width:26px;
+    font-weight:800;
+    font-size:13px;
+    color:#0f172a;
+    padding-top:3px;
+  }
+
+  .form-num-body{
+    flex:1;
+    min-width:0;
+  }
+
   .checklist{
     display:grid;
-    gap: 10px;
-    margin-top: 10px;
+    gap:10px;
+    margin-top:10px;
   }
+
   .check-item{
     display:flex;
-    gap: 10px;
+    gap:10px;
     align-items:flex-start;
-    padding: 12px;
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    background: rgba(255,255,255,.9);
-    box-shadow: 0 10px 24px rgba(2,6,23,.04);
+    padding:12px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    cursor:pointer;
   }
+
   .check-item input{
-    margin-top: 2px;
-    width: 18px;
-    height: 18px;
+    width:18px;
+    height:18px;
+    margin-top:2px;
   }
+
   .check-item .text{
-    font-weight: 700;
-    color: var(--text);
-    font-size: 13px;
+    font-weight:700;
+    color:var(--text);
+    font-size:13px;
   }
 
-  /* Numbered form rows (Part 1) */
-  .form-num-row {
-    display: flex;
-    gap: 14px;
-    padding: 16px 0;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  .form-num-row:last-child { border-bottom: none; }
-  .form-num {
-    width: 26px;
-    min-width: 26px;
-    font-weight: 700;
-    font-size: 13px;
-    color: #0f172a;
-    padding-top: 3px;
-  }
-  .form-num-body {
-    flex: 1;
-    min-width: 0;
+  .employment-detail{
+    margin-bottom:10px;
   }
 
-  /* Buttons */
+  .employment-detail.disabled{
+    opacity:.55;
+    pointer-events:none;
+  }
+
   .actions{
     display:flex;
     justify-content:flex-end;
-    gap: 12px;
-    margin-top: 16px;
-    flex-wrap: wrap;
+    gap:12px;
+    margin-top:18px;
+    flex-wrap:wrap;
   }
+
   .btn-modern{
-    border-radius: 8px;
-    padding: 10px 16px;
-    font-weight: 900;
-    letter-spacing: .01em;
-    border: 1px solid var(--line);
-    background: #fff;
-    color: var(--text);
-    box-shadow: 0 12px 25px rgba(2,6,23,.08);
-    transition: transform .08s ease, box-shadow .15s ease, filter .15s ease;
+    border-radius:8px;
+    padding:10px 16px;
+    font-weight:800;
+    border:1px solid var(--line);
+    background:#fff;
+    color:var(--text);
     text-decoration:none;
     display:inline-flex;
     align-items:center;
-    gap: 8px;
-    white-space: nowrap;
+    gap:8px;
+    cursor:pointer;
   }
-  .btn-modern:hover{
-    transform: translateY(-1px);
-    box-shadow: 0 16px 34px rgba(2,6,23,.12);
-    text-decoration:none;
-    color: var(--text);
-  }
+
   .btn-primary-modern{
-    border: 1px solid rgba(var(--indigo), .35);
-    background: linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
+    border:1px solid rgba(var(--indigo),.35);
+    background:linear-gradient(135deg, rgba(var(--indigo),.95), rgba(79,70,229,.95));
     color:#fff;
-    box-shadow: 0 14px 30px rgba(79,70,229,.22);
   }
+
   .btn-primary-modern:hover{
-    filter: brightness(1.03);
-    box-shadow: 0 18px 40px rgba(79,70,229,.28);
     color:#fff;
+    filter:brightness(1.04);
   }
 </style>
 
 <div class="page-wrap">
   <div class="page-card">
+
     <div class="page-header">
       <div>
         <h1>Form 13 — Financial Statement (Support Claims)</h1>
@@ -332,48 +297,78 @@
     </div>
 
     <div class="page-body">
+
+      {% if case_list %}
+      <div style="margin-bottom:12px;">
+        <form method="get" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <label style="font-weight:700;">Select Case</label>
+
+          <select name="case_id" class="form-select" style="max-width:420px;">
+            <option value="">— None —</option>
+            {% for c in case_list %}
+              <option value="{{ c.id }}" {% if selected_case and selected_case.id == c.id %}selected{% endif %}>
+                {{ c.court_file_number|default:"" }} — {{ c.applicant_name|default:"" }} vs {{ c.respondent_name|default:"" }}
+              </option>
+            {% endfor %}
+          </select>
+
+          <button type="submit" class="btn btn-secondary">
+            Load Case
+          </button>
+        </form>
+      </div>
+      {% endif %}
+
       <form method="post">
         {% csrf_token %}
 
-        <!-- Court Details -->
+        {% if selected_case %}
+          <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+        {% endif %}
+
         <div class="row g-3">
           <div class="col-lg-8">
             <label class="ui-label" for="id_court_name">Name of Court</label>
             <input type="text" name="court_name" class="form-control ui-input" id="id_court_name" value="{{ page_data.court_name }}">
           </div>
+
           <div class="col-lg-4">
             <label class="ui-label" for="id_court_file_number">Court File Number</label>
             <input type="text" name="court_file_number" class="form-control ui-input" id="id_court_file_number" value="{{ page_data.court_file_number }}">
           </div>
+
           <div class="col-12">
             <label class="ui-label" for="id_court_office_address">Court office address</label>
             <input type="text" name="court_office_address" class="form-control ui-input" id="id_court_office_address" value="{{ page_data.court_office_address }}">
           </div>
         </div>
 
-        <!-- Parties -->
         <div class="row g-3 mt-1">
+
           <div class="col-lg-6">
             <div class="panel">
               <div class="panel-head">
                 <h3 class="panel-title">Applicant(s)</h3>
                 <div class="panel-pill">Service details</div>
               </div>
+
               <label class="ui-label" for="id_applicant_name">Full legal name</label>
               <input type="text" name="applicant_name" class="form-control ui-input" id="id_applicant_name" value="{{ page_data.applicant_name }}">
+
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_address">Address for service</label>
                 <input type="text" name="applicant_address" class="form-control ui-input" id="id_applicant_address" value="{{ page_data.applicant_address }}">
               </div>
+
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_phone">Phone/fax</label>
                 <input type="text" name="applicant_phone" class="form-control ui-input" id="id_applicant_phone" value="{{ page_data.applicant_phone }}">
               </div>
+
               <div class="mt-2">
-                <label class="ui-label" for="id_applicant_email">Email (if any)</label>
+                <label class="ui-label" for="id_applicant_email">Email</label>
                 <input type="email" name="applicant_email" class="form-control ui-input" id="id_applicant_email" value="{{ page_data.applicant_email }}">
               </div>
-              <div class="ui-help">Full legal name, address for service, phone/fax, and email (if any).</div>
             </div>
           </div>
 
@@ -383,16 +378,20 @@
                 <h3 class="panel-title">Applicant(s) Lawyer</h3>
                 <div class="panel-pill">If applicable</div>
               </div>
+
               <label class="ui-label" for="id_applicant_lawyer_name">Lawyer name</label>
               <input type="text" name="applicant_lawyer_name" class="form-control ui-input" id="id_applicant_lawyer_name" value="{{ page_data.applicant_lawyer_name }}">
+
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_address">Lawyer address</label>
                 <input type="text" name="applicant_lawyer_address" class="form-control ui-input" id="id_applicant_lawyer_address" value="{{ page_data.applicant_lawyer_address }}">
               </div>
+
               <div class="mt-2">
-                <label class="ui-label" for="id_applicant_lawyer_phone">Lawyer phone</label>
+                <label class="ui-label" for="id_applicant_lawyer_phone">Lawyer phone/fax</label>
                 <input type="text" name="applicant_lawyer_phone" class="form-control ui-input" id="id_applicant_lawyer_phone" value="{{ page_data.applicant_lawyer_phone }}">
               </div>
+
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_email">Lawyer email</label>
                 <input type="email" name="applicant_lawyer_email" class="form-control ui-input" id="id_applicant_lawyer_email" value="{{ page_data.applicant_lawyer_email }}">
@@ -406,18 +405,22 @@
                 <h3 class="panel-title">Respondent(s)</h3>
                 <div class="panel-pill">Service details</div>
               </div>
+
               <label class="ui-label" for="id_respondent_name">Full legal name</label>
               <input type="text" name="respondent_name" class="form-control ui-input" id="id_respondent_name" value="{{ page_data.respondent_name }}">
+
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_address">Address for service</label>
                 <input type="text" name="respondent_address" class="form-control ui-input" id="id_respondent_address" value="{{ page_data.respondent_address }}">
               </div>
+
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_phone">Phone/fax</label>
                 <input type="text" name="respondent_phone" class="form-control ui-input" id="id_respondent_phone" value="{{ page_data.respondent_phone }}">
               </div>
+
               <div class="mt-2">
-                <label class="ui-label" for="id_respondent_email">Email (if any)</label>
+                <label class="ui-label" for="id_respondent_email">Email</label>
                 <input type="email" name="respondent_email" class="form-control ui-input" id="id_respondent_email" value="{{ page_data.respondent_email }}">
               </div>
             </div>
@@ -429,25 +432,29 @@
                 <h3 class="panel-title">Respondent(s) Lawyer</h3>
                 <div class="panel-pill">If applicable</div>
               </div>
+
               <label class="ui-label" for="id_respondent_lawyer_name">Lawyer name</label>
               <input type="text" name="respondent_lawyer_name" class="form-control ui-input" id="id_respondent_lawyer_name" value="{{ page_data.respondent_lawyer_name }}">
+
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_address">Lawyer address</label>
                 <input type="text" name="respondent_lawyer_address" class="form-control ui-input" id="id_respondent_lawyer_address" value="{{ page_data.respondent_lawyer_address }}">
               </div>
+
               <div class="mt-2">
-                <label class="ui-label" for="id_respondent_lawyer_phone">Lawyer phone</label>
+                <label class="ui-label" for="id_respondent_lawyer_phone">Lawyer phone/fax</label>
                 <input type="text" name="respondent_lawyer_phone" class="form-control ui-input" id="id_respondent_lawyer_phone" value="{{ page_data.respondent_lawyer_phone }}">
               </div>
+
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_email">Lawyer email</label>
                 <input type="email" name="respondent_lawyer_email" class="form-control ui-input" id="id_respondent_lawyer_email" value="{{ page_data.respondent_lawyer_email }}">
               </div>
             </div>
           </div>
+
         </div>
 
-        <!-- Filed by -->
         <div class="mt-3">
           <div class="panel">
             <div class="panel-head">
@@ -456,89 +463,157 @@
             </div>
 
             <div class="choice-wrap">
-              {# Django will render inputs + labels; we style labels as pills #}
-              {{ form.prepared_by.as_widget }}
+              {{ form.prepared_by }}
             </div>
 
-            <div class="ui-help">Choose the party filing this statement.</div>
+            <div class="ui-help">
+              Choose the party filing this statement.
+            </div>
           </div>
         </div>
 
-        <!-- Instructions -->
         <div class="mt-3 info-card">
           <div class="k">Instructions</div>
           <p>
             You must complete this form if you are making or responding to a claim for child or spousal support
             or a claim to change support, unless your only claim for support is a claim for child support in the
             table amount under the <i>Child Support Guidelines</i>.
-            <br><br>
-            <span style="color:var(--muted); font-weight:700;">(Add the remaining instructions from your PDF here.)</span>
           </p>
         </div>
 
-        <!-- PART 1 -->
-        <div class="section-label"><span>Part 1 — Income</span></div>
+        <div class="section-label">
+          <span>Part 1 — Income</span>
+        </div>
 
         <div class="panel">
 
-          <!-- Item 1 -->
           <div class="form-num-row">
             <div class="form-num">1.</div>
+
             <div class="form-num-body">
               <div class="row g-2">
                 <div class="col-md-6">
-                  <label class="ui-label" for="id_my_name">My name is <span style="font-weight:500;color:#94a3b8;">(full legal name)</span></label>
-                  <input type="text" class="form-control ui-input" id="id_my_name" name="my_name" placeholder="Full legal name" value="{{ statement.my_name|default:'' }}">
+                  <label class="ui-label" for="id_my_name">My name is</label>
+                  <input type="text" class="form-control ui-input" id="id_my_name" name="my_name" value="{{ statement.my_name|default:'' }}">
                 </div>
+
                 <div class="col-md-6">
-                  <label class="ui-label" for="id_my_location">I live in <span style="font-weight:500;color:#94a3b8;">(municipality &amp; province)</span></label>
-                  <input type="text" class="form-control ui-input" id="id_my_location" name="my_location" placeholder="Municipality & province" value="{{ statement.my_location|default:'' }}">
+                  <label class="ui-label" for="id_my_location">I live in</label>
+                  <input type="text" class="form-control ui-input" id="id_my_location" name="my_location" value="{{ statement.my_location|default:'' }}">
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Item 2 -->
           <div class="form-num-row">
             <div class="form-num">2.</div>
+
             <div class="form-num-body">
-              <div class="ui-label mb-2">I am currently <span class="ui-help" style="display:inline;">(check all that apply)</span></div>
+              <div class="ui-label mb-2">
+                I am currently <span class="ui-help" style="display:inline;">(check all that apply)</span>
+              </div>
 
               <div class="checklist">
+
                 <label class="check-item" for="id_is_employed">
-                  <input class="form-check-input" type="checkbox" id="id_is_employed" name="is_employed" {% if statement.is_employed %}checked{% endif %}>
-                  <div class="text">employed by <span style="font-weight:500;color:#94a3b8;">(name and address of employer)</span></div>
+                  <input class="form-check-input employment-check"
+                         type="checkbox"
+                         id="id_is_employed"
+                         name="is_employed"
+                         data-target="employer_name_address"
+                         {% if statement.is_employed %}checked{% endif %}>
+                  <div class="text">Employed</div>
                 </label>
-                <input type="text" class="form-control ui-input mb-2" id="id_employer_name_address" name="employer_name_address" placeholder="Name and address of employer" value="{{ statement.employer_name_address|default:'' }}">
+
+                <input type="text"
+                       class="form-control ui-input employment-detail"
+                       id="id_employer_name_address"
+                       name="employer_name_address"
+                       placeholder="Name and address of employer"
+                       value="{{ statement.employer_name_address|default:'' }}">
 
                 <label class="check-item" for="id_is_self_employed">
-                  <input class="form-check-input" type="checkbox" id="id_is_self_employed" name="is_self_employed" {% if statement.is_self_employed %}checked{% endif %}>
-                  <div class="text">self-employed, carrying on business under the name of <span style="font-weight:500;color:#94a3b8;">(name and address of business)</span></div>
+                  <input class="form-check-input employment-check"
+                         type="checkbox"
+                         id="id_is_self_employed"
+                         name="is_self_employed"
+                         data-target="business_name_address"
+                         {% if statement.is_self_employed %}checked{% endif %}>
+                  <div class="text">Self-employed</div>
                 </label>
-                <input type="text" class="form-control ui-input mb-2" id="id_business_name_address" name="business_name_address" placeholder="Name and address of business" value="{{ statement.business_name_address|default:'' }}">
+
+                <input type="text"
+                       class="form-control ui-input employment-detail"
+                       id="id_business_name_address"
+                       name="business_name_address"
+                       placeholder="Name and address of business"
+                       value="{{ statement.business_name_address|default:'' }}">
 
                 <label class="check-item" for="id_is_unemployed">
-                  <input class="form-check-input" type="checkbox" id="id_is_unemployed" name="is_unemployed" {% if statement.is_unemployed %}checked{% endif %}>
-                  <div class="text">unemployed since <span style="font-weight:500;color:#94a3b8;">(date when last employed)</span></div>
+                  <input class="form-check-input employment-check"
+                         type="checkbox"
+                         id="id_is_unemployed"
+                         name="is_unemployed"
+                         data-target="unemployed_since"
+                         {% if statement.is_unemployed %}checked{% endif %}>
+                  <div class="text">Unemployed since</div>
                 </label>
-                <input type="date" class="form-control ui-input" id="id_unemployed_since" name="unemployed_since" value="{{ statement.unemployed_since|date:'Y-m-d'|default:'' }}">
+
+                <input type="date"
+                       class="form-control ui-input employment-detail"
+                       id="id_unemployed_since"
+                       name="unemployed_since"
+                       value="{{ statement.unemployed_since|date:'Y-m-d'|default:'' }}">
+
               </div>
             </div>
           </div>
 
         </div>
 
-        <!-- Actions -->
         <div class="actions">
-          <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
-          {% if statement.pk %}
-            <a href="{% url 'financial_statement_page2' statement.pk %}" class="btn-modern btn-primary-modern">Next &rarr;</a>
-          {% endif %}
+          <a href="{% url 'financial_statement_list' %}" class="btn-modern">
+            Cancel
+          </a>
+
+          <button type="submit" class="btn-modern btn-primary-modern">
+            Save & Continue →
+          </button>
         </div>
 
       </form>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const checks = document.querySelectorAll(".employment-check");
+
+    function updateEmploymentFields() {
+        checks.forEach(function (checkbox) {
+            const targetName = checkbox.dataset.target;
+            const field = document.querySelector(`[name="${targetName}"]`);
+
+            if (!field) return;
+
+            if (checkbox.checked) {
+                field.disabled = false;
+                field.classList.remove("disabled");
+            } else {
+                field.disabled = true;
+                field.value = "";
+                field.classList.add("disabled");
+            }
+        });
+    }
+
+    checks.forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateEmploymentFields);
+    });
+
+    updateEmploymentFields();
+});
+</script>
 
 {% endblock %}

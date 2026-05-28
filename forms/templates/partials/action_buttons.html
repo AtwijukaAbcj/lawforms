@@ -1,0 +1,36 @@
+{% comment %}Reusable action buttons partial.
+Expected context:
+ - object_id: the object's PK
+ - view_name, edit_name, print_name, delete_name: URL names (strings) or empty
+ - can_view, can_edit, can_print, can_delete: booleans
+ - object_label: optional label for aria/text
+{% endcomment %}
+<div class="actions">
+  {% if can_view %}
+    {% if view_name %}
+      <a class="btn-mini btn-info-modern" href="{% url view_name object_id %}">View</a>
+    {% endif %}
+  {% endif %}
+
+  {% if can_edit %}
+    {% if edit_name %}
+      <a class="btn-mini btn-edit-modern" href="{% url edit_name object_id %}">Edit</a>
+    {% endif %}
+  {% endif %}
+
+  {% if can_print %}
+    {% if print_name %}
+      <a class="btn-mini btn-modern" href="{% url print_name object_id %}" target="_blank" title="Print {{ object_label|default:'record' }}">
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg>
+      </a>
+    {% endif %}
+  {% endif %}
+
+  {% if can_delete %}
+    {% if delete_name %}
+      <a class="btn-mini btn-delete-modern" href="{% url delete_name object_id %}" title="Delete {{ object_label|default:'record' }}"> 
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+      </a>
+    {% endif %}
+  {% endif %}
+</div>

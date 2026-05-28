@@ -1,0 +1,488 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 8A — Application (Divorce) — Page 5{% endblock %}
+{% block header %}Form 8A — Application (Divorce){% endblock %}
+{% block subheader %}Page 5 — Cruelty, Joint Claims & Applicant Certificate{% endblock %}
+
+{% block content %}
+<style>
+  .form8a-page5-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 0 40px;
+  }
+
+  .page5-top,
+  .actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .page5-top {
+    margin-bottom: 18px;
+  }
+
+  .page5-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .page5-subtitle {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .page-badge {
+    background: #0f172a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .section-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    background: #fff;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  }
+
+  .section-head {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 13px 16px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: .03em;
+  }
+
+  .section-body {
+    padding: 18px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+  }
+
+  .form8a-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .field-group input,
+  .field-group textarea,
+  .field-group select,
+  .signature-field input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 13px;
+    box-sizing: border-box;
+    background: #fff;
+  }
+
+  .field-group textarea {
+    min-height: 120px;
+    resize: vertical;
+  }
+
+  .large-textarea textarea {
+    min-height: 210px;
+  }
+
+  .checkbox-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: center;
+  }
+
+  .checkbox-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .checkbox-item input[type="checkbox"],
+  .checkbox-item input[type="radio"] {
+    width: 17px;
+    height: 17px;
+    min-height: 17px;
+  }
+
+  .inline-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto 1fr;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .official-frame {
+    border: 1px solid #111827;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .official-frame-title {
+    background: #f8fafc;
+    border-bottom: 1px solid #111827;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .official-frame-body {
+    padding: 14px;
+  }
+
+  .center-title {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 900;
+    margin: 12px 0 6px;
+    color: #0f172a;
+  }
+
+  .help-text {
+    font-size: 12px;
+    color: #334155;
+    line-height: 1.45;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+
+  .certificate-text {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #111827;
+  }
+
+  .certificate-text ul {
+    margin: 10px 0 10px 22px;
+  }
+
+  .signature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+    margin-top: 18px;
+  }
+
+  .signature-caption {
+    text-align: center;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+    font-style: italic;
+  }
+
+  .divider-note {
+    border-top: 1px solid #e2e8f0;
+    margin: 18px 0 10px;
+    padding-top: 10px;
+    font-size: 12px;
+    font-style: italic;
+    color: #334155;
+  }
+
+  .btn-back,
+  .btn-next {
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 900;
+    text-decoration: none;
+    border: 0;
+  }
+
+  .btn-back {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+  }
+
+  .btn-next {
+    background: #0f172a;
+    color: #fff;
+  }
+
+  @media (max-width: 900px) {
+    .inline-row,
+    .signature-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page5-top,
+    .actions-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+</style>
+
+<div class="form8a-page5-wrap">
+  <form method="post">
+    {% csrf_token %}
+
+    {% if selected_case %}
+      <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+    {% endif %}
+
+    <div class="page5-top">
+      <div>
+        <h2 class="page5-title">Facts Supporting Claims & Applicant Certificate</h2>
+        <p class="page5-subtitle">Complete cruelty details, joint claim facts, and applicant certification.</p>
+      </div>
+      <span class="page-badge">PAGE 5 OF 6</span>
+    </div>
+
+    {% if form.non_field_errors or form.errors %}
+      <div class="alert alert-danger">
+        {{ form.non_field_errors }}
+        {{ form.errors }}
+      </div>
+    {% endif %}
+
+    <div class="section-card">
+      <div class="section-head">COURT FILE</div>
+      <div class="section-body">
+        <div class="field-group" style="max-width:300px; margin-left:auto; margin-top:0;">
+          <label class="form8a-label">Court File Number</label>
+          {{ form.court_file_number|add_class:"" }}
+        </div>
+      </div>
+    </div>
+
+    <!-- CRUELTY -->
+    <div class="section-card">
+      <div class="section-head">CRUELTY</div>
+      <div class="section-body">
+
+        <div class="checkbox-row">
+          <label class="checkbox-item">
+            {{ form.divorce_ground_cruelty }}
+            <strong>Cruelty</strong>
+          </label>
+        </div>
+
+        <div class="inline-row" style="margin-top:14px;">
+          <span class="form8a-label" style="margin:0;">Name of spouse</span>
+
+          {% if form.cruelty_spouse_name %}
+            {{ form.cruelty_spouse_name }}
+          {% else %}
+            <input type="text" name="cruelty_spouse_name">
+          {% endif %}
+
+          <span class="form8a-label" style="margin:0;">has treated</span>
+
+          {% if form.cruelty_victim_name %}
+            {{ form.cruelty_victim_name }}
+          {% else %}
+            <input type="text" name="cruelty_victim_name">
+          {% endif %}
+        </div>
+
+        <div class="help-text" style="margin-top:10px;">
+          with physical or mental cruelty of such a kind as to make continued cohabitation intolerable. Give details.
+        </div>
+
+        <div class="field-group large-textarea">
+          {% if form.cruelty_details %}
+            {{ form.cruelty_details|attr:"rows:7" }}
+          {% else %}
+            {{ form.divorce_facts|attr:"rows:7" }}
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    <!-- JOINT APPLICATION OTHER ORDERS -->
+    <div class="official-frame">
+      <div class="official-frame-title">
+        USE THIS FRAME ONLY IF THIS CASE IS A JOINT APPLICATION FOR DIVORCE.
+      </div>
+
+      <div class="official-frame-body">
+        <div class="help-text">
+          The details of the other order(s) that we jointly ask the court to make are as follows:
+          Include any amounts of support and the names of the children for whom support,
+          decision-making responsibility, parenting time or contact is to be ordered.
+        </div>
+
+        <div class="field-group large-textarea">
+          {% if form.joint_other_orders_details %}
+            {{ form.joint_other_orders_details|attr:"rows:8" }}
+          {% else %}
+            {{ form.other_claims|attr:"rows:8" }}
+          {% endif %}
+        </div>
+
+        <div class="center-title">IMPORTANT FACTS SUPPORTING OUR CLAIM(S)</div>
+
+        <div class="help-text">
+          Set out the facts that form the legal basis for your claim(s). Attach an additional page if you need more space.
+        </div>
+
+        <div class="field-group large-textarea">
+          {% if form.important_facts_supporting_claims %}
+            {{ form.important_facts_supporting_claims|attr:"rows:10" }}
+          {% else %}
+            {{ form.divorce_facts|attr:"rows:10" }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- APPLICANT CERTIFICATE -->
+    <div class="section-card">
+      <div class="section-head">APPLICANT’S CERTIFICATE</div>
+
+      <div class="section-body">
+        <div class="certificate-text">
+          <p>
+            <em>Your lawyer, if you are represented, must complete the Lawyer’s Certificate below.</em>
+          </p>
+
+          <p>
+            Sections 7.1 to 7.5 of the <em>Divorce Act</em> and section 33.1 of the
+            <em>Children’s Law Reform Act</em> require you and the other party to:
+          </p>
+
+          <ul>
+            <li>Exercise your decision-making responsibility, parenting time, or contact with a child in a manner that is consistent with the child’s best interests;</li>
+            <li>Protect the child from conflict arising from this case, to the best of your ability;</li>
+            <li>Try to resolve your family law issues by using out-of-court dispute resolution options, if it is appropriate in your case;</li>
+            <li>Provide complete, accurate, and up-to-date information in this case; and</li>
+            <li>Comply with any orders made in this case.</li>
+          </ul>
+
+          <div class="checkbox-row">
+            <label class="checkbox-item">
+              {% if form.applicant_certificate_acknowledged %}
+                {{ form.applicant_certificate_acknowledged }}
+              {% else %}
+                <input type="checkbox" name="applicant_certificate_acknowledged">
+              {% endif %}
+              I/We certify that I am/We are aware of these duties under the <em>Divorce Act</em> and the <em>Children’s Law Reform Act</em>.
+            </label>
+          </div>
+        </div>
+
+        <div class="divider-note">
+          Complete this section if your only claim is for a divorce.
+        </div>
+
+        <div class="signature-grid">
+          <div>
+            <div class="signature-field">
+              {{ form.applicant_signature_date|attr:"type:date" }}
+            </div>
+            <div class="signature-caption">Date of signature</div>
+          </div>
+
+          <div>
+            <div class="signature-field">
+              {% if form.applicant_signature %}
+                {{ form.applicant_signature }}
+              {% else %}
+                <input type="text" name="applicant_signature">
+              {% endif %}
+            </div>
+            <div class="signature-caption">Signature of applicant</div>
+          </div>
+        </div>
+
+        <div class="divider-note">
+          Complete this section if you are making a joint application for divorce.
+        </div>
+
+        <div class="signature-grid">
+          <div>
+            <div class="signature-field">
+              {% if form.joint_applicant_signature_1_date %}
+                {{ form.joint_applicant_signature_1_date|attr:"type:date" }}
+              {% else %}
+                <input type="date" name="joint_applicant_signature_1_date">
+              {% endif %}
+            </div>
+            <div class="signature-caption">Date of signature</div>
+          </div>
+
+          <div>
+            <div class="signature-field">
+              {% if form.joint_applicant_signature_1 %}
+                {{ form.joint_applicant_signature_1 }}
+              {% else %}
+                <input type="text" name="joint_applicant_signature_1">
+              {% endif %}
+            </div>
+            <div class="signature-caption">Signature of joint applicant</div>
+          </div>
+        </div>
+
+        <div class="signature-grid">
+          <div>
+            <div class="signature-field">
+              {% if form.joint_applicant_signature_2_date %}
+                {{ form.joint_applicant_signature_2_date|attr:"type:date" }}
+              {% else %}
+                <input type="date" name="joint_applicant_signature_2_date">
+              {% endif %}
+            </div>
+            <div class="signature-caption">Date of signature</div>
+          </div>
+
+          <div>
+            <div class="signature-field">
+              {% if form.joint_applicant_signature_2 %}
+                {{ form.joint_applicant_signature_2 }}
+              {% else %}
+                <input type="text" name="joint_applicant_signature_2">
+              {% endif %}
+            </div>
+            <div class="signature-caption">Signature of joint applicant</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <a href="{% url 'application_divorce_8a_page4' application.id %}" class="btn-back">
+        ← Back
+      </a>
+
+      <button type="submit" class="btn-next">
+        Save & Continue →
+      </button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,755 @@
+﻿{% extends 'base.html' %}
+{% block content %}
+<style>
+
+@page {
+    size: letter;
+    margin: 0;
+}
+
+html,
+body{
+    margin:0;
+    padding:0;
+    background:#fff;
+    color:#000;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.no-print{
+    width:8.5in;
+    margin:12px auto;
+    text-align:right;
+}
+
+.btn{
+    display:inline-block;
+    padding:7px 14px;
+    border:1px solid #111;
+    background:#111;
+    color:#fff;
+    text-decoration:none;
+    font-size:12px;
+}
+
+.form8a-page{
+    width:8.5in;
+    min-height:11in;
+    height:auto;
+
+    margin:0 auto;
+
+    padding:0.38in 0.55in 0.75in 0.55in;
+
+    box-sizing:border-box;
+
+    position:relative;
+
+    page-break-after:always;
+    break-after:page;
+
+    overflow:visible;
+
+    font-size:13px;
+    line-height:1.18;
+
+    background:#fff;
+}
+
+.form8a-page:last-child{
+    page-break-after:auto;
+    break-after:auto;
+}
+
+.top{
+    display:grid;
+    grid-template-columns:1fr 1fr 1.8in;
+    align-items:start;
+    column-gap:0.25in;
+    margin-bottom:0.08in;
+}
+
+.top-title{
+    font-size:16px;
+    font-weight:bold;
+}
+
+.page-no{
+    text-align:center;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.court-file{
+    border:1px solid #000;
+    min-height:0.42in;
+    padding:5px;
+    font-size:12px;
+    box-sizing:border-box;
+}
+
+.rule{
+    border-top:2px solid #000;
+    margin:0.05in 0 0.08in;
+}
+
+.thin-rule{
+    border-top:1px solid #000;
+    margin:0.04in 0;
+}
+
+.center{
+    text-align:center;
+}
+
+.bold{
+    font-weight:bold;
+}
+
+.italic{
+    font-style:italic;
+}
+
+.uline{
+    border-bottom:1px solid #777;
+    min-height:15px;
+    display:inline-block;
+    padding:0 4px;
+    vertical-align:baseline;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.line{
+    border-bottom:1px solid #777;
+    min-height:16px;
+    display:block;
+    padding:0 4px;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.box{
+    border:1px solid #000;
+    padding:6px;
+
+    height:auto;
+    overflow:visible;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.bigbox{
+    border:1px solid #000;
+
+    padding:6px;
+
+    min-height:1in;
+
+    height:auto;
+
+    overflow:visible;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+
+    page-break-inside:auto;
+    break-inside:auto;
+}
+
+.agreement-box{
+    border:1px solid #000;
+
+    min-height:1.1in;
+
+    padding:0.12in;
+
+    margin-top:0.1in;
+
+    height:auto;
+
+    overflow:visible;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+
+    page-break-inside:auto;
+    break-inside:auto;
+}
+
+.agreement-help{
+    margin-left:.45in;
+    margin-top:0.08in;
+    font-style:italic;
+    font-size:12px;
+}
+
+.field-block{
+    margin:4px 0;
+}
+
+.checkbox{
+    display:inline-block;
+
+    width:13px;
+    height:13px;
+
+    border:1.5px solid #000;
+
+    margin:0 8px 0 0;
+
+    vertical-align:-2px;
+
+    text-align:center;
+
+    font-size:11px;
+    line-height:12px;
+}
+
+.row{
+    display:flex;
+    align-items:baseline;
+    gap:8px;
+    margin:5px 0;
+}
+
+.field-row{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    align-items:baseline;
+    gap:6px;
+    margin:6px 0;
+}
+
+.two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0.18in;
+}
+
+.three-col{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:0.14in;
+}
+
+.party-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0.18in;
+    margin-top:0.15in;
+}
+
+.party-title{
+    font-weight:bold;
+    font-size:15px;
+    margin:3px 0 0;
+}
+
+.party-box{
+    border:1px solid #000;
+
+    min-height:1.25in;
+
+    padding:8px 6px 6px;
+
+    box-sizing:border-box;
+
+    display:grid;
+    gap:0.08in;
+
+    height:auto;
+    overflow:visible;
+}
+
+.party-box div{
+    display:grid;
+    grid-template-columns:1.1in 1fr;
+    gap:0.12in;
+    align-items:flex-start;
+
+    word-break:break-word;
+}
+
+.party-box .label{
+    display:inline-block;
+    min-width:1.05in;
+    font-weight:bold;
+}
+
+.section-title{
+    text-align:center;
+    font-weight:bold;
+    font-size:16px;
+    text-transform:uppercase;
+    margin:6px 0 4px;
+}
+
+.sub-title{
+    font-weight:bold;
+    font-size:15px;
+    margin-top:4px;
+}
+
+.notice-box{
+    border:1px solid #000;
+
+    padding:8px;
+
+    font-size:14px;
+    line-height:1.15;
+
+    margin-top:0.16in;
+
+    height:auto;
+
+    overflow:visible;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+
+    page-break-inside:auto;
+    break-inside:auto;
+}
+
+.notice-box p{
+    margin:8px 0;
+}
+
+.claim-grid{
+    display:grid;
+    grid-template-columns:1.1fr 1.25fr 1.1fr;
+    gap:0.18in;
+    font-size:13px;
+}
+
+.claim-line{
+    margin:6px 0;
+
+    display:grid;
+    grid-template-columns:25px 20px 1fr;
+
+    column-gap:4px;
+    align-items:start;
+}
+
+table.children{
+    width:100%;
+    border-collapse:collapse;
+    font-size:12px;
+    margin-top:4px;
+}
+
+table.children th,
+table.children td{
+    border:1px solid #000;
+
+    min-height:0.27in;
+
+    padding:3px;
+
+    vertical-align:top;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+table.children th{
+    text-align:center;
+    font-weight:bold;
+}
+
+.footer{
+    margin-top:0.35in;
+
+    display:flex;
+    justify-content:space-between;
+
+    font-size:12px;
+}
+
+.signature-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:0.35in;
+    margin-top:0.24in;
+}
+
+.sig-line{
+    border-bottom:1px solid #000;
+    min-height:18px;
+    text-align:center;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.sig-caption{
+    text-align:center;
+    font-style:italic;
+    margin-top:3px;
+}
+
+.cover-head{
+    display:grid;
+    grid-template-columns:1.2in 1fr 2.05in;
+    column-gap:0.25in;
+    align-items:start;
+}
+
+.seal-text{
+    margin-top:0.6in;
+    text-align:center;
+    font-size:16px;
+}
+
+.ontario{
+    text-align:center;
+    font-style:italic;
+    font-size:17px;
+    margin-bottom:0.38in;
+}
+
+.cover-form-title{
+    text-align:right;
+    font-weight:bold;
+    font-size:15px;
+    margin-top:0.1in;
+}
+
+.cover-checks{
+    margin-top:0.18in;
+    margin-left:0.25in;
+    font-size:15px;
+    line-height:1.7;
+    font-weight:bold;
+}
+
+.instructions{
+    border:1px solid #000;
+
+    padding:6px;
+
+    font-size:14px;
+    line-height:1.12;
+
+    margin-top:0.16in;
+
+    height:auto;
+
+    overflow:visible;
+
+    white-space:pre-wrap;
+    word-break:break-word;
+
+    page-break-inside:auto;
+    break-inside:auto;
+}
+
+.instructions p{
+    margin:8px 0;
+}
+
+.small{
+    font-size:11px;
+}
+
+.auto-expand{
+    height:auto;
+    min-height:1in;
+    overflow:visible;
+    white-space:pre-wrap;
+    word-break:break-word;
+}
+
+.page-break{
+    page-break-before:always;
+    break-before:page;
+}
+
+.no-break{
+    page-break-inside:avoid;
+    break-inside:avoid;
+}
+
+@media print{
+
+    html,
+    body{
+        width:8.5in;
+        background:#fff;
+    }
+
+    body *{
+        visibility:hidden;
+    }
+
+    .form8a-page,
+    .form8a-page *{
+        visibility:visible;
+    }
+
+    .form8a-page{
+        position:relative;
+
+        width:8.5in;
+
+        min-height:11in;
+
+        height:auto;
+
+        overflow:visible;
+
+        margin:0;
+
+        page-break-after:always;
+        break-after:page;
+
+        page-break-inside:auto;
+        break-inside:auto;
+    }
+
+    .form8a-page:last-child{
+        page-break-after:auto;
+        break-after:auto;
+    }
+
+    .no-print{
+        display:none !important;
+    }
+
+    .bigbox,
+    .agreement-box,
+    .notice-box,
+    .instructions,
+    .party-box{
+        page-break-inside:auto;
+        break-inside:auto;
+    }
+
+    table,
+    tr,
+    td,
+    th,
+    div,
+    p{
+        page-break-inside:auto;
+        break-inside:auto;
+    }
+}
+
+</style>
+
+{% if not view_only %}
+<div class="no-print">
+  <a href="javascript:window.print()" class="btn">Print Form</a>
+  <a href="{% url 'application_divorce_8a_view' application.id %}" class="btn">Back to View</a>
+</div>
+{% endif %}
+
+<div class="form8a-page">
+  <div class="cover-head">
+    <div class="seal-text">[SEAL]</div>
+    <div>
+      <div class="ontario">ONTARIO</div>
+      <div class="line center">{{ application.court_name|default:'' }}</div>
+      <div class="center italic">(Name of court)</div>
+      <div class="field-row" style="margin-top:0.35in;"><strong>at</strong><div><div class="line">{{ application.court_office_address|default:'' }}</div><div class="center italic">Court office address</div></div></div>
+    </div>
+    <div>
+      <div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div>
+      <div class="cover-form-title">Form 8A: &nbsp;Application<br>(Divorce)</div>
+      <div class="cover-checks">
+        <div><span class="checkbox">{% if application.is_simple_divorce %}✓{% endif %}</span>Simple (divorce only)</div>
+        <div><span class="checkbox">{% if application.is_joint_application %}✓{% endif %}</span>Joint</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="party-grid">
+    <div><div class="party-title">Applicant(s)</div><div class="party-box">
+      <div><span class="label">Full legal name:</span><span class="uline">{{ application.applicant_name|default:'' }}</span></div>
+      <div><span class="label">Address:</span><span class="uline">{{ application.applicant_address|default:'' }}</span></div>
+      <div><span class="label">Phone / Fax:</span><span class="uline">{{ application.applicant_phone_fax|default:'' }}</span></div>
+      <div><span class="label">Email:</span><span class="uline">{{ application.applicant_email|default:'' }}</span></div>
+    </div></div>
+    <div><div class="party-title">Applicant(s) Lawyer</div><div class="party-box">
+      <div><span class="label">Name:</span><span class="uline">{{ application.applicant_lawyer_name|default:'' }}</span></div>
+      <div><span class="label">Address:</span><span class="uline">{{ application.applicant_lawyer_address|default:'' }}</span></div>
+      <div><span class="label">Phone / Fax:</span><span class="uline">{{ application.applicant_lawyer_phone_fax|default:'' }}</span></div>
+      <div><span class="label">Email:</span><span class="uline">{{ application.applicant_lawyer_email|default:'' }}</span></div>
+    </div></div>
+    <div><div class="party-title">Respondent(s)</div><div class="party-box">
+      <div><span class="label">Full legal name:</span><span class="uline">{{ application.respondent_name|default:'' }}</span></div>
+      <div><span class="label">Address:</span><span class="uline">{{ application.respondent_address|default:'' }}</span></div>
+      <div><span class="label">Phone / Fax:</span><span class="uline">{{ application.respondent_phone_fax|default:'' }}</span></div>
+      <div><span class="label">Email:</span><span class="uline">{{ application.respondent_email|default:'' }}</span></div>
+    </div></div>
+    <div><div class="party-title">Respondent(s) Lawyer</div><div class="party-box">
+      <div><span class="label">Name:</span><span class="uline">{{ application.respondent_lawyer_name|default:'' }}</span></div>
+      <div><span class="label">Address:</span><span class="uline">{{ application.respondent_lawyer_address|default:'' }}</span></div>
+      <div><span class="label">Phone / Fax:</span><span class="uline">{{ application.respondent_lawyer_phone_fax|default:'' }}</span></div>
+      <div><span class="label">Email:</span><span class="uline">{{ application.respondent_lawyer_email|default:'' }}</span></div>
+    </div></div>
+  </div>
+
+  <div class="instructions">
+    <p><span class="checkbox">{% if application.is_simple_divorce %}✓{% endif %}</span><strong>IN THIS CASE, THE APPLICANT IS CLAIMING DIVORCE ONLY.</strong></p>
+    <p><strong>TO THE RESPONDENT(S): A COURT CASE FOR DIVORCE HAS BEEN STARTED AGAINST YOU IN THIS COURT. THE DETAILS ARE SET OUT ON THE ATTACHED PAGES.</strong></p>
+    <p><strong>THIS CASE IS ON THE STANDARD TRACK OF THE CASE MANAGEMENT SYSTEM. No court date has been set for this case</strong> but, if you have been served with a notice of motion, it has a court date and you or your lawyer should come to court for the motion.</p>
+    <p><strong>IF, AFTER 365 DAYS, THE CASE HAS NOT BEEN SCHEDULED FOR TRIAL,</strong> the clerk of the court will send out a warning that the case will be dismissed within 60 days unless the parties file proof that the case has been settled.</p>
+    <p><strong>IF YOU WANT TO OPPOSE ANY CLAIM IN THIS CASE,</strong> you or your lawyer must prepare an Answer (Form 10). <strong>YOU HAVE ONLY 30 DAYS AFTER THIS APPLICATION IS SERVED ON YOU</strong> to serve and file an answer.</p>
+    <p><strong>IF YOU WANT TO MAKE A CLAIM OF YOUR OWN,</strong> you or your lawyer must fill out the claim portion in the Answer, serve a copy on the applicant(s), and file a copy in the court office with an Affidavit of Service.</p>
+    <p><strong>YOU SHOULD GET LEGAL ADVICE ABOUT THIS CASE RIGHT AWAY.</strong></p>
+  </div>
+  <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 1 of 6</span></div>
+</div>
+
+<div class="form8a-page">
+  <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 2)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
+  <div class="rule"></div>
+  <div class="notice-box">
+    <p><span class="checkbox">{% if application.is_joint_application %}✓{% endif %}</span><strong>THIS CASE IS A JOINT APPLICATION FOR DIVORCE. THE DETAILS ARE SET OUT ON THE ATTACHED PAGES.</strong> The application and affidavits in support of the application will be presented to a judge when the materials have been checked for completeness.</p>
+    <p>If you are requesting anything other than a simple divorce, such as support or property or exclusive possession of the matrimonial home and its contents, then refer to page 1 for instructions regarding the Financial Statement you should file.</p>
+  </div>
+  <div class="signature-grid" style="position:absolute;left:.55in;right:.55in;bottom:1.35in;">
+    <div><div class="sig-line">{{ application.date_of_issue|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date of issue</div></div>
+    <div><div class="sig-line">{{ application.clerk_signature|default:application.clerk_name|default:'' }}</div><div class="sig-caption">Clerk of the court</div></div>
+  </div>
+  <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 2 of 6</span></div>
+</div>
+
+<div class="form8a-page">
+  <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 3)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
+  <div class="thin-rule"></div><div class="section-title">Family History</div>
+  <div><strong>APPLICANT:</strong> &nbsp; Age: <span class="uline" style="width:.75in;">{{ application.applicant_age|default:'' }}</span> &nbsp;&nbsp; Birthdate: <em>(d, m, y)</em> <span class="uline" style="width:2.7in;">{{ application.applicant_birthdate|date:'M j, Y'|default:'' }}</span></div>
+  <div class="field-row"><span>Resident in <em>(municipality & province)</em></span><span class="line">{{ application.applicant_resident_in|default:'' }}</span></div>
+  <div class="field-row"><span>First name on the day before the marriage date:</span><span class="line">{{ application.applicant_first_name_before_marriage|default:'' }}</span></div>
+  <div class="field-row"><span>Last name on the day before the marriage date:</span><span class="line">{{ application.applicant_last_name_before_marriage|default:'' }}</span></div>
+  <div>Gender on the day before the marriage date: &nbsp;<span class="checkbox">{% if application.applicant_gender == 'Male' %}✓{% endif %}</span>Male &nbsp;&nbsp; <span class="checkbox">{% if application.applicant_gender == 'Female' %}✓{% endif %}</span>Female &nbsp;&nbsp; <span class="checkbox">{% if application.applicant_gender == 'Another gender' %}✓{% endif %}</span>Another gender</div>
+  <div>Divorced before? &nbsp;<span class="checkbox">{% if not application.applicant_divorced_before %}✓{% endif %}</span>No &nbsp;<span class="checkbox">{% if application.applicant_divorced_before %}✓{% endif %}</span>Yes <em>(Place and date of previous divorce)</em> <span class="uline" style="width:2.4in;">{{ application.applicant_previous_divorce_details|default:'' }}</span></div>
+  <div>Habitually resident in the province of Ontario for at least one year immediately before this application was filed? <span style="float:right;"><span class="checkbox">{% if not application.applicant_resided_ontario_one_year %}✓{% endif %}</span>No &nbsp;&nbsp; <span class="checkbox">{% if application.applicant_resided_ontario_one_year %}✓{% endif %}</span>Yes</span></div>
+  <div class="thin-rule"></div>
+  <div><strong>RESPONDENT/JOINT APPLICANT:</strong> &nbsp; Age: <span class="uline" style="width:.75in;">{{ application.respondent_age|default:'' }}</span> &nbsp;&nbsp; Birthdate: <em>(d, m, y)</em> <span class="uline" style="width:2.25in;">{{ application.respondent_birthdate|date:'M j, Y'|default:'' }}</span></div>
+  <div class="field-row"><span>Resident in <em>(municipality & province)</em></span><span class="line">{{ application.respondent_resident_in|default:'' }}</span></div>
+  <div class="field-row"><span>First name on the day before the marriage date:</span><span class="line">{{ application.respondent_first_name_before_marriage|default:'' }}</span></div>
+  <div class="field-row"><span>Last name on the day before the marriage date:</span><span class="line">{{ application.respondent_last_name_before_marriage|default:'' }}</span></div>
+  <div>Gender on the day before the marriage date: &nbsp;<span class="checkbox">{% if application.respondent_gender == 'Male' %}✓{% endif %}</span>Male &nbsp;&nbsp; <span class="checkbox">{% if application.respondent_gender == 'Female' %}✓{% endif %}</span>Female &nbsp;&nbsp; <span class="checkbox">{% if application.respondent_gender == 'Another gender' %}✓{% endif %}</span>Another gender &nbsp;&nbsp; <span class="checkbox">{% if application.respondent_gender == 'Not available' %}✓{% endif %}</span>Gender information not available</div>
+  <div>Divorced before? &nbsp;<span class="checkbox">{% if not application.respondent_divorced_before %}✓{% endif %}</span>No &nbsp;<span class="checkbox">{% if application.respondent_divorced_before %}✓{% endif %}</span>Yes <em>(Place and date of previous divorce)</em> <span class="uline" style="width:2.2in;">{{ application.respondent_previous_divorce_details|default:'' }}</span></div>
+  <div>Habitually resident in Ontario for at least one year immediately before this application was filed? <span style="float:right;"><span class="checkbox">{% if not application.respondent_resided_ontario_one_year %}✓{% endif %}</span>No &nbsp;&nbsp; <span class="checkbox">{% if application.respondent_resided_ontario_one_year %}✓{% endif %}</span>Yes</span></div>
+  <div class="thin-rule"></div>
+  <div class="sub-title">RELATIONSHIP DATES:</div>
+  <div class="two-col"><div><span class="checkbox">{% if application.married_on %}✓{% endif %}</span>Married on <em>(date)</em> <span class="uline" style="width:1.75in;">{{ application.married_on|date:'M j, Y'|default:'' }}</span></div><div><span class="checkbox">{% if application.started_living_together_on %}✓{% endif %}</span>Started living together on <em>(date)</em> <span class="uline" style="width:1.4in;">{{ application.started_living_together_on|date:'M j, Y'|default:'' }}</span></div></div>
+  <div class="two-col"><div><span class="checkbox">{% if application.separated_on %}✓{% endif %}</span>Separated on <em>(date)</em> <span class="uline" style="width:1.75in;">{{ application.separated_on|date:'M j, Y'|default:'' }}</span></div><div><span class="checkbox">{% if application.never_lived_together %}✓{% endif %}</span>Never lived together</div></div>
+  <div class="thin-rule"></div><div class="sub-title">THE CHILD(REN)</div><em>List all children involved in this case, even if no claim is made for these children.</em>
+  <table class="children">
+    <tr><th>Full legal name</th><th>Age</th><th>Birthdate<br><em>(d,m,y)</em></th><th>Resident in<br><em>(municipality & province)</em></th><th>Now Living With<br><em>(name of person and relationship to child)</em></th></tr>
+    {% for child in children %}
+    <tr>
+      <td>{{ child.full_legal_name|default:'' }}</td>
+      <td>{{ child.age|default:'' }}</td>
+      <td>{{ child.birthdate|default:'' }}</td>
+      <td>{{ child.resident_in|default:'' }}</td>
+      <td>{{ child.now_living_with|default:'' }}</td>
+    </tr>
+    {% empty %}
+    <tr><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td><td></td></tr>
+    {% endfor %}
+  </table>
+  <!-- {% if application.children_details %}<div style="margin-top: 4px; font-size: 12px;"><strong>Child Details:</strong> {{ application.children_details }}</div>{% endif %} -->
+  <div class="section-title">Previous Cases or Agreements</div>
+  <div>Have the parties or the children been in a court case before?</div>
+  <div class="field-block" style="margin-left:.45in; margin-bottom:.15in;">
+    <span class="checkbox">{% if not application.previous_court_case %}✓{% endif %}</span>No
+    <span class="checkbox" style="margin-left:0.8in;">{% if application.previous_court_case %}✓{% endif %}</span>Yes
+  </div>
+  <div>Have the parties made a written agreement dealing with any matter involved in this case?</div>
+  <div class="field-block" style="margin-left:.45in;">
+    <span class="checkbox">{% if not application.previous_written_agreement %}✓{% endif %}</span>No
+    <span class="checkbox" style="margin-left:0.8in;">{% if application.previous_written_agreement %}✓{% endif %}</span>Yes
+  </div>
+  <div class="agreement-help">(Give date of agreement. Indicate which of its terms are in dispute. Attach an additional page if you need more space.)</div>
+  <div class="agreement-box">
+    {{ application.previous_agreement_details|default:' ' }}
+  </div>
+  <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 3 of 6</span></div>
+</div>
+
+<div class="form8a-page">
+  <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 4)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
+  <div class="thin-rule"></div>
+  <div>Has a Notice of Calculation and/or a Notice of Recalculation been issued by the online Child Support Service in this case?</div>
+  <div style="margin:8px 0 0 .45in;"><span class="checkbox">{% if not application.notice_of_calculation_issued %}✓{% endif %}</span>No &nbsp;&nbsp;&nbsp;<span class="checkbox">{% if application.notice_of_calculation_issued %}✓{% endif %}</span>Yes <em>(Give date(s) of Notice(s) of Calculation or Recalculation.)</em></div>
+  <div class="section-title" style="margin-top:.55in;">Claims</div>
+  <div class="box" style="padding:0;"><div style="border-bottom:1px solid #000;padding:4px;font-weight:bold;font-size:15px;">USE THIS FRAME ONLY IF THIS CASE IS A JOINT APPLICATION FOR DIVORCE</div><div style="padding:6px;"><strong>WE JOINTLY ASK THE COURT FOR THE FOLLOWING:</strong><div class="claim-grid"><div><strong>Claims under the <em>Divorce Act</em></strong>
+    <div class="claim-line"><span>00</span><span class="checkbox">{% if application.claim_divorce %}✓{% endif %}</span><span>a divorce</span></div><div class="claim-line"><span>01</span><span class="checkbox">{% if application.claim_spousal_support %}✓{% endif %}</span><span>spousal support</span></div><div class="claim-line"><span>02</span><span class="checkbox">{% if application.claim_child_support_table %}✓{% endif %}</span><span>support for child(ren) – table amount</span></div><div class="claim-line"><span>03</span><span class="checkbox">{% if application.claim_child_support_other %}✓{% endif %}</span><span>support for child(ren) – other than table amount</span></div><div class="claim-line"><span>04</span><span class="checkbox">{% if application.claim_decision_making %}✓{% endif %}</span><span>decision-making responsibility for child(ren)</span></div><div class="claim-line"><span>05</span><span class="checkbox">{% if application.claim_parenting_time %}✓{% endif %}</span><span>parenting time with child(ren)</span></div></div>
+    <div><strong>Claims under the <em>Family Law Act</em> or <em>Children’s Law Reform Act</em></strong><div class="claim-line"><span>10</span><span class="checkbox">{% if application.claim_spousal_support_family_law %}✓{% endif %}</span><span>spousal support</span></div><div class="claim-line"><span>11</span><span class="checkbox">{% if application.claim_support_child_table_family_law %}✓{% endif %}</span><span>support for child(ren) – table amount</span></div><div class="claim-line"><span>12</span><span class="checkbox">{% if application.claim_support_child_other_family_law %}✓{% endif %}</span><span>support for child(ren) – other than table amount</span></div><div class="claim-line"><span>13</span><span class="checkbox">{% if application.claim_decision_making %}✓{% endif %}</span><span>decision-making responsibility for child(ren)</span></div><div class="claim-line"><span>14</span><span class="checkbox">{% if application.claim_parenting_time %}✓{% endif %}</span><span>parenting time with child(ren)</span></div><div class="claim-line"><span>15</span><span class="checkbox">{% if application.claim_restraining_order %}✓{% endif %}</span><span>restraining/non-harassment order</span></div><div class="claim-line"><span>16</span><span class="checkbox">{% if application.claim_indexing_spousal_support %}✓{% endif %}</span><span>indexing spousal support</span></div><div class="claim-line"><span>17</span><span class="checkbox">{% if application.claim_declaration_parentage %}✓{% endif %}</span><span>declaration of parentage</span></div><div class="claim-line"><span>18</span><span class="checkbox">{% if application.claim_guardianship_child_property %}✓{% endif %}</span><span>guardianship over child’s property</span></div></div>
+    <div><strong>Claims relating to property</strong><div class="claim-line"><span>20</span><span class="checkbox">{% if application.claim_property_equalization %}✓{% endif %}</span><span>equalization of net family properties</span></div><div class="claim-line"><span>21</span><span class="checkbox">{% if application.claim_exclusive_possession_home %}✓{% endif %}</span><span>exclusive possession of matrimonial home</span></div><div class="claim-line"><span>22</span><span class="checkbox">{% if application.claim_exclusive_possession_contents %}✓{% endif %}</span><span>exclusive possession of contents of matrimonial home</span></div><div class="claim-line"><span>23</span><span class="checkbox">{% if application.claim_freezing_assets %}✓{% endif %}</span><span>freezing assets</span></div><div class="claim-line"><span>24</span><span class="checkbox">{% if application.claim_sale_family_property %}✓{% endif %}</span><span>sale of family property</span></div><br><strong>Other claims</strong><div class="claim-line"><span>30</span><span class="checkbox">{% if application.claim_costs %}✓{% endif %}</span><span>costs</span></div><div class="claim-line"><span>31</span><span class="checkbox">{% if application.claim_annulment %}✓{% endif %}</span><span>annulment of marriage</span></div><div class="claim-line"><span>32</span><span class="checkbox">{% if application.claim_prejudgment_interest %}✓{% endif %}</span><span>prejudgment interest</span></div><div class="claim-line"><span>50</span><span class="checkbox">{% if application.claim_other %}✓{% endif %}</span><span>Other <em>{{ application.other_claims|default:'' }}</em></span></div></div></div></div></div>
+  <div class="box" style="padding:0;margin-top:.12in;"><div style="border-bottom:1px solid #000;padding:4px;font-weight:bold;font-size:15px;">USE THIS FRAME ONLY IF THE APPLICANT’S ONLY CLAIM IN THIS CASE IS FOR DIVORCE.</div><div style="padding:6px;"><strong>I ASK THE COURT FOR:</strong><br><em>(Check if applicable.)</em><br>00 &nbsp;<span class="checkbox">{% if application.claim_divorce %}✓{% endif %}</span>a divorce &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 30 &nbsp;<span class="checkbox">{% if application.claim_costs %}✓{% endif %}</span>costs</div></div>
+  <div class="section-title">Important Facts Supporting the Claim for Divorce</div>
+  <div><span class="checkbox">{% if application.divorce_ground_separation %}✓{% endif %}</span><strong>Separation:</strong> The spouses have lived separate and apart since <em>(date)</em> <span class="uline" style="width:2.2in;">{{ application.separation_date|date:'M j, Y'|default:'' }}</span> and</div>
+  <div style="margin-left:.35in;"><span class="checkbox">{% if application.not_lived_together_since %}✓{% endif %}</span>have not lived together again since that date in an unsuccessful attempt to reconcile.</div>
+  <div style="margin-left:.35in;"><span class="checkbox">{% if application.lived_together_attempt_reconcile %}✓{% endif %}</span>have lived together again during the following periods(s) in an unsuccessful attempt to reconcile: <em>{{ application.lived_together_periods|default:'' }}</em></div>
+  <div style="margin-top:.25in;"><span class="checkbox">{% if application.divorce_ground_adultery %}✓{% endif %}</span><strong>Adultery:</strong> <em>(Name of spouse)</em> <span class="uline" style="width:3.2in;">{{ application.adultery_spouse_name|default:'' }}</span> has committed adultery.</div>
+  <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 4 of 6</span></div>
+</div>
+
+<div class="form8a-page">
+  <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 5)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
+  <div class="thin-rule"></div>
+  <div style="display:flex; align-items:center; gap:0.08in; margin-top:0.08in; width:100%;">
+    <span class="checkbox">{% if application.divorce_ground_cruelty %}✓{% endif %}</span>
+    <strong>Cruelty:</strong>
+  </div>
+  <div style="display:grid; grid-template-columns: auto 2.1in auto 2.1in auto; gap:0.08in; align-items:center; margin-left:.45in; margin-top:0.08in; width:calc(100% - 0.45in);">
+    <span style="white-space:nowrap;">(Name of spouse)</span>
+    <span class="uline" style="width:2.1in;">{{ application.cruelty_spouse_name|default:' ' }}</span>
+    <span style="white-space:nowrap;">has treated</span>
+    <span class="uline" style="width:2.1in;">{{ application.cruelty_victim_name|default:' ' }}</span>
+    <span style="white-space:nowrap;">with physical or mental cruelty of such a kind as to make continued cohabitation intolerable.</span>
+  </div>
+  <div style="margin-left:.45in; margin-top:0.08in; width:calc(100% - 0.45in);">
+    <em>(Give details.)</em>
+  </div>
+  <div class="bigbox" style="margin-top:0.25in; min-height:1.8in;">
+    {{ application.cruelty_details|default:' ' }}
+  </div>
+  <div class="bigbox" style="margin-top:.65in; min-height:4.15in;">
+    <div style="border-bottom:1px solid #000;padding:4px;font-weight:bold;font-size:15px;">USE THIS FRAME ONLY IF THIS CASE IS A JOINT APPLICATION FOR DIVORCE.</div>
+    <div style="padding:6px;">
+      The details of the other order(s) that we jointly ask the court to make are as follows: <em>(Include any amounts of support and the names of the children for whom support, decision-making responsibility, parenting time or contact is to be ordered.)</em>
+      <div style="margin-top:0.45in;">{{ application.joint_orders_details|default:'' }}</div>
+    </div>
+  </div>
+  <div class="section-title" style="margin-top:.3in;">Important Facts Supporting Our Claim(s)</div>
+  <em>(Set out the facts that form the legal basis for your claim(s). Attach an additional page if you need more space.)</em>
+  <div style="margin-top:.12in;">{{ application.important_facts_supporting_claims|default:'' }}</div>
+  <div class="section-title">Applicant’s Certificate</div>
+  <div class="small"><em>(Your lawyer, if you are represented, must complete the Lawyer’s Certificate below.)</em></div>
+  <div class="small">Sections 7.1 to 7.5 of the <em>Divorce Act</em> and section 33.1 of the <em>Children’s Law Reform Act</em> require you and the other party to exercise responsibilities in the best interests of the child, protect the child from conflict, try to resolve issues, provide complete information, and comply with orders.</div>
+  <div style="margin-top:6px;">I/We certify that I am/We are aware of these duties under the <em>Divorce Act</em> and the <em>Children’s Law Reform Act</em>. <span class="checkbox">{% if application.applicant_certificate_confirmed %}✓{% endif %}</span></div>
+  <div class="signature-grid"><div><div class="sig-line">{{ application.applicant_signature_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date of signature</div></div><div><div class="sig-line">{{ application.applicant_signature|default:'' }}</div><div class="sig-caption">Signature of applicant</div></div></div>
+  <div class="signature-grid" style="margin-top:.18in;"><div><div class="sig-line">{{ application.joint_applicant_signature_1_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date of signature</div></div><div><div class="sig-line">{{ application.joint_applicant_signature_1|default:'' }}</div><div class="sig-caption">Signature of joint applicant</div></div></div>
+  <div class="signature-grid" style="margin-top:.18in;"><div><div class="sig-line">{{ application.joint_applicant_signature_2_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date of signature</div></div><div><div class="sig-line">{{ application.joint_applicant_signature_2|default:'' }}</div><div class="sig-caption">Signature of joint applicant</div></div></div>
+  <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 5 of 6</span></div>
+</div>
+
+<div class="form8a-page">
+  <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 6)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
+  <div class="rule"></div>
+  <div class="section-title">Lawyer’s Certificate</div>
+  <div style="margin-top:.25in;">My name is: <span class="uline" style="width:6.55in;">{{ application.applicant_lawyer_certificate_name|default:application.applicant_lawyer_name|default:'' }}</span></div>
+  <div>and I am the applicant’s lawyer in this case. I certify that I have complied with the requirements of section 7.7 of the <em>Divorce Act</em> and section 33.2 of the <em>Children’s Law Reform Act</em> regarding reconciliation and the duty to discuss and inform.</div>
+  <div class="signature-grid" style="margin-top:.55in;"><div><div class="sig-line">{{ application.applicant_lawyer_certificate_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date</div></div><div><div class="sig-line">{{ application.applicant_lawyer_certificate_signature|default:'' }}</div><div class="sig-caption">Lawyer’s signature</div></div></div>
+  <div style="margin-top:.35in;">My name is: <span class="uline" style="width:6.55in;">{{ application.respondent_lawyer_certificate_name|default:application.respondent_lawyer_name|default:'' }}</span></div>
+  <div>and I am the applicant’s lawyer in this case. I certify that I have complied with the requirements of section 7.7 of the <em>Divorce Act</em> and section 33.2 of the <em>Children’s Law Reform Act</em> regarding reconciliation and the duty to discuss and inform.</div>
+  <div class="signature-grid" style="margin-top:.55in;"><div><div class="sig-line">{{ application.respondent_lawyer_certificate_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date</div></div><div><div class="sig-line">{{ application.respondent_lawyer_certificate_signature|default:'' }}</div><div class="sig-caption">Lawyer’s signature</div></div></div>
+  <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 6 of 6</span></div>
+</div>
+{% endblock %}

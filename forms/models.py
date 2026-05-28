@@ -61,6 +61,13 @@ class NetFamilyPropertyStatement(models.Model):
     court_file_number = models.CharField(max_length=100, blank=True, null=True)
     court_name = models.CharField(max_length=255, blank=True, null=True)
     court_office_address = models.CharField(max_length=255, blank=True, null=True)
+    case_file = models.ForeignKey(
+        'CaseFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='net_family_property_statements'
+    )
 
     prepared_by = models.CharField(
         max_length=50,
@@ -127,6 +134,46 @@ class NetFamilyPropertyAsset(models.Model):
 
 
 # ============================================================
+# Shared Case/Client master record
+# ============================================================
+class CaseFile(models.Model):
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='case_files')
+    court_file_number = models.CharField(max_length=100, blank=True, null=True)
+    court_name = models.CharField(max_length=255, blank=True, null=True)
+    court_office_address = models.TextField(blank=True, null=True)
+
+    applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_address = models.TextField(blank=True, null=True)
+    applicant_phone = models.CharField(max_length=100, blank=True, null=True)
+    applicant_email = models.EmailField(blank=True, null=True)
+
+    applicant_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_lawyer_address = models.TextField(blank=True, null=True)
+    applicant_lawyer_phone = models.CharField(max_length=100, blank=True, null=True)
+    applicant_lawyer_email = models.EmailField(blank=True, null=True)
+
+    respondent_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_address = models.TextField(blank=True, null=True)
+    respondent_phone = models.CharField(max_length=100, blank=True, null=True)
+    respondent_email = models.EmailField(blank=True, null=True)
+
+    respondent_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_lawyer_address = models.TextField(blank=True, null=True)
+    respondent_lawyer_phone = models.CharField(max_length=100, blank=True, null=True)
+    respondent_lawyer_email = models.EmailField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    valuation_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self):
+        return f"Case: {self.court_file_number or self.applicant_name or self.id}"
+
+
+# ============================================================
 # 2) SIMPLE FORM: FinancialStatement (Standalone Root)
 # ============================================================
 class FinancialStatement(SoftDeleteMixin, models.Model):
@@ -136,6 +183,13 @@ class FinancialStatement(SoftDeleteMixin, models.Model):
     court_file_number = models.CharField(max_length=100, blank=True, null=True)
     court_name = models.CharField(max_length=255, blank=True, null=True)
     court_office_address = models.CharField(max_length=255, blank=True, null=True)
+    case_file = models.ForeignKey(
+        'CaseFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='financial_statements'
+    )
 
     prepared_by = models.CharField(
         max_length=50,
@@ -407,6 +461,13 @@ class NetFamilyProperty13B(SoftDeleteMixin, models.Model):
     court_file_number = models.CharField(max_length=100, blank=True, null=True)
     court_name = models.CharField(max_length=255, blank=True, null=True)
     court_address = models.CharField(max_length=255, blank=True, null=True)
+    case_file = models.ForeignKey(
+        'CaseFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='net_family_property_13b_forms'
+    )
 
     applicant_name = models.CharField(max_length=255, blank=True, null=True)
     applicant_address = models.TextField(blank=True, null=True)
@@ -512,7 +573,11 @@ class NetFamilyProperty13BExcluded(models.Model):
 
 
 class NetFamilyProperty13BFinalTotals(models.Model):
-    statement = models.OneToOneField(NetFamilyProperty13B, related_name="final_totals", on_delete=models.CASCADE)
+    statement = models.OneToOneField(
+        NetFamilyProperty13B,
+        related_name="final_totals",
+        on_delete=models.CASCADE
+    )
 
     total1 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     total2 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
@@ -520,6 +585,9 @@ class NetFamilyProperty13BFinalTotals(models.Model):
     total4 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     total5 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
     total6 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+
+    # NEW FIELD
+    equalisation_note = models.TextField(blank=True, null=True)
 
     date_of_signature = models.DateField(blank=True, null=True)
     signature = models.CharField(max_length=255, blank=True, null=True)
@@ -538,6 +606,13 @@ class ComparisonNetFamilyProperty(SoftDeleteMixin, models.Model):
     court_file_number = models.CharField(max_length=100, blank=True, null=True)
     court_name = models.CharField(max_length=255, blank=True, null=True)
     court_office_address = models.CharField(max_length=255, blank=True, null=True)
+    case_file = models.ForeignKey(
+        'CaseFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='comparison_net_family_properties'
+    )
 
     prepared_by = models.CharField(
         max_length=50,
@@ -579,6 +654,280 @@ class ComparisonNetFamilyProperty(SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return f"Comparison NFP: {self.court_file_number or self.id}"
+
+
+class AffidavitOfService(SoftDeleteMixin, models.Model):
+    FORM_VARIANT_6B = "form_6b"
+    FORM_VARIANT_8A = "form_8a"
+
+    FORM_VARIANT_CHOICES = [
+        (FORM_VARIANT_6B, "Form 6B"),
+        (FORM_VARIANT_8A, "Form 8A"),
+    ]
+
+    court_name = models.CharField(max_length=255, blank=True, null=True)
+    court_file_number = models.CharField(max_length=100, blank=True, null=True)
+    court_office_address = models.CharField(max_length=255, blank=True, null=True)
+    court_phone_number = models.CharField(max_length=50, blank=True, null=True)
+
+    form_variant = models.CharField(
+        max_length=20,
+        choices=FORM_VARIANT_CHOICES,
+        default=FORM_VARIANT_6B,
+    )
+
+    case_file = models.ForeignKey(
+        "CaseFile",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="affidavits_of_service",
+    )
+
+    plaintiff_name = models.CharField(max_length=255, blank=True, null=True)
+    defendant_name = models.CharField(max_length=255, blank=True, null=True)
+
+    affiant_name = models.CharField(max_length=255, blank=True, null=True)
+    affiant_address = models.CharField(max_length=255, blank=True, null=True)
+    server_name = models.CharField(max_length=255, blank=True, null=True)
+    server_city = models.CharField(max_length=255, blank=True, null=True)
+
+    served_name = models.CharField(max_length=255, blank=True, null=True)
+    served_date = models.DateField(blank=True, null=True)
+    served_at_address = models.CharField(max_length=512, blank=True, null=True)
+    served_address_type = models.CharField(max_length=255, blank=True, null=True)
+    documents_served = models.TextField(blank=True, null=True)
+
+    address_person_home = models.BooleanField(default=False)
+    address_corporation_business = models.BooleanField(default=False)
+    address_representative_on_record = models.BooleanField(default=False)
+    address_recent_document = models.BooleanField(default=False)
+    address_corporation_attorney = models.BooleanField(default=False)
+    address_other = models.BooleanField(default=False)
+    address_other_details = models.CharField(max_length=255, blank=True, null=True)
+
+    personal_service_person = models.BooleanField(default=False)
+    personal_service_corporation_officer = models.BooleanField(default=False)
+    personal_service_corporation_officer_position = models.CharField(max_length=255, blank=True, null=True)
+    personal_service_other_person = models.BooleanField(default=False)
+    personal_service_other_person_details = models.CharField(max_length=255, blank=True, null=True)
+
+    service_place_residence = models.BooleanField(default=False)
+    service_place_residence_regular_mail = models.BooleanField(default=False)
+    service_place_residence_registered_mail = models.BooleanField(default=False)
+    service_place_residence_courier = models.BooleanField(default=False)
+    service_registered_mail = models.BooleanField(default=False)
+    service_courier = models.BooleanField(default=False)
+    service_lawyer_or_paralegal = models.BooleanField(default=False)
+    service_regular_lettermail = models.BooleanField(default=False)
+    service_by_fax = models.BooleanField(default=False)
+    service_fax_time = models.CharField(max_length=50, blank=True, null=True)
+    service_fax_number = models.CharField(max_length=50, blank=True, null=True)
+
+    service_to_corporation = models.BooleanField(default=False)
+    corporation_director_name = models.CharField(max_length=255, blank=True, null=True)
+    corporation_director_address = models.CharField(max_length=512, blank=True, null=True)
+
+    substituted_service = models.BooleanField(default=False)
+    substituted_service_order_date = models.DateField(blank=True, null=True)
+    substituted_service_details = models.TextField(blank=True, null=True)
+    # Page 1 — Official Form 6B party/lawyer service boxes
+    applicant_lawyer_details = models.TextField(blank=True, null=True)
+    respondent_lawyer_details = models.TextField(blank=True, null=True)
+
+    # Page 1 — Time served
+    served_time = models.TimeField(blank=True, null=True)
+
+    # Page 1 — Document table
+    document_1_name = models.CharField(max_length=255, blank=True, null=True)
+    document_1_author = models.CharField(max_length=255, blank=True, null=True)
+    document_1_date = models.DateField(blank=True, null=True)
+
+    document_2_name = models.CharField(max_length=255, blank=True, null=True)
+    document_2_author = models.CharField(max_length=255, blank=True, null=True)
+    document_2_date = models.DateField(blank=True, null=True)
+
+    document_3_name = models.CharField(max_length=255, blank=True, null=True)
+    document_3_author = models.CharField(max_length=255, blank=True, null=True)
+    document_3_date = models.DateField(blank=True, null=True)
+
+    document_4_name = models.CharField(max_length=255, blank=True, null=True)
+    document_4_author = models.CharField(max_length=255, blank=True, null=True)
+    document_4_date = models.DateField(blank=True, null=True)
+
+    document_5_name = models.CharField(max_length=255, blank=True, null=True)
+    document_5_author = models.CharField(max_length=255, blank=True, null=True)
+    document_5_date = models.DateField(blank=True, null=True)
+
+    # Page 1 — Main service method checkboxes
+    service_special = models.BooleanField(default=False)
+    service_mail = models.BooleanField(default=False)
+    service_same_day_courier = models.BooleanField(default=False)
+    service_next_day_courier = models.BooleanField(default=False)
+    service_document_exchange = models.BooleanField(default=False)
+    service_electronic_document_exchange = models.BooleanField(default=False)
+    service_fax = models.BooleanField(default=False)
+    service_email = models.BooleanField(default=False)
+    service_substituted = models.BooleanField(default=False)
+
+    # Page 2 — Special Service
+    special_service_place = models.CharField(max_length=255, blank=True, null=True)
+    special_service_left_with_person = models.BooleanField(default=False)
+    special_service_left_with_named_person = models.BooleanField(default=False)
+    special_service_named_person = models.CharField(max_length=255, blank=True, null=True)
+    special_service_accepted_in_writing = models.BooleanField(default=False)
+    special_service_lawyer_of_record = models.BooleanField(default=False)
+    special_service_officer_position = models.BooleanField(default=False)
+    special_service_officer_position_details = models.CharField(max_length=255, blank=True, null=True)
+    special_service_corporation_named = models.BooleanField(default=False)
+    special_service_prepaid_return_postcard = models.BooleanField(default=False)
+    special_service_sealed_envelope_residence = models.BooleanField(default=False)
+    special_service_adult_resident_name = models.CharField(max_length=255, blank=True, null=True)
+    special_service_other = models.BooleanField(default=False)
+    special_service_other_details = models.TextField(blank=True, null=True)
+
+    # Page 2 — Mail Service
+    mail_service_address = models.TextField(blank=True, null=True)
+    mail_address_place_of_business = models.BooleanField(default=False)
+    mail_address_lawyer_accepted = models.BooleanField(default=False)
+    mail_address_lawyer_record = models.BooleanField(default=False)
+    mail_address_home = models.BooleanField(default=False)
+    mail_address_recent_document = models.BooleanField(default=False)
+    mail_address_other = models.BooleanField(default=False)
+    mail_address_other_details = models.CharField(max_length=255, blank=True, null=True)
+
+    # Page 2 — Courier Service
+    courier_pickup_time = models.TimeField(blank=True, null=True)
+    courier_pickup_date = models.DateField(blank=True, null=True)
+    courier_service_name = models.CharField(max_length=255, blank=True, null=True)
+    courier_service_address = models.TextField(blank=True, null=True)
+    courier_address_place_of_business = models.BooleanField(default=False)
+    courier_address_lawyer_accepted = models.BooleanField(default=False)
+    courier_address_lawyer_record = models.BooleanField(default=False)
+    courier_address_home = models.BooleanField(default=False)
+    courier_address_recent_document = models.BooleanField(default=False)
+    courier_address_other = models.BooleanField(default=False)
+    courier_address_other_details = models.CharField(max_length=255, blank=True, null=True)
+
+    # Page 3 — Electronic / Alternative Service
+    document_exchange_service = models.BooleanField(default=False)
+    document_exchange_details = models.TextField(blank=True, null=True)
+    electronic_document_exchange_service = models.BooleanField(default=False)
+    electronic_document_exchange_details = models.TextField(blank=True, null=True)
+    fax_service = models.BooleanField(default=False)
+    fax_service_details = models.TextField(blank=True, null=True)
+    email_service = models.BooleanField(default=False)
+    email_service_details = models.TextField(blank=True, null=True)
+
+    # Page 3 — Court Order Service
+    service_order_date = models.DateField(blank=True, null=True)
+    service_order_substituted_service = models.BooleanField(default=False)
+    service_order_advertisement = models.BooleanField(default=False)
+    service_order_details = models.TextField(blank=True, null=True)
+
+    relationship_to_party = models.TextField(blank=True, null=True)
+    is_at_least_18 = models.BooleanField(default=False)
+    kilometres_travelled = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    service_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    travel_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    commissioner_municipality = models.CharField(max_length=255, blank=True, null=True)
+    commissioner_province = models.CharField(max_length=255, blank=True, null=True)
+    sworn_date = models.DateField(blank=True, null=True)
+    commissioner_name = models.CharField(max_length=255, blank=True, null=True)
+    signature = models.CharField(max_length=255, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+
+# ============================================================
+# FORM 36B — CERTIFICATE OF DIVORCE (SINGLE PAGE)
+# ============================================================
+class CertificateOfDivorce(SoftDeleteMixin, models.Model):
+    court_name = models.CharField(max_length=255, blank=True, null=True)
+    court_file_number = models.CharField(max_length=100, blank=True, null=True)
+    court_office_address = models.CharField(max_length=255, blank=True, null=True)
+    case_file = models.ForeignKey(
+        'CaseFile', on_delete=models.SET_NULL, blank=True, null=True,
+        related_name='certificates_of_divorce'
+    )
+
+    applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_address = models.TextField(blank=True, null=True)
+    applicant_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_lawyer_address = models.TextField(blank=True, null=True)
+
+    respondent_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_address = models.TextField(blank=True, null=True)
+    respondent_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_lawyer_address = models.TextField(blank=True, null=True)
+
+    marriage_place = models.CharField(max_length=255, blank=True, null=True)
+    marriage_date = models.DateField(blank=True, null=True)
+
+    divorce_order_date = models.DateField(blank=True, null=True)
+    divorce_effective_date = models.DateField(blank=True, null=True)
+
+    date_of_signature = models.DateField(blank=True, null=True)
+    clerk_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self):
+        return f"Certificate of Divorce: {self.court_file_number or self.id}"
+
+
+class DivorceOrder(SoftDeleteMixin, models.Model):
+    court_name = models.CharField(max_length=255, blank=True, null=True)
+    court_file_number = models.CharField(max_length=100, blank=True, null=True)
+    court_office_address = models.CharField(max_length=255, blank=True, null=True)
+    case_file = models.ForeignKey(
+        'CaseFile', on_delete=models.SET_NULL, blank=True, null=True,
+        related_name='divorce_orders'
+    )
+
+    judge_name = models.CharField(max_length=255, blank=True, null=True)
+    judge_title = models.CharField(max_length=255, blank=True, null=True)
+
+    applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_address = models.TextField(blank=True, null=True)
+    applicant_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_lawyer_address = models.TextField(blank=True, null=True)
+
+    respondent_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_address = models.TextField(blank=True, null=True)
+    respondent_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_lawyer_address = models.TextField(blank=True, null=True)
+
+    application_of_name = models.CharField(max_length=255, blank=True, null=True)
+    persons_in_court = models.TextField(blank=True, null=True)
+    evidence_submissions = models.TextField(blank=True, null=True)
+
+    marriage_place = models.CharField(max_length=255, blank=True, null=True)
+    marriage_date = models.DateField(blank=True, null=True)
+    divorce_effective_days = models.PositiveIntegerField(default=31, blank=True, null=True)
+    other_relief_details = models.TextField(blank=True, null=True)
+
+    date_of_order = models.DateField(blank=True, null=True)
+    date_of_signature = models.DateField(blank=True, null=True)
+    judge_or_clerk_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self):
+        return f"Divorce Order (Form 25A): {self.court_file_number or self.id}"
 
 
 class ComparisonNetFamilyPropertyHouseholdItem(models.Model):
@@ -960,6 +1309,10 @@ class PrintEvent(models.Model):
         ('financial_statement_131', 'Financial Statement - Property & Support (Form 13.1)'),
         ('net_family_property_13b', 'Net Family Property (Form 13B)'),
         ('comparison_nfp', 'Comparison of Net Family Property (Form 13C)'),
+        ('application_divorce_8a', 'Form 8A — Application (Divorce)'),
+        ('affidavit_service', 'Affidavit of Service (Form 6B)'),
+        ('certificate_of_divorce', 'Certificate of Divorce (Form 36B)'),
+        ('divorce_order', 'Divorce Order (Form 25A)'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='print_events')
@@ -1046,6 +1399,13 @@ class Invoice(models.Model):
         self.print_events.update(is_billed=True, billed_at=timezone.now())
 class Form131FinancialStatement(SoftDeleteMixin, models.Model):
     court_file_number = models.CharField(max_length=100, blank=True, null=True)
+    case_file = models.ForeignKey(
+        'CaseFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='form_131_financial_statements'
+    )
     applicant_name = models.CharField(max_length=255, blank=True, null=True)
     respondent_name = models.CharField(max_length=255, blank=True, null=True)
     draft = models.JSONField(blank=True, null=True)
@@ -1137,3 +1497,178 @@ class EmailSettings(models.Model):
             return True
         except cls.DoesNotExist:
             return True  # Default to enabled if not configured
+        
+#Application 8A
+
+class ApplicationDivorce8A(SoftDeleteMixin, models.Model):
+    case_file = models.ForeignKey(
+        "CaseFile",
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name="application_divorce_8a_forms"
+    )
+
+    # Page 1 — Court and parties
+    court_name = models.CharField(max_length=255, blank=True, null=True)
+    court_file_number = models.CharField(max_length=255, blank=True, null=True)
+    court_office_address = models.TextField(blank=True, null=True)
+
+    is_simple_divorce = models.BooleanField(default=False)
+    is_joint_application = models.BooleanField(default=False)
+
+    applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_address = models.TextField(blank=True, null=True)
+    applicant_phone_fax = models.CharField(max_length=255, blank=True, null=True)
+    applicant_email = models.EmailField(blank=True, null=True)
+
+    applicant_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_lawyer_address = models.TextField(blank=True, null=True)
+    applicant_lawyer_phone_fax = models.CharField(max_length=255, blank=True, null=True)
+    applicant_lawyer_email = models.EmailField(blank=True, null=True)
+
+    respondent_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_address = models.TextField(blank=True, null=True)
+    respondent_phone_fax = models.CharField(max_length=255, blank=True, null=True)
+    respondent_email = models.EmailField(blank=True, null=True)
+
+    respondent_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_lawyer_address = models.TextField(blank=True, null=True)
+    respondent_lawyer_phone_fax = models.CharField(max_length=255, blank=True, null=True)
+    respondent_lawyer_email = models.EmailField(blank=True, null=True)
+
+    # Page 2
+    date_of_issue = models.DateField(blank=True, null=True)
+    joint_application_details = models.TextField(blank=True, null=True)
+    clerk_name = models.CharField(max_length=255, blank=True, null=True)
+    clerk_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    # Page 3 — Family history
+    applicant_age = models.PositiveIntegerField(blank=True, null=True)
+    applicant_birthdate = models.DateField(blank=True, null=True)
+    applicant_resident_in = models.CharField(max_length=255, blank=True, null=True)
+    applicant_first_name_before_marriage = models.CharField(max_length=255, blank=True, null=True)
+    applicant_last_name_before_marriage = models.CharField(max_length=255, blank=True, null=True)
+    applicant_gender = models.CharField(max_length=100, blank=True, null=True)
+    applicant_divorced_before = models.BooleanField(default=False)
+    applicant_previous_divorce_details = models.TextField(blank=True, null=True)
+    applicant_resided_ontario_one_year = models.BooleanField(default=False)
+
+    respondent_age = models.PositiveIntegerField(blank=True, null=True)
+    respondent_birthdate = models.DateField(blank=True, null=True)
+    respondent_resident_in = models.CharField(max_length=255, blank=True, null=True)
+    respondent_first_name_before_marriage = models.CharField(max_length=255, blank=True, null=True)
+    respondent_last_name_before_marriage = models.CharField(max_length=255, blank=True, null=True)
+    respondent_gender = models.CharField(max_length=100, blank=True, null=True)
+    respondent_divorced_before = models.BooleanField(default=False)
+    respondent_previous_divorce_details = models.TextField(blank=True, null=True)
+    respondent_resided_ontario_one_year = models.BooleanField(default=False)
+
+    married_on = models.DateField(blank=True, null=True)
+    started_living_together_on = models.DateField(blank=True, null=True)
+    separated_on = models.DateField(blank=True, null=True)
+    never_lived_together = models.BooleanField(default=False)
+
+    children_details = models.TextField(blank=True, null=True)
+
+    previous_court_case = models.BooleanField(default=False)
+    previous_written_agreement = models.BooleanField(default=False)
+    previous_agreement_details = models.TextField(blank=True, null=True)
+
+    # Page 4 — Claims
+    notice_of_calculation_issued = models.BooleanField(default=False)
+    notice_of_calculation_details = models.TextField(blank=True, null=True)
+    asking_different_child_support = models.BooleanField(default=False)
+    different_child_support_explanation = models.TextField(blank=True, null=True)
+
+    claim_divorce = models.BooleanField(default=False)
+    claim_spousal_support = models.BooleanField(default=False)
+    claim_child_support_table = models.BooleanField(default=False)
+    claim_child_support_other = models.BooleanField(default=False)
+    claim_decision_making = models.BooleanField(default=False)
+    claim_parenting_time = models.BooleanField(default=False)
+
+    claim_support_child_table_family_law = models.BooleanField(default=False)
+    claim_support_child_other_family_law = models.BooleanField(default=False)
+    claim_restraining_order = models.BooleanField(default=False)
+    claim_indexing_spousal_support = models.BooleanField(default=False)
+    claim_declaration_parentage = models.BooleanField(default=False)
+    claim_guardianship_child_property = models.BooleanField(default=False)
+
+    claim_property_equalization = models.BooleanField(default=False)
+    claim_exclusive_possession_home = models.BooleanField(default=False)
+    claim_exclusive_possession_contents = models.BooleanField(default=False)
+    claim_freezing_assets = models.BooleanField(default=False)
+    claim_sale_family_property = models.BooleanField(default=False)
+
+    claim_costs = models.BooleanField(default=False)
+    claim_annulment = models.BooleanField(default=False)
+    claim_prejudgment_interest = models.BooleanField(default=False)
+    claim_other = models.BooleanField(default=False)
+    other_claims = models.TextField(blank=True, null=True)
+
+    simple_claim_divorce = models.BooleanField(default=False)
+    simple_claim_costs = models.BooleanField(default=False)
+
+    divorce_ground_separation = models.BooleanField(default=False)
+    separation_date = models.DateField(blank=True, null=True)
+    not_lived_together_since = models.BooleanField(default=False)
+    lived_together_attempt_reconcile = models.BooleanField(default=False)
+    lived_together_periods = models.TextField(blank=True, null=True)
+
+    divorce_ground_adultery = models.BooleanField(default=False)
+    adultery_spouse_name = models.CharField(max_length=255, blank=True, null=True)
+    adultery_details = models.TextField(blank=True, null=True)
+
+    # Page 5
+    divorce_ground_cruelty = models.BooleanField(default=False)
+    cruelty_spouse_name = models.CharField(max_length=255, blank=True, null=True)
+    cruelty_victim_name = models.CharField(max_length=255, blank=True, null=True)
+    cruelty_details = models.TextField(blank=True, null=True)
+
+    joint_orders_details = models.TextField(blank=True, null=True)
+    important_facts_supporting_claims = models.TextField(blank=True, null=True)
+
+    applicant_certificate_confirmed = models.BooleanField(default=False)
+    applicant_signature = models.CharField(max_length=255, blank=True, null=True)
+    applicant_signature_date = models.DateField(blank=True, null=True)
+
+    joint_applicant_signature_1 = models.CharField(max_length=255, blank=True, null=True)
+    joint_applicant_signature_1_date = models.DateField(blank=True, null=True)
+
+    joint_applicant_signature_2 = models.CharField(max_length=255, blank=True, null=True)
+    joint_applicant_signature_2_date = models.DateField(blank=True, null=True)
+
+    # Page 6 — Lawyer certificate
+    applicant_lawyer_certificate_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_lawyer_certificate_date = models.DateField(blank=True, null=True)
+    applicant_lawyer_certificate_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    respondent_lawyer_certificate_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_lawyer_certificate_date = models.DateField(blank=True, null=True)
+    respondent_lawyer_certificate_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    # Extra/flexible fields
+    filing_date = models.DateField(blank=True, null=True)
+    place_of_filing = models.CharField(max_length=255, blank=True, null=True)
+    filing_notes = models.TextField(blank=True, null=True)
+    additional_notes = models.TextField(blank=True, null=True)
+    special_filing_instructions = models.TextField(blank=True, null=True)
+
+    marriage_certificate = models.FileField(upload_to="form8a/marriage_certificates/", blank=True, null=True)
+    financial_statement_attachment = models.FileField(upload_to="form8a/financial_statements/", blank=True, null=True)
+    other_supporting_documents = models.FileField(upload_to="form8a/supporting_documents/", blank=True, null=True)
+
+    review_confirmed = models.BooleanField(default=False)
+    documents_complete = models.BooleanField(default=False)
+    is_completed = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Form 8A Application Divorce"
+        verbose_name_plural = "Form 8A Application Divorce"
+
+    def __str__(self):
+        return f"Form 8A - {self.applicant_name or 'Applicant'} v {self.respondent_name or 'Respondent'}"

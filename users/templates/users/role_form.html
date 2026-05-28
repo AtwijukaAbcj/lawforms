@@ -99,11 +99,20 @@
         <div class="rf-perm-grid">
           {% for permission in module.permissions.all %}
           <div class="rf-perm-item">
-            <label>
-              <input type="checkbox" name="permissions" value="{{ permission.id }}"
-                {% if permission in selected_permissions %}checked{% endif %}>
-              <span>{{ permission.name }}</span>
+
+            <label class="rf-perm-check">
+
+              <input type="checkbox"
+                    name="permissions"
+                    value="{{ permission.id }}"
+                    {% if permission in selected_permissions %}checked{% endif %}>
+
+              <span>
+                {{ permission.get_permission_type_display }}
+              </span>
+
             </label>
+
           </div>
           {% endfor %}
         </div>

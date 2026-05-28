@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Printed Copy Not Supported{% endblock %}
+{% block header %}Printed Copy Not Supported{% endblock %}
+{% block subheader %}The requested printed copy type is not available for this print history record{% endblock %}
+
+{% block content %}
+<style>
+  .pnf-card {
+    background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 10px;
+    padding: 28px 24px; max-width: 520px;
+  }
+  .pnf-title { font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 8px; }
+  .pnf-msg { font-size: 13px; color: #475569; margin-bottom: 18px; }
+  .pnf-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px; background: #1e293b; color: #fff; border-radius: 7px;
+    font-size: 13px; font-weight: 600; text-decoration: none; transition: background .15s;
+  }
+  .pnf-btn:hover { background: #334155; color: #fff; text-decoration: none; }
+</style>
+
+<div class="pnf-card">
+  <div class="pnf-title">Printed Copy Not Supported</div>
+  <div class="pnf-msg">This print history record does not support a secured view-only copy for the selected form type.</div>
+  <a href="{% url 'billing_history' %}" class="pnf-btn">Back to Billing History</a>
+</div>
+{% endblock %}

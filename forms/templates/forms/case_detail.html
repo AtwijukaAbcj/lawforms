@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .page-wrap{ max-width:1180px; margin:22px auto 56px; padding:0 14px; }
+  .card{ border-radius:8px; background:#fff; box-shadow:0 6px 18px rgba(15,23,42,.06); overflow:hidden; }
+  .card-body{ padding:18px; }
+  .actions{ display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+  .actions .btn-modern { margin-bottom:8px; }
+  .btn-modern{ border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; color:#fff; border:none; cursor:pointer; }
+  .btn-primary-modern{ background:#1e293b; }
+  .btn-secondary-modern{ background:#64748b; }
+</style>
+
+<div class="page-wrap">
+  <div class="card">
+    <div class="card-body">
+      <h2>Case: {{ case.court_file_number|default:case.id }}</h2>
+      <p style="color:#475569; margin-top:6px;"><strong>{{ case.applicant_name|default:'Applicant' }}</strong> vs <strong>{{ case.respondent_name|default:'Respondent' }}</strong></p>
+
+      <div class="actions">
+        <a class="btn-modern btn-primary-modern" href="{% url 'net_family_property_13b_page1' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13B for case {{ case.id }}" tabindex="0">Create Form 13B</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'financial_statement_page1_new' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13 for case {{ case.id }}" tabindex="0">Create Form 13</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'financial_statement_131_page1_new' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13.1 for case {{ case.id }}" tabindex="0">Create Form 13.1</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'comparison_nfp_create' %}?case_id={{ case.id }}" role="button" aria-label="Create Comparison 13C for case {{ case.id }}" tabindex="0">Create Comparison 13C</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'net_family_property_create' %}?case_id={{ case.id }}" role="button" aria-label="Create Net Family Property for case {{ case.id }}" tabindex="0">Create Net Family Property</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'affidavit_service_page1' %}?case_id={{ case.id }}&variant=form_6b" role="button" aria-label="Create Form 6B for case {{ case.id }}" tabindex="0">Create Form 6B</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'affidavit_service_page1' %}?case_id={{ case.id }}&variant=form_8a" role="button" aria-label="Create Form 8A for case {{ case.id }}" tabindex="0">Create Form 8A</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'certificate_of_divorce_create' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 36B for case {{ case.id }}" tabindex="0">Create Form 36B</a>
+        <a class="btn-modern btn-secondary-modern" href="{% url 'divorce_order_create' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 25A for case {{ case.id }}" tabindex="0">Create Form 25A</a>
+        <form method="post" action="{% url 'case_push_to_forms' case.id %}" style="display:inline; margin-left:6px;">
+          {% csrf_token %}
+          <button class="btn-modern" type="submit" style="background:#0ea5a4;">Push Case → Forms</button>
+        </form>
+      </div>
+
+      <hr>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <h4 style="margin:0 0 6px 0;">Court</h4>
+          <div style="color:#475569">{{ case.court_name }} — {{ case.court_file_number }}</div>
+        </div>
+        <div>
+          <h4 style="margin:0 0 6px 0;">Updated</h4>
+          <div style="color:#475569">{{ case.updated_at|date:'Y-m-d H:i' }}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+        <div>
+          <h4 style="margin:0 0 6px 0;">Applicant</h4>
+          <div style="color:#475569">{{ case.applicant_name }}<br>{{ case.applicant_address }}</div>
+        </div>
+        <div>
+          <h4 style="margin:0 0 6px 0;">Respondent</h4>
+          <div style="color:#475569">{{ case.respondent_name }}<br>{{ case.respondent_address }}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <h3 style="margin:0 0 8px 0;">Linked Forms</h3>
+        <div class="card" style="margin-top:8px;">
+          <div class="card-body">
+            <table class="modern" style="width:100%;">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Ref</th>
+                  <th style="width:160px;">Updated</th>
+                  <th style="width:120px; text-align:right;">View</th>
+                  <th style="width:120px; text-align:right;">Print</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cert in case.certificates_of_divorce.all %}
+                <tr>
+                  <td>Form 36B — Certificate of Divorce</td>
+                  <td>#{{ cert.id }}</td>
+                  <td>{{ cert.updated_at|date:'Y-m-d H:i' }}</td>
+                  <td style="text-align:right;"><a class="btn-modern btn-secondary-modern" href="{% url 'certificate_of_divorce_view' cert.pk %}" role="button" aria-label="View Certificate of Divorce {{ cert.id }}" tabindex="0">View</a></td>
+                  <td style="text-align:right;"><a class="btn-modern btn-secondary-modern" href="{% url 'certificate_of_divorce_print' cert.pk %}" target="_blank" role="button" aria-label="Print Certificate of Divorce {{ cert.id }}" tabindex="0">Print</a></td>
+                </tr>
+                {% endfor %}
+
+                {% for order in case.divorce_orders.all %}
+                <tr>
+                  <td>Form 25A — Divorce Order</td>
+                  <td>#{{ order.id }}</td>
+                  <td>{{ order.updated_at|date:'Y-m-d H:i' }}</td>
+                  <td style="text-align:right;"><a class="btn-modern btn-secondary-modern" href="{% url 'divorce_order_view' order.pk %}" role="button" aria-label="View Divorce Order {{ order.id }}" tabindex="0">View</a></td>
+                  <td style="text-align:right;"><a class="btn-modern btn-secondary-modern" href="{% url 'divorce_order_print' order.pk %}" target="_blank" role="button" aria-label="Print Divorce Order {{ order.id }}" tabindex="0">Print</a></td>
+                </tr>
+                {% endfor %}
+
+                {% for a in case.affidavits_of_service.all %}
+                <tr>
+                  <td>Affidavit of Service — {{ a.variant|default:'Affidavit' }}</td>
+                  <td>#{{ a.id }}</td>
+                  <td>{{ a.updated_at|date:'Y-m-d H:i' }}</td>
+                  <td style="text-align:right;"><a class="btn-modern btn-secondary-modern" href="{% url 'affidavit_service_view' a.pk %}" role="button" aria-label="View Affidavit {{ a.id }}" tabindex="0">View</a></td>
+                  <td style="text-align:right;"><a class="btn-modern btn-secondary-modern" href="{% url 'affidavit_service_print' a.pk %}" target="_blank" role="button" aria-label="Print Affidavit {{ a.id }}" tabindex="0">Print</a></td>
+                </tr>
+                {% endfor %}
+                {% if not case.certificates_of_divorce.exists and not case.divorce_orders.exists and not case.affidavits_of_service.exists %}
+                <tr><td colspan="5" style="padding:14px; text-align:center; color:#64748b;">No forms are linked to this case yet.</td></tr>
+                {% endif %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}

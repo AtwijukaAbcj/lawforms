@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+
+{% block title %}Form 25A — View{% endblock %}
+{% block header %}Form 25A — Divorce Order{% endblock %}
+{% block subheader %}Review saved divorce order details{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-start gap-3">
+  <div>
+    <h2 class="mb-1">Divorce Order</h2>
+    <p class="text-muted mb-0">Court File No. {{ order.court_file_number|default:'—' }}</p>
+  </div>
+  <div class="btn-group" role="group" aria-label="Order actions">
+    <a href="{% url 'divorce_order_list' %}" class="btn btn-outline-secondary">← List</a>
+    <a href="{% url 'divorce_order_page' order.pk %}" class="btn btn-outline-primary">Edit</a>
+    <a href="{% url 'divorce_order_print' order.pk %}" class="btn btn-dark">Print</a>
+  </div>
+</div>
+
+<div class="row gy-4">
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5>Court Information</h5>
+        <p class="text-muted">Court details and file number.</p>
+        <dl class="row">
+          <dt class="col-4">Court Name</dt><dd class="col-8">{{ order.court_name|default:'Not provided' }}</dd>
+          <dt class="col-4">File Number</dt><dd class="col-8">{{ order.court_file_number|default:'Not provided' }}</dd>
+          <dt class="col-4">Office Address</dt><dd class="col-8">{{ order.court_office_address|default:'Not provided' }}</dd>
+          <dt class="col-4">Judge</dt><dd class="col-8">{{ order.judge_name|default:'Not provided' }} {{ order.judge_title|default:'' }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-6">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5>Application & Marriage</h5>
+        <p class="text-muted">Parties, application details and marriage information.</p>
+        <dl class="row">
+          <dt class="col-4">Applicant</dt><dd class="col-8">{{ order.applicant_name|default:'Not provided' }}</dd>
+          <dt class="col-4">Respondent</dt><dd class="col-8">{{ order.respondent_name|default:'Not provided' }}</dd>
+          <dt class="col-4">Marriage Place</dt><dd class="col-8">{{ order.marriage_place|default:'Not provided' }}</dd>
+          <dt class="col-4">Marriage Date</dt><dd class="col-8">{{ order.marriage_date|default:'Not provided' }}</dd>
+          <dt class="col-4">Effective Days</dt><dd class="col-8">{{ order.divorce_effective_days|default:'Not provided' }}</dd>
+          <dt class="col-4">Application</dt><dd class="col-8">{{ order.application_of_name|default:'Not provided' }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5>Parties & Lawyers</h5>
+        <div class="row gy-3">
+          <div class="col-12 col-lg-6">
+            <strong>Applicant</strong>
+            <p class="mb-1">{{ order.applicant_name|default:'Not provided' }}</p>
+            <p class="text-muted small">{{ order.applicant_address|default:'Not provided' }}</p>
+          </div>
+          <div class="col-12 col-lg-6">
+            <strong>Respondent</strong>
+            <p class="mb-1">{{ order.respondent_name|default:'Not provided' }}</p>
+            <p class="text-muted small">{{ order.respondent_address|default:'Not provided' }}</p>
+          </div>
+          <div class="col-12 col-lg-6">
+            <strong>Applicant Lawyer</strong>
+            <p class="mb-1">{{ order.applicant_lawyer_name|default:'Not provided' }}</p>
+            <p class="text-muted small">{{ order.applicant_lawyer_address|default:'Not provided' }}</p>
+          </div>
+          <div class="col-12 col-lg-6">
+            <strong>Respondent Lawyer</strong>
+            <p class="mb-1">{{ order.respondent_lawyer_name|default:'Not provided' }}</p>
+            <p class="text-muted small">{{ order.respondent_lawyer_address|default:'Not provided' }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12">
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5>Order Details</h5>
+        <dl class="row">
+          <dt class="col-4">Evidence Submissions</dt><dd class="col-8">{{ order.evidence_submissions|default:'Not provided' }}</dd>
+          <dt class="col-4">Other Relief</dt><dd class="col-8">{{ order.other_relief_details|default:'Not provided' }}</dd>
+          <dt class="col-4">Date of Order</dt><dd class="col-8">{{ order.date_of_order|default:'Not provided' }}</dd>
+          <dt class="col-4">Date of Signature</dt><dd class="col-8">{{ order.date_of_signature|default:'Not provided' }}</dd>
+          <dt class="col-4">Judge/Clerk Signature</dt><dd class="col-8">{{ order.judge_or_clerk_signature|default:'Not provided' }}</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

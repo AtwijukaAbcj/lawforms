@@ -1,0 +1,436 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 6B — Affidavit of Service — Page 2{% endblock %}
+{% block header %}Form 6B — Affidavit of Service{% endblock %}
+{% block subheader %}Page 2 — Special Service, Mail and Courier{% endblock %}
+
+{% block content %}
+
+<style>
+  .form6b-wrap{
+    max-width:980px;
+    margin:0 auto;
+    background:#fff;
+    padding:24px 28px;
+    border:1px solid #d8dee9;
+    font-size:12px;
+    color:#000;
+  }
+
+  .form6b-top{
+    display:grid;
+    grid-template-columns:1fr 220px;
+    gap:20px;
+    align-items:start;
+    border-bottom:2px solid #333;
+    padding-bottom:6px;
+    margin-bottom:8px;
+  }
+
+  .form6b-title{
+    font-weight:800;
+    display:flex;
+    gap:35px;
+  }
+
+  .form6b-page{
+    text-align:center;
+    font-weight:800;
+  }
+
+  .file-box{
+    border:2px solid #333;
+    padding:5px;
+  }
+
+  .file-box label{
+    font-size:11px;
+    font-weight:700;
+    display:block;
+  }
+
+  .form6b-input{
+    width:100%;
+    border:0;
+    border-bottom:1px solid #333;
+    background:#eef3ff;
+    min-height:24px;
+    padding:2px 5px;
+    border-radius:0;
+    font-size:12px;
+  }
+
+  .form6b-textarea{
+    width:100%;
+    border:1px solid #333;
+    background:#eef3ff;
+    min-height:24px;
+    padding:3px 5px;
+    resize:vertical;
+    border-radius:0;
+    font-size:12px;
+  }
+
+  .para{
+    margin:10px 0;
+    line-height:1.35;
+  }
+
+  .para-num{
+    font-weight:800;
+    margin-right:8px;
+  }
+
+  .service-grid{
+    display:grid;
+    grid-template-columns:80px 1fr;
+    gap:10px;
+    margin-top:8px;
+  }
+
+  .left-note{
+    font-size:11px;
+    font-style:italic;
+    line-height:1.15;
+  }
+
+  .option{
+    display:flex;
+    align-items:flex-start;
+    gap:6px;
+    margin-bottom:6px;
+  }
+
+  .option input{
+    margin-top:2px;
+  }
+
+  .inline-field{
+    display:inline-block;
+    min-width:220px;
+    vertical-align:middle;
+  }
+
+  .small-field{
+    display:inline-block;
+    width:120px;
+    vertical-align:middle;
+  }
+
+  .long-field{
+    display:inline-block;
+    width:100%;
+    margin-top:3px;
+  }
+
+  em{
+    font-size:11px;
+  }
+
+  .address-options{
+    display:grid;
+    grid-template-columns:80px 1fr;
+    gap:10px;
+    margin-top:6px;
+  }
+
+  .actions{
+    display:flex;
+    justify-content:space-between;
+    margin-top:24px;
+  }
+
+  @media(max-width:800px){
+    .form6b-top,
+    .service-grid,
+    .address-options{
+      grid-template-columns:1fr;
+    }
+
+    .inline-field,
+    .small-field{
+      width:100%;
+      display:block;
+      margin-top:4px;
+    }
+  }
+</style>
+
+<form method="post">
+  {% csrf_token %}
+
+  <div class="form6b-wrap">
+
+    <div class="form6b-top">
+
+      <div>
+        <div class="form6b-title">
+          <span>Form 6B:</span>
+          <span>Affidavit of Service</span>
+        </div>
+
+        <div style="margin-top:8px;">
+          sworn/affirmed
+          <span class="inline-field">
+            {{ form.sworn_affirmed|add_class:"form6b-input" }}
+          </span>
+        </div>
+      </div>
+
+      <div>
+        <div class="form6b-page">(page 2)</div>
+
+        <div class="file-box">
+          <label>Court File Number</label>
+          {{ form.court_file_number|add_class:"form6b-input" }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 3. SPECIAL SERVICE -->
+    <div class="para">
+      <span class="para-num">3.</span>
+      I carried out special service of the document(s) on the person named in paragraph 1 at
+      <em>(place or address)</em>
+      <span class="long-field">
+        {{ form.special_service_place|add_class:"form6b-input" }}
+      </span>
+    </div>
+
+    <div class="service-grid">
+
+      <div class="left-note">
+        Check one box only. Strike out paragraphs 4 to 10 and go to paragraph 11.
+      </div>
+
+      <div>
+
+        <div style="font-weight:700; margin-bottom:6px;">by:</div>
+
+        <label class="option">
+          {{ form.special_service_left_with_person }}
+          <span>leaving a copy with the person.</span>
+        </label>
+
+        <label class="option">
+          {{ form.special_service_left_with_named_person }}
+          <span>
+            leaving a copy with <em>(name)</em>
+            {{ form.special_service_named_person|add_class:"form6b-input" }}
+          </span>
+        </label>
+
+        <label class="option">
+          {{ form.special_service_accepted_in_writing }}
+          <span>who is a lawyer who accepted service in writing on a copy of the document.</span>
+        </label>
+
+        <label class="option">
+          {{ form.special_service_lawyer_of_record }}
+          <span>who is the person’s lawyer of record.</span>
+        </label>
+
+        <label class="option">
+          {{ form.special_service_officer_position }}
+          <span>
+            who is the <em>(office or position)</em>
+            {{ form.special_service_officer_position_details|add_class:"form6b-input" }}
+            of the corporation named in paragraph 1.
+          </span>
+        </label>
+
+        <label class="option">
+          {{ form.special_service_prepaid_return_postcard }}
+          <span>
+            mailing a copy to the person together with a prepaid return postcard in Form 6
+            in an envelope bearing the sender’s return address. This postcard, in which receipt
+            of the document(s) is acknowledged, was returned and is attached to this affidavit.
+          </span>
+        </label>
+
+        <label class="option">
+          {{ form.special_service_sealed_envelope_residence }}
+          <span>
+            leaving a copy in a sealed envelope addressed to the person at the person’s place
+            of residence with <em>(name)</em>
+            {{ form.special_service_adult_resident_name|add_class:"form6b-input" }}
+            who provided me with identification to show that he/she was an adult person residing
+            at the same address and who mailed another copy of the same document(s) on the same
+            or following day to the person named in paragraph 1 at that place of residence.
+          </span>
+        </label>
+
+        <label class="option">
+          {{ form.special_service_other }}
+          <span>other <em>(Specify. See rule 6 for details.)</em></span>
+        </label>
+
+        {{ form.special_service_other_details|add_class:"form6b-textarea"|attr:"rows:5" }}
+
+      </div>
+
+    </div>
+
+    <!-- 4. MAIL SERVICE -->
+    <div class="para">
+      <span class="para-num">4.</span>
+      I mailed the document(s) to be served by addressing the covering envelope to the person
+      named in paragraph 1 at:
+      <br>
+      <em>(Set out address.)</em>
+      {{ form.mail_service_address|add_class:"form6b-input" }}
+    </div>
+
+    <div class="address-options">
+
+      <div class="left-note">
+        Check appropriate paragraph and strike out paragraphs 3, 5, 6, 7, 8, 9 and 10.
+      </div>
+
+      <div>
+
+        <div style="margin-bottom:5px;">which is the address</div>
+
+        <label class="option">
+          {{ form.mail_address_place_of_business }}
+          <span>of the person’s place of business.</span>
+        </label>
+
+        <label class="option">
+          {{ form.mail_address_lawyer_accepted }}
+          <span>of a lawyer who accepted service on the person’s behalf.</span>
+        </label>
+
+        <label class="option">
+          {{ form.mail_address_lawyer_record }}
+          <span>of the person’s lawyer of record.</span>
+        </label>
+
+        <label class="option">
+          {{ form.mail_address_home }}
+          <span>of the person’s home.</span>
+        </label>
+
+        <label class="option">
+          {{ form.mail_address_recent_document }}
+          <span>on the document most recently filed in court by the person.</span>
+        </label>
+
+        <label class="option">
+          {{ form.mail_address_other }}
+          <span>
+            other <em>(Specify.)</em>
+            {{ form.mail_address_other_details|add_class:"form6b-input" }}
+          </span>
+        </label>
+
+      </div>
+
+    </div>
+
+    <!-- 5. COURIER SERVICE -->
+    <div class="para">
+      <span class="para-num">5.</span>
+      The document(s) to be served was/were placed in an envelope that was picked up at
+
+      <span class="small-field">
+        {{ form.courier_pickup_time|add_class:"form6b-input"|attr:"type:time" }}
+      </span>
+
+      on <em>(date)</em>
+
+      <span class="small-field">
+        {{ form.courier_pickup_date|add_class:"form6b-input"|attr:"type:date" }}
+      </span>
+
+      by <em>(name of courier service)</em>
+
+      <span class="inline-field">
+        {{ form.courier_service_name|add_class:"form6b-input" }}
+      </span>
+
+      <br>
+      a private courier service, a copy of whose receipt is attached to this affidavit.
+      The envelope was addressed to the person named in paragraph 1 at:
+      <br>
+      <em>(Set out address.)</em>
+      {{ form.courier_service_address|add_class:"form6b-input" }}
+    </div>
+
+    <div class="address-options">
+
+      <div class="left-note">
+        Check appropriate paragraph and strike out paragraphs 3, 4, 6, 7, 8, 9 and 10.
+      </div>
+
+      <div>
+
+        <div style="margin-bottom:5px;">which is the address</div>
+
+        <label class="option">
+          {{ form.courier_address_place_of_business }}
+          <span>of the person’s place of business.</span>
+        </label>
+
+        <label class="option">
+          {{ form.courier_address_lawyer_accepted }}
+          <span>of a lawyer who accepted service on the person’s behalf.</span>
+        </label>
+
+        <label class="option">
+          {{ form.courier_address_lawyer_record }}
+          <span>of the person’s lawyer of record.</span>
+        </label>
+
+        <label class="option">
+          {{ form.courier_address_home }}
+          <span>of the person’s home.</span>
+        </label>
+
+        <label class="option">
+          {{ form.courier_address_recent_document }}
+          <span>on the document most recently filed in court by the person.</span>
+        </label>
+
+        <label class="option">
+          {{ form.courier_address_other }}
+          <span>
+            other <em>(Specify.)</em>
+            {{ form.courier_address_other_details|add_class:"form6b-input" }}
+          </span>
+        </label>
+
+      </div>
+
+    </div>
+
+    <div class="actions">
+
+      <a href="{% url 'affidavit_service_page1_edit' affidavit.id %}"
+         class="btn btn-light border">
+        ← Back
+      </a>
+
+      <div class="d-flex gap-2">
+
+        <a href="{% url 'affidavit_service_view' affidavit.id %}"
+           class="btn btn-outline-dark">
+          Preview
+        </a>
+
+        <button type="submit"
+                class="btn btn-primary px-4">
+          Save & Continue →
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</form>
+
+{% endblock %}

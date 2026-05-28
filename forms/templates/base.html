@@ -53,14 +53,36 @@
       width: var(--sidebar-w);
       background: #1e293b;
       color: #cbd5e1;
-      display: flex;
-      flex-direction: column;
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       height: 100vh;
       z-index: 1040;
       border-right: 1px solid #0f172a;
+
+      display: block;
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: thin;
+      scrollbar-color: #475569 transparent;
     }
+
+    .sidebar .nav{
+      flex: none;
+      overflow: visible;
+      padding: 0 10px;
+    }
+
+    .nav-grid{
+      padding: 0 10px 16px;
+    }
+
+    .sidebar-user{
+      position: static;
+      padding: 12px 16px;
+      border-top: 1px solid rgba(255,255,255,0.07);
+    }
+ 
 
     .sidebar .brand{
       padding: 20px 18px 16px;
@@ -90,6 +112,7 @@
     .sidebar .nav{
       flex: 1;
       overflow-y: auto;
+      overflow-x: hidden;
       padding: 0 10px;
     }
 
@@ -105,6 +128,9 @@
       transition: var(--transition);
       margin-bottom: 1px;
       text-decoration: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .sidebar .nav-link:hover{ background: rgba(255,255,255,0.06); color: #f1f5f9; }
     .sidebar .nav-link.active{ background: rgba(255,255,255,0.1); color: #f1f5f9; font-weight: 600; }
@@ -118,13 +144,7 @@
     }
 
     /* Quick access grid */
-    .nav-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 6px;
-      padding: 0 10px;
-      margin-top: 6px;
-    }
+
     .nav-grid-item {
       display: flex;
       flex-direction: column;
@@ -157,10 +177,6 @@
     .nav-grid-item.admin .nav-grid-icon    { background: rgba(100,116,139,0.2); }
 
     /* User section */
-    .sidebar-user {
-      padding: 12px 16px;
-      border-top: 1px solid rgba(255,255,255,0.07);
-    }
     .sidebar-user-info { display: flex; align-items: center; gap: 10px; }
     .sidebar-user-avatar {
       width: 34px; height: 34px;
@@ -760,6 +776,64 @@
     /* ── Uniform form shell max-width ── */
     .form-shell { max-width: 1100px !important; margin: 0 auto !important; }
 
+    /* New form sidebar layout */
+    .form-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    .form-sidebar {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      position: sticky;
+      top: 90px;
+      max-height: calc(100vh - 120px);
+      overflow: auto;
+    }
+    .form-sidebar h3 {
+      margin-top: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .form-sidebar .sidebar-item {
+      margin-bottom: 18px;
+    }
+    .form-sidebar .sidebar-item-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+    .form-sidebar .sidebar-item-text {
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .form-sidebar .sidebar-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: white;
+      border: 1px solid var(--line);
+      text-decoration: none;
+      color: var(--text);
+      font-size: 13px;
+      transition: var(--transition);
+    }
+    .form-sidebar .sidebar-link:hover {
+      background: #eef2ff;
+      border-color: #c7d2fe;
+    }
+
+    @media (min-width: 992px) {
+      .form-layout { grid-template-columns: 1.4fr 0.6fr; }
+    }
+
     /* Toast notifications */
     .toast-container {
       position: fixed;
@@ -777,6 +851,53 @@
       font-size: 13px; font-weight: 500;
     }
     .animate-in { animation: none; }
+    
+    /* ── Shared form view styles (used by Form 6B, 8A, and similar view pages) ── */
+    .form-view-wrap { max-width: 1100px; margin: 0 auto; }
+    .form-view-topbar {
+      position: sticky; top: 0; z-index: 100; background: var(--card);
+      border-bottom: 2px solid #e2e8f0; padding: 12px 0 10px; margin-bottom: 28px;
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+    }
+    .form-view-topbar-left { display:flex; flex-direction:column; gap:3px; }
+    .form-view-badge { display:inline-flex; align-items:center; gap:8px; font-size:11px; font-weight:700; color:#b8892a; text-transform:uppercase; }
+    .form-view-title { font-size:20px; font-weight:800; color:var(--text); margin:0; }
+    .form-view-file { font-size:12px; color:var(--text-secondary); font-family: 'Courier New', monospace; margin:0; }
+    .form-view-actions { display:flex; gap:8px; }
+
+    .form-view-card { background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-bottom:18px; }
+    .form-view-card-head { display:flex; align-items:center; gap:10px; padding:12px 16px; background:#0f172a; color:#fff; }
+    .form-view-card-icon { width:26px; height:26px; background:rgba(255,255,255,0.08); border-radius:6px; display:flex; align-items:center; justify-content:center; }
+    .form-view-card-title { font-size:12px; font-weight:700; text-transform:uppercase; margin:0; }
+    .form-view-card-body { padding:16px; }
+
+    .form-view-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px 24px; }
+    .form-view-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px 24px; }
+    .form-view-field { display:flex; flex-direction:column; gap:4px; }
+    .form-view-label { font-size:11px; font-weight:700; text-transform:uppercase; color:var(--text-secondary); }
+    .form-view-value { font-size:14px; font-weight:500; color:var(--text); }
+    .form-view-value.empty { color:#bbb; font-style:italic; font-weight:400; }
+
+    /* Form view buttons */
+    .form-view-btn-edit { padding:8px 16px; border-radius:6px; border:1.5px solid #1e293b; background:#fff; color:#1e293b; font-weight:600; text-decoration:none; }
+    .form-view-btn-edit:hover { background:#1e293b; color:#fff; }
+    .form-view-btn-print { padding:8px 16px; border-radius:6px; border:1.5px solid #1e293b; background:#1e293b; color:#fff; font-weight:600; text-decoration:none; }
+    .form-view-btn-print:hover { background:#334155; }
+    .form-view-btn-back { padding:8px 16px; border-radius:6px; border:1.5px solid var(--line); background:#f8fafc; color:var(--text-secondary); font-weight:600; text-decoration:none; }
+    .form-view-btn-back:hover { color:var(--text); }
+    /* Additional form-view utilities used by specific form view templates */
+    .form-view-party-pair { display:flex; gap:18px; flex-wrap:wrap; }
+    .form-view-party-col { flex:1; min-width:220px; }
+    .form-view-party-head { font-weight:700; color:var(--text); margin-bottom:8px; }
+    .form-view-method-badge { background:#f1f5f9; border:1px solid var(--line); padding:6px 10px; border-radius:999px; font-weight:600; color:var(--text-secondary); font-size:13px; }
+    .form-view-doc-table { width:100%; border-collapse:collapse; margin-top:6px; }
+    .form-view-doc-table th { text-align:left; font-weight:700; padding:8px 6px; background:transparent; color:var(--text-secondary); border-bottom:1px solid var(--line); }
+    .form-view-doc-table td { padding:8px 6px; border-bottom:1px dashed var(--line); color:var(--text); }
+    .form-view-note { background:#f8fafc; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:13px; color:var(--text-secondary); }
+    .form-view-full { grid-column: 1 / -1; }
+    .form-view-value.mono { font-family: 'Courier New', monospace; }
+    .form-view-oath { display:flex; gap:18px; align-items:flex-start; }
+    .form-view-oath-right { margin-left:auto; color:var(--text-secondary); max-width:360px; font-size:13px; }
   </style>
 </head>
 
@@ -807,6 +928,11 @@
           </a>
         </li>
         {% endif %}
+                <li class="nav-item">
+          <a class="nav-link" href="{% url 'case_list' %}">
+            <span class="nav-icon">🗂️</span> Cases
+          </a>
+        </li>
         {% if user_modules.financial_statement or request.user.is_superuser %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'financial_statement_list' %}">
@@ -814,6 +940,11 @@
           </a>
         </li>
         {% endif %}
+        <!-- <li class="nav-item">
+          <a class="nav-link" href="{% url 'net_family_property_create' %}">
+            <span class="nav-icon">🏡</span> Net Family Property Statement
+          </a>
+        </li> -->
         {% if user_modules.net_family_property_13b or request.user.is_superuser %}
         <li class="nav-item">
           <a class="nav-link" href="{% url 'net_family_property_13b_list' %}">
@@ -823,7 +954,7 @@
         {% endif %}
         {% if user_modules.comparison_nfp or request.user.is_superuser %}
         <li class="nav-item">
-          <a class="nav-link" href="/forms/comparison-nfp/">
+          <a class="nav-link" href="{% url 'comparison_nfp_list' %}">
             <span class="nav-icon">📊</span> Comparison NFP (13C)
           </a>
         </li>
@@ -832,6 +963,34 @@
         <li class="nav-item">
           <a class="nav-link" href="{% url 'financial_statement_131_list' %}">
             <span class="nav-icon">📑</span> Financial Statement (13.1)
+          </a>
+        </li>
+        {% endif %}
+        {% if user_modules.application_divorce_8a or request.user.is_superuser %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'application_divorce_8a_list' %}">
+            <span class="nav-icon">📝</span>
+            Divorce Application (8A)
+          </a>
+        </li>
+        {% endif %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'certificate_of_divorce_list' %}">
+            <span class="nav-icon">📜</span>
+            Certificate of Divorce (36B)
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'divorce_order_list' %}">
+            <span class="nav-icon">🧾</span>
+            Divorce Order (25A)
+          </a>
+        </li>
+        {% if user_modules.affidavit_service or request.user.is_superuser %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'affidavit_service_list' %}">
+            <span class="nav-icon">📨</span>
+            Affidavit of Service (6B)
           </a>
         </li>
         {% endif %}

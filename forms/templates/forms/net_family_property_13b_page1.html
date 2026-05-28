@@ -515,8 +515,32 @@ table.pdf-table tbody tr:hover td{ background: rgba(var(--indigo), .06); transit
     </div>
 
     <div class="page-body">
+
+      {# Case selection / load from CaseFile - keep as a separate GET form to avoid nesting #}
+      {% if case_list %}
+        <div style="margin-bottom:12px; display:flex; gap:8px; align-items:center;">
+          <form method="get" style="display:flex; gap:8px; align-items:center;">
+            <label style="font-weight:700;">Select Case</label>
+            <select name="case_id" style="padding:6px 8px;">
+              <option value="">— None —</option>
+              {% for c in case_list %}
+                <option value="{{ c.id }}" {% if selected_case and selected_case.id == c.id %}selected{% endif %}>
+                  {{ c.court_file_number|default:"" }} — {{ c.applicant_name|default:"" }} vs {{ c.respondent_name|default:"" }}
+                </option>
+              {% endfor %}
+            </select>
+            <button type="submit" class="btn btn-secondary">Load Case</button>
+          </form>
+        </div>
+      {% endif %}
+
       <form method="post">
         {% csrf_token %}
+
+        {# Preserve selected case on POST #}
+        {% if selected_case %}
+          <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+        {% endif %}
 
         <!-- Top Header -->
         <div class="top-grid">
@@ -532,8 +556,8 @@ table.pdf-table tbody tr:hover td{ background: rgba(var(--indigo), .06); transit
             <div class="at-row">
               <div class="at-label">at</div>
               <div>
-                <input type="text" class="line-input" placeholder="Court office address" name="court_office_address"
-                       value="{{ form.court_office_address.value|default_if_none:'' }}">
+                <input type="text" class="line-input" placeholder="Court office address" name="court_address"
+                    value="{{ form.court_address.value|default_if_none:'' }}">
                 <div class="hint">Court office address</div>
               </div>
             </div>

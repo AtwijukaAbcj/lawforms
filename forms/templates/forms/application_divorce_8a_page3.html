@@ -1,0 +1,773 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 8A — Application (Divorce) — Page 3{% endblock %}
+{% block header %}Form 8A — Application (Divorce){% endblock %}
+{% block subheader %}Page 3 — Family History & Children{% endblock %}
+
+{% block content %}
+<style>
+  .form8a-page3-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 0 40px;
+  }
+
+  .case-load-bar {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .case-load-bar label,
+  .form8a-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .case-load-bar select,
+  .field-group input,
+  .field-group select,
+  .field-group textarea,
+  .children-table input,
+  .children-table select,
+  .children-table textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 13px;
+    box-sizing: border-box;
+    background: #fff;
+  }
+
+  .case-load-bar select {
+    width: 280px;
+  }
+
+  .btn-load {
+    height: 38px;
+    border: 0;
+    border-radius: 8px;
+    background: #64748b;
+    color: #fff;
+    padding: 0 16px;
+    font-weight: 800;
+  }
+
+  .page3-top,
+  .actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .page3-top {
+    margin-bottom: 18px;
+  }
+
+  .page3-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .page3-subtitle {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .page-badge {
+    background: #0f172a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .section-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    background: #fff;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  }
+
+  .section-head {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 13px 16px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: .03em;
+  }
+
+  .section-body {
+    padding: 18px;
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .field-group textarea {
+    min-height: 90px;
+    resize: vertical;
+  }
+
+  .two-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .three-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .full-row {
+    margin-top: 14px;
+  }
+
+  .checkbox-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 22px;
+    align-items: center;
+    margin-top: 12px;
+  }
+
+  .checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .checkbox-item input[type="checkbox"],
+  .checkbox-item input[type="radio"] {
+    width: 17px;
+    height: 17px;
+    min-height: 17px;
+  }
+
+  .checkbox-item input[type="date"] {
+    width: 180px;
+  }
+
+  .helper-text {
+    font-size: 12px;
+    color: #64748b;
+    margin-bottom: 10px;
+  }
+
+  .children-table-wrap {
+    overflow-x: auto;
+  }
+
+  .children-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    min-width: 900px;
+  }
+
+  .children-table th {
+    background: #f8fafc;
+    border: 1px solid #cbd5e1;
+    padding: 8px;
+    font-size: 12px;
+    font-weight: 900;
+    color: #0f172a;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .children-table th small {
+    display: block;
+    font-size: 10px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 2px;
+  }
+
+  .children-table td {
+    border: 1px solid #cbd5e1;
+    padding: 6px;
+    background: #fff;
+    vertical-align: top;
+  }
+
+  .children-table input,
+  .children-table select,
+  .children-table textarea {
+    border-radius: 6px;
+    min-height: 34px;
+    padding: 7px 8px;
+  }
+
+  .children-table textarea {
+    resize: vertical;
+    min-height: 40px;
+  }
+
+  .delete-cell {
+    text-align: center;
+    width: 70px;
+  }
+
+  .delete-cell input {
+    width: 18px;
+    height: 18px;
+    min-height: 18px;
+  }
+
+  .children-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+  }
+
+  .add-row-btn,
+  .remove-row-btn {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 800;
+    border: 0;
+    cursor: pointer;
+  }
+
+  .add-row-btn {
+    background: #0f172a;
+    color: #fff;
+  }
+
+  .remove-row-btn {
+    background: #ef4444;
+    color: #fff;
+  }
+
+  .table-note {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  .btn-back,
+  .btn-next {
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 900;
+    text-decoration: none;
+    border: 0;
+  }
+
+  .btn-back {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+  }
+
+  .btn-next {
+    background: #0f172a;
+    color: #fff;
+  }
+
+  @media (max-width: 900px) {
+    .two-grid,
+    .three-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .page3-top,
+    .actions-bar,
+    .case-load-bar {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .case-load-bar select {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="form8a-page3-wrap">
+
+  {% if case_list %}
+  <form method="get" class="case-load-bar">
+    <div>
+      <label>Select Case</label>
+      <select name="case_id">
+        <option value="">— None —</option>
+        {% for c in case_list %}
+          <option value="{{ c.id }}" {% if selected_case and selected_case.id == c.id %}selected{% endif %}>
+            {{ c.court_file_number|default:"" }} — {{ c.applicant_name|default:"" }} vs {{ c.respondent_name|default:"" }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-load">Load Case</button>
+  </form>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if selected_case %}
+      <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+    {% endif %}
+
+    {% if form.non_field_errors or form.errors %}
+      <div class="alert alert-danger alert-dismissible fade show">
+        <h5 class="alert-heading mb-2">Form Validation Errors</h5>
+        <hr>
+        {% if form.non_field_errors %}
+          <div class="mb-2">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div>{{ form.errors }}</div>
+      </div>
+    {% endif %}
+
+    <div class="page3-top">
+      <div>
+        <h2 class="page3-title">Family History</h2>
+        <p class="page3-subtitle">Complete applicant, respondent, relationship dates, children, and previous case information.</p>
+      </div>
+      <span class="page-badge">PAGE 3 OF 6</span>
+    </div>
+
+    <!-- APPLICANT -->
+    <div class="section-card">
+      <div class="section-head">APPLICANT</div>
+
+      <div class="section-body">
+
+        <div class="three-grid">
+          <div class="field-group">
+            <label class="form8a-label">Age</label>
+            {{ form.applicant_age }}
+          </div>
+
+          <div class="field-group">
+            <label class="form8a-label">Birthdate</label>
+            {{ form.applicant_birthdate|attr:"type:date" }}
+          </div>
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Resident in (municipality & province)</label>
+          {{ form.applicant_resident_in }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">First name on the day before the marriage date</label>
+          {{ form.applicant_first_name_before_marriage }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Last name on the day before the marriage date</label>
+          {{ form.applicant_last_name_before_marriage }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Gender on the day before the marriage date</label>
+
+          <div class="checkbox-row">
+            <label class="checkbox-item">
+              <input type="radio" name="applicant_gender" value="Male"
+              {% if form.applicant_gender.value == "Male" %}checked{% endif %}>
+              Male
+            </label>
+
+            <label class="checkbox-item">
+              <input type="radio" name="applicant_gender" value="Female"
+              {% if form.applicant_gender.value == "Female" %}checked{% endif %}>
+              Female
+            </label>
+
+            <label class="checkbox-item">
+              <input type="radio" name="applicant_gender" value="Another gender"
+              {% if form.applicant_gender.value == "Another gender" %}checked{% endif %}>
+              Another gender
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Divorced before?</label>
+          <div class="checkbox-row">
+            <label class="checkbox-item">
+              <input type="radio" name="applicant_divorced_before" value="False"
+              {% if not form.applicant_divorced_before.value %}checked{% endif %}>
+              No
+            </label>
+            <label class="checkbox-item">
+              <input type="radio" name="applicant_divorced_before" value="True"
+              {% if form.applicant_divorced_before.value %}checked{% endif %}>
+              Yes
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Place and date of previous divorce</label>
+          {{ form.applicant_previous_divorce_details }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Habitually resident in the province of Ontario for at least one year immediately before this application was filed?</label>
+          <div class="checkbox-row">
+            <label class="checkbox-item">
+              <input type="radio" name="applicant_resided_ontario_one_year" value="False"
+              {% if not form.applicant_resided_ontario_one_year.value %}checked{% endif %}>
+              No
+            </label>
+            <label class="checkbox-item">
+              <input type="radio" name="applicant_resided_ontario_one_year" value="True"
+              {% if form.applicant_resided_ontario_one_year.value %}checked{% endif %}>
+              Yes
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RESPONDENT -->
+    <div class="section-card">
+      <div class="section-head">RESPONDENT / JOINT APPLICANT</div>
+
+      <div class="section-body">
+
+        <div class="three-grid">
+          <div class="field-group">
+            <label class="form8a-label">Age</label>
+            {{ form.respondent_age }}
+          </div>
+
+          <div class="field-group">
+            <label class="form8a-label">Birthdate</label>
+            {{ form.respondent_birthdate|attr:"type:date" }}
+          </div>
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Resident in (municipality & province)</label>
+          {{ form.respondent_resident_in }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">First name on the day before the marriage date</label>
+          {{ form.respondent_first_name_before_marriage }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Last name on the day before the marriage date</label>
+          {{ form.respondent_last_name_before_marriage }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Gender on the day before the marriage date</label>
+
+          <div class="checkbox-row">
+            <label class="checkbox-item">
+              <input type="radio" name="respondent_gender" value="Male"
+              {% if form.respondent_gender.value == "Male" %}checked{% endif %}>
+              Male
+            </label>
+
+            <label class="checkbox-item">
+              <input type="radio" name="respondent_gender" value="Female"
+              {% if form.respondent_gender.value == "Female" %}checked{% endif %}>
+              Female
+            </label>
+
+            <label class="checkbox-item">
+              <input type="radio" name="respondent_gender" value="Another gender"
+              {% if form.respondent_gender.value == "Another gender" %}checked{% endif %}>
+              Another gender
+            </label>
+
+            {% if form.respondent_gender_information_not_available %}
+            <label class="checkbox-item">
+              {{ form.respondent_gender_information_not_available }}
+              Gender information not available
+            </label>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Divorced before?</label>
+          <div class="checkbox-row">
+            <label class="checkbox-item">
+              <input type="radio" name="respondent_divorced_before" value="False"
+              {% if not form.respondent_divorced_before.value %}checked{% endif %}>
+              No
+            </label>
+            <label class="checkbox-item">
+              <input type="radio" name="respondent_divorced_before" value="True"
+              {% if form.respondent_divorced_before.value %}checked{% endif %}>
+              Yes
+            </label>
+          </div>
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Place and date of previous divorce</label>
+          {{ form.respondent_previous_divorce_details }}
+        </div>
+
+        <div class="field-group full-row">
+          <label class="form8a-label">Habitually resident in the province of Ontario for at least one year immediately before this application was filed?</label>
+          <div class="checkbox-row">
+            <label class="checkbox-item">
+              <input type="radio" name="respondent_resided_ontario_one_year" value="False"
+              {% if not form.respondent_resided_ontario_one_year.value %}checked{% endif %}>
+              No
+            </label>
+            <label class="checkbox-item">
+              <input type="radio" name="respondent_resided_ontario_one_year" value="True"
+              {% if form.respondent_resided_ontario_one_year.value %}checked{% endif %}>
+              Yes
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RELATIONSHIP DATES -->
+    <div class="section-card">
+      <div class="section-head">RELATIONSHIP DATES</div>
+
+      <div class="section-body">
+        <div class="two-grid">
+
+          <div class="field-group">
+            <label class="form8a-label">Married on</label>
+            {{ form.married_on|attr:"type:date" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form8a-label">Started living together on</label>
+            {{ form.started_living_together_on|attr:"type:date" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form8a-label">Separated on</label>
+            {{ form.separated_on|attr:"type:date" }}
+          </div>
+
+          <div style="margin-top:24px; display:flex; gap:12px; align-items:center;">
+            <label class="checkbox-item">
+              <input type="radio" name="never_lived_together" value="False"
+              {% if not form.never_lived_together.value %}checked{% endif %}>
+              No
+            </label>
+
+            <label class="checkbox-item">
+              <input type="radio" name="never_lived_together" value="True"
+              {% if form.never_lived_together.value %}checked{% endif %}>
+              Never lived together
+            </label>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+<!-- THE CHILD(REN) -->
+<div class="section-card children-section">
+  <div class="section-head">THE CHILD(REN)</div>
+  <div class="section-body">
+    <div class="field-group">
+      <label class="form8a-label">Children Details</label>
+      <div class="helper-text">Add each child in the table below. Use the buttons to add or delete rows.</div>
+      <input type="hidden" id="children-details-field" name="children_details" value="{{ application.children_details|default:''|escape }}">
+    </div>
+
+    <div class="children-table-wrap">
+      <table class="children-table" id="children-table">
+        <thead>
+          <tr>
+            <th>Full legal name</th>
+            <th>Age</th>
+            <th>Birthdate<br><span>(d,m,y)</span></th>
+            <th>Resident in<br><span>(municipality &amp; province)</span></th>
+            <th>Now Living With<br><span>(name of person and relationship to child)</span></th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="children-controls">
+      <button type="button" class="add-row-btn">Add row</button>
+      <div class="table-note">Rows are saved automatically when you submit the form.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PREVIOUS CASES OR AGREEMENTS -->
+<div class="official-block previous-block">
+  <div class="official-centered-title">PREVIOUS CASES OR AGREEMENTS</div>
+
+  <div class="official-question">
+    <span>Have the parties or the children been in a court case before?</span>
+
+    <label class="checkbox-item">
+      <input type="radio" name="previous_court_case" value="False"
+      {% if not form.previous_court_case.value %}checked{% endif %}>
+      No
+    </label>
+
+    <label class="checkbox-item">
+      <input type="radio" name="previous_court_case" value="True"
+      {% if form.previous_court_case.value %}checked{% endif %}>
+      Yes
+    </label>
+  </div>
+
+  <div class="official-question">
+    <span>Have the parties made a written agreement dealing with any matter involved in this case?</span>
+
+    <label class="checkbox-item">
+      <input type="radio" name="previous_written_agreement" value="False"
+      {% if not form.previous_written_agreement.value %}checked{% endif %}>
+      No
+    </label>
+
+    <label class="checkbox-item">
+      <input type="radio" name="previous_written_agreement" value="True"
+      {% if form.previous_written_agreement.value %}checked{% endif %}>
+      Yes
+    </label>
+    <em>
+      (Give date of agreement. Indicate which of its terms are in dispute.
+      Attach an additional page if you need more space.)
+    </em>
+  </div>
+
+  <div class="agreement-box">
+    {{ form.previous_agreement_details|attr:"rows:7" }}
+  </div>
+</div>
+
+    <div class="actions-bar">
+      <a href="{% url 'application_divorce_8a_page2' application.id %}" class="btn-back">
+        ← Back
+      </a>
+
+      <button type="submit" class="btn-next">
+        Save & Continue →
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const hiddenField = document.getElementById('children-details-field');
+    const tbody = document.querySelector('#children-table tbody');
+    const addRowButton = document.querySelector('.add-row-btn');
+
+    function parseChildrenValue() {
+      const raw = hiddenField.value.trim();
+      if (!raw) return [];
+      try {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (err) {
+        const rows = raw.split('\n').filter(Boolean);
+        return rows.map(line => {
+          const parts = line.split('||').map(part => part.trim());
+          return {
+            full_legal_name: parts[0] || '',
+            age: parts[1] || '',
+            birthdate: parts[2] || '',
+            resident_in: parts[3] || '',
+            now_living_with: parts[4] || '',
+          };
+        });
+      }
+      return [];
+    }
+
+    function buildRow(data = {}) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td><input type="text" class="form-control" value="${data.full_legal_name || ''}" placeholder="Full legal name"></td>
+        <td><input type="text" class="form-control" value="${data.age || ''}" placeholder="Age"></td>
+        <td><input type="date" class="form-control" value="${data.birthdate || ''}"></td>
+        <td><input type="text" class="form-control" value="${data.resident_in || ''}" placeholder="Municipality & province"></td>
+        <td><input type="text" class="form-control" value="${data.now_living_with || ''}" placeholder="Name + relationship"></td>
+        <td class="delete-cell"><button type="button" class="remove-row-btn">Delete</button></td>
+      `;
+      tr.querySelector('.remove-row-btn').addEventListener('click', () => tr.remove());
+      return tr;
+    }
+
+    function renderTable() {
+      tbody.innerHTML = '';
+      const rows = parseChildrenValue();
+      if (rows.length === 0) {
+        for (let i = 0; i < 4; i++) {
+          tbody.appendChild(buildRow());
+        }
+      } else {
+        rows.forEach(row => tbody.appendChild(buildRow(row)));
+      }
+    }
+
+    function syncTableToField() {
+      const rows = Array.from(tbody.querySelectorAll('tr')).map(tr => {
+        const inputs = tr.querySelectorAll('input');
+        return {
+          full_legal_name: inputs[0].value.trim(),
+          age: inputs[1].value.trim(),
+          birthdate: inputs[2].value.trim(),
+          resident_in: inputs[3].value.trim(),
+          now_living_with: inputs[4].value.trim(),
+        };
+      }).filter(row => Object.values(row).some(value => value.length > 0));
+      hiddenField.value = JSON.stringify(rows);
+    }
+
+    addRowButton.addEventListener('click', function() {
+      tbody.appendChild(buildRow());
+    });
+
+    const form = hiddenField.closest('form');
+    if (form) {
+      form.addEventListener('submit', syncTableToField);
+    }
+
+    renderTable();
+  });
+</script>
+{% endblock %}

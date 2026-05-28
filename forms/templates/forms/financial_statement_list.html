@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load custom_filters %}
 {% block content %}
 
 <style>
@@ -76,14 +77,15 @@
                 <td>{{ s.respondent_name|default:"—" }}</td>
                 <td>{{ s.updated_at|date:'Y-m-d H:i' }}</td>
                 <td>
-                  <div class="actions">
-                    <a class="btn-mini btn-info-modern" href="{% url 'financial_statement_view' s.id %}">View</a>
-                    <a class="btn-mini btn-edit-modern" href="{% url 'financial_statement_page1_edit' s.id %}">Edit</a>
-                    <a class="btn-mini btn-modern" href="{% url 'financial_statement_print' s.id %}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg></a>
-                    {% if request.user.is_staff or request.user.is_superuser %}
-                    <a class="btn-mini btn-delete-modern" href="{% url 'financial_statement_delete' s.id %}"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></a>
-                    {% endif %}
-                  </div>
+
+                  {% comment %}Render action buttons via shared partial with permission checks{% endcomment %}
+
+                  {% with can_view=s.can_view can_edit=s.can_edit can_print=s.can_print can_delete=s.can_delete %}
+
+                    {% include 'partials/action_buttons.html' with object_id=s.id view_name='financial_statement_view' edit_name='financial_statement_page1_edit' print_name='financial_statement_print' delete_name='financial_statement_delete' can_view=can_view can_edit=can_edit can_print=can_print can_delete=can_delete object_label='Financial Statement' %}
+
+                  {% endwith %}
+
                 </td>
               </tr>
               {% empty %}

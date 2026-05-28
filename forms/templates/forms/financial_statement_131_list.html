@@ -2,123 +2,427 @@
 {% block content %}
 
 <style>
-  /* ── list page styles ── */
 
-  .page-wrap{ max-width:1180px; margin:22px auto 56px; padding:0 14px; }
-  .shell{ border-radius:10px; overflow:hidden; }
-  .header{ padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-  .title-block h2{ margin:0; font-size:16px; font-weight:700; color:#0f172a; }
-  .title-block p{ margin:4px 0 0; font-size:13px; color:#64748b; }
+.page-wrap{
+    max-width:1180px;
+    margin:22px auto 56px;
+    padding:0 14px;
+}
 
-  .btn-modern{ border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; color:#fff; border:none; cursor:pointer; }
-  .btn-primary-modern{ background:#1e293b; }
-  .btn-primary-modern:hover{ background:#334155; color:#fff; text-decoration:none; }
+.shell{
+    border-radius:10px;
+    overflow:hidden;
+}
 
-  .content{ padding:16px 18px 20px; }
-  .table-shell{ border-radius:8px; overflow:hidden; border:1px solid #e2e8f0; background:#fff; }
-  table.modern{ width:100%; margin:0; border-collapse:collapse; font-size:.9rem; }
-  table.modern thead th{ padding:10px 12px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#64748b; text-align:left; white-space:nowrap; background:#f8fafc; border-bottom:1px solid #e2e8f0; }
-  table.modern tbody td{ padding:11px 12px; border-bottom:1px solid #f1f5f9; color:#0f172a; vertical-align:middle; }
-  table.modern tbody tr:last-child td{ border-bottom:none; }
-  table.modern tbody tr:hover td{ background:#f8fafc; }
-  .chip{ display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-size:12px; font-weight:600; color:#64748b; white-space:nowrap; }
-  .actions{ display:flex; gap:6px; justify-content:flex-end; }
-  .btn-mini{ border-radius:6px; padding:6px 10px; font-weight:600; border:1px solid #e2e8f0; background:#fff; color:#0f172a; text-decoration:none; display:inline-flex; align-items:center; gap:5px; font-size:12px; white-space:nowrap; }
-  .btn-mini:hover{ background:#f1f5f9; color:#0f172a; text-decoration:none; }
-  .btn-info-modern{ background:#0369a1; border-color:#0369a1; color:#fff; }
-  .btn-info-modern:hover{ background:#075985; color:#fff; }
-  .btn-edit-modern{ background:#15803d; border-color:#15803d; color:#fff; }
-  .btn-edit-modern:hover{ background:#166534; color:#fff; }
-  .btn-delete-modern{ background:#b91c1c; border-color:#b91c1c; color:#fff; }
-  .btn-delete-modern:hover{ background:#991b1b; color:#fff; }
-  .empty{ padding:20px; text-align:center; color:#64748b; font-size:13px; }
-  .search-box{ display:flex; gap:8px; margin-bottom:14px; }
-  .search-input{ flex:1; max-width:380px; padding:7px 12px; border:1px solid #e2e8f0; border-radius:7px; font-size:13px; outline:none; background:#fff; color:#0f172a; }
-  .search-input:focus{ border-color:#94a3b8; box-shadow:0 0 0 3px rgba(30,41,59,.07); }
-  .search-input::placeholder{ color:#94a3b8; }
-  .badge-pages{ display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; background:#dcfce7; font-size:11px; font-weight:600; color:#15803d; white-space:nowrap; }
-  @media(max-width:768px){ .actions{ justify-content:flex-start; } .search-input{ max-width:100%; } }
+.header{
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.title-block h2{
+    margin:0;
+    font-size:16px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.title-block p{
+    margin:4px 0 0;
+    font-size:13px;
+    color:#64748b;
+}
+
+.btn-modern{
+    border-radius:7px;
+    padding:8px 14px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-primary-modern{
+    background:#1e293b;
+}
+
+.btn-primary-modern:hover{
+    background:#334155;
+    color:#fff;
+    text-decoration:none;
+}
+
+.content{
+    padding:16px 18px 20px;
+}
+
+.table-shell{
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid #e2e8f0;
+    background:#fff;
+}
+
+table.modern{
+    width:100%;
+    margin:0;
+    border-collapse:collapse;
+    font-size:.9rem;
+}
+
+table.modern thead th{
+    padding:10px 12px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#64748b;
+    text-align:left;
+    white-space:nowrap;
+    background:#f8fafc;
+    border-bottom:1px solid #e2e8f0;
+}
+
+table.modern tbody td{
+    padding:11px 12px;
+    border-bottom:1px solid #f1f5f9;
+    color:#0f172a;
+    vertical-align:middle;
+}
+
+table.modern tbody tr:last-child td{
+    border-bottom:none;
+}
+
+table.modern tbody tr:hover td{
+    background:#f8fafc;
+}
+
+.chip{
+    display:inline-flex;
+    align-items:center;
+    padding:3px 8px;
+    border-radius:6px;
+    border:1px solid #e2e8f0;
+    background:#fff;
+    font-size:12px;
+    font-weight:600;
+    color:#64748b;
+    white-space:nowrap;
+}
+
+.badge-pages{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:4px 8px;
+    border-radius:6px;
+    background:#dcfce7;
+    font-size:11px;
+    font-weight:600;
+    color:#15803d;
+    white-space:nowrap;
+}
+
+.action-buttons{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+.btn-mini{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:45x;
+    height:34px;
+    padding:0 12px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none !important;
+    transition:all .2s ease;
+    border:none;
+    cursor:pointer;
+    line-height:1;
+}
+
+.btn-info-modern{
+    background:#2563eb;
+    color:#ffffff !important;
+}
+
+.btn-info-modern:hover{
+    background:#1d4ed8;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern{
+    background:#15803d;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern:hover{
+    background:#166534;
+    color:#ffffff !important;
+}
+
+.btn-print-modern{
+    background:#1f2937;
+    color:#ffffff !important;
+}
+
+.btn-print-modern:hover{
+    background:#111827;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern{
+    background:#dc2626;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern:hover{
+    background:#b91c1c;
+    color:#ffffff !important;
+}
+
+.empty{
+    padding:20px;
+    text-align:center;
+    color:#64748b;
+    font-size:13px;
+}
+
+.search-box{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.search-input{
+    flex:1;
+    max-width:380px;
+    padding:7px 12px;
+    border:1px solid #e2e8f0;
+    border-radius:7px;
+    font-size:13px;
+    outline:none;
+    background:#fff;
+    color:#0f172a;
+}
+
+.search-input:focus{
+    border-color:#94a3b8;
+    box-shadow:0 0 0 3px rgba(30,41,59,.07);
+}
+
+.search-input::placeholder{
+    color:#94a3b8;
+}
+
+@media(max-width:768px){
+
+    .action-buttons{
+        justify-content:flex-start;
+    }
+
+    .search-input{
+        max-width:100%;
+    }
+}
+
 </style>
 
 <div class="page-wrap">
+
   <div class="shell">
+
     <div class="header">
+
       <div class="title-block">
-        <h2>Financial Statement - Property & Support Claims (Form 13.1)</h2>
-        <p>Browse created Form 13.1 statements and open any record to continue.</p>
+
+        <h2>
+          Financial Statement - Property & Support Claims (Form 13.1)
+        </h2>
+
+        <p>
+          Browse created Form 13.1 statements and open any record to continue.
+        </p>
+
       </div>
 
-      <a class="btn-modern btn-primary-modern" href="{% url 'financial_statement_131_page1_new' %}">
+      <a class="btn-modern btn-primary-modern"
+         href="{% url 'financial_statement_131_page1_new' %}">
         + Add New
       </a>
+
     </div>
 
     <div class="content">
+
       <div class="search-box">
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search by ID, Court File #, Applicant, or Respondent...">
+
+        <input type="text"
+               class="search-input"
+               id="searchInput"
+               placeholder="🔍 Search by ID, Court File #, Applicant, or Respondent...">
+
       </div>
+
       <div class="table-shell">
+
         <div class="table-responsive">
+
           <table class="modern">
+
             <thead>
+
               <tr>
-                <th style="width:80px;">ID</th>
-                <th>Court File #</th>
-                <th>Applicant</th>
-                <th>Respondent</th>
-                <th style="width:100px;">Pages</th>
-                <th style="width:190px;">Last Updated</th>
-                <th style="width:220px; text-align:right;">Actions</th>
+
+                <th style="width:80px;">
+                  ID
+                </th>
+
+                <th>
+                  Court File #
+                </th>
+
+                <th>
+                  Applicant
+                </th>
+
+                <th>
+                  Respondent
+                </th>
+
+                <th style="width:100px;">
+                  Pages
+                </th>
+
+                <th style="width:190px;">
+                  Last Updated
+                </th>
+
+                <th style="width:260px; text-align:right;">
+                  Actions
+                </th>
+
               </tr>
+
             </thead>
+
             <tbody>
+
               {% for s in statements %}
+
               <tr>
-                <td><span class="chip">#{{ s.id }}</span></td>
-                <td>{{ s.court_file_number|default:"—" }}</td>
-                <td>{{ s.applicant_name|default:"—" }}</td>
-                <td>{{ s.respondent_name|default:"—" }}</td>
-                <td><span class="badge-pages">10 pages</span></td>
-                <td>{{ s.updated_at|date:'Y-m-d H:i' }}</td>
+
                 <td>
-                  <div class="actions">
-                    <a class="btn-mini btn-info-modern" href="{% url 'financial_statement_131_view' s.id %}">View</a>
-                    <a class="btn-mini btn-edit-modern" href="{% url 'financial_statement_131_page1' s.id %}">Edit</a>
-                    <a class="btn-mini btn-modern" href="{% url 'financial_statement_131_print' s.id %}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg></a>
-                    {% if request.user.is_staff or request.user.is_superuser %}
-                    <a class="btn-mini btn-delete-modern" href="{% url 'financial_statement_131_delete' s.id %}"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></a>
-                    {% endif %}
-                  </div>
+                  <span class="chip">
+                    #{{ s.id }}
+                  </span>
                 </td>
+
+                <td>
+                  {{ s.court_file_number|default:"—" }}
+                </td>
+
+                <td>
+                  {{ s.applicant_name|default:"—" }}
+                </td>
+
+                <td>
+                  {{ s.respondent_name|default:"—" }}
+                </td>
+
+                <td>
+                  <span class="badge-pages">
+                    10 pages
+                  </span>
+                </td>
+
+                <td>
+                  {{ s.updated_at|date:'Y-m-d H:i' }}
+                </td>
+
+                <td class="text-end">
+
+                  {% with can_view=s.can_view can_edit=s.can_edit can_print=s.can_print can_delete=s.can_delete %}
+
+                    {% include 'partials/action_buttons.html' with object_id=s.id view_name='financial_statement_131_view' edit_name='financial_statement_131_page1' print_name='financial_statement_131_print' delete_name='financial_statement_131_delete' can_view=can_view can_edit=can_edit can_print=can_print can_delete=can_delete object_label='Financial Statement 13.1' %}
+
+                  {% endwith %}
+
+                </td>
+
               </tr>
+
               {% empty %}
+
               <tr>
-                <td colspan="7" class="empty">No Form 13.1 statements found. Click "+ Add New" to create one.</td>
+
+                <td colspan="7"
+                    class="empty">
+
+                  No Form 13.1 statements found. Click "+ Add New" to create one.
+
+                </td>
+
               </tr>
+
               {% endfor %}
+
             </tbody>
+
           </table>
+
         </div>
+
       </div>
+
     </div>
 
   </div>
+
 </div>
 
 <script>
+
 document.getElementById('searchInput').addEventListener('input', function() {
-  const searchTerm = this.value.toLowerCase();
-  const rows = document.querySelectorAll('table.modern tbody tr');
-  let visibleCount = 0;
-  
-  rows.forEach(row => {
-    if (row.querySelector('.empty')) return;
-    const text = row.textContent.toLowerCase();
-    const match = text.includes(searchTerm);
-    row.style.display = match ? '' : 'none';
-    if (match) visibleCount++;
-  });
+
+    const searchTerm = this.value.toLowerCase();
+
+    const rows = document.querySelectorAll('table.modern tbody tr');
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+
+        if (row.querySelector('.empty')) return;
+
+        const text = row.textContent.toLowerCase();
+
+        const match = text.includes(searchTerm);
+
+        row.style.display = match ? '' : 'none';
+
+        if (match) visibleCount++;
+
+    });
 });
+
 </script>
 
 {% endblock %}

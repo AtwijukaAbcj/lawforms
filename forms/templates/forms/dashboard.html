@@ -7,7 +7,11 @@
   /* -- Stats row -- */
   .dash-stats {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: repeat(9, 1fr);
     gap: 14px;
     margin-bottom: 28px;
   }
@@ -252,6 +256,10 @@
     <div class="num">{{ comparison_nfp_count }}</div>
     <div class="lbl">Form 13C</div>
   </div>
+  <div class="dash-stat">
+    <div class="num">{{ affidavits_count }}</div>
+    <div class="lbl">Form 6B</div>
+  </div>
 </div>
 
 <!-- Quick Actions -->
@@ -285,6 +293,60 @@
       <p class="q-sub">Form 13C &mdash; NFP Comparison</p>
     </div>
   </a>
+  <a href="{% url 'case_list' %}" class="q-card">
+    <div class="q-icon blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 7h18M3 7v11a2 2 0 002 2h14a2 2 0 002-2V7"/><path d="M16 3h-8v4h8V3z"/></svg></div>
+    <div>
+      <p class="q-title">Cases</p>
+      <p class="q-sub">Manage client/case master records</p>
+    </div>
+  </a>
+{% if user_modules.application_divorce_8a or request.user.is_superuser %}
+<a href="{% url 'application_divorce_8a_create' %}" class="q-card">
+  <div class="q-icon blue">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+    </svg>
+  </div>
+  <div>
+    <p class="q-title">Application Divorce</p>
+    <p class="q-sub">Form 8A &mdash; Application</p>
+  </div>
+</a>
+{% endif %}
+
+{% if user_modules.affidavit_service or request.user.is_superuser %}
+<a href="{% url 'affidavit_service_page1' %}" class="q-card">
+  <div class="q-icon purple">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <path d="M12 4v16M4 12h16"/>
+    </svg>
+  </div>
+  <div>
+    <p class="q-title">Affidavit of Service</p>
+    <p class="q-sub">Form 6B &mdash; Affidavit of Service</p>
+  </div>
+</a>
+<a href="{% url 'certificate_of_divorce_create' %}" class="q-card">
+  <div class="q-icon amber">
+    📜
+  </div>
+  <div>
+    <p class="q-title">Certificate of Divorce</p>
+    <p class="q-sub">Form 36B — Certificate</p>
+  </div>
+</a>
+
+<a href="{% url 'divorce_order_create' %}" class="q-card">
+  <div class="q-icon sky">
+    🧾
+  </div>
+  <div>
+    <p class="q-title">Divorce Order</p>
+    <p class="q-sub">Form 25A — Divorce Order</p>
+  </div>
+</a>
+{% endif %}
 </div>
 
 <!-- Financial Statements (Form 13) -->
@@ -296,15 +358,15 @@
       <span class="fs-count">{{ financial_statements_count }}</span>
     </div>
     <div class="fs-actions">
-      <a href="{% url 'financial_statement_page1_new' %}" class="btn-create">+ New</a>
-      <a href="{% url 'financial_statement_list' %}" class="btn-view-all">View All &rarr;</a>
+      <a href="{% url 'financial_statement_page1_new' %}" class="btn-create" role="button" aria-label="Create new financial statement" tabindex="0">+ New</a>
+      <a href="{% url 'financial_statement_list' %}" class="btn-view-all" role="button" aria-label="View all financial statements" tabindex="0">View All &rarr;</a>
     </div>
   </div>
   {% if financial_statements %}
   <table class="dash-table">
     <thead>
       <tr>
-        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th></th>
+        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th>View</th><th>Print</th>
       </tr>
     </thead>
     <tbody>
@@ -316,8 +378,10 @@
         <td>{{ form.respondent_name|default:"—" }}</td>
         <td class="muted">{{ form.updated_at|date:"M d, Y" }}</td>
         <td class="act-cell">
-          <a href="{% url 'financial_statement_page1' form.pk %}" class="btn-tbl btn-tbl-edit">Edit</a>
-          <a href="{% url 'financial_statement_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank">Print</a>
+          <a href="{% url 'financial_statement_page1' form.pk %}" class="btn-tbl btn-tbl-edit" role="button" aria-label="View financial statement #{{ form.id }}" tabindex="0">View</a>
+        </td>
+        <td class="act-cell">
+          <a href="{% url 'financial_statement_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank" role="button" aria-label="Print financial statement #{{ form.id }}" tabindex="0">Print</a>
         </td>
       </tr>
       {% endfor %}
@@ -341,15 +405,15 @@
       <span class="fs-count">{{ financial_statements_131_count }}</span>
     </div>
     <div class="fs-actions">
-      <a href="{% url 'financial_statement_131_page1_new' %}" class="btn-create">+ New</a>
-      <a href="{% url 'financial_statement_131_list' %}" class="btn-view-all">View All &rarr;</a>
+      <a href="{% url 'financial_statement_131_page1_new' %}" class="btn-create" role="button" aria-label="Create new financial statement 13.1" tabindex="0">+ New</a>
+      <a href="{% url 'financial_statement_131_list' %}" class="btn-view-all" role="button" aria-label="View all financial statements 13.1" tabindex="0">View All &rarr;</a>
     </div>
   </div>
   {% if financial_statements_131 %}
   <table class="dash-table">
     <thead>
       <tr>
-        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th></th>
+        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th>View</th><th>Print</th>
       </tr>
     </thead>
     <tbody>
@@ -361,8 +425,10 @@
         <td>{{ form.respondent_name|default:"—" }}</td>
         <td class="muted">{{ form.updated_at|date:"M d, Y" }}</td>
         <td class="act-cell">
-          <a href="{% url 'financial_statement_131_page1' form.pk %}" class="btn-tbl btn-tbl-edit">Edit</a>
-          <a href="{% url 'financial_statement_131_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank">Print</a>
+          <a href="{% url 'financial_statement_131_page1' form.pk %}" class="btn-tbl btn-tbl-edit" role="button" aria-label="View financial statement 13.1 #{{ form.id }}" tabindex="0">View</a>
+        </td>
+        <td class="act-cell">
+          <a href="{% url 'financial_statement_131_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank" role="button" aria-label="Print financial statement 13.1 #{{ form.id }}" tabindex="0">Print</a>
         </td>
       </tr>
       {% endfor %}
@@ -386,15 +452,15 @@
       <span class="fs-count">{{ net_family_13b_count }}</span>
     </div>
     <div class="fs-actions">
-      <a href="{% url 'net_family_property_13b_page1' %}" class="btn-create">+ New</a>
-      <a href="{% url 'net_family_property_13b_list' %}" class="btn-view-all">View All &rarr;</a>
+      <a href="{% url 'net_family_property_13b_page1' %}" class="btn-create" role="button" aria-label="Create new net family property 13B" tabindex="0">+ New</a>
+      <a href="{% url 'net_family_property_13b_list' %}" class="btn-view-all" role="button" aria-label="View all net family property 13B" tabindex="0">View All &rarr;</a>
     </div>
   </div>
   {% if net_family_13b %}
   <table class="dash-table">
     <thead>
       <tr>
-        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th></th>
+        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th>View</th><th>Print</th>
       </tr>
     </thead>
     <tbody>
@@ -406,8 +472,10 @@
         <td>{{ form.respondent_name|default:"—" }}</td>
         <td class="muted">{{ form.updated_at|date:"M d, Y" }}</td>
         <td class="act-cell">
-          <a href="{% url 'net_family_property_13b_page1_edit' form.pk %}" class="btn-tbl btn-tbl-edit">Edit</a>
-          <a href="{% url 'net_family_property_13b_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank">Print</a>
+          <a href="{% url 'net_family_property_13b_page1_edit' form.pk %}" class="btn-tbl btn-tbl-edit" role="button" aria-label="View net family property 13B #{{ form.id }}" tabindex="0">View</a>
+        </td>
+        <td class="act-cell">
+          <a href="{% url 'net_family_property_13b_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank" role="button" aria-label="Print net family property 13B #{{ form.id }}" tabindex="0">Print</a>
         </td>
       </tr>
       {% endfor %}
@@ -431,15 +499,15 @@
       <span class="fs-count">{{ comparison_nfp_count }}</span>
     </div>
     <div class="fs-actions">
-      <a href="{% url 'comparison_nfp_create' %}" class="btn-create">+ New</a>
-      <a href="{% url 'comparison_nfp_list' %}" class="btn-view-all">View All &rarr;</a>
+      <a href="{% url 'comparison_nfp_create' %}" class="btn-create" role="button" aria-label="Create new comparison NFP 13C" tabindex="0">+ New</a>
+      <a href="{% url 'comparison_nfp_list' %}" class="btn-view-all" role="button" aria-label="View all comparison NFP 13C" tabindex="0">View All &rarr;</a>
     </div>
   </div>
   {% if comparison_nfp %}
   <table class="dash-table">
     <thead>
       <tr>
-        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th></th>
+        <th>ID</th><th>Court File #</th><th>Applicant</th><th>Respondent</th><th>Updated</th><th>View</th><th>Print</th>
       </tr>
     </thead>
     <tbody>
@@ -451,8 +519,10 @@
         <td>{{ form.respondent_name|default:"—" }}</td>
         <td class="muted">{{ form.updated_at|date:"M d, Y" }}</td>
         <td class="act-cell">
-          <a href="{% url 'comparison_nfp_page1_edit' form.pk %}" class="btn-tbl btn-tbl-edit">Edit</a>
-          <a href="{% url 'comparison_nfp_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank">Print</a>
+          <a href="{% url 'comparison_nfp_page1_edit' form.pk %}" class="btn-tbl btn-tbl-edit" role="button" aria-label="View comparison NFP #{{ form.id }}" tabindex="0">View</a>
+        </td>
+        <td class="act-cell">
+          <a href="{% url 'comparison_nfp_print' form.pk %}" class="btn-tbl btn-tbl-print" target="_blank" role="button" aria-label="Print comparison NFP #{{ form.id }}" tabindex="0">Print</a>
         </td>
       </tr>
       {% endfor %}
@@ -463,6 +533,53 @@
     <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
     <h4>No comparison statements yet</h4>
     <p><a href="{% url 'comparison_nfp_create' %}">Create your first one</a></p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Affidavit of Service -->
+<div class="form-section">
+  <div class="fs-head">
+    <div class="fs-head-left">
+      <div class="fs-icon purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></div>
+      <span class="fs-title">Affidavit of Service (Form 6B / Form 8A)</span>
+      <span class="fs-count">{{ affidavits_count }}</span>
+    </div>
+    <div class="fs-actions">
+      <a href="{% url 'affidavit_service_page1' %}" class="btn-create" role="button" aria-label="Create new affidavit of service" tabindex="0">+ New</a>
+      <a href="{% url 'affidavit_service_list' %}" class="btn-view-all" role="button" aria-label="View all affidavits of service" tabindex="0">View All &rarr;</a>
+    </div>
+  </div>
+  {% if affidavits %}
+  <table class="dash-table">
+    <thead>
+      <tr>
+        <th>ID</th><th>Court File #</th><th>Plaintiff</th><th>Defendant</th><th>Updated</th><th>View</th><th>Print</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for affidavit in affidavits %}
+      <tr>
+        <td class="id-cell">#{{ affidavit.id }}</td>
+        <td>{{ affidavit.court_file_number|default:"—" }}</td>
+        <td>{{ affidavit.plaintiff_name|default:"—" }}</td>
+        <td>{{ affidavit.defendant_name|default:"—" }}</td>
+        <td class="muted">{{ affidavit.updated_at|date:"M d, Y" }}</td>
+        <td class="act-cell">
+          <a href="{% url 'affidavit_service_view' affidavit.pk %}" class="btn-tbl btn-tbl-edit" role="button" aria-label="View affidavit #{{ affidavit.id }}" tabindex="0">View</a>
+        </td>
+        <td class="act-cell">
+          <a href="{% url 'affidavit_service_print' affidavit.pk %}" class="btn-tbl btn-tbl-print" target="_blank" role="button" aria-label="Print affidavit #{{ affidavit.id }}" tabindex="0">Print</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg></div>
+    <h4>No affidavits yet</h4>
+    <p><a href="{% url 'affidavit_service_page1' %}">Create your first one</a></p>
   </div>
   {% endif %}
 </div>

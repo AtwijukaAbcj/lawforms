@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+{% block title %}Form 36B — View{% endblock %}
+{% block header %}Form 36B — Certificate of Divorce{% endblock %}
+{% block subheader %}Review saved certificate details and print when ready{% endblock %}
+{% block content %}
+<style>
+  .form-view-wrap {
+    display: grid;
+    gap: 24px;
+  }
+  .form-view-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+  }
+  .form-view-topbar-left {
+    display: grid;
+    gap: 8px;
+  }
+  .form-view-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-size: .8rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    background: #f8fafc;
+    color: #0f172a;
+  }
+  .form-view-title {
+    margin: 0;
+    font-size: 1.75rem;
+    line-height: 1.1;
+  }
+  .form-view-file {
+    margin: 0;
+    color: #64748b;
+  }
+  .form-view-actions { display:flex; gap:8px; }
+  .v8a-section { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden; }
+  .v8a-section-head { display: flex; align-items: center; gap: 14px; padding: 22px 24px; border-bottom: 1px solid #e2e8f0; }
+  .v8a-section-icon { width: 42px; height: 42px; display: grid; place-items: center; border-radius: 12px; background: #eff6ff; color: #1d4ed8; }
+  .v8a-section-title { margin: 0; font-size: 1.1rem; font-weight: 700; }
+  .v8a-section-body { padding: 22px 24px; display: grid; gap: 18px; }
+  .v8a-grid { display: grid; gap: 16px; }
+  .v8a-field { display: grid; gap: 6px; }
+  .v8a-label { color: #475569; font-size: .9rem; font-weight: 600; }
+  .v8a-value { padding: 14px 16px; border-radius: 14px; background: #f8fafc; color: #0f172a; min-height: 44px; display: inline-flex; align-items: center; }
+  .v8a-value.empty { color: #94a3b8; font-style: italic; }
+  .v8a-party-pair { display: grid; gap: 16px; }
+  .v8a-party-col { background: #f8fafc; border-radius: 16px; padding: 18px; }
+  .v8a-party-head { margin-bottom: 16px; font-weight: 700; color: #0f172a; }
+  @media (min-width: 900px) {
+    .v8a-party-pair { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+</style>
+
+<div class="form-view-wrap">
+  <div class="form-view-topbar">
+    <div class="form-view-topbar-left">
+      <span class="form-view-badge">Ontario Family Law Rules</span>
+      <h1 class="form-view-title">Certificate of Divorce — Form 36B</h1>
+      <p class="form-view-file">Court File No. {{ certificate.court_file_number|default:'—' }}</p>
+    </div>
+    <div class="form-view-actions">
+      <a href="{% url 'certificate_of_divorce_list' %}" class="form-view-btn-back" style="padding:8px 16px; border-radius:6px; border:1.5px solid var(--line); background:#f8fafc; color:var(--text-secondary); font-weight:600; text-decoration:none;">← List</a>
+      <a href="{% url 'certificate_of_divorce_page1' certificate.pk %}" class="form-view-btn-edit" style="padding:8px 16px; border-radius:6px; border:1.5px solid #1e293b; background:#fff; color:#1e293b; font-weight:600; text-decoration:none;">Edit</a>
+      <a href="{% url 'certificate_of_divorce_print' certificate.pk %}" class="form-view-btn-print" style="padding:8px 16px; border-radius:6px; border:1.5px solid #1e293b; background:#1e293b; color:#fff; font-weight:600; text-decoration:none;">Print</a>
+    </div>
+  </div>
+
+  <div class="v8a-section" id="sec-summary">
+    <div class="v8a-section-head">
+      <div class="v8a-section-icon">#</div>
+      <h2 class="v8a-section-title">Court Summary</h2>
+    </div>
+    <div class="v8a-section-body">
+      <div class="v8a-grid" style="grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;">
+        <div class="v8a-field">
+          <span class="v8a-label">Court Name</span>
+          <span class="v8a-value {% if not certificate.court_name %}empty{% endif %}">{{ certificate.court_name|default:'Not provided' }}</span>
+        </div>
+        <div class="v8a-field">
+          <span class="v8a-label">Court File Number</span>
+          <span class="v8a-value {% if not certificate.court_file_number %}empty{% endif %}">{{ certificate.court_file_number|default:'Not provided' }}</span>
+        </div>
+        <div class="v8a-field" style="grid-column:1/-1;">
+          <span class="v8a-label">Court Office Address</span>
+          <span class="v8a-value {% if not certificate.court_office_address %}empty{% endif %}">{{ certificate.court_office_address|default:'Not provided' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="v8a-section" id="sec-parties">
+    <div class="v8a-section-head">
+      <div class="v8a-section-icon">👥</div>
+      <h2 class="v8a-section-title">Parties</h2>
+    </div>
+    <div class="v8a-section-body">
+      <div class="v8a-party-pair">
+        <div class="v8a-party-col">
+          <div class="v8a-party-head">Applicant</div>
+          <div class="v8a-grid" style="grid-template-columns:1fr;">
+            <div class="v8a-field">
+              <span class="v8a-label">Name</span>
+              <span class="v8a-value {% if not certificate.applicant_name %}empty{% endif %}">{{ certificate.applicant_name|default:'Not provided' }}</span>
+            </div>
+            <div class="v8a-field">
+              <span class="v8a-label">Address</span>
+              <span class="v8a-value {% if not certificate.applicant_address %}empty{% endif %}">{{ certificate.applicant_address|default:'Not provided' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="v8a-party-col">
+          <div class="v8a-party-head">Applicant's Lawyer</div>
+          <div class="v8a-grid" style="grid-template-columns:1fr;">
+            <div class="v8a-field">
+              <span class="v8a-label">Name</span>
+              <span class="v8a-value {% if not certificate.applicant_lawyer_name %}empty{% endif %}">{{ certificate.applicant_lawyer_name|default:'Not provided' }}</span>
+            </div>
+            <div class="v8a-field">
+              <span class="v8a-label">Address</span>
+              <span class="v8a-value {% if not certificate.applicant_lawyer_address %}empty{% endif %}">{{ certificate.applicant_lawyer_address|default:'Not provided' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="v8a-party-pair">
+        <div class="v8a-party-col">
+          <div class="v8a-party-head">Respondent</div>
+          <div class="v8a-grid" style="grid-template-columns:1fr;">
+            <div class="v8a-field">
+              <span class="v8a-label">Name</span>
+              <span class="v8a-value {% if not certificate.respondent_name %}empty{% endif %}">{{ certificate.respondent_name|default:'Not provided' }}</span>
+            </div>
+            <div class="v8a-field">
+              <span class="v8a-label">Address</span>
+              <span class="v8a-value {% if not certificate.respondent_address %}empty{% endif %}">{{ certificate.respondent_address|default:'Not provided' }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="v8a-party-col">
+          <div class="v8a-party-head">Respondent's Lawyer</div>
+          <div class="v8a-grid" style="grid-template-columns:1fr;">
+            <div class="v8a-field">
+              <span class="v8a-label">Name</span>
+              <span class="v8a-value {% if not certificate.respondent_lawyer_name %}empty{% endif %}">{{ certificate.respondent_lawyer_name|default:'Not provided' }}</span>
+            </div>
+            <div class="v8a-field">
+              <span class="v8a-label">Address</span>
+              <span class="v8a-value {% if not certificate.respondent_lawyer_address %}empty{% endif %}">{{ certificate.respondent_lawyer_address|default:'Not provided' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="v8a-section" id="sec-marriage">
+    <div class="v8a-section-head">
+      <div class="v8a-section-icon">📅</div>
+      <h2 class="v8a-section-title">Marriage & Divorce</h2>
+    </div>
+    <div class="v8a-section-body">
+      <div class="v8a-grid" style="grid-template-columns:repeat(2, minmax(0, 1fr)); gap:16px;">
+        <div class="v8a-field">
+          <span class="v8a-label">Marriage Place</span>
+          <span class="v8a-value {% if not certificate.marriage_place %}empty{% endif %}">{{ certificate.marriage_place|default:'Not provided' }}</span>
+        </div>
+        <div class="v8a-field">
+          <span class="v8a-label">Marriage Date</span>
+          <span class="v8a-value {% if not certificate.marriage_date %}empty{% endif %}">{{ certificate.marriage_date|default:'Not provided' }}</span>
+        </div>
+        <div class="v8a-field">
+          <span class="v8a-label">Divorce Order Date</span>
+          <span class="v8a-value {% if not certificate.divorce_order_date %}empty{% endif %}">{{ certificate.divorce_order_date|default:'Not provided' }}</span>
+        </div>
+        <div class="v8a-field">
+          <span class="v8a-label">Effective Date</span>
+          <span class="v8a-value {% if not certificate.divorce_effective_date %}empty{% endif %}">{{ certificate.divorce_effective_date|default:'Not provided' }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="v8a-section" id="sec-signature">
+    <div class="v8a-section-head">
+      <div class="v8a-section-icon">✍️</div>
+      <h2 class="v8a-section-title">Signature</h2>
+    </div>
+    <div class="v8a-section-body">
+      <div class="v8a-field">
+        <span class="v8a-label">Clerk Signature</span>
+        <span class="v8a-value {% if not certificate.clerk_signature %}empty{% endif %}">{{ certificate.clerk_signature|default:'Not provided' }}</span>
+      </div>
+      <div class="v8a-field">
+        <span class="v8a-label">Date of Signature</span>
+        <span class="v8a-value {% if not certificate.date_of_signature %}empty{% endif %}">{{ certificate.date_of_signature|default:'Not provided' }}</span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

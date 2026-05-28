@@ -1,0 +1,713 @@
+﻿{% extends 'base.html' %}
+
+{% block content %}
+<style>
+
+@page {
+  size: letter;
+  margin: 0;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #fff;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  color: #000;
+  overflow-x: hidden;
+}
+
+.print-actions {
+  max-width: 8.5in;
+  margin: 12px auto;
+  text-align: right;
+}
+
+.print-actions button,
+.print-actions a {
+  display: inline-block;
+  padding: 8px 14px;
+  background: #111827;
+  color: #fff;
+  border: 0;
+  text-decoration: none;
+  font-size: 13px;
+  cursor: pointer;
+  margin-left: 6px;
+}
+
+.page-25a {
+  width: 8.5in;
+  height: 11in;
+  margin: 0 auto;
+  padding: 0.25in 0.35in;
+  box-sizing: border-box;
+  position: relative;
+  background: #fff;
+  overflow: hidden;
+  page-break-after: always;
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.page-25a:last-child {
+  page-break-after: auto;
+}
+
+/* ===================================================
+   TOP HEADER
+=================================================== */
+
+.top-grid {
+  display: grid;
+  grid-template-columns: 1.35in 3.85in 2.05in;
+  column-gap: 0.16in;
+  align-items: start;
+}
+
+.seal {
+  width: 1.05in;
+  height: 1.05in;
+  border: 1.4px solid #000;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0.36in auto 0;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.province {
+  text-align: center;
+  font-weight: bold;
+  font-style: italic;
+  font-size: 11px;
+  margin-bottom: 0.22in;
+}
+
+.line-field,
+.full-line,
+.side-fill,
+.relief-box,
+.blank-area,
+.sig-line,
+.party-box {
+  background: #eef1fb;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.line-field {
+  height: 0.22in;
+  border-bottom: 1px solid #000;
+  background: #eef1fb;
+  padding: 2px 5px;
+  box-sizing: border-box;
+  font-size: 8px;
+  overflow: hidden;
+}
+
+.caption {
+  text-align: center;
+  font-size: 8px;
+  font-weight: bold;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.at-row {
+  display: grid;
+  grid-template-columns: 0.25in 1fr;
+  column-gap: 5px;
+  align-items: end;
+  margin-top: 0.10in;
+}
+
+.at-label {
+  font-size: 12px;
+  font-weight: bold;
+  padding-bottom: 0.05in;
+}
+
+.file-box {
+  border: 1px solid #000;
+  height: 0.42in;
+  padding: 4px 6px;
+  box-sizing: border-box;
+  margin-top: 0.16in;
+}
+
+.file-label {
+  font-size: 8px;
+  font-weight: bold;
+}
+
+.file-value {
+  background: #eef1fb;
+  min-height: 0.18in;
+  margin-top: 2px;
+  font-size: 8px;
+  padding: 2px;
+  overflow: hidden;
+}
+
+.form-title {
+  text-align: right;
+  font-weight: bold;
+  font-size: 11px;
+  line-height: 1.05;
+  margin-top: 0.15in;
+}
+
+/* ===================================================
+   LEFT SIDE SMALL FIELDS
+=================================================== */
+
+.left-small-fields {
+  margin-top: 0.18in;
+}
+
+.side-fill {
+  height: 0.52in;
+  border-bottom: 1px solid #000;
+  background: #eef1fb;
+  padding: 3px;
+  box-sizing: border-box;
+  font-size: 7px;
+  line-height: 1.05;
+  overflow: hidden;
+}
+
+.side-caption {
+  font-size: 8px;
+  font-weight: bold;
+  font-style: italic;
+  text-align: center;
+  margin-top: 2px;
+}
+
+/* ===================================================
+   PARTY SECTIONS
+=================================================== */
+
+.party-section {
+  margin-top: -1.82in;
+  margin-left: 1.55in !important;
+}
+
+.party-section + .party-section {
+  margin-top: 0.10in;
+}
+
+.party-title {
+  font-size: 11px;
+  font-weight: bold;
+  margin-bottom: 2px;
+}
+
+.party-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 0.20in;
+}
+
+.party-box {
+  border: 1px solid #000;
+  height: 0.86in;
+  background: #eef1fb;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.party-box-head {
+  height: 0.34in;
+  border-bottom: 1px solid #000;
+  background: #fff;
+  padding: 3px;
+  box-sizing: border-box;
+  font-size: 6.7px;
+  line-height: 1.05;
+  font-weight: bold;
+  font-style: italic;
+  overflow: hidden;
+}
+
+.party-box-body {
+  height: 0.52in;
+  padding: 3px;
+  box-sizing: border-box;
+  font-size: 6.6px;
+  line-height: 1.05;
+  white-space: pre-line;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* ===================================================
+   MAIN CONTENT
+=================================================== */
+
+.full-line-row {
+  margin-top: 0.10in;
+  font-size: 8px;
+}
+
+.full-line {
+  height: 0.22in;
+  border-bottom: 1px solid #000;
+  padding: 3px 5px;
+  box-sizing: border-box;
+  font-size: 7.8px;
+  overflow: hidden;
+  line-height: 1.05;
+}
+
+.inline-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 4px;
+  align-items: end;
+  margin-top: 0.065in;
+  font-size: 7.8px;
+}
+
+.paragraph-note {
+  font-size: 7.5px;
+  font-weight: bold;
+  margin-top: 0.08in;
+  line-height: 1.08;
+}
+
+.court-orders-title {
+  margin-top: 0.13in;
+  font-size: 9.5px;
+  font-weight: bold;
+}
+
+.order-grid {
+  display: grid;
+  grid-template-columns: 1.35in 1fr;
+  column-gap: 0.08in;
+  margin-top: 0.04in;
+}
+
+.order-side-note {
+  font-size: 6.6px;
+  line-height: 1.04;
+  font-weight: bold;
+  font-style: italic;
+}
+
+.order-lines {
+  font-size: 7.8px;
+  line-height: 1.08;
+}
+
+.order-line {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 4px;
+  align-items: end;
+  margin-bottom: 0.025in;
+}
+
+.order-line .line-field {
+  height: 0.19in;
+}
+
+.relief-box {
+  margin-top: 0.06in;
+  height: 3.5in;
+  padding: 6px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  font-size: 7.2px;
+  line-height: 1.12;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* ===================================================
+   FOOTER
+=================================================== */
+
+.footer-code {
+  position: absolute;
+  left: 0.35in;
+  bottom: 0.15in;
+  font-size: 6.5px;
+}
+
+/* ===================================================
+   PAGE 2
+=================================================== */
+
+.page2-header {
+  display: grid;
+  grid-template-columns: 1fr auto 2.1in;
+  align-items: start;
+  column-gap: 0.2in;
+  font-size: 10px;
+  font-weight: bold;
+  padding-top: 0.02in;
+}
+
+.page-25a.page2 {
+  display: flex;
+  flex-direction: column;
+}
+
+.top-rule {
+  border-top: 2px solid #000;
+  margin-top: 0.08in;
+}
+
+.blank-area {
+  flex: 1;
+  min-height: 5.0in;
+  padding: 12px;
+  box-sizing: border-box;
+  font-size: 8.5px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.continued-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.page2-instruction {
+  font-size: 7px;
+  font-style: italic;
+  margin-top: 0.08in;
+}
+
+.signature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 0.25in;
+  margin-top: 0.18in;
+}
+
+.sig-line {
+  height: 0.23in;
+  border-bottom: 1px solid #000;
+  text-align: center;
+  font-size: 7px;
+  line-height: 0.23in;
+  overflow: hidden;
+}
+
+.sig-line.white {
+  background: #fff;
+}
+
+.sig-caption {
+  font-size: 7px;
+  font-weight: bold;
+  font-style: italic;
+  text-align: center;
+  margin-top: 2px;
+}
+
+.note {
+  font-size: 7px;
+  font-style: italic;
+  margin-top: 0.13in;
+  font-weight: bold;
+  line-height: 1.1;
+}
+
+/* ===================================================
+   PRINT
+=================================================== */
+
+@media print {
+
+  .print-actions {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .page-25a,
+  .page-25a * {
+    visibility: visible;
+  }
+
+  .page-25a {
+    margin: 0;
+    box-shadow: none;
+  }
+}
+
+</style>
+
+<div class="print-actions">
+  <button type="button" onclick="window.print()">Print Form</button>
+  <a href="{% url 'divorce_order_list' %}">← Back to List</a>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page-25a">
+
+  <div class="top-grid">
+
+    <div>
+      <div class="seal">SEAL</div>
+
+      <div class="left-small-fields">
+        <div class="side-fill">
+          {{ order.judge_name|default:"" }}
+        </div>
+        <div class="side-caption">Judge (print or type name)</div>
+
+        <div class="side-fill" style="margin-top:0.38in;">
+          {{ order.date_of_order|date:"F j, Y" }}
+        </div>
+        <div class="side-caption">Date of order</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="province">ONTARIO</div>
+
+      <div class="line-field">{{ order.court_name|default:"" }}</div>
+      <div class="caption">(Name of Court)</div>
+
+      <div class="at-row">
+        <div class="at-label">at</div>
+        <div>
+          <div class="line-field">{{ order.court_office_address|default:"" }}</div>
+          <div class="caption">Court office address</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="file-box">
+        <div class="file-label">Court file number</div>
+        <div class="file-value">{{ order.court_file_number|default:"" }}</div>
+      </div>
+
+      <div class="form-title">
+        Form 25A: Divorce<br>
+        Order
+      </div>
+    </div>
+
+  </div>
+
+  <div class="party-section" style="margin-left:1.45in;">
+    <div class="party-title">Applicant(s)</div>
+    <div class="party-grid">
+
+      <div class="party-box">
+        <div class="party-box-head">
+          Full legal name &amp; address for service — street &amp; number,
+          municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="party-box-body">
+          {{ order.applicant_name|default:"" }}
+          {{ order.applicant_address|default:"" }}
+        </div>
+      </div>
+
+      <div class="party-box">
+        <div class="party-box-head">
+          Lawyer's name &amp; address — street &amp; number,
+          municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="party-box-body">
+          {{ order.applicant_lawyer_name|default:"" }}
+          {{ order.applicant_lawyer_address|default:"" }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="party-section" style="margin-left:1.45in;">
+    <div class="party-title">Respondent(s)</div>
+    <div class="party-grid">
+
+      <div class="party-box">
+        <div class="party-box-head">
+          Full legal name &amp; address for service — street &amp; number,
+          municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="party-box-body">
+          {{ order.respondent_name|default:"" }}
+          {{ order.respondent_address|default:"" }}
+        </div>
+      </div>
+
+      <div class="party-box">
+        <div class="party-box-head">
+          Lawyer's name &amp; address — street &amp; number,
+          municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="party-box-body">
+          {{ order.respondent_lawyer_name|default:"" }}
+          {{ order.respondent_lawyer_address|default:"" }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="full-line-row">
+    <div class="inline-row">
+      <div>The court considered an application of <em>(name)</em></div>
+      <div class="line-field">{{ order.application_of_name|default:"" }}</div>
+    </div>
+    <div class="full-line"></div>
+  </div>
+
+  <div class="inline-row">
+    <div>on <em>(date)</em></div>
+    <div class="line-field">{{ order.date_of_order|date:"F j, Y" }}</div>
+  </div>
+
+  <div class="paragraph-note">
+    The following persons were in court
+    <em>(Give names of parties and lawyers in court. This paragraph may be struck out if the divorce is uncontested.)</em>
+  </div>
+
+  <div class="full-line">
+    {{ order.persons_in_court|truncatechars:140|default:"" }}
+  </div>
+  <div class="full-line"></div>
+
+  <div class="paragraph-note">
+    The court received evidence and considered submissions on behalf of
+    <em>(name or names)</em>
+  </div>
+
+  <div class="full-line">
+    {{ order.evidence_submissions|truncatechars:140|default:"" }}
+  </div>
+
+  <div class="court-orders-title">THIS COURT ORDERS THAT:</div>
+
+  <div class="order-grid">
+
+    <div class="order-side-note">
+      If the court decides that the divorce should take effect earlier,
+      replace “31” with the smaller number.
+    </div>
+
+    <div class="order-lines">
+
+      <div class="order-line">
+        <div><em>(full legal names of spouses)</em></div>
+        <div class="line-field">
+          {{ order.applicant_name|default:"" }}
+          {% if order.respondent_name %}
+            and {{ order.respondent_name }}
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="order-line">
+        <div>who were married at <em>(place)</em></div>
+        <div class="line-field">{{ order.marriage_place|default:"" }}</div>
+      </div>
+
+      <div class="order-line">
+        <div>on <em>(date)</em></div>
+        <div class="line-field">{{ order.marriage_date|date:"F j, Y" }}</div>
+      </div>
+
+      <div style="margin-top:4px;">
+        be divorced and that the divorce take effect
+        {{ order.divorce_effective_days|default:"31" }}
+        days after the date of this order.
+      </div>
+
+      <div style="font-style:italic; margin-top:3px;">
+        (Add further paragraphs where the court orders other relief.)
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Short preview only -->
+  <div class="relief-box">
+    {% if order.other_relief_details %}
+      {{ order.other_relief_details|truncatewords:800 }}
+    {% endif %}
+  </div>
+
+  <div class="footer-code">FLR-25A-E (2005/09)</div>
+
+</div>
+
+<!-- PAGE 2 -->
+<div class="page-25a page2">
+
+  <div class="page2-header">
+    <div>Form 25A: Divorce Order</div>
+    <div>(page 2)</div>
+    <div class="page2-file-box">
+      Court file number<br>
+      {{ order.court_file_number|default:"" }}
+    </div>
+  </div>
+
+  <div class="top-rule"></div>
+
+  <!-- Full details continued -->
+  <div class="blank-area continued-relief">
+    <div class="continued-title">
+      Additional order details continued from page 1:
+    </div>
+
+    {% if order.other_relief_details %}
+      {{ order.other_relief_details }}
+    {% endif %}
+  </div>
+
+  <div class="page2-instruction">
+    Put a line through any blank space left on this page.
+    If additional space is needed, extra pages may be attached.
+  </div>
+
+  <div class="signature-grid">
+
+    <div>
+      <div class="sig-line">
+        {{ order.date_of_signature|date:"F j, Y" }}
+      </div>
+      <div class="sig-caption">Date of signature</div>
+    </div>
+
+    <div>
+      <div class="sig-line white">
+        {{ order.judge_or_clerk_signature|default:"" }}
+      </div>
+      <div class="sig-caption">Signature of judge or clerk of the court</div>
+    </div>
+
+  </div>
+
+  <div class="note">
+    NOTE: Neither spouse is free to remarry until this order takes effect,
+    at which time you can get a Certificate of Divorce from the court office.
+  </div>
+
+  <div class="footer-code">FLR-25A-E (2005/09)</div>
+
+</div>
+
+{% endblock %}

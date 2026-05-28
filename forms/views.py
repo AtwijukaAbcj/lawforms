@@ -1,5 +1,6 @@
 # forms/views.py - Comprehensive version with all data saving properly
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
 from django.http import JsonResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import ListView, DetailView
@@ -8,6 +9,14 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.db import transaction
+from django.contrib import messages
+from django.shortcuts import redirect
+from users.context_processors import user_permissions
+from django.contrib.auth.decorators import login_required, user_passes_test
+# Delete PrintEvent (admin/staff only)
+from django.shortcuts import get_object_or_404
+from django.urls import reverse
 
 # ...existing code...
 
@@ -18,6 +27,14 @@ from django.utils import timezone
 from functools import lru_cache
 from pathlib import Path
 from collections import OrderedDict
+from .models import AffidavitOfService, CaseFile, DivorceOrder
+from .forms import (
+    AffidavitOfServiceForm,
+    AffidavitServicePage1Form,
+    AffidavitServicePage2Form,
+    AffidavitServicePage3Form,
+    DivorceOrderForm,
+)
 import re
 def _calculate_form131_totals(pages):
     """Calculate all totals for Form 13.1 print view."""
@@ -119,10 +136,190 @@ from .models import (
     Form13CMarriageProperty,
     Form13CExcludedProperty,
     Form13CFinalTotals,
-
+    ApplicationDivorce8A,
+    CertificateOfDivorce,
     # Billing & Print tracking
     PrintEvent,
+    CaseFile,
 )
+
+def _user_has_permission_or_owner(user, module_code, permission_type, instance=None):
+    """Return True if user is superuser, owner of associated CaseFile, or has role permission."""
+    if user.is_superuser:
+        return True
+
+    # Owner check for instance that links to CaseFile
+    try:
+        profile = user.profile
+    except Exception:
+        profile = None
+
+    # If instance provided and links to a case_file with owner, allow owner
+    if instance is not None:
+        case = getattr(instance, 'case_file', None)
+        if case and getattr(case, 'owner', None) == user:
+            return True
+
+    if profile and profile.has_module_permission(module_code, permission_type):
+        return True
+
+    return False
+
+
+@login_required
+def case_list(request):
+    """List CaseFiles belonging to the current user."""
+    cases = CaseFile.objects.filter(owner=request.user).order_by('-updated_at')
+    return render(request, 'forms/case_list.html', {'cases': cases})
+
+
+@login_required
+def case_create(request):
+    """Create a new CaseFile for the current user."""
+    if request.method == 'POST':
+        data = request.POST
+        case = CaseFile.objects.create(
+            owner=request.user,
+            court_file_number=data.get('court_file_number') or '',
+            court_name=data.get('court_name') or '',
+            court_office_address=data.get('court_office_address') or '',
+
+            applicant_name=data.get('applicant_name') or '',
+            applicant_address=data.get('applicant_address') or '',
+            applicant_phone=data.get('applicant_phone') or '',
+            applicant_email=data.get('applicant_email') or '',
+
+            applicant_lawyer_name=data.get('applicant_lawyer_name') or '',
+            applicant_lawyer_address=data.get('applicant_lawyer_address') or '',
+            applicant_lawyer_phone=data.get('applicant_lawyer_phone') or '',
+            applicant_lawyer_email=data.get('applicant_lawyer_email') or '',
+
+            respondent_name=data.get('respondent_name') or '',
+            respondent_address=data.get('respondent_address') or '',
+            respondent_phone=data.get('respondent_phone') or '',
+            respondent_email=data.get('respondent_email') or '',
+
+            respondent_lawyer_name=data.get('respondent_lawyer_name') or '',
+            respondent_lawyer_address=data.get('respondent_lawyer_address') or '',
+            respondent_lawyer_phone=data.get('respondent_lawyer_phone') or '',
+            respondent_lawyer_email=data.get('respondent_lawyer_email') or '',
+            valuation_date=data.get('valuation_date') or None,
+        )
+        log_audit(request, 'create', 'casefile', case.pk, f'Case {case.court_file_number or case.id}', 'Created case')
+        return redirect('case_detail', pk=case.pk)
+
+    return render(request, 'forms/case_create.html')
+
+
+@login_required
+def case_detail(request, pk):
+    """View a CaseFile (only owner may view)."""
+    case = get_object_or_404(CaseFile, pk=pk, owner=request.user)
+    return render(request, 'forms/case_detail.html', {'case': case})
+
+
+@login_required
+@require_http_methods(["POST"])
+def case_push_to_forms(request, pk):
+    """Push CaseFile top-level fields to all related forms (explicit action).
+
+    Only the case owner may perform this action. This performs a whitelist
+    update of common top-level fields on related form records.
+    """
+    case = get_object_or_404(CaseFile, pk=pk, owner=request.user)
+
+    field_map = [
+        'court_file_number', 'court_name', 'court_office_address',
+        'applicant_name', 'applicant_address', 'applicant_phone', 'applicant_email',
+        'applicant_lawyer_name', 'applicant_lawyer_address', 'applicant_lawyer_phone', 'applicant_lawyer_email',
+        'respondent_name', 'respondent_address', 'respondent_phone', 'respondent_email',
+        'respondent_lawyer_name', 'respondent_lawyer_address', 'respondent_lawyer_phone', 'respondent_lawyer_email',
+    ]
+
+    updated = 0
+    with transaction.atomic():
+        # FinancialStatement
+        for stmt in case.financial_statements.all():
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+        # NetFamilyPropertyStatement
+        for stmt in case.net_family_property_statements.all():
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+        # NetFamilyProperty13B
+        for stmt in case.net_family_property_13b_forms.all():
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+        # ComparisonNetFamilyProperty
+        for stmt in case.comparison_net_family_properties.all():
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+        # Form131FinancialStatement
+        for stmt in case.form_131_financial_statements.all():
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+        # CertificateOfDivorce
+        # Attach any existing CertificateOfDivorce records that aren't linked to this case
+        attached_ids = []
+        if case.court_file_number:
+            matches = CertificateOfDivorce.objects.filter(case_file__isnull=True, court_file_number=case.court_file_number)
+            for a in matches:
+                a.case_file = case
+                a.save()
+                attached_ids.append(a.pk)
+                updated += 1
+
+        # Apply case fields to already-linked certificates (exclude ones we just attached to avoid double-counting)
+        for stmt in case.certificates_of_divorce.exclude(pk__in=attached_ids):
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+        # DivorceOrder
+        attached_ids = []
+        if case.court_file_number:
+            matches = DivorceOrder.objects.filter(case_file__isnull=True, court_file_number=case.court_file_number)
+            for a in matches:
+                a.case_file = case
+                a.save()
+                attached_ids.append(a.pk)
+                updated += 1
+
+        for stmt in case.divorce_orders.exclude(pk__in=attached_ids):
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+        # AffidavitOfService
+        # Attach any existing AffidavitOfService records that aren't linked to this case
+        attached_ids = []
+        if case.court_file_number:
+            matches = AffidavitOfService.objects.filter(case_file__isnull=True, court_file_number=case.court_file_number)
+            for a in matches:
+                a.case_file = case
+                a.save()
+                attached_ids.append(a.pk)
+                updated += 1
+
+        # Apply case fields to already-linked affidavits (exclude ones we just attached to avoid double-counting)
+        for stmt in case.affidavits_of_service.exclude(pk__in=attached_ids):
+            if _apply_case_fields_to_instance(stmt, case, overwrite=True):
+                stmt.save()
+                updated += 1
+
+    messages.success(request, f"Pushed case data to {updated} related forms.")
+    log_audit(request, 'update', 'case', case.pk, f"Push Case #{case.pk}", f"Pushed data to {updated} related forms")
+    return redirect('case_detail', pk=case.pk)
 from django.contrib.auth.decorators import login_required
 from .forms import (
     # Single-page forms
@@ -156,6 +353,14 @@ from .forms import (
     Form13CComparisonForm,
     Form13CGeneralHouseholdItemForm,
     Form13CBusinessInterestForm,
+    AffidavitOfServiceForm,
+    CertificateOfDivorceForm,
+    ApplicationDivorce8APage1Form,
+    ApplicationDivorce8APage2Form,
+    ApplicationDivorce8APage3Form,
+    ApplicationDivorce8APage4Form,
+    ApplicationDivorce8APage5Form,
+    ApplicationDivorce8APage6Form,
 )
 
 
@@ -184,6 +389,34 @@ def parse_date(value):
         return None
     return value
 
+def calculate_equalisation(total6_app, total6_resp):
+    """
+    Equalisation = (Highest Net Family Property - Lowest Net Family Property) / 2
+    """
+    total6_app = float(total6_app or 0)
+    total6_resp = float(total6_resp or 0)
+
+    highest = max(total6_app, total6_resp)
+    lowest = min(total6_app, total6_resp)
+
+    amount = round((highest - lowest) / 2, 2)
+
+    if total6_app > total6_resp:
+        payer = "Applicant"
+        receiver = "Respondent"
+    elif total6_resp > total6_app:
+        payer = "Respondent"
+        receiver = "Applicant"
+    else:
+        payer = "None"
+        receiver = "None"
+
+    return {
+        "amount": amount,
+        "payer": payer,
+        "receiver": receiver,
+    }
+
 
 # ============================================================
 # DASHBOARD
@@ -191,24 +424,142 @@ def parse_date(value):
 @login_required
 def dashboard(request):
     """Main dashboard showing all form types."""
-    financial_statements = FinancialStatement.objects.all().order_by('-updated_at')
-    net_family_13b = NetFamilyProperty13B.objects.all().order_by('-updated_at')
-    comparison_nfp = ComparisonNetFamilyProperty.objects.all().order_by('-updated_at')
-    from .models import Form131FinancialStatement
-    financial_statements_131 = Form131FinancialStatement.objects.all().order_by('-updated_at')
+
+    from .models import (
+        FinancialStatement,
+        Form131FinancialStatement,
+        NetFamilyProperty13B,
+        ComparisonNetFamilyProperty,
+        AffidavitOfService,
+        ApplicationDivorce8A,
+        CertificateOfDivorce,
+        DivorceOrder,
+    )
+
+    # =========================
+    # FORM QUERIES
+    # =========================
+
+    financial_statements = FinancialStatement.objects.all().order_by("-updated_at")
+
+    financial_statements_131 = (
+        Form131FinancialStatement.objects.all()
+        .order_by("-updated_at")
+    )
+
+    net_family_13b = (
+        NetFamilyProperty13B.objects.all()
+        .order_by("-updated_at")
+    )
+
+    comparison_nfp = (
+        ComparisonNetFamilyProperty.objects.all()
+        .order_by("-updated_at")
+    )
+
+    affidavits = (
+        AffidavitOfService.objects.all()
+        .order_by("-updated_at")
+    )
+
+    application_divorce_8a = (
+        ApplicationDivorce8A.objects.all()
+        .order_by("-updated_at")
+    )
+
+    certificates = (
+        CertificateOfDivorce.objects.all()
+        .order_by("-updated_at")
+    )
+
+    divorce_orders = (
+        DivorceOrder.objects.all()
+        .order_by("-updated_at")
+    )
+
+    # =========================
+    # CONTEXT
+    # =========================
 
     context = {
-        'financial_statements': financial_statements[:5],
-        'financial_statements_count': financial_statements.count(),
-        'financial_statements_131': financial_statements_131[:5],
-        'financial_statements_131_count': financial_statements_131.count(),
-        'net_family_13b': net_family_13b[:5],
-        'net_family_13b_count': net_family_13b.count(),
-        'comparison_nfp': comparison_nfp[:5],
-        'comparison_nfp_count': comparison_nfp.count(),
-        'total_forms': financial_statements.count() + financial_statements_131.count() + net_family_13b.count() + comparison_nfp.count(),
+
+        # -------------------------
+        # Financial Statement (13)
+        # -------------------------
+        "financial_statements": financial_statements[:5],
+        "financial_statements_count": financial_statements.count(),
+
+        # -------------------------
+        # Financial Statement (13.1)
+        # -------------------------
+        "financial_statements_131": financial_statements_131[:5],
+        "financial_statements_131_count": financial_statements_131.count(),
+
+        # -------------------------
+        # Net Family Property (13B)
+        # -------------------------
+        "net_family_13b": net_family_13b[:5],
+        "net_family_13b_count": net_family_13b.count(),
+
+        # -------------------------
+        # Comparison NFP (13C)
+        # -------------------------
+        "comparison_nfp": comparison_nfp[:5],
+        "comparison_nfp_count": comparison_nfp.count(),
+
+        # -------------------------
+        # Affidavit of Service (6B)
+        # -------------------------
+        "affidavits": affidavits[:5],
+        "affidavits_count": affidavits.count(),
+
+        # -------------------------
+        # Divorce Application (8A)
+        # -------------------------
+        "application_divorce_8a": application_divorce_8a[:5],
+        "application_divorce_8a_count": application_divorce_8a.count(),
+
+        # -------------------------
+        # Certificate of Divorce (36B)
+        # -------------------------
+        "certificates": certificates[:5],
+        "certificates_count": certificates.count(),
+
+        # -------------------------
+        # Divorce Order (25A)
+        # -------------------------
+        "divorce_orders": divorce_orders[:5],
+        "divorce_orders_count": divorce_orders.count(),
+
+        # -------------------------
+        # Total Forms
+        # -------------------------
+        "total_forms": (
+
+            financial_statements.count()
+
+            + financial_statements_131.count()
+
+            + net_family_13b.count()
+
+            + comparison_nfp.count()
+
+            + affidavits.count()
+
+            + application_divorce_8a.count()
+
+            + certificates.count()
+
+            + divorce_orders.count()
+
+        ),
     }
-    return render(request, "forms/dashboard.html", context)
+
+    return render(
+        request,
+        "forms/dashboard.html",
+        context
+    )
 
 
 # ============================================================
@@ -223,6 +574,15 @@ def dashboard(request):
 @login_required
 def financial_statement_131_page1_new(request):
     """View for Form 13.1 - Page 1 (new form creation)."""
+    # Support prefill from CaseFile via ?case_id=
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    if case_id:
+        try:
+            case = CaseFile.objects.get(pk=case_id, owner=request.user)
+        except CaseFile.DoesNotExist:
+            case = None
+
     if request.method == "POST":
         from .models import Form131FinancialStatement
         statement = Form131FinancialStatement.objects.create(draft={})
@@ -240,7 +600,12 @@ def financial_statement_131_page1_new(request):
         statement.court_file_number = data['court_file_number']
         statement.applicant_name = data.get('applicant_name', '')
         statement.respondent_name = data.get('respondent_name', '')
-        statement.save()
+        # Attach case if provided and copy case fields where blank
+        if case:
+            statement.case_file = case
+            changed = _apply_case_fields_to_instance(statement, case, overwrite=False)
+            if changed or statement.case_file_id != case.pk:
+                statement.save()
         statement.save_page_data(1, data)
         
         # Send email notification for new form
@@ -252,8 +617,16 @@ def financial_statement_131_page1_new(request):
                   f"Created - Applicant: {statement.applicant_name or 'N/A'}")
         
         return redirect("financial_statement_131_page2", pk=statement.id)
+    # For GET, provide page_data initial values from case if present
+    page_data = {}
+    if case:
+        page_data = _build_case_initial(case)
+
+    case_list = CaseFile.objects.filter(owner=request.user)
     return render(request, "forms/financial_statement_131_page1.html", {
-        "page_data": {},
+        "page_data": page_data,
+        "case_list": case_list,
+        "selected_case": case,
     })
 
 
@@ -262,11 +635,32 @@ def financial_statement_131_page1_new(request):
 # ============================================================
 @login_required
 def financial_statement_131_list(request):
-    """List view for Form 13.1 Financial Statements."""
-    from .models import Form131FinancialStatement
-    statements = Form131FinancialStatement.objects.filter(is_deleted=False).order_by('-updated_at')
-    return render(request, "forms/financial_statement_131_list.html", {"statements": statements})
 
+    statements = Form131FinancialStatement.objects.filter(
+        is_deleted=False
+    ).order_by("-updated_at")
+
+    perms = user_permissions(request).get(
+        "user_permissions",
+        {}
+    ).get(
+        "financial_statement_131",
+        {}
+    )
+
+    for s in statements:
+        s.can_view = request.user.is_superuser or perms.get("view", False)
+        s.can_edit = request.user.is_superuser or perms.get("edit", False)
+        s.can_print = request.user.is_superuser or perms.get("print", False)
+        s.can_delete = request.user.is_superuser or perms.get("delete", False)
+
+    return render(
+        request,
+        "forms/financial_statement_131_list.html",
+        {
+            "statements": statements
+        }
+    )
 @csrf_exempt
 @login_required
 def financial_statement_131_page1(request, pk):
@@ -318,6 +712,82 @@ def _resolve_form131_court_file_number(statement, posted_value):
     existing = (statement.court_file_number or "").strip()
     return existing
 
+
+CASE_FIELD_TARGETS = {
+    "court_file_number": ["court_file_number"],
+    "court_name": ["court_name"],
+    "court_office_address": ["court_office_address", "court_address"],
+
+    "applicant_name": ["applicant_name"],
+    "applicant_address": ["applicant_address"],
+    "applicant_phone": ["applicant_phone", "applicant_phone_fax"],
+    "applicant_email": ["applicant_email"],
+
+    "applicant_lawyer_name": ["applicant_lawyer_name"],
+    "applicant_lawyer_address": ["applicant_lawyer_address"],
+    "applicant_lawyer_phone": ["applicant_lawyer_phone", "applicant_lawyer_phone_fax"],
+    "applicant_lawyer_email": ["applicant_lawyer_email"],
+
+    "respondent_name": ["respondent_name"],
+    "respondent_address": ["respondent_address"],
+    "respondent_phone": ["respondent_phone", "respondent_phone_fax"],
+    "respondent_email": ["respondent_email"],
+
+    "respondent_lawyer_name": ["respondent_lawyer_name"],
+    "respondent_lawyer_address": ["respondent_lawyer_address"],
+    "respondent_lawyer_phone": ["respondent_lawyer_phone", "respondent_lawyer_phone_fax"],
+    "respondent_lawyer_email": ["respondent_lawyer_email"],
+
+    "valuation_date": ["valuation_date"],
+}
+
+
+def _build_case_initial(case):
+    if not case:
+        return {}
+
+    initial = {}
+
+    for case_field, targets in CASE_FIELD_TARGETS.items():
+        value = getattr(case, case_field, None)
+
+        if value is None:
+            value = ""
+
+        for target in targets:
+            initial[target] = value
+
+    return initial
+
+
+def _apply_case_fields_to_instance(instance, case, overwrite=False):
+    if not instance or not case:
+        return False
+
+    changed = False
+
+    for case_field, targets in CASE_FIELD_TARGETS.items():
+        value = getattr(case, case_field, None)
+
+        if value is None:
+            value = ""
+
+        for target in targets:
+            if not hasattr(instance, target):
+                continue
+
+            existing = getattr(instance, target)
+
+            if overwrite:
+                if existing != value:
+                    setattr(instance, target, value)
+                    changed = True
+            else:
+                if existing in (None, "") and value not in (None, ""):
+                    setattr(instance, target, value)
+                    changed = True
+
+    return changed
 
 def _remove_div_block(html, class_name):
     """Remove an entire <div class="...class_name..."> block including all nested content.
@@ -798,7 +1268,21 @@ def financial_statement_131_print(request, pk):
 @login_required
 def financial_statement_list(request):
     """List all financial statements."""
+    # require module view permission
+    if not _user_has_permission_or_owner(request.user, 'financial_statement', 'view'):
+        messages.error(request, "You don't have permission to view Financial Statements.")
+        return redirect('dashboard')
+
     statements = FinancialStatement.objects.all().order_by('-updated_at')
+    
+    # Pre-calculate permissions for each statement
+    perms = user_permissions(request).get('user_permissions', {}).get('financial_statement', {})
+    for stmt in statements:
+        stmt.can_view = request.user.is_superuser or perms.get('view', False)
+        stmt.can_edit = request.user.is_superuser or perms.get('edit', False)
+        stmt.can_print = request.user.is_superuser or perms.get('print', False)
+        stmt.can_delete = request.user.is_superuser or perms.get('delete', False)
+    
     return render(request, "forms/financial_statement_list.html", {"statements": statements})
 
 
@@ -807,6 +1291,11 @@ def financial_statement_list(request):
 def financial_statement_delete(request, pk):
     """Soft delete a financial statement (move to recycle bin)."""
     statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+    # enforce delete permission or staff/superuser or owner
+    if not (request.user.is_superuser or request.user.is_staff or _user_has_permission_or_owner(request.user, 'financial_statement', 'delete', instance=statement)):
+        messages.error(request, "You don't have permission to delete this Financial Statement.")
+        return redirect('financial_statement_view', pk=pk)
+
     if request.method == "POST":
         statement.soft_delete()
         log_audit(request, 'delete', 'financial_statement', pk, 
@@ -816,7 +1305,7 @@ def financial_statement_delete(request, pk):
     return render(request, "forms/confirm_delete.html", {
         "object": statement,
         "object_name": f"Financial Statement #{statement.id}",
-        "cancel_url": reverse("financial_statement_list"),
+        "cancel_url": "financial_statement_list",
     })
 
 
@@ -828,10 +1317,33 @@ def financial_statement_page1_redirect(request):
 @login_required
 def financial_statement_page1_new(request):
     """Create a new Financial Statement."""
+    # Support prefill from CaseFile via ?case_id=
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    if case_id:
+        try:
+            case = CaseFile.objects.get(pk=case_id, owner=request.user)
+        except CaseFile.DoesNotExist:
+            case = None
+
+    # require create permission
+    if not _user_has_permission_or_owner(request.user, 'financial_statement', 'create'):
+        messages.error(request, "You don't have permission to create Financial Statements.")
+        return redirect('financial_statement_list')
+
     if request.method == "POST":
         form = FinancialStatementForm(request.POST)
         if form.is_valid():
             statement = form.save()
+            if case:
+                changed = False
+                if not getattr(statement, 'case_file', None):
+                    statement.case_file = case
+                    changed = True
+                if _apply_case_fields_to_instance(statement, case, overwrite=False):
+                    changed = True
+                if changed:
+                    statement.save()
             # Save additional page 1 fields
             _save_page1_fields(statement, request.POST)
             
@@ -845,15 +1357,34 @@ def financial_statement_page1_new(request):
             
             return redirect("financial_statement_page2", pk=statement.pk)
     else:
-        form = FinancialStatementForm()
-    return render(request, "forms/financial_statement_page1.html", {"form": form, "statement": None})
+        # Prefill form if creating and case provided
+        if case:
+            form = FinancialStatementForm(initial=_build_case_initial(case))
+        else:
+            form = FinancialStatementForm()
+    case_list = CaseFile.objects.filter(owner=request.user).order_by("-updated_at")
 
+    page_data = {}
+    if case:
+        page_data = _build_case_initial(case)
+
+    return render(request, "forms/financial_statement_page1.html", {
+        "form": form,
+        "statement": None,
+        "page_data": page_data,
+        "case_list": case_list,
+        "selected_case": case,
+    })
 
 @login_required
 def financial_statement_page1(request, pk=None):
     """Edit an existing Financial Statement page 1."""
     statement = get_object_or_404(FinancialStatement, pk=pk) if pk else None
-    
+    # require edit permission or owner
+    if pk and not _user_has_permission_or_owner(request.user, 'financial_statement', 'edit', instance=statement):
+        messages.error(request, "You don't have permission to edit this Financial Statement.")
+        return redirect('financial_statement_view', pk=pk)
+
     if request.method == "POST":
         form = FinancialStatementForm(request.POST, instance=statement)
         if form.is_valid():
@@ -866,7 +1397,37 @@ def financial_statement_page1(request, pk=None):
     else:
         form = FinancialStatementForm(instance=statement)
     
-    return render(request, "forms/financial_statement_page1.html", {"form": form, "statement": statement})
+        page_data = {
+        "court_name": statement.court_name or "",
+        "court_file_number": statement.court_file_number or "",
+        "court_office_address": statement.court_office_address or "",
+
+        "applicant_name": statement.applicant_name or "",
+        "applicant_address": statement.applicant_address or "",
+        "applicant_phone": statement.applicant_phone or "",
+        "applicant_email": statement.applicant_email or "",
+
+        "applicant_lawyer_name": statement.applicant_lawyer_name or "",
+        "applicant_lawyer_address": statement.applicant_lawyer_address or "",
+        "applicant_lawyer_phone": statement.applicant_lawyer_phone or "",
+        "applicant_lawyer_email": statement.applicant_lawyer_email or "",
+
+        "respondent_name": statement.respondent_name or "",
+        "respondent_address": statement.respondent_address or "",
+        "respondent_phone": statement.respondent_phone or "",
+        "respondent_email": statement.respondent_email or "",
+
+        "respondent_lawyer_name": statement.respondent_lawyer_name or "",
+        "respondent_lawyer_address": statement.respondent_lawyer_address or "",
+        "respondent_lawyer_phone": statement.respondent_lawyer_phone or "",
+        "respondent_lawyer_email": statement.respondent_lawyer_email or "",
+    }
+
+    return render(request, "forms/financial_statement_page1.html", {
+        "form": form,
+        "statement": statement,
+        "page_data": page_data,
+    })
 
 
 def _save_page1_fields(statement, post_data):
@@ -1621,6 +2182,10 @@ def financial_statement_view(request, pk):
 def financial_statement_print(request, pk):
     """Official printable version of Financial Statement."""
     statement = get_object_or_404(FinancialStatement, pk=pk)
+    # require print permission or owner
+    if not _user_has_permission_or_owner(request.user, 'financial_statement', 'print', instance=statement):
+        messages.error(request, "You don't have permission to print this Financial Statement.")
+        return redirect('financial_statement_view', pk=pk)
     
     # Ensure JSON fields are properly formatted as lists
     context = {
@@ -1733,10 +2298,27 @@ def financial_statement_print(request, pk):
 # ============================================================
 @login_required
 def net_family_property_13b_list(request):
-    """List all 13B forms."""
-    forms = NetFamilyProperty13B.objects.all().order_by('-updated_at')
-    return render(request, "forms/net_family_property_13b_list.html", {"forms": forms})
+    forms = NetFamilyProperty13B.objects.filter(
+        is_deleted=False
+    ).order_by("-updated_at")
 
+    perms = user_permissions(request).get(
+        "user_permissions",
+        {}
+    ).get(
+        "net_family_property_13b",
+        {}
+    )
+
+    for form in forms:
+        form.can_view = request.user.is_superuser or perms.get("view", False)
+        form.can_edit = request.user.is_superuser or perms.get("edit", False)
+        form.can_print = request.user.is_superuser or perms.get("print", False)
+        form.can_delete = request.user.is_superuser or perms.get("delete", False)
+
+    return render(request, "forms/net_family_property_13b_list.html", {
+        "forms": forms,
+    })
 
 @login_required
 @require_http_methods(["GET", "POST"])
@@ -1752,7 +2334,7 @@ def net_family_property_13b_delete(request, pk):
     return render(request, "forms/confirm_delete.html", {
         "object": form,
         "object_name": f"Net Family Property (13B) #{form.id}",
-        "cancel_url": reverse("net_family_property_13b_list"),
+        "cancel_url": "net_family_property_13b_list",
     })
 
 
@@ -1770,12 +2352,30 @@ def net_family_property_13b_create_page1(request, pk=None):
         can_delete=True,
     )
 
+    # Support pre-filling from an existing CaseFile via ?case_id=<id>
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    if case_id:
+        try:
+            case = CaseFile.objects.get(pk=case_id, owner=request.user)
+        except CaseFile.DoesNotExist:
+            case = None
+
     if request.method == "POST":
         form = NetFamilyProperty13BForm(request.POST, instance=statement)
         asset_formset = AssetFormSet(request.POST, instance=statement)
 
         if form.is_valid() and asset_formset.is_valid():
             statement = form.save()
+            if case:
+                changed = False
+                if not statement.case_file:
+                    statement.case_file = case
+                    changed = True
+                if _apply_case_fields_to_instance(statement, case, overwrite=False):
+                    changed = True
+                if changed:
+                    statement.save()
             asset_formset.instance = statement
             asset_formset.save()
             
@@ -1793,8 +2393,13 @@ def net_family_property_13b_create_page1(request, pk=None):
             
             return redirect("net_family_property_13b_page2", pk=statement.pk)
     else:
-        form = NetFamilyProperty13BForm(instance=statement)
-        asset_formset = AssetFormSet(instance=statement)
+        # If creating a new statement and a case is provided, prefill initial data
+        if statement is None and case:
+            form = NetFamilyProperty13BForm(instance=statement, initial=_build_case_initial(case))
+            asset_formset = AssetFormSet(instance=statement)
+        else:
+            form = NetFamilyProperty13BForm(instance=statement)
+            asset_formset = AssetFormSet(instance=statement)
 
     # Calculate Total 1 from saved assets
     def sum_field(items, field):
@@ -1811,11 +2416,16 @@ def net_family_property_13b_create_page1(request, pk=None):
         'total1_resp': sum_field(assets, 'respondent_value'),
     }
 
+    # Provide case list and selected case to the template for selection/UI
+    case_list = CaseFile.objects.filter(owner=request.user) if statement is None else None
+
     return render(request, "forms/net_family_property_13b_page1.html", {
         "form": form,
         "asset_formset": asset_formset,
         "statement": statement,
         "totals": totals,
+        "case_list": case_list,
+        "selected_case": case,
     })
 
 
@@ -1903,11 +2513,12 @@ def net_family_property_13b_create_page2(request, pk):
     })
 
 
+
 @login_required
 def net_family_property_13b_create_page3(request, pk):
-    """13B Page 3 - Excluded Property."""
+    """13B Page 3 - Excluded Property, Final Totals, and Equalisation Note."""
     statement = get_object_or_404(NetFamilyProperty13B, pk=pk)
-    
+
     ExcludedFormSet = inlineformset_factory(
         NetFamilyProperty13B,
         NetFamilyProperty13BExcluded,
@@ -1916,24 +2527,34 @@ def net_family_property_13b_create_page3(request, pk):
         can_delete=True,
     )
 
+    try:
+        final_totals = statement.final_totals
+    except Exception:
+        final_totals = NetFamilyProperty13BFinalTotals(statement=statement)
+
     if request.method == "POST":
         if "prev" in request.POST:
             return redirect("net_family_property_13b_page2", pk=pk)
-            
+
         excluded_formset = ExcludedFormSet(request.POST, instance=statement)
+
         if excluded_formset.is_valid():
             excluded_formset.save()
+
+            # Save the editable Equalisation textarea note
+            final_totals.equalisation_note = request.POST.get("equalisation_note", "")
+            final_totals.save()
+
             return redirect("net_family_property_13b_list")
     else:
         excluded_formset = ExcludedFormSet(instance=statement)
 
-    # Calculate totals from related data
     assets = list(statement.assets.all())
     debts = list(statement.debts.all())
     marriage_properties = list(statement.marriage_properties.all())
     marriage_debts = list(statement.marriage_debts.all())
     excluded_properties = list(statement.excluded_properties.all())
-    
+
     def sum_field(items, field):
         total = 0
         for item in items:
@@ -1941,52 +2562,58 @@ def net_family_property_13b_create_page3(request, pk):
             if val:
                 total += float(val)
         return total
-    
+
     totals = {
-        'total1_app': sum_field(assets, 'applicant_value'),
-        'total1_resp': sum_field(assets, 'respondent_value'),
-        'total2_app': sum_field(debts, 'applicant_value'),
-        'total2_resp': sum_field(debts, 'respondent_value'),
+        "total1_app": sum_field(assets, "applicant_value"),
+        "total1_resp": sum_field(assets, "respondent_value"),
+        "total2_app": sum_field(debts, "applicant_value"),
+        "total2_resp": sum_field(debts, "respondent_value"),
     }
-    
-    marriage_prop_app = sum_field(marriage_properties, 'applicant_value')
-    marriage_prop_resp = sum_field(marriage_properties, 'respondent_value')
-    marriage_debt_app = sum_field(marriage_debts, 'applicant_value')
-    marriage_debt_resp = sum_field(marriage_debts, 'respondent_value')
-    
-    totals['total3_app'] = marriage_prop_app - marriage_debt_app
-    totals['total3_resp'] = marriage_prop_resp - marriage_debt_resp
-    totals['total4_app'] = sum_field(excluded_properties, 'applicant_value')
-    totals['total4_resp'] = sum_field(excluded_properties, 'respondent_value')
-    totals['total5_app'] = totals['total2_app'] + totals['total3_app'] + totals['total4_app']
-    totals['total5_resp'] = totals['total2_resp'] + totals['total3_resp'] + totals['total4_resp']
-    totals['total6_app'] = totals['total1_app'] - totals['total5_app']
-    totals['total6_resp'] = totals['total1_resp'] - totals['total5_resp']
-    
+
+    marriage_prop_app = sum_field(marriage_properties, "applicant_value")
+    marriage_prop_resp = sum_field(marriage_properties, "respondent_value")
+    marriage_debt_app = sum_field(marriage_debts, "applicant_value")
+    marriage_debt_resp = sum_field(marriage_debts, "respondent_value")
+
+    totals["total3_app"] = marriage_prop_app - marriage_debt_app
+    totals["total3_resp"] = marriage_prop_resp - marriage_debt_resp
+    totals["total4_app"] = sum_field(excluded_properties, "applicant_value")
+    totals["total4_resp"] = sum_field(excluded_properties, "respondent_value")
+    totals["total5_app"] = totals["total2_app"] + totals["total3_app"] + totals["total4_app"]
+    totals["total5_resp"] = totals["total2_resp"] + totals["total3_resp"] + totals["total4_resp"]
+    totals["total6_app"] = totals["total1_app"] - totals["total5_app"]
+    totals["total6_resp"] = totals["total1_resp"] - totals["total5_resp"]
+
+    equalisation_amount = calculate_equalisation(
+        totals["total6_app"],
+        totals["total6_resp"]
+    )
+
     return render(request, "forms/net_family_property_13b_page3.html", {
         "excluded_formset": excluded_formset,
         "statement": statement,
+        "final_totals": final_totals,
         "totals": totals,
-        "pk": pk
+        "equalisation_amount": equalisation_amount,
+        "pk": pk,
     })
-
 
 @login_required
 def net_family_property_13b_view(request, pk):
     """Full view of a Net Family Property 13B form."""
     statement = get_object_or_404(NetFamilyProperty13B, pk=pk)
-    
+
     assets = list(statement.assets.all())
     debts = list(statement.debts.all())
     marriage_properties = list(statement.marriage_properties.all())
     marriage_debts = list(statement.marriage_debts.all())
     excluded_properties = list(statement.excluded_properties.all())
-    
+
     try:
         final_totals = statement.final_totals
-    except:
+    except Exception:
         final_totals = None
-    
+
     def sum_field(items, field):
         total = 0
         for item in items:
@@ -1994,28 +2621,33 @@ def net_family_property_13b_view(request, pk):
             if val:
                 total += float(val)
         return total
-    
+
     totals = {
-        'total1_app': sum_field(assets, 'applicant_value'),
-        'total1_resp': sum_field(assets, 'respondent_value'),
-        'total2_app': sum_field(debts, 'applicant_value'),
-        'total2_resp': sum_field(debts, 'respondent_value'),
+        "total1_app": sum_field(assets, "applicant_value"),
+        "total1_resp": sum_field(assets, "respondent_value"),
+        "total2_app": sum_field(debts, "applicant_value"),
+        "total2_resp": sum_field(debts, "respondent_value"),
     }
-    
-    marriage_prop_app = sum_field(marriage_properties, 'applicant_value')
-    marriage_prop_resp = sum_field(marriage_properties, 'respondent_value')
-    marriage_debt_app = sum_field(marriage_debts, 'applicant_value')
-    marriage_debt_resp = sum_field(marriage_debts, 'respondent_value')
-    
-    totals['total3_app'] = marriage_prop_app - marriage_debt_app
-    totals['total3_resp'] = marriage_prop_resp - marriage_debt_resp
-    totals['total4_app'] = sum_field(excluded_properties, 'applicant_value')
-    totals['total4_resp'] = sum_field(excluded_properties, 'respondent_value')
-    totals['total5_app'] = totals['total2_app'] + totals['total3_app'] + totals['total4_app']
-    totals['total5_resp'] = totals['total2_resp'] + totals['total3_resp'] + totals['total4_resp']
-    totals['total6_app'] = totals['total1_app'] - totals['total5_app']
-    totals['total6_resp'] = totals['total1_resp'] - totals['total5_resp']
-    
+
+    marriage_prop_app = sum_field(marriage_properties, "applicant_value")
+    marriage_prop_resp = sum_field(marriage_properties, "respondent_value")
+    marriage_debt_app = sum_field(marriage_debts, "applicant_value")
+    marriage_debt_resp = sum_field(marriage_debts, "respondent_value")
+
+    totals["total3_app"] = marriage_prop_app - marriage_debt_app
+    totals["total3_resp"] = marriage_prop_resp - marriage_debt_resp
+    totals["total4_app"] = sum_field(excluded_properties, "applicant_value")
+    totals["total4_resp"] = sum_field(excluded_properties, "respondent_value")
+    totals["total5_app"] = totals["total2_app"] + totals["total3_app"] + totals["total4_app"]
+    totals["total5_resp"] = totals["total2_resp"] + totals["total3_resp"] + totals["total4_resp"]
+    totals["total6_app"] = totals["total1_app"] - totals["total5_app"]
+    totals["total6_resp"] = totals["total1_resp"] - totals["total5_resp"]
+
+    equalisation = calculate_equalisation(
+    totals["total6_app"],
+    totals["total6_resp"]
+    )
+
     return render(request, "forms/net_family_property_13b_view.html", {
         "statement": statement,
         "assets": assets,
@@ -2025,26 +2657,26 @@ def net_family_property_13b_view(request, pk):
         "excluded_properties": excluded_properties,
         "final_totals": final_totals,
         "totals": totals,
+        "equalisation": equalisation,
         "pk": pk,
     })
-
 
 @login_required
 def net_family_property_13b_print(request, pk):
     """Printable version of 13B form."""
     statement = get_object_or_404(NetFamilyProperty13B, pk=pk)
-    
+
     assets = list(statement.assets.all())
     debts = list(statement.debts.all())
     marriage_properties = list(statement.marriage_properties.all())
     marriage_debts = list(statement.marriage_debts.all())
     excluded_properties = list(statement.excluded_properties.all())
-    
+
     try:
         final_totals = statement.final_totals
-    except:
+    except Exception:
         final_totals = None
-    
+
     def sum_field(items, field):
         total = 0
         for item in items:
@@ -2052,43 +2684,56 @@ def net_family_property_13b_print(request, pk):
             if val:
                 total += float(val)
         return total
-    
+
     totals = {
-        'total1_app': sum_field(assets, 'applicant_value'),
-        'total1_resp': sum_field(assets, 'respondent_value'),
-        'total2_app': sum_field(debts, 'applicant_value'),
-        'total2_resp': sum_field(debts, 'respondent_value'),
+        "total1_app": sum_field(assets, "applicant_value"),
+        "total1_resp": sum_field(assets, "respondent_value"),
+        "total2_app": sum_field(debts, "applicant_value"),
+        "total2_resp": sum_field(debts, "respondent_value"),
     }
-    
-    marriage_prop_app = sum_field(marriage_properties, 'applicant_value')
-    marriage_prop_resp = sum_field(marriage_properties, 'respondent_value')
-    marriage_debt_app = sum_field(marriage_debts, 'applicant_value')
-    marriage_debt_resp = sum_field(marriage_debts, 'respondent_value')
-    
-    totals['total3_app'] = marriage_prop_app - marriage_debt_app
-    totals['total3_resp'] = marriage_prop_resp - marriage_debt_resp
-    totals['total4_app'] = sum_field(excluded_properties, 'applicant_value')
-    totals['total4_resp'] = sum_field(excluded_properties, 'respondent_value')
-    totals['total5_app'] = totals['total2_app'] + totals['total3_app'] + totals['total4_app']
-    totals['total5_resp'] = totals['total2_resp'] + totals['total3_resp'] + totals['total4_resp']
-    totals['total6_app'] = totals['total1_app'] - totals['total5_app']
-    totals['total6_resp'] = totals['total1_resp'] - totals['total5_resp']
-    
-    # Log the print event for billing
+
+    marriage_prop_app = sum_field(marriage_properties, "applicant_value")
+    marriage_prop_resp = sum_field(marriage_properties, "respondent_value")
+    marriage_debt_app = sum_field(marriage_debts, "applicant_value")
+    marriage_debt_resp = sum_field(marriage_debts, "respondent_value")
+
+    totals["total3_app"] = marriage_prop_app - marriage_debt_app
+    totals["total3_resp"] = marriage_prop_resp - marriage_debt_resp
+    totals["total4_app"] = sum_field(excluded_properties, "applicant_value")
+    totals["total4_resp"] = sum_field(excluded_properties, "respondent_value")
+    totals["total5_app"] = totals["total2_app"] + totals["total3_app"] + totals["total4_app"]
+    totals["total5_resp"] = totals["total2_resp"] + totals["total3_resp"] + totals["total4_resp"]
+    totals["total6_app"] = totals["total1_app"] - totals["total5_app"]
+    totals["total6_resp"] = totals["total1_resp"] - totals["total5_resp"]
+
+    equalisation = calculate_equalisation(
+        totals["total6_app"],
+        totals["total6_resp"]
+    )
+
     print_event = PrintEvent.log_print(
         user=request.user,
-        form_type='net_family_property_13b',
+        form_type="net_family_property_13b",
         form_id=pk,
-        form_identifier=statement.court_file_number or f'Form 13B #{pk}'
+        form_identifier=statement.court_file_number or f"Form 13B #{pk}"
     )
-    
-    # Audit log for print
-    log_audit(request, 'export', 'net_family_property_13b', pk, 
-              f"Form 13B #{pk}", f"Printed - Price: ${print_event.price_charged}")
-    
-    # Send email notification for print
-    send_form_printed_notification('net_family_property_13b', statement, request.user, print_event.price_charged)
-    
+
+    log_audit(
+        request,
+        "export",
+        "net_family_property_13b",
+        pk,
+        f"Form 13B #{pk}",
+        f"Printed - Price: ${print_event.price_charged}"
+    )
+
+    send_form_printed_notification(
+        "net_family_property_13b",
+        statement,
+        request.user,
+        print_event.price_charged
+    )
+
     return render(request, "forms/net_family_property_13b_print.html", {
         "statement": statement,
         "assets": assets,
@@ -2098,37 +2743,88 @@ def net_family_property_13b_print(request, pk):
         "excluded_properties": excluded_properties,
         "final_totals": final_totals,
         "totals": totals,
+        "equalisation": equalisation,
         "pk": pk,
     })
-
-
 # ============================================================
 # COMPARISON NFP (FORM 13C) - 5 PAGES
 # ============================================================
 @login_required
 def net_family_property_create(request):
     """Simple NFP form."""
+    # Support prefill from CaseFile
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    if case_id:
+        try:
+            case = CaseFile.objects.get(pk=case_id, owner=request.user)
+        except CaseFile.DoesNotExist:
+            case = None
+
     if request.method == "POST":
         form = NetFamilyPropertyStatementForm(request.POST)
         if form.is_valid():
-            form.save()
+            statement = form.save()
+            if case:
+                changed = False
+                if not getattr(statement, 'case_file', None):
+                    statement.case_file = case
+                    changed = True
+                if _apply_case_fields_to_instance(statement, case, overwrite=False):
+                    changed = True
+                if changed:
+                    statement.save()
+            messages.success(request, "Net Family Property Statement saved.")
             return redirect("dashboard")
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
-        form = NetFamilyPropertyStatementForm()
-    return render(request, "forms/net_family_property_form.html", {"form": form})
+        if case:
+            form = NetFamilyPropertyStatementForm(initial=_build_case_initial(case))
+        else:
+            form = NetFamilyPropertyStatementForm()
+
+    case_list = CaseFile.objects.filter(owner=request.user)
+    return render(request, "forms/net_family_property_form.html", {"form": form, "case_list": case_list, "selected_case": case})
 
 
 @login_required
 def financial_statement_create(request):
     """Create a new financial statement."""
+    # Support prefill from CaseFile
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    if case_id:
+        try:
+            case = CaseFile.objects.get(pk=case_id, owner=request.user)
+        except CaseFile.DoesNotExist:
+            case = None
+
     if request.method == "POST":
         form = FinancialStatementForm(request.POST)
         if form.is_valid():
             statement = form.save()
+            if case:
+                changed = False
+                if not getattr(statement, 'case_file', None):
+                    statement.case_file = case
+                    changed = True
+                if _apply_case_fields_to_instance(statement, case, overwrite=False):
+                    changed = True
+                if changed:
+                    statement.save()
+            messages.success(request, "Financial Statement created.")
             return redirect("financial_statement_page1", pk=statement.pk)
+        else:
+            messages.error(request, "Please correct the errors below.")
     else:
-        form = FinancialStatementForm()
-    return render(request, "forms/financial_statement_page1.html", {"form": form})
+        if case:
+            form = FinancialStatementForm(initial=_build_case_initial(case))
+        else:
+            form = FinancialStatementForm()
+
+    case_list = CaseFile.objects.filter(owner=request.user)
+    return render(request, "forms/financial_statement_page1.html", {"form": form, "case_list": case_list, "selected_case": case})
 
 
 class ComparisonNetFamilyPropertyListView(ListView):
@@ -2136,6 +2832,29 @@ class ComparisonNetFamilyPropertyListView(ListView):
     template_name = "forms/comparison_nfp_list.html"
     context_object_name = "nfp_list"
 
+    def get_queryset(self):
+        return ComparisonNetFamilyProperty.objects.filter(
+            is_deleted=False
+        ).order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        perms = user_permissions(self.request).get(
+            "user_permissions",
+            {}
+        ).get(
+            "comparison_nfp",
+            {}
+        )
+
+        for nfp in context["nfp_list"]:
+            nfp.can_view = self.request.user.is_superuser or perms.get("view", False)
+            nfp.can_edit = self.request.user.is_superuser or perms.get("edit", False)
+            nfp.can_print = self.request.user.is_superuser or perms.get("print", False)
+            nfp.can_delete = self.request.user.is_superuser or perms.get("delete", False)
+
+        return context
 
 class ComparisonNetFamilyPropertyDetailView(DetailView):
     model = ComparisonNetFamilyProperty
@@ -2157,7 +2876,7 @@ def comparison_nfp_delete(request, pk):
     return render(request, "forms/confirm_delete.html", {
         "object": nfp,
         "object_name": f"Comparison of NFP #{nfp.id}",
-        "cancel_url": reverse("comparison_nfp_list"),
+        "cancel_url": "comparison_nfp_list",
     })
 
 
@@ -2258,7 +2977,21 @@ def empty_recycle_bin(request):
 @login_required
 def comparison_nfp_create(request):
     """Create a new Comparison NFP and redirect to page 1."""
+    # Allow creating with a CaseFile via ?case_id=
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    if case_id:
+        try:
+            case = CaseFile.objects.get(pk=case_id, owner=request.user)
+        except CaseFile.DoesNotExist:
+            case = None
+    else:
+        case = None
+
     nfp = ComparisonNetFamilyProperty.objects.create()
+    if case:
+        nfp.case_file = case
+        _apply_case_fields_to_instance(nfp, case, overwrite=False)
+        nfp.save()
     return redirect("comparison_nfp_page1_edit", pk=nfp.pk)
 
 
@@ -2269,9 +3002,21 @@ def comparison_nfp_success(request):
 
 @login_required
 def comparison_nfp_page1(request, pk=None):
-    """Comparison NFP Page 1 - Basic info and Land."""
+    """Comparison NFP Page 1 - Basic info, case autofill, and land."""
+
     instance = get_object_or_404(ComparisonNetFamilyProperty, pk=pk) if pk else None
-    is_new = instance is None  # Track if this is a new form
+    is_new = instance is None
+
+    case_list = CaseFile.objects.filter(owner=request.user).order_by("-updated_at")
+    selected_case = None
+
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+
+    if case_id:
+        selected_case = CaseFile.objects.filter(
+            pk=case_id,
+            owner=request.user
+        ).first()
 
     AssetFormSet = modelformset_factory(
         Form13CAsset,
@@ -2281,76 +3026,121 @@ def comparison_nfp_page1(request, pk=None):
     )
 
     if request.method == "POST":
-        form = ComparisonNetFamilyPropertyForm(request.POST, instance=instance)
-        if form.is_valid():
-            obj = form.save()
-            form13c, created = Form13CComparison.objects.get_or_create(parent=obj)
-            
-            land_formset = AssetFormSet(
-                request.POST,
-                queryset=Form13CAsset.objects.filter(form13c=form13c),
-                prefix="land",
-            )
-            
-            if land_formset.is_valid():
-                for form_instance in land_formset.forms:
-                    if form_instance.cleaned_data.get('DELETE', False):
-                        inst = form_instance.instance
-                        if inst and getattr(inst, 'pk', None):
-                            inst.delete()
-                        continue
+        form = ComparisonNetFamilyPropertyForm(
+            request.POST,
+            instance=instance
+        )
 
-                    data_present = False
-                    for k, v in form_instance.cleaned_data.items():
-                        if k in ('id', 'DELETE'):
-                            continue
-                        if v not in (None, '', []):
-                            data_present = True
-                            break
-
-                    if not data_present:
-                        continue
-
-                    inst = form_instance.save(commit=False)
-                    inst.form13c = form13c
-                    inst.save()
-
-                # Send email notification for new form only
-                if is_new:
-                    send_form_created_notification('comparison_nfp', obj, request.user)
-                    # Audit log for creation
-                    log_audit(request, 'create', 'comparison_nfp', obj.pk, 
-                              f"Form 13C #{obj.pk}", 
-                              f"Created - Court File: {obj.court_file_number or 'N/A'}")
-                else:
-                    # Audit log for update
-                    log_audit(request, 'update', 'comparison_nfp', obj.pk, 
-                              f"Form 13C #{obj.pk}", "Updated Page 1")
-
-                return redirect("comparison_nfp_page2", pk=obj.pk)
-            else:
-                return render(request, "forms/comparison_nfp_page1.html", {
-                    "form": form, "pk": obj.pk, "land_formset": land_formset
-                })
-        else:
-            land_formset = AssetFormSet(
-                queryset=Form13CAsset.objects.filter(form13c__parent=instance) if instance else Form13CAsset.objects.none(),
-                prefix="land",
-            )
-            return render(request, "forms/comparison_nfp_page1.html", {
-                "form": form, "pk": pk, "land_formset": land_formset
-            })
-    else:
-        form = ComparisonNetFamilyPropertyForm(instance=instance)
         land_formset = AssetFormSet(
-            queryset=Form13CAsset.objects.filter(form13c__parent=instance) if instance else Form13CAsset.objects.none(),
+            request.POST,
+            queryset=Form13CAsset.objects.filter(
+                form13c__parent=instance
+            ) if instance else Form13CAsset.objects.none(),
             prefix="land",
         )
 
-    return render(request, "forms/comparison_nfp_page1.html", {
-        "form": form, "pk": pk, "land_formset": land_formset
-    })
+        if form.is_valid() and land_formset.is_valid():
+            obj = form.save(commit=False)
 
+            if selected_case:
+                obj.case_file = selected_case
+
+            obj.save()
+
+            if selected_case:
+                _apply_case_fields_to_instance(
+                    obj,
+                    selected_case,
+                    overwrite=False
+                )
+                obj.save()
+
+            form13c, created = Form13CComparison.objects.get_or_create(
+                parent=obj
+            )
+
+            for form_instance in land_formset.forms:
+                if form_instance.cleaned_data.get("DELETE", False):
+                    inst = form_instance.instance
+                    if inst and getattr(inst, "pk", None):
+                        inst.delete()
+                    continue
+
+                data_present = False
+
+                for k, v in form_instance.cleaned_data.items():
+                    if k in ("id", "DELETE"):
+                        continue
+                    if v not in (None, "", []):
+                        data_present = True
+                        break
+
+                if not data_present:
+                    continue
+
+                inst = form_instance.save(commit=False)
+                inst.form13c = form13c
+                inst.save()
+
+            if is_new:
+                send_form_created_notification(
+                    "comparison_nfp",
+                    obj,
+                    request.user
+                )
+
+                log_audit(
+                    request,
+                    "create",
+                    "comparison_nfp",
+                    obj.pk,
+                    f"Form 13C #{obj.pk}",
+                    f"Created - Court File: {obj.court_file_number or 'N/A'}"
+                )
+            else:
+                log_audit(
+                    request,
+                    "update",
+                    "comparison_nfp",
+                    obj.pk,
+                    f"Form 13C #{obj.pk}",
+                    "Updated Page 1"
+                )
+
+            return redirect("comparison_nfp_page2", pk=obj.pk)
+
+        return render(request, "forms/comparison_nfp_page1.html", {
+            "form": form,
+            "pk": pk,
+            "land_formset": land_formset,
+            "case_list": case_list,
+            "selected_case": selected_case,
+        })
+
+    initial_data = {}
+
+    if selected_case:
+        initial_data = _build_case_initial(selected_case)
+
+    form = ComparisonNetFamilyPropertyForm(
+        instance=instance,
+        initial=initial_data
+    )
+
+    land_formset = AssetFormSet(
+        queryset=Form13CAsset.objects.filter(
+            form13c__parent=instance
+        ) if instance else Form13CAsset.objects.none(),
+        prefix="land",
+    )
+
+    return render(request, "forms/comparison_nfp_page1.html", {
+        "form": form,
+        "pk": pk,
+        "land_formset": land_formset,
+        "case_list": case_list,
+        "selected_case": selected_case,
+    })
 
 @login_required
 def comparison_nfp_page2(request, pk):
@@ -3239,13 +4029,9 @@ def financial_statement_131_delete(request, pk):
     return render(request, "forms/confirm_delete.html", {
         "object": statement,
         "object_name": f"Form 13.1 Financial Statement #{statement.id}",
-        "cancel_url": reverse("financial_statement_131_list"),
+        "cancel_url": "financial_statement_131_list",
     })
 
-from django.contrib.auth.decorators import login_required, user_passes_test
-# Delete PrintEvent (admin/staff only)
-from django.shortcuts import get_object_or_404
-from django.urls import reverse
 
 @login_required
 @user_passes_test(lambda u: u.is_superuser or u.is_staff)
@@ -3375,7 +4161,7 @@ def email_settings_view(request):
     return render(request, 'forms/email_settings.html', context)
 
 from django.contrib.auth.decorators import login_required
-from .models import PrintEvent, FinancialStatement, Form131FinancialStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty
+from .models import ApplicationDivorce8A, AffidavitOfService, PrintEvent, FinancialStatement, Form131FinancialStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty
 
 @login_required
 def view_printed_copy(request, print_event_id):
@@ -3446,6 +4232,10 @@ def view_printed_copy(request, print_event_id):
             totals['total5_resp'] = totals['total2_resp'] + totals['total3_resp'] + totals['total4_resp']
             totals['total6_app'] = t1a - totals['total5_app']
             totals['total6_resp'] = t1r - totals['total5_resp']
+            equalisation = calculate_equalisation(
+                totals.get("total6_app", 0),
+                totals.get("total6_resp", 0)
+            )
         else:
             assets = debts = marriage_properties = marriage_debts = excluded_properties = []
             final_totals = None
@@ -3461,6 +4251,7 @@ def view_printed_copy(request, print_event_id):
             'final_totals': final_totals,
             'totals': totals,
             'print_event': print_event,
+            "equalisation": equalisation,
             'view_only': True,
         }
     elif print_event.form_type == 'comparison_nfp':
@@ -3472,6 +4263,22 @@ def view_printed_copy(request, print_event_id):
             'view_only': True,
             'pk': form_obj.pk if form_obj else None,
         }
+    elif print_event.form_type == 'application_divorce_8a':
+        form_obj = ApplicationDivorce8A.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/application_divorce_8a_print_view.html'
+        context = {
+            'application': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
+    elif print_event.form_type == 'affidavit_service':
+        form_obj = AffidavitOfService.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/affidavit_service_print_view.html'
+        context = {
+            'affidavit': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
     else:
         return render(request, 'forms/printed_copy_not_supported.html', {'print_event': print_event})
 
@@ -3479,3 +4286,1080 @@ def view_printed_copy(request, print_event_id):
         return render(request, 'forms/printed_copy_not_found.html', {'print_event': print_event})
 
     return render(request, template, context)
+
+@login_required
+def affidavit_service_create(request):
+    case_id = request.GET.get("case_id")
+    case_file = CaseFile.objects.filter(pk=case_id, owner=request.user).first() if case_id else None
+
+    initial = {}
+
+    if case_file:
+        initial = {
+            "case_file": case_file,
+            "court_name": case_file.court_name,
+            "court_file_number": case_file.court_file_number,
+            "court_office_address": case_file.court_office_address,
+            "plaintiff_name": case_file.applicant_name,
+            "defendant_name": case_file.respondent_name,
+        }
+
+    if request.method == "POST":
+        form = AffidavitOfServiceForm(request.POST)
+
+        if form.is_valid():
+            affidavit = form.save()
+            return redirect("affidavit_service_view", pk=affidavit.pk)
+    else:
+        form = AffidavitOfServiceForm(initial=initial)
+
+    return render(request, "forms/affidavit_service_create.html", {
+        "form": form,
+        "case_file": case_file,
+    })
+
+
+@login_required
+def affidavit_service_page1(request, pk=None):
+    affidavit = get_object_or_404(AffidavitOfService, pk=pk) if pk else None
+
+    case = None
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+    initial = {}
+
+    def service_block(name="", address="", phone="", email=""):
+        parts = []
+
+        if name:
+            parts.append(str(name).strip())
+
+        if address:
+            parts.append(str(address).strip())
+
+        if phone:
+            parts.append(f"Phone / fax: {phone}")
+
+        if email:
+            parts.append(f"Email: {email}")
+
+        return "\n".join(parts)
+
+    if case_id and not affidavit:
+        case = CaseFile.objects.filter(
+            pk=case_id,
+            owner=request.user
+        ).first()
+
+        if case:
+            initial = {
+                "court_name": case.court_name or "",
+                "court_file_number": case.court_file_number or "",
+                "court_office_address": case.court_office_address or "",
+
+                "plaintiff_name": service_block(
+                    case.applicant_name,
+                    case.applicant_address,
+                    case.applicant_phone,
+                    case.applicant_email,
+                ),
+
+                "applicant_lawyer_details": service_block(
+                    case.applicant_lawyer_name,
+                    case.applicant_lawyer_address,
+                    case.applicant_lawyer_phone,
+                    case.applicant_lawyer_email,
+                ),
+
+                "defendant_name": service_block(
+                    case.respondent_name,
+                    case.respondent_address,
+                    case.respondent_phone,
+                    case.respondent_email,
+                ),
+
+                "respondent_lawyer_details": service_block(
+                    case.respondent_lawyer_name,
+                    case.respondent_lawyer_address,
+                    case.respondent_lawyer_phone,
+                    case.respondent_lawyer_email,
+                ),
+            }
+
+    variant = request.GET.get("variant") or request.POST.get("variant")
+
+    if variant not in (
+        AffidavitOfService.FORM_VARIANT_6B,
+        AffidavitOfService.FORM_VARIANT_8A,
+    ):
+        variant = AffidavitOfService.FORM_VARIANT_6B
+
+    if request.method == "POST":
+        form = AffidavitServicePage1Form(
+            request.POST,
+            instance=affidavit
+        )
+
+        if form.is_valid():
+            affidavit = form.save(commit=False)
+
+            if case_id and not affidavit.case_file_id:
+                case = CaseFile.objects.filter(
+                    pk=case_id,
+                    owner=request.user
+                ).first()
+
+                if case:
+                    affidavit.case_file = case
+
+            affidavit.form_variant = variant
+            affidavit.save()
+
+            return redirect("affidavit_service_page2", pk=affidavit.pk)
+
+    else:
+        form = AffidavitServicePage1Form(
+            instance=affidavit,
+            initial=initial
+        )
+
+    case_list = CaseFile.objects.filter(
+        owner=request.user
+    ).order_by("-updated_at") if not affidavit else None
+
+    return render(request, "forms/affidavit_service_page1.html", {
+        "form": form,
+        "affidavit": affidavit,
+        "case_list": case_list,
+        "selected_case": case,
+        "variant": variant,
+    })
+
+@login_required
+def affidavit_service_page2(request, pk):
+    affidavit = get_object_or_404(AffidavitOfService, pk=pk)
+
+    if request.method == "POST":
+        form = AffidavitServicePage2Form(
+            request.POST,
+            instance=affidavit
+        )
+
+        if form.is_valid():
+            affidavit = form.save()
+            return redirect("affidavit_service_page3", pk=affidavit.pk)
+
+    else:
+        form = AffidavitServicePage2Form(instance=affidavit)
+
+    return render(request, "forms/affidavit_service_page2.html", {
+        "form": form,
+        "affidavit": affidavit,
+    })
+
+@login_required
+def affidavit_service_page3(request, pk):
+    affidavit = get_object_or_404(AffidavitOfService, pk=pk)
+
+    if request.method == "POST":
+        form = AffidavitServicePage3Form(
+            request.POST,
+            instance=affidavit
+        )
+
+        if form.is_valid():
+            affidavit = form.save()
+            return redirect("affidavit_service_view", pk=affidavit.pk)
+
+    else:
+        form = AffidavitServicePage3Form(instance=affidavit)
+
+    return render(request, "forms/affidavit_service_page3.html", {
+        "form": form,
+        "affidavit": affidavit,
+    })
+
+
+@login_required
+def affidavit_service_view(request, pk):
+
+    affidavit = get_object_or_404(
+        AffidavitOfService,
+        pk=pk
+    )
+
+    return render(
+        request,
+        "forms/affidavit_service_view.html",
+        {
+            "affidavit": affidavit
+        }
+    )
+
+
+@login_required
+def affidavit_service_print(request, pk):
+
+    affidavit = get_object_or_404(
+        AffidavitOfService,
+        pk=pk
+    )
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type='affidavit_service',
+        form_id=pk,
+        form_identifier=affidavit.court_file_number or f'Affidavit of Service #{pk}'
+    )
+
+    log_audit(
+        request,
+        'export',
+        'affidavit_service',
+        pk,
+        f'Affidavit of Service #{pk}',
+        f'Printed - Price: ${print_event.price_charged}'
+    )
+
+    send_form_printed_notification(
+        'affidavit_service',
+        affidavit,
+        request.user,
+        print_event.price_charged
+    )
+
+    return render(
+        request,
+        "forms/affidavit_service_print.html",
+        {
+            "affidavit": affidavit
+        }
+    )
+
+
+@login_required
+def affidavit_service_list(request):
+    affidavits = AffidavitOfService.objects.filter(
+        is_deleted=False
+    ).order_by("-updated_at")
+
+    perms = user_permissions(request).get(
+        "user_permissions",
+        {}
+    ).get(
+        "affidavit_service",
+        {}
+    )
+
+    for affidavit in affidavits:
+        affidavit.can_view = request.user.is_superuser or perms.get("view", False)
+        affidavit.can_edit = request.user.is_superuser or perms.get("edit", False)
+        affidavit.can_print = request.user.is_superuser or perms.get("print", False)
+        affidavit.can_delete = request.user.is_superuser or perms.get("delete", False)
+
+    return render(request, "forms/affidavit_service_list.html", {
+        "affidavits": affidavits,
+    })
+
+
+@login_required
+def affidavit_service_print_view(request, pk):
+
+    affidavit = get_object_or_404(
+        AffidavitOfService,
+        pk=pk
+    )
+
+    return render(
+        request,
+        "forms/affidavit_service_print_view.html",
+        {
+            "affidavit": affidavit
+        }
+    )
+
+
+@login_required
+def affidavit_service_delete(request, pk):
+    item = get_object_or_404(AffidavitOfService, pk=pk)
+
+    if request.method == "POST":
+        item.soft_delete()
+        messages.success(request, "Affidavit of Service deleted successfully.")
+        return redirect("affidavit_service_list")
+
+    return render(request, "forms/confirm_delete.html", {
+        "object": item,
+        "object_label": "Affidavit of Service",
+        "cancel_url": "affidavit_service_list",
+    })
+
+@login_required
+def certificate_of_divorce_delete(request, pk):
+
+    item = get_object_or_404(
+        CertificateOfDivorce,
+        pk=pk
+    )
+
+    if request.method == "POST":
+
+        item.soft_delete()
+
+        messages.success(
+            request,
+            "Certificate of Divorce deleted successfully."
+        )
+
+        return redirect("certificate_of_divorce_list")
+
+    return render(
+        request,
+        "forms/confirm_delete.html",
+        {
+            "object": item,
+            "object_label": "Certificate of Divorce",
+            "cancel_url": "certificate_of_divorce_list",
+        }
+    )
+
+@login_required
+def certificate_of_divorce_create(request):
+    case_file = None
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+    if case_id:
+        case_file = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+
+    initial = {}
+    if case_file:
+        initial = {
+            "case_file": case_file,
+            "court_name": case_file.court_name,
+            "court_file_number": case_file.court_file_number,
+            "court_office_address": case_file.court_office_address,
+            "applicant_name": case_file.applicant_name,
+            "respondent_name": case_file.respondent_name,
+        }
+
+    if request.method == "POST":
+        form = CertificateOfDivorceForm(request.POST)
+        if form.is_valid():
+            if case_file:
+                form.instance.case_file = case_file
+            cert = form.save()
+            send_form_created_notification('certificate_of_divorce', cert, request.user)
+            return redirect('certificate_of_divorce_view', pk=cert.pk)
+    else:
+        form = CertificateOfDivorceForm(initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user)
+    return render(request, 'forms/certificate_of_divorce_create.html', {
+        'form': form,
+        'case_list': case_list,
+        'selected_case': case_file,
+    })
+
+
+def _build_certificate_case_initial(case):
+    if not case:
+        return {}
+
+    def service_block(address="", phone="", email=""):
+        parts = []
+        if address:
+            parts.append(str(address).strip())
+        if phone:
+            parts.append(f"Phone / fax: {phone}")
+        if email:
+            parts.append(f"Email: {email}")
+        return "\n".join(parts)
+
+    return {
+        "court_name": case.court_name or "",
+        "court_file_number": case.court_file_number or "",
+        "court_office_address": case.court_office_address or "",
+
+        "applicant_name": case.applicant_name or "",
+        "applicant_address": service_block(case.applicant_address, case.applicant_phone, case.applicant_email),
+
+        "applicant_lawyer_name": case.applicant_lawyer_name or "",
+        "applicant_lawyer_address": service_block(case.applicant_lawyer_address, case.applicant_lawyer_phone, case.applicant_lawyer_email),
+
+        "respondent_name": case.respondent_name or "",
+        "respondent_address": service_block(case.respondent_address, case.respondent_phone, case.respondent_email),
+
+        "respondent_lawyer_name": case.respondent_lawyer_name or "",
+        "respondent_lawyer_address": service_block(case.respondent_lawyer_address, case.respondent_lawyer_phone, case.respondent_lawyer_email),
+    }
+
+
+@login_required
+def certificate_of_divorce_create(request):
+    case_file = None
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+
+    if case_id:
+        case_file = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+
+    initial = _build_certificate_case_initial(case_file) if case_file else {}
+
+    if request.method == "POST":
+        form = CertificateOfDivorceForm(request.POST)
+
+        if form.is_valid():
+            cert = form.save(commit=False)
+
+            if case_file:
+                cert.case_file = case_file
+
+            cert.save()
+            send_form_created_notification("certificate_of_divorce", cert, request.user)
+
+            return redirect("certificate_of_divorce_view", pk=cert.pk)
+    else:
+        form = CertificateOfDivorceForm(initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user).order_by("-updated_at")
+
+    return render(request, "forms/certificate_of_divorce_create.html", {
+        "form": form,
+        "case_list": case_list,
+        "selected_case": case_file,
+    })
+
+
+@login_required
+def certificate_of_divorce_page1(request, pk=None):
+    certificate = get_object_or_404(CertificateOfDivorce, pk=pk) if pk else None
+
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+    selected_case = None
+
+    if case_id:
+        selected_case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+    elif certificate and certificate.case_file:
+        selected_case = certificate.case_file
+
+    initial = _build_certificate_case_initial(selected_case) if selected_case and not certificate else {}
+
+    if request.method == "POST":
+        form = CertificateOfDivorceForm(request.POST, instance=certificate)
+
+        if form.is_valid():
+            obj = form.save(commit=False)
+
+            if selected_case:
+                obj.case_file = selected_case
+
+            obj.save()
+            return redirect("certificate_of_divorce_view", pk=obj.pk)
+    else:
+        form = CertificateOfDivorceForm(instance=certificate, initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user).order_by("-updated_at")
+
+    return render(request, "forms/certificate_of_divorce_page1.html", {
+        "form": form,
+        "certificate": certificate,
+        "case_list": case_list,
+        "selected_case": selected_case,
+    })
+
+
+def _build_certificate_case_initial(case):
+    if not case:
+        return {}
+
+    def service_block(address="", phone="", email=""):
+        parts = []
+        if address:
+            parts.append(str(address).strip())
+        if phone:
+            parts.append(f"Phone / fax: {phone}")
+        if email:
+            parts.append(f"Email: {email}")
+        return "\n".join(parts)
+
+    return {
+        "court_name": case.court_name or "",
+        "court_file_number": case.court_file_number or "",
+        "court_office_address": case.court_office_address or "",
+
+        "applicant_name": case.applicant_name or "",
+        "applicant_address": service_block(
+            case.applicant_address,
+            case.applicant_phone,
+            case.applicant_email,
+        ),
+
+        "applicant_lawyer_name": case.applicant_lawyer_name or "",
+        "applicant_lawyer_address": service_block(
+            case.applicant_lawyer_address,
+            case.applicant_lawyer_phone,
+            case.applicant_lawyer_email,
+        ),
+
+        "respondent_name": case.respondent_name or "",
+        "respondent_address": service_block(
+            case.respondent_address,
+            case.respondent_phone,
+            case.respondent_email,
+        ),
+
+        "respondent_lawyer_name": case.respondent_lawyer_name or "",
+        "respondent_lawyer_address": service_block(
+            case.respondent_lawyer_address,
+            case.respondent_lawyer_phone,
+            case.respondent_lawyer_email,
+        ),
+    }
+
+@login_required
+def divorce_order_page(request, pk=None):
+    order = get_object_or_404(DivorceOrder, pk=pk)
+
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    initial = {}
+    if case_id and not order.case_file:
+        case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+        if case:
+            initial = _build_case_initial(case)
+
+    if request.method == 'POST':
+        form = DivorceOrderForm(request.POST, instance=order)
+        if form.is_valid():
+            if case_id and not order.case_file:
+                case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+                if case:
+                    form.instance.case_file = case
+                    _apply_case_fields_to_instance(form.instance, case, overwrite=False)
+            order = form.save()
+            return redirect('divorce_order_view', pk=order.pk)
+    else:
+        form = DivorceOrderForm(instance=order, initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user) if not order.case_file else None
+    return render(request, 'forms/divorce_order_page.html', {
+        'form': form,
+        'order': order,
+        'case_list': case_list,
+        'selected_case': case,
+    })
+
+
+@login_required
+def certificate_of_divorce_view(request, pk):
+    cert = get_object_or_404(CertificateOfDivorce, pk=pk)
+    return render(request, 'forms/certificate_of_divorce_view.html', {'certificate': cert})
+
+
+@login_required
+def divorce_order_list(request):
+
+    orders = DivorceOrder.objects.all().order_by("-updated_at")
+
+    perms = user_permissions(request).get(
+        "user_permissions",
+        {}
+    ).get(
+        "divorce_order",
+        {}
+    )
+
+    for order in orders:
+        order.can_view = request.user.is_superuser or perms.get("view", False)
+        order.can_edit = request.user.is_superuser or perms.get("edit", False)
+        order.can_print = request.user.is_superuser or perms.get("print", False)
+        order.can_delete = request.user.is_superuser or perms.get("delete", False)
+
+    return render(
+        request,
+        "forms/divorce_order_list.html",
+        {
+            "orders": orders,
+        }
+    )
+def _build_divorce_order_case_initial(case):
+    if not case:
+        return {}
+
+    def service_block(address="", phone="", email=""):
+        parts = []
+
+        if address:
+            parts.append(str(address).strip())
+
+        if phone:
+            parts.append(f"Phone / fax: {phone}")
+
+        if email:
+            parts.append(f"Email: {email}")
+
+        return "\n".join(parts)
+
+    return {
+        "court_name": case.court_name or "",
+        "court_file_number": case.court_file_number or "",
+        "court_office_address": case.court_office_address or "",
+
+        "applicant_name": case.applicant_name or "",
+        "applicant_address": service_block(
+            case.applicant_address,
+            case.applicant_phone,
+            case.applicant_email,
+        ),
+
+        "applicant_lawyer_name": case.applicant_lawyer_name or "",
+        "applicant_lawyer_address": service_block(
+            case.applicant_lawyer_address,
+            case.applicant_lawyer_phone,
+            case.applicant_lawyer_email,
+        ),
+
+        "respondent_name": case.respondent_name or "",
+        "respondent_address": service_block(
+            case.respondent_address,
+            case.respondent_phone,
+            case.respondent_email,
+        ),
+
+        "respondent_lawyer_name": case.respondent_lawyer_name or "",
+        "respondent_lawyer_address": service_block(
+            case.respondent_lawyer_address,
+            case.respondent_lawyer_phone,
+            case.respondent_lawyer_email,
+        ),
+    }
+
+
+@login_required
+def divorce_order_create(request):
+    case = None
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+
+    if case_id:
+        case = CaseFile.objects.filter(
+            pk=case_id,
+            owner=request.user
+        ).first()
+
+    initial = _build_divorce_order_case_initial(case) if case else {}
+
+    if request.method == "POST":
+        form = DivorceOrderForm(request.POST)
+
+        if form.is_valid():
+            order = form.save(commit=False)
+
+            if case:
+                order.case_file = case
+
+            order.save()
+
+            send_form_created_notification(
+                "divorce_order",
+                order,
+                request.user
+            )
+
+            return redirect("divorce_order_view", pk=order.pk)
+
+    else:
+        form = DivorceOrderForm(initial=initial)
+
+    case_list = CaseFile.objects.filter(
+        owner=request.user
+    ).order_by("-updated_at")
+
+    return render(request, "forms/divorce_order_create.html", {
+        "form": form,
+        "case_list": case_list,
+        "selected_case": case,
+    })
+@login_required
+def divorce_order_view(request, pk):
+    order = get_object_or_404(DivorceOrder, pk=pk)
+    return render(request, 'forms/divorce_order_view.html', {'order': order})
+
+
+@login_required
+def divorce_order_print(request, pk):
+    order = get_object_or_404(DivorceOrder, pk=pk)
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type='divorce_order',
+        form_id=pk,
+        form_identifier=order.court_file_number or f'Divorce Order #{pk}'
+    )
+
+    log_audit(request, 'export', 'divorce_order', pk, f'Divorce Order #{pk}', f'Printed - Price: ${print_event.price_charged}')
+    send_form_printed_notification('divorce_order', order, request.user, print_event.price_charged)
+
+    return render(request, 'forms/divorce_order_print.html', {'order': order})
+
+
+@login_required
+def divorce_order_print_view(request, pk):
+    order = get_object_or_404(DivorceOrder, pk=pk)
+    return render(request, 'forms/divorce_order_print_view.html', {'order': order})
+
+
+@login_required
+def divorce_order_delete(request, pk):
+    order = get_object_or_404(DivorceOrder, pk=pk)
+
+    if request.method == "POST":
+        order.soft_delete()
+        messages.success(request, "Divorce Order deleted successfully.")
+        return redirect("divorce_order_list")
+
+    return render(request, "forms/confirm_delete.html", {
+        "object": order,
+        "object_label": "Divorce Order",
+        "cancel_url": "divorce_order_list",
+    })
+
+
+@login_required
+def certificate_of_divorce_print(request, pk):
+    cert = get_object_or_404(CertificateOfDivorce, pk=pk)
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type='certificate_of_divorce',
+        form_id=pk,
+        form_identifier=cert.court_file_number or f'Certificate of Divorce #{pk}'
+    )
+
+    log_audit(request, 'export', 'certificate_of_divorce', pk, f'Certificate of Divorce #{pk}', f'Printed - Price: ${print_event.price_charged}')
+
+    send_form_printed_notification('certificate_of_divorce', cert, request.user, print_event.price_charged)
+
+    return render(request, 'forms/certificate_of_divorce_print.html', {'certificate': cert})
+
+
+@login_required
+def certificate_of_divorce_list(request):
+    certs = CertificateOfDivorce.objects.all().order_by('-updated_at')
+    
+    # Pre-calculate permissions for each certificate
+    perms = user_permissions(request).get('user_permissions', {}).get('certificate_of_divorce', {})
+    for cert in certs:
+        cert.can_view = request.user.is_superuser or perms.get('view', False)
+        cert.can_edit = request.user.is_superuser or perms.get('edit', False)
+        cert.can_print = request.user.is_superuser or perms.get('print', False)
+        cert.can_delete = request.user.is_superuser or perms.get('delete', False)
+    
+    return render(request, 'forms/certificate_of_divorce_list.html', {'certificates': certs})
+
+
+@login_required
+def certificate_of_divorce_print_view(request, pk):
+    cert = get_object_or_404(CertificateOfDivorce, pk=pk)
+    return render(request, 'forms/certificate_of_divorce_print_view.html', {'certificate': cert})
+
+
+@login_required
+def divorce_order_delete(request, pk):
+    item = get_object_or_404(DivorceOrder, pk=pk)
+
+    if request.method == "POST":
+        item.soft_delete()
+        messages.success(request, "Divorce Order deleted successfully.")
+        return redirect("divorce_order_list")
+
+    return render(request, "forms/confirm_delete.html", {
+        "object": item,
+        "object_label": "Divorce Order",
+        "cancel_url": "divorce_order_list",
+    })
+
+@login_required
+def application_divorce_8a_list(request):
+    applications = ApplicationDivorce8A.objects.all().order_by("-updated_at")
+    
+    # Pre-calculate permissions for each application
+    for app in applications:
+        app.can_view = request.user.is_superuser or user_permissions(request).get('user_permissions', {}).get('application_divorce_8a', {}).get('view', False)
+        app.can_edit = request.user.is_superuser or user_permissions(request).get('user_permissions', {}).get('application_divorce_8a', {}).get('edit', False)
+        app.can_print = request.user.is_superuser or user_permissions(request).get('user_permissions', {}).get('application_divorce_8a', {}).get('print', False)
+        app.can_delete = request.user.is_superuser or user_permissions(request).get('user_permissions', {}).get('application_divorce_8a', {}).get('delete', False)
+    
+    return render(request, "forms/application_divorce_8a_list.html", {
+        "applications": applications
+    })
+
+
+@login_required
+def application_divorce_8a_create(request):
+    # Allow creating with a CaseFile via ?case_id=
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    if case_id:
+        case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+
+    application = ApplicationDivorce8A.objects.create()
+    if case:
+        _apply_case_fields_to_instance(application, case, overwrite=True)
+        application.case_file = case
+        application.save()
+
+    return redirect("application_divorce_8a_page1", pk=application.pk)
+
+
+@login_required
+def application_divorce_8a_page1(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+    # Support prefill from CaseFile via ?case_id=
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    initial = {}
+    if case_id:
+        case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+        if case:
+            initial = _build_case_initial(case)
+            # Apply case fields to the instance for display (don't save)
+            if not application.case_file:
+                _apply_case_fields_to_instance(application, case, overwrite=False)
+    elif application.case_file:
+        case = application.case_file
+
+    if request.method == "POST":
+        form = ApplicationDivorce8APage1Form(request.POST, instance=application)
+        if form.is_valid():
+            if case_id and not application.case_file:
+                case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+                if case:
+                    form.instance.case_file = case
+                    _apply_case_fields_to_instance(form.instance, case, overwrite=False)
+            form.save()
+            return redirect("application_divorce_8a_page2", pk=application.pk)
+    else:
+        form = ApplicationDivorce8APage1Form(instance=application, initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user)
+    return render(request, "forms/application_divorce_8a_page1.html", {
+        "form": form,
+        "application": application,
+        "case_list": case_list,
+        "selected_case": case,
+    })
+
+@login_required
+def application_divorce_8a_page2(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    initial = {}
+    if case_id and not application.case_file:
+        case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+        if case:
+            initial = _build_case_initial(case)
+            # Apply case fields to the instance for display (don't save)
+            _apply_case_fields_to_instance(application, case, overwrite=False)
+            # Apply case fields to the instance for display (don't save)
+            _apply_case_fields_to_instance(application, case, overwrite=False)
+            # Apply case fields to the instance for display (don't save)
+            _apply_case_fields_to_instance(application, case, overwrite=False)
+
+    if request.method == "POST":
+        form = ApplicationDivorce8APage2Form(
+            request.POST,
+            instance=application
+        )
+
+        if form.is_valid():
+            if case_id and not application.case_file:
+                case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+                if case:
+                    form.instance.case_file = case
+                    _apply_case_fields_to_instance(form.instance, case, overwrite=False)
+            form.save()
+            return redirect("application_divorce_8a_page3", pk=application.pk)
+
+    else:
+        form = ApplicationDivorce8APage2Form(instance=application, initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user) if not application.case_file else None
+    return render(request, "forms/application_divorce_8a_page2.html", {
+        "form": form,
+        "application": application,
+        "pk": pk,
+        "case_list": case_list,
+        "selected_case": case,
+    })
+
+
+@login_required
+def application_divorce_8a_page3(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    initial = {}
+    if case_id and not application.case_file:
+        case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+        if case:
+            initial = _build_case_initial(case)
+
+    if request.method == "POST":
+        form = ApplicationDivorce8APage3Form(request.POST, instance=application)
+        if form.is_valid():
+            if case_id and not application.case_file:
+                case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+                if case:
+                    form.instance.case_file = case
+                    _apply_case_fields_to_instance(form.instance, case, overwrite=False)
+            form.save()
+            return redirect("application_divorce_8a_page4", pk=application.pk)
+    else:
+        form = ApplicationDivorce8APage3Form(instance=application, initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user) if not application.case_file else None
+    return render(request, "forms/application_divorce_8a_page3.html", {
+        "form": form,
+        "application": application,
+        "case_list": case_list,
+        "selected_case": case,
+    })
+
+
+@login_required
+def application_divorce_8a_page4(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+
+    case = None
+    case_id = request.GET.get('case_id') or request.POST.get('case_id')
+    initial = {}
+    if case_id and not application.case_file:
+        case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+        if case:
+            initial = _build_case_initial(case)
+
+    if request.method == "POST":
+        form = ApplicationDivorce8APage4Form(request.POST, instance=application)
+        if form.is_valid():
+            if case_id and not application.case_file:
+                case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
+                if case:
+                    form.instance.case_file = case
+                    _apply_case_fields_to_instance(form.instance, case, overwrite=False)
+            form.save()
+            return redirect("application_divorce_8a_page5", pk=application.pk)
+    else:
+        form = ApplicationDivorce8APage4Form(instance=application, initial=initial)
+
+    case_list = CaseFile.objects.filter(owner=request.user) if not application.case_file else None
+    return render(request, "forms/application_divorce_8a_page4.html", {
+        "form": form,
+        "application": application,
+        "case_list": case_list,
+        "selected_case": case,
+    })
+
+
+@login_required
+def application_divorce_8a_page5(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+
+    if request.method == "POST":
+        form = ApplicationDivorce8APage5Form(request.POST, instance=application)
+        if form.is_valid():
+            form.save()
+            return redirect("application_divorce_8a_page6", pk=application.pk)
+    else:
+        form = ApplicationDivorce8APage5Form(instance=application)
+
+    return render(request, "forms/application_divorce_8a_page5.html", {
+        "form": form,
+        "application": application,
+    })
+
+
+@login_required
+def application_divorce_8a_page6(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+
+    if request.method == "POST":
+        form = ApplicationDivorce8APage6Form(request.POST, request.FILES, instance=application)
+        if form.is_valid():
+            form.save()
+            return redirect("application_divorce_8a_view", pk=application.pk)
+    else:
+        form = ApplicationDivorce8APage6Form(instance=application)
+
+    return render(request, "forms/application_divorce_8a_page6.html", {
+        "form": form,
+        "application": application,
+    })
+
+
+@login_required
+def application_divorce_8a_view(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+    return render(request, "forms/application_divorce_8a_view.html", {
+        "application": application,
+        "pk": pk,
+    })
+
+
+@login_required
+def application_divorce_8a_print(request, pk):
+    application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type="application_divorce_8a",
+        form_id=pk,
+        form_identifier=application.court_file_number or f"Form 8A #{pk}"
+    )
+
+    log_audit(
+        request,
+        "export",
+        "application_divorce_8a",
+        pk,
+        f"Form 8A #{pk}",
+        f"Printed - Price: ${print_event.price_charged}"
+    )
+
+    send_form_printed_notification(
+        "application_divorce_8a",
+        application,
+        request.user,
+        print_event.price_charged
+    )
+
+    children = []
+    if application.children_details:
+        try:
+            parsed_children = json.loads(application.children_details)
+            if isinstance(parsed_children, dict):
+                children = [parsed_children]
+            elif isinstance(parsed_children, list):
+                children = parsed_children
+        except (ValueError, TypeError):
+            children = []
+
+    return render(request, "forms/application_divorce_8a_print.html", {
+        "application": application,
+        "pk": pk,
+        "children": children,
+    })
+
+@login_required
+def application_divorce_8a_delete(request, pk):
+    item = get_object_or_404(ApplicationDivorce8A, pk=pk)
+
+    if request.method == "POST":
+        item.soft_delete()
+        messages.success(request, "Form 8A Divorce Application deleted successfully.")
+        return redirect("application_divorce_8a_list")
+
+    return render(request, "forms/confirm_delete.html", {
+        "object": item,
+        "object_label": "Form 8A Divorce Application",
+        "cancel_url": "application_divorce_8a_list",
+    })

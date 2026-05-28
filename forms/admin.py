@@ -3,6 +3,7 @@ from django.contrib import admin
 from .models import (
     FinancialStatement, 
     NetFamilyPropertyStatement, 
+    CaseFile,
     ComparisonNetFamilyProperty, 
     Form131FinancialStatement,
     NetFamilyPropertyAsset,
@@ -14,7 +15,7 @@ from .models import (
 @admin.register(ComparisonNetFamilyProperty)
 class ComparisonNetFamilyPropertyAdmin(admin.ModelAdmin):
 	list_display = (
-		'court_file_number', 'prepared_by', 'applicant_name', 'respondent_name', 'valuation_date', 'statement_date', 'created_at'
+        'court_file_number', 'prepared_by', 'applicant_name', 'respondent_name', 'valuation_date', 'statement_date', 'created_at'
 	)
 	search_fields = ('court_file_number', 'applicant_name', 'respondent_name')
 	list_filter = ('prepared_by', 'valuation_date', 'statement_date', 'created_at')
@@ -39,6 +40,13 @@ class Form131FinancialStatementAdmin(admin.ModelAdmin):
     search_fields = ('court_file_number', 'applicant_name', 'respondent_name')
     list_filter = ('updated_at', 'created_at')
     readonly_fields = ('created_at', 'updated_at')
+
+
+@admin.register(CaseFile)
+class CaseFileAdmin(admin.ModelAdmin):
+    list_display = ('court_file_number', 'owner', 'applicant_name', 'respondent_name', 'updated_at')
+    search_fields = ('court_file_number', 'applicant_name', 'respondent_name', 'owner__username')
+    list_filter = ('updated_at', 'created_at')
 
 
 # ============================================================

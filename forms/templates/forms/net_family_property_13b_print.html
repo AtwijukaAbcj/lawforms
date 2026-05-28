@@ -784,7 +784,72 @@
                 </tr>
             </tbody>
         </table>
-        
+        <!-- Equalisation Section -->
+<!-- Equalisation Section -->
+        <table class="summary-table" style="margin-top: 16px;">
+            <tbody>
+
+                <tr class="total-row">
+                    <td colspan="2" class="summary-total-label" style="text-align:center;">
+                        EQUALISATION
+                    </td>
+                </tr>
+
+                <tr>
+                    <!-- LEFT -->
+                    <td style="width:70%; vertical-align:top; padding:12px;">
+
+                        <div style="
+                            font-weight:bold;
+                            margin-bottom:8px;
+                            font-size:12px;
+                        ">
+                            Details
+                        </div>
+
+                        <div style="
+                            min-height:60px;
+                            white-space:pre-wrap;
+                            font-size:13px;
+                        ">
+                            {{ final_totals.equalisation_note|default:"" }}
+                        </div>
+
+                    </td>
+
+                    <!-- RIGHT -->
+                    <td style="
+                        width:30%;
+                        text-align:center;
+                        vertical-align:middle;
+                        font-weight:bold;
+                        font-size:20px;
+                    ">
+
+                        <div style="
+                            font-size:12px;
+                            margin-bottom:8px;
+                        ">
+                            Amount
+                        </div>
+
+                        ${{ equalisation.amount|floatformat:2 }}
+
+                    </td>
+                </tr>
+
+                <tr>
+                    <!-- <td colspan="2" style="
+                        font-size:10px;
+                        font-style:italic;
+                        padding-top:8px;
+                    ">
+                        Equalisation = (Highest Amount − Lowest Amount) ÷ 2
+                    </td> -->
+                </tr>
+
+            </tbody>
+        </table>
         <!-- Signature Section -->
         <div class="signature-section">
             <div class="signature-box">
@@ -796,7 +861,7 @@
                 <div style="text-align: center; margin-top: 5px;">{{ final_totals.signature|default:"" }}</div>
             </div>
         </div>
-        
+        <!-- Signature Section -->
         <div class="page-footer">
             <span>FLR 13B (May 15, 2009)</span>
             <span>Page 3 of 3</span>

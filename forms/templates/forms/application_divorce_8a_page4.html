@@ -1,0 +1,756 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}
+Form 8A — Application (Divorce) — Page 4
+{% endblock %}
+
+{% block header %}
+Form 8A — Application (Divorce)
+{% endblock %}
+
+{% block subheader %}
+Page 4 — Child Support, Claims & Divorce Facts
+{% endblock %}
+
+{% block content %}
+
+<style>
+.form8a-page4-wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding:10px 0 40px;
+}
+
+.page4-top,
+.actions-bar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+}
+
+.page4-top{
+    margin-bottom:18px;
+}
+
+.page4-title{
+    margin:0;
+    font-size:22px;
+    font-weight:900;
+    color:#0f172a;
+}
+
+.page4-subtitle{
+    margin:4px 0 0;
+    color:#64748b;
+    font-size:13px;
+}
+
+.page-badge{
+    background:#0f172a;
+    color:#fff;
+    border-radius:999px;
+    padding:7px 14px;
+    font-size:12px;
+    font-weight:900;
+}
+
+.section-card{
+    border:1px solid #dbe3ee;
+    border-radius:12px;
+    background:#fff;
+    margin-bottom:20px;
+    overflow:hidden;
+    box-shadow:0 2px 10px rgba(15,23,42,.04);
+}
+
+.section-head{
+    background:#f8fafc;
+    border-bottom:1px solid #e2e8f0;
+    padding:13px 16px;
+    font-size:13px;
+    font-weight:900;
+    color:#0f172a;
+}
+
+.section-body{
+    padding:18px;
+}
+
+.form8a-label{
+    display:block;
+    font-size:12px;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:6px;
+}
+
+.field-group{
+    display:flex;
+    flex-direction:column;
+    margin-top:12px;
+}
+
+.field-group input,
+.field-group select,
+.field-group textarea{
+    width:100%;
+    border:1px solid #cbd5e1;
+    border-radius:8px;
+    min-height:38px;
+    padding:8px 10px;
+    font-size:13px;
+    box-sizing:border-box;
+    background:#fff;
+}
+
+.field-group textarea{
+    min-height:90px;
+    resize:vertical;
+}
+
+.checkbox-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:20px;
+    align-items:center;
+    margin-top:10px;
+}
+
+.checkbox-item{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.checkbox-item input[type="checkbox"],
+.checkbox-item input[type="radio"]{
+    width:17px;
+    height:17px;
+}
+
+.claims-title{
+    text-align:center;
+    font-size:18px;
+    font-weight:900;
+    color:#0f172a;
+    margin:18px 0 10px;
+}
+
+.claims-frame{
+    border:1px solid #111827;
+    border-radius:8px;
+    overflow:hidden;
+    margin-bottom:18px;
+}
+
+.claims-frame-head{
+    background:#f8fafc;
+    border-bottom:1px solid #111827;
+    padding:9px 12px;
+    font-size:13px;
+    font-weight:900;
+    color:#0f172a;
+}
+
+.claims-frame-subhead{
+    padding:10px 12px 0;
+    font-size:15px;
+    font-weight:900;
+    color:#0f172a;
+}
+
+.claims-grid{
+    display:grid;
+    grid-template-columns:1fr 1.35fr 1.05fr;
+    gap:18px;
+    padding:10px 12px 16px;
+}
+
+.claims-col-title{
+    font-size:13px;
+    font-weight:900;
+    margin-bottom:10px;
+    color:#0f172a;
+}
+
+.claim-item{
+    display:grid;
+    grid-template-columns:34px 20px 1fr;
+    align-items:start;
+    gap:7px;
+    font-size:13px;
+    line-height:1.25;
+    margin-bottom:7px;
+    color:#111827;
+}
+
+.claim-item input{
+    width:16px;
+    height:16px;
+    margin-top:1px;
+}
+
+.claim-code{
+    font-weight:800;
+    color:#0f172a;
+}
+
+.simple-claims-row{
+    display:flex;
+    flex-wrap:wrap;
+    gap:50px;
+    padding:12px;
+}
+
+.facts-title{
+    text-align:center;
+    font-size:16px;
+    font-weight:900;
+    color:#0f172a;
+    margin:18px 0 10px;
+}
+
+.fact-block{
+    border:1px solid #dbe3ee;
+    border-radius:10px;
+    padding:14px;
+    background:#fff;
+    margin-bottom:14px;
+}
+
+.fact-main-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-bottom:10px;
+}
+
+.inline-field{
+    min-width:240px;
+    flex:1;
+}
+
+.light-box{
+    background:#eef1fb;
+    border-radius:8px;
+    padding:10px;
+    margin-top:10px;
+}
+
+.btn-back,
+.btn-next{
+    border-radius:8px;
+    padding:11px 18px;
+    font-size:14px;
+    font-weight:900;
+    text-decoration:none;
+    border:0;
+}
+
+.btn-back{
+    background:#fff;
+    border:1px solid #cbd5e1;
+    color:#0f172a;
+}
+
+.btn-next{
+    background:#0f172a;
+    color:#fff;
+}
+
+@media (max-width:900px){
+
+    .claims-grid{
+        grid-template-columns:1fr;
+    }
+
+    .page4-top,
+    .actions-bar{
+        flex-direction:column;
+        align-items:stretch;
+    }
+}
+</style>
+
+<div class="form8a-page4-wrap">
+
+<form method="post">
+{% csrf_token %}
+
+{% if selected_case %}
+<input type="hidden" name="case_id" value="{{ selected_case.id }}">
+{% endif %}
+
+<div class="page4-top">
+
+    <div>
+        <h2 class="page4-title">
+            Claims and Facts Supporting Divorce
+        </h2>
+
+        <p class="page4-subtitle">
+            Complete all child support, claim and divorce fact information.
+        </p>
+    </div>
+
+    <span class="page-badge">
+        PAGE 4 OF 6
+    </span>
+
+</div>
+
+<div class="section-card">
+
+    <div class="section-head">
+        COURT FILE
+    </div>
+
+    <div class="section-body">
+
+        <div class="field-group" style="max-width:300px;margin-left:auto;margin-top:0;">
+
+            <label class="form8a-label">
+                Court File Number
+            </label>
+
+            {{ form.court_file_number|add_class:"" }}
+
+        </div>
+
+    </div>
+
+</div>
+
+<div class="section-card">
+
+<div class="section-head">
+    CHILD SUPPORT SERVICE NOTICES
+</div>
+
+<div class="section-body">
+
+    <strong>
+        Has a Notice of Calculation and/or a Notice of Recalculation been issued by the online Child Support Service in this case?
+    </strong>
+
+    <div class="checkbox-row">
+
+        <label class="checkbox-item">
+            <input type="radio"
+                   name="notice_of_calculation_issued"
+                   value="False"
+                   {% if not form.notice_of_calculation_issued.value %}checked{% endif %}>
+            No
+        </label>
+
+        <label class="checkbox-item">
+            <input type="radio"
+                   name="notice_of_calculation_issued"
+                   value="True"
+                   {% if form.notice_of_calculation_issued.value %}checked{% endif %}>
+            Yes
+        </label>
+
+        <span style="font-style:italic;font-size:12px;">
+            Give date(s) of Notice(s) of Calculation or Recalculation.
+        </span>
+
+    </div>
+
+    <div class="field-group light-box">
+        {{ form.notice_of_calculation_dates|attr:"rows:3" }}
+    </div>
+
+    <div style="margin-top:22px;">
+
+        <strong>
+            If yes, are you asking the court to make an order for child support that is different from the amount set out in the Notice?
+        </strong>
+
+        <div class="checkbox-row">
+
+            <label class="checkbox-item">
+                <input type="radio"
+                       name="asking_child_support_different"
+                       value="False"
+                       {% if not form.asking_child_support_different.value %}checked{% endif %}>
+                No
+            </label>
+
+            <label class="checkbox-item">
+                <input type="radio"
+                       name="asking_child_support_different"
+                       value="True"
+                       {% if form.asking_child_support_different.value %}checked{% endif %}>
+                Yes
+            </label>
+
+            <span style="font-style:italic;font-size:12px;">
+                Provide an explanation.
+            </span>
+
+        </div>
+
+        <div class="field-group light-box">
+            {{ form.child_support_difference_explanation|attr:"rows:4" }}
+        </div>
+
+    </div>
+
+</div>
+</div>
+
+<div class="claims-title">
+CLAIMS
+</div>
+
+<div class="claims-frame">
+
+<div class="claims-frame-head">
+USE THIS FRAME ONLY IF THIS CASE IS A JOINT APPLICATION FOR DIVORCE
+</div>
+
+<div class="claims-frame-subhead">
+WE JOINTLY ASK THE COURT FOR THE FOLLOWING:
+</div>
+
+<div class="claims-grid">
+
+<div>
+
+<div class="claims-col-title">
+Claims under the <em>Divorce Act</em>
+</div>
+
+<label class="claim-item">
+<span class="claim-code">00</span>
+{{ form.claim_divorce }}
+<span>a divorce</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">01</span>
+{{ form.claim_spousal_support_divorce_act }}
+<span>spousal support</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">02</span>
+{{ form.claim_child_support_table_divorce_act }}
+<span>support for child(ren) — table amount</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">03</span>
+{{ form.claim_child_support_other_divorce_act }}
+<span>support for child(ren) — other than table amount</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">04</span>
+{{ form.claim_decision_making_divorce_act }}
+<span>decision-making responsibility for child(ren)</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">05</span>
+{{ form.claim_parenting_time_divorce_act }}
+<span>parenting time with child(ren)</span>
+</label>
+
+</div>
+
+<div>
+
+<div class="claims-col-title">
+Claims under the <em>Family Law Act</em> or <em>Children’s Law Reform Act</em>
+</div>
+
+<label class="claim-item">
+<span class="claim-code">10</span>
+{{ form.claim_spousal_support }}
+<span>spousal support</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">11</span>
+{{ form.claim_child_support_table }}
+<span>support for child(ren) — table amount</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">12</span>
+{{ form.claim_child_support_other }}
+<span>support for child(ren) — other than table amount</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">13</span>
+{{ form.claim_decision_making }}
+<span>decision-making responsibility for child(ren)</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">14</span>
+{{ form.claim_parenting_time }}
+<span>parenting time with child(ren)</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">15</span>
+{{ form.claim_restraining_order }}
+<span>restraining/non-harassment order</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">16</span>
+{{ form.claim_indexing_spousal_support }}
+<span>indexing spousal support</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">17</span>
+{{ form.claim_declaration_of_parentage }}
+<span>declaration of parentage</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">18</span>
+{{ form.claim_guardianship }}
+<span>guardianship over child’s property</span>
+</label>
+
+</div>
+
+<div>
+
+<div class="claims-col-title">
+Claims relating to property
+</div>
+
+<label class="claim-item">
+<span class="claim-code">20</span>
+{{ form.claim_property_equalization }}
+<span>equalization of net family properties</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">21</span>
+{{ form.claim_exclusive_possession_home }}
+<span>exclusive possession of matrimonial home</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">22</span>
+{{ form.claim_exclusive_possession_contents }}
+<span>exclusive possession of contents of matrimonial home</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">23</span>
+{{ form.claim_freezing_assets }}
+<span>freezing assets</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">24</span>
+{{ form.claim_sale_family_property }}
+<span>sale of family property</span>
+</label>
+
+<div class="claims-col-title" style="margin-top:18px;">
+Other claims
+</div>
+
+<label class="claim-item">
+<span class="claim-code">30</span>
+{{ form.claim_costs }}
+<span>costs</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">31</span>
+{{ form.claim_annulment }}
+<span>annulment of marriage</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">32</span>
+{{ form.claim_prejudgment_interest }}
+<span>prejudgment interest</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">50</span>
+{{ form.claim_other }}
+<span>Other (Specify)</span>
+</label>
+
+<div class="field-group light-box">
+{{ form.other_claims|attr:"rows:3" }}
+</div>
+
+</div>
+</div>
+</div>
+
+<div class="claims-frame">
+
+<div class="claims-frame-head">
+USE THIS FRAME ONLY IF THE APPLICANT’S ONLY CLAIM IN THIS CASE IS FOR DIVORCE.
+</div>
+
+<div class="claims-frame-subhead">
+I ASK THE COURT FOR:
+</div>
+
+<div class="simple-claims-row">
+
+<label class="claim-item">
+<span class="claim-code">00</span>
+{{ form.simple_claim_divorce }}
+<span>a divorce</span>
+</label>
+
+<label class="claim-item">
+<span class="claim-code">30</span>
+{{ form.simple_claim_costs }}
+<span>costs</span>
+</label>
+
+</div>
+</div>
+
+<div class="facts-title">
+IMPORTANT FACTS SUPPORTING THE CLAIM FOR DIVORCE
+</div>
+
+<div class="fact-block">
+
+<div class="fact-main-row">
+
+<label class="checkbox-item">
+{{ form.divorce_ground_separation }}
+<strong>Separation:</strong>
+</label>
+
+<span>
+The spouses have lived separate and apart since
+</span>
+
+<div class="field-group inline-field" style="margin-top:0;">
+{{ form.separation_date|attr:"type:date" }}
+</div>
+
+<span>and</span>
+
+</div>
+
+<div class="checkbox-row">
+
+<label class="checkbox-item">
+{{ form.not_lived_together_since_separation }}
+have not lived together again since that date in an unsuccessful attempt to reconcile.
+</label>
+
+</div>
+
+<div class="checkbox-row">
+
+<label class="checkbox-item">
+{{ form.lived_together_again_reconciliation }}
+have lived together again during the following period(s) in an unsuccessful attempt to reconcile:
+</label>
+
+</div>
+
+<div class="field-group light-box">
+{{ form.reconciliation_periods|attr:"rows:4" }}
+</div>
+
+</div>
+
+<div class="fact-block">
+
+<div class="fact-main-row">
+
+<label class="checkbox-item">
+{{ form.divorce_ground_adultery }}
+<strong>Adultery:</strong>
+</label>
+
+<span>Name of spouse</span>
+
+<div class="field-group inline-field" style="margin-top:0;">
+{{ form.adultery_spouse_name }}
+</div>
+
+<span>has committed adultery.</span>
+
+</div>
+
+<div class="field-group light-box">
+{{ form.adultery_details|attr:"rows:5" }}
+</div>
+
+</div>
+
+<div class="fact-block">
+
+<div class="fact-main-row">
+
+<label class="checkbox-item">
+{{ form.divorce_ground_cruelty }}
+<strong>Cruelty:</strong>
+</label>
+
+<span>Name of spouse</span>
+
+<div class="field-group inline-field" style="margin-top:0;">
+{{ form.cruelty_spouse_name }}
+</div>
+
+<span>
+has treated
+</span>
+
+<div class="field-group inline-field" style="margin-top:0;">
+{{ form.cruelty_treated_spouse_name }}
+</div>
+
+<span>
+with physical or mental cruelty of such a kind as to make continued cohabitation intolerable.
+</span>
+
+</div>
+
+<div class="field-group light-box">
+{{ form.cruelty_details|attr:"rows:5" }}
+</div>
+
+</div>
+
+<div class="actions-bar">
+
+<a href="{% url 'application_divorce_8a_page3' application.id %}"
+   class="btn-back">
+← Back
+</a>
+
+<button type="submit"
+        class="btn-next">
+Save & Continue →
+</button>
+
+</div>
+
+</form>
+</div>
+
+{% endblock %}

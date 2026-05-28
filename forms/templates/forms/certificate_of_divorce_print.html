@@ -1,0 +1,435 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  @page {
+    size: letter;
+    margin: 0;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .print-actions {
+    max-width: 8.5in;
+    margin: 20px auto;
+    text-align: right;
+  }
+
+  .print-actions button {
+    padding: 8px 14px;
+    border: 1px solid #111;
+    background: #111;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  .certificate-page {
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0 auto;
+    padding: 0.35in 0.45in 0.55in 0.45in;
+    background: #fff;
+    color: #000;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    box-sizing: border-box;
+    position: relative;
+  }
+
+  .top-row {
+    display: grid;
+    grid-template-columns: 1.15in 4in 1.9in;
+    column-gap: 0.3in;
+    align-items: start;
+  }
+
+  .seal {
+    width: 0.9in;
+    height: 0.9in;
+    border: 1.5px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-left: 0.05in;
+    margin-top: 0.05in;
+  }
+
+  .province {
+    text-align: center;
+    font-style: italic;
+    font-weight: bold;
+    margin-bottom: 3px;
+  }
+
+  .court-line {
+    height: 0.3in;
+    background: #eef1fb;
+    border-bottom: 1px solid #000;
+    position: relative;
+  }
+
+  .court-line .value {
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 4px;
+    font-size: 10px;
+  }
+
+  .caption {
+    text-align: center;
+    font-size: 8.5px;
+    font-style: italic;
+    font-weight: bold;
+    margin-bottom: 6px;
+  }
+
+  .at-row {
+    display: grid;
+    grid-template-columns: 0.25in 1fr;
+    align-items: end;
+    margin-top: 9px;
+  }
+
+  .at-label {
+    font-weight: bold;
+    font-size: 11px;
+  }
+
+  .file-box {
+    border: 1px solid #000;
+    height: 0.42in;
+    padding: 4px;
+    box-sizing: border-box;
+    margin-bottom: 0.18in;
+  }
+
+  .file-label {
+    font-size: 8.5px;
+    font-weight: bold;
+  }
+
+  .file-value {
+    font-size: 9px;
+    margin-top: 3px;
+    line-height: 1.1;
+  }
+
+  .form-title {
+    text-align: right;
+    font-weight: bold;
+    font-size: 10px;
+    line-height: 1.15;
+  }
+
+  .party-section {
+    margin-top: 0.22in;
+  }
+
+  .section-title {
+    font-weight: bold;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+
+  .party-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 0.12in;
+  }
+
+  .info-box {
+    border: 1px solid #000;
+    min-height: 0.78in;
+    background: #eef1fb;
+    padding: 5px 6px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .box-heading {
+    font-size: 7.4px;
+    font-style: italic;
+    font-weight: bold;
+    line-height: 1.15;
+    margin-bottom: 6px;
+  }
+
+  .box-value {
+    font-size: 9px;
+    line-height: 1.28;
+    white-space: pre-line;
+  }
+
+  .certify {
+    margin-top: 0.48in;
+    font-size: 10px;
+    line-height: 2.7;
+  }
+
+  .certify-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 8px;
+    align-items: end;
+    margin-bottom: 6px;
+  }
+
+  .certify strong {
+    font-weight: bold;
+  }
+
+  .inline-label {
+    font-style: italic;
+    font-size: 9px;
+  }
+
+  .fill-line {
+    background: #eef1fb;
+    border-bottom: 1px solid #000;
+    min-height: 19px;
+    padding: 2px 6px;
+    box-sizing: border-box;
+    line-height: 16px;
+  }
+
+  .signature-area {
+    position: absolute;
+    left: 0.45in;
+    right: 0.45in;
+    bottom: 1.4in;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 0.4in;
+  }
+
+  .sig-line {
+    height: 20px;
+    background: #eef1fb;
+    border-bottom: 1px solid #000;
+    text-align: center;
+    line-height: 20px;
+  }
+
+  .sig-line.no-bg {
+    background: transparent;
+  }
+
+  .sig-caption {
+    text-align: center;
+    font-size: 8.5px;
+    font-style: italic;
+    font-weight: bold;
+    margin-top: 4px;
+  }
+
+  .note {
+    position: absolute;
+    left: 0.45in;
+    right: 0.45in;
+    bottom: 0.92in;
+    font-size: 10px;
+    font-style: italic;
+  }
+
+  .note strong {
+    font-weight: bold;
+  }
+
+  .footer-code {
+    position: absolute;
+    left: 0.45in;
+    bottom: 0.25in;
+    font-size: 7.5px;
+  }
+
+  @media print {
+    body * {
+      visibility: hidden;
+    }
+
+    .certificate-page,
+    .certificate-page * {
+      visibility: visible;
+    }
+
+    .certificate-page {
+      position: absolute;
+      left: 0;
+      top: 0;
+      margin: 0;
+      box-shadow: none;
+    }
+
+    .print-actions {
+      display: none;
+    }
+  }
+</style>
+<div class="print-actions">
+  <button onclick="window.print()">Print Certificate</button>
+</div>
+
+<div class="certificate-page">
+
+  <div class="top-row">
+    <div>
+      <div class="seal">SEAL</div>
+    </div>
+
+    <div>
+      <div class="province">ONTARIO</div>
+
+      <div class="court-line">
+        <div class="value">{{ certificate.court_name }}</div>
+      </div>
+      <div class="caption">(Name of Court)</div>
+
+      <div class="at-row">
+        <div class="at-label">at</div>
+        <div>
+          <div class="court-line">
+            <div class="value">{{ certificate.court_office_address }}</div>
+          </div>
+          <div class="caption">Court office address</div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="file-box">
+        <div class="file-label">Court file number</div>
+        <div class="file-value">{{ certificate.court_file_number }}</div>
+      </div>
+
+      <div class="form-title">
+        Form 36B: Certificate<br>
+        of Divorce
+      </div>
+    </div>
+  </div>
+
+  <div class="party-section">
+    <div class="section-title">Applicant(s)</div>
+    <div class="party-grid">
+      <div class="info-box">
+        <div class="box-heading">
+          Full legal name &amp; address for service — street &amp; number, municipality,<br>
+          postal code, telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="box-value">
+          {{ certificate.applicant_name }}
+          {{ certificate.applicant_address }}
+        </div>
+      </div>
+
+      <div class="info-box">
+        <div class="box-heading">
+          Lawyer's name &amp; address — street &amp; number, municipality, postal code,<br>
+          telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="box-value">
+          {{ certificate.applicant_lawyer_name }}
+          {{ certificate.applicant_lawyer_address }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="party-section">
+    <div class="section-title">Respondent(s)</div>
+    <div class="party-grid">
+      <div class="info-box">
+        <div class="box-heading">
+          Full legal name &amp; address for service — street &amp; number, municipality,<br>
+          postal code, telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="box-value">
+          {{ certificate.respondent_name }}
+          {{ certificate.respondent_address }}
+        </div>
+      </div>
+
+      <div class="info-box">
+        <div class="box-heading">
+          Lawyer's name &amp; address — street &amp; number, municipality, postal code,<br>
+          telephone &amp; fax numbers and e-mail address (if any).
+        </div>
+        <div class="box-value">
+          {{ certificate.respondent_lawyer_name }}
+          {{ certificate.respondent_lawyer_address }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="certify">
+    <div class="certify-row">
+      <div>
+        <strong>I CERTIFY THAT</strong> the marriage of
+        <span class="inline-label">(full legal names of the spouses)</span>
+      </div>
+      <div class="fill-line">
+        {{ certificate.applicant_name }} and {{ certificate.respondent_name }}
+      </div>
+    </div>
+
+    <div class="certify-row">
+      <div>
+        that was solemnized at
+        <span class="inline-label">(place of marriage)</span>
+      </div>
+      <div class="fill-line">{{ certificate.marriage_place }}</div>
+    </div>
+
+    <div class="certify-row">
+      <div>
+        on
+        <span class="inline-label">(date of marriage)</span>
+      </div>
+      <div class="fill-line">{{ certificate.marriage_date|date:"F j, Y" }}</div>
+    </div>
+
+    <div class="certify-row">
+      <div>
+        was dissolved by an order of this court made on
+        <span class="inline-label">(date of divorce order)</span>
+      </div>
+      <div class="fill-line">{{ certificate.divorce_order_date|date:"F j, Y" }}</div>
+    </div>
+
+    <div class="certify-row">
+      <div>
+        The divorce took effect on
+        <span class="inline-label">(date when order took effect)</span>
+      </div>
+      <div class="fill-line">{{ certificate.divorce_effective_date|date:"F j, Y" }}</div>
+    </div>
+  </div>
+
+  <div class="signature-area">
+    <div>
+      <div class="sig-line">{{ certificate.date_of_signature|date:"F j, Y" }}</div>
+      <div class="sig-caption">Date of signature</div>
+    </div>
+
+    <div>
+      <div class="sig-line no-bg">{{ certificate.clerk_signature|default:"" }}</div>
+      <div class="sig-caption">Signature of clerk of the court</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <strong>NOTE:</strong> This certificate can only be issued on or after the date on which the divorce takes effect.
+  </div>
+
+  <div class="footer-code">
+    FLR-36B-E (2005/09)
+  </div>
+
+</div>
+{% endblock %}

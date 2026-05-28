@@ -11,3 +11,9 @@ def get_item(dictionary, key):
     # Handle 'pageX' format
     page_key = f"page{key}"
     return dictionary.get(page_key, dictionary.get(key))
+
+
+@register.filter
+def or_(value, arg):
+    """Return the logical OR of value and arg."""
+    return bool(value or arg)

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="form-view-topbar">
+  <h1>Certificate of Divorce (Printed Copy)</h1>
+</div>
+<div class="form-view-card">
+  <h3>Court</h3>
+  <p><strong>{{ certificate.court_name }}</strong><br>{{ certificate.court_office_address }}<br>{{ certificate.court_file_number }}</p>
+  <h3>Parties</h3>
+  <p><strong>Applicant:</strong> {{ certificate.applicant_name }}<br>{{ certificate.applicant_address }}</p>
+  <p><strong>Applicant's Lawyer:</strong> {{ certificate.applicant_lawyer_name }}<br>{{ certificate.applicant_lawyer_address }}</p>
+  <p><strong>Respondent:</strong> {{ certificate.respondent_name }}<br>{{ certificate.respondent_address }}</p>
+  <p><strong>Respondent's Lawyer:</strong> {{ certificate.respondent_lawyer_name }}<br>{{ certificate.respondent_lawyer_address }}</p>
+  <h3>Marriage & Divorce</h3>
+  <p><strong>Married:</strong> {{ certificate.marriage_place }} on {{ certificate.marriage_date }}</p>
+  <p><strong>Divorce Order Date:</strong> {{ certificate.divorce_order_date }}<br>
+     <strong>Effective Date:</strong> {{ certificate.divorce_effective_date }}</p>
+  <h3>Signature</h3>
+  <p>{{ certificate.clerk_signature }} on {{ certificate.date_of_signature }}</p>
+</div>
+{% endblock %}

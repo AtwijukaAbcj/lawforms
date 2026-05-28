@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% load custom_filters %}
+
+{% block title %}
+Form 8A — Application (Divorce)
+{% endblock %}
+
+{% block header %}
+Form 8A — Application (Divorce)
+{% endblock %}
+
+{% block subheader %}
+Manage Divorce Applications
+{% endblock %}
+
+{% block content %}
+
+<style>
+.action-buttons{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+.btn-mini{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:45px;
+    height:34px;
+    padding:0;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none !important;
+    transition:all .2s ease;
+    border:none;
+    cursor:pointer;
+    line-height:1;
+}
+
+.btn-info-modern{
+    background:#2563eb;
+    color:#ffffff !important;
+}
+
+.btn-info-modern:hover{
+    background:#1d4ed8;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern{
+    background:#15803d;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern:hover{
+    background:#166534;
+    color:#ffffff !important;
+}
+
+.btn-print-modern{
+    background:#1f2937;
+    color:#ffffff !important;
+}
+
+.btn-print-modern:hover{
+    background:#111827;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern{
+    background:#dc2626;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern:hover{
+    background:#b91c1c;
+    color:#ffffff !important;
+}
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+  <div>
+    <h5 class="fw-bold mb-1">
+      Divorce Applications
+    </h5>
+
+    <p class="text-muted mb-0">
+      Create, manage, print and review Form 8A applications.
+    </p>
+  </div>
+
+  <div>
+    <a href="{% url 'application_divorce_8a_create' %}"
+       class="btn btn-primary">
+      + New Form 8A
+    </a>
+  </div>
+
+</div>
+
+<div class="card shadow-sm border-0">
+
+  <div class="card-body p-0">
+
+    <div class="table-responsive">
+
+      <table class="table table-hover align-middle mb-0">
+
+        <thead class="table-light">
+
+          <tr>
+            <th style="width:140px;">Court File No.</th>
+            <th>Applicant</th>
+            <th>Respondent</th>
+            <th style="width:140px;">Application Type</th>
+            <th style="width:140px;">Status</th>
+            <th style="width:140px;">Updated</th>
+            <th class="text-end" style="width:280px;">Actions</th>
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {% for application in applications %}
+
+          <tr>
+
+            <td>
+              <strong>{{ application.court_file_number|default:"—" }}</strong>
+            </td>
+
+            <td>
+              {{ application.applicant_name|default:"—" }}
+            </td>
+
+            <td>
+              {{ application.respondent_name|default:"—" }}
+            </td>
+
+            <td>
+              {% if application.application_type == "simple" %}
+                <span class="badge bg-secondary">Simple</span>
+              {% elif application.application_type == "joint" %}
+                <span class="badge bg-info text-dark">Joint</span>
+              {% else %}
+                <span class="badge bg-light text-dark border">—</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {% if application.is_completed %}
+                <span class="badge bg-success">Completed</span>
+              {% else %}
+                <span class="badge bg-warning text-dark">Draft</span>
+              {% endif %}
+            </td>
+
+            <td>
+              {{ application.updated_at|date:"M d, Y" }}
+            </td>
+
+            <td class="text-end">
+
+              {% with can_view=application.can_view can_edit=application.can_edit can_print=application.can_print can_delete=application.can_delete %}
+
+                {% include 'partials/action_buttons.html' with object_id=application.id view_name='application_divorce_8a_view' edit_name='application_divorce_8a_page1_edit' print_name='application_divorce_8a_print' delete_name='application_divorce_8a_delete' can_view=can_view can_edit=can_edit can_print=can_print can_delete=can_delete object_label='Form 8A Divorce Application' %}
+
+              {% endwith %}
+
+            </td>
+
+          </tr>
+
+          {% empty %}
+
+          <tr>
+            <td colspan="7"
+                class="text-center py-5 text-muted">
+              No Form 8A Divorce Applications found.
+            </td>
+          </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 8A — Application (Divorce) — Page 2{% endblock %}
+{% block header %}Form 8A — Application (Divorce){% endblock %}
+{% block subheader %}Page 2 — Joint Application & Court Information{% endblock %}
+
+{% block content %}
+<style>
+  .form8a-page2-wrap {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+  }
+
+  .form8a-page2-sheet {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  }
+
+  .page2-header {
+    display: grid;
+    grid-template-columns: 1fr auto 240px;
+    gap: 20px;
+    align-items: center;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .page2-title,
+  .page2-number {
+    font-size: 16px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .page2-title span {
+    margin-left: 10px;
+  }
+
+  .court-file-box label {
+    font-size: 12px;
+    font-weight: 800;
+    color: #334155;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .court-file-box input,
+  .signature-field input {
+    width: 100%;
+    height: 38px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #fff;
+    padding: 8px 10px;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+
+  .joint-notice-box {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 24px;
+  }
+
+  .joint-checkbox input {
+    width: 18px;
+    height: 18px;
+    margin-top: 2px;
+  }
+
+  .joint-text {
+    font-size: 13px;
+    line-height: 1.55;
+    color: #334155;
+  }
+
+  .joint-text strong {
+    display: block;
+    font-size: 14px;
+    color: #0f172a;
+    margin-bottom: 8px;
+  }
+
+  .joint-text p {
+    margin: 8px 0 0;
+  }
+
+  .spacer-area {
+    display: none;
+  }
+
+  .signature-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+  }
+
+  .signature-caption {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #64748b;
+  }
+
+  .footer-left,
+  .footer-right {
+    display: none;
+  }
+
+  .page2-actions {
+    margin-top: 22px;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .page2-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 28px;
+  gap: 14px;
+}
+
+.page2-actions-right {
+  display: flex;
+  gap: 12px;
+}
+
+.btn-back {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  transition: .2s ease;
+}
+
+.btn-back:hover {
+  background: #f8fafc;
+}
+
+.btn-save {
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #0f172a;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .2s ease;
+}
+
+.btn-save:hover {
+  background: #f8fafc;
+}
+
+.btn-next {
+  height: 42px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: .2s ease;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.15);
+}
+
+.btn-next:hover {
+  transform: translateY(-1px);
+  background: #111827;
+}
+</style>
+
+{% if case_list %}
+<form method="get" class="case-load-bar">
+  <div>
+    <label>Select Case</label>
+    <select name="case_id">
+      <option value="">— None —</option>
+      {% for c in case_list %}
+        <option value="{{ c.id }}" {% if selected_case and selected_case.id == c.id %}selected{% endif %}>
+          {{ c.court_file_number|default:"" }} — {{ c.applicant_name|default:"" }} vs {{ c.respondent_name|default:"" }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit" class="btn-load">Load Case</button>
+</form>
+{% endif %}
+
+<div class="form8a-page2-wrap">
+  <form method="post">
+    {% csrf_token %}
+
+    {% if selected_case %}
+      <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+    {% endif %}
+
+    <div class="form8a-page2-sheet">
+
+      <div class="page2-header">
+        <div class="page2-title">
+          Form 8A: <span>Application (Divorce)</span>
+        </div>
+
+        <div class="page2-number">
+          (page 2)
+        </div>
+
+        <div class="court-file-box">
+          <label>Court File Number</label>
+          {{ form.court_file_number|add_class:"" }}
+        </div>
+      </div>
+
+      <div class="joint-notice-box">
+        <div class="joint-checkbox">
+          {{ form.is_joint_application }}
+        </div>
+
+        <div class="joint-text">
+          <strong>
+            THIS CASE IS A JOINT APPLICATION FOR DIVORCE. THE DETAILS ARE SET OUT ON THE ATTACHED PAGES.
+          </strong>
+
+          <p>
+            The application and affidavits in support of the application will be presented to a judge when the materials have been checked for completeness.
+          </p>
+
+          <p>
+            If you are requesting anything other than a simple divorce, such as support or property or exclusive possession of the matrimonial home and its contents, then refer to page 1 for instructions regarding the Financial Statement you should file.
+          </p>
+        </div>
+      </div>
+
+      <div class="spacer-area"></div>
+
+      <div class="signature-row">
+  <div class="signature-field">
+  {{ form.date_of_issue|add_class:"date-input"|attr:"type:date" }}
+  <div class="signature-caption">Date of issue</div>
+</div>
+
+        <div class="signature-field clerk">
+          {{ form.clerk_signature|add_class:"" }}
+          <div class="signature-caption">Clerk of the court</div>
+        </div>
+      </div>
+
+      <div class="footer-left">FLR 8A (April 1, 2024)</div>
+      <div class="footer-right">Page 2 of 6</div>
+
+    </div>
+
+   <div class="page2-actions">
+
+  <a href="{% url 'application_divorce_8a_page1' application.id %}"
+     class="btn-back">
+
+    ← Back
+
+  </a>
+
+  <div class="page2-actions-right">
+
+    <button type="submit"
+            name="action"
+            value="save"
+            class="btn-save">
+
+      Save Draft
+
+    </button>
+
+    <button type="submit"
+            name="action"
+            value="continue"
+            class="btn-next">
+
+      Save & Continue →
+
+    </button>
+
+  </div>
+
+</div>
+
+  </form>
+</div>
+{% endblock %}

@@ -6,6 +6,10 @@ urlpatterns = [
     path('financial-statement/delete/<int:pk>/', views.financial_statement_delete, name='financial_statement_delete'),
     path('dashboard/', views.dashboard, name='dashboard'),
     path('comparison-nfp/', views.ComparisonNetFamilyPropertyListView.as_view(), name='comparison_nfp_list'),
+    path('cases/', views.case_list, name='case_list'),
+    path('cases/new/', views.case_create, name='case_create'),
+    path('cases/<int:pk>/', views.case_detail, name='case_detail'),
+    path('cases/<int:pk>/push/', views.case_push_to_forms, name='case_push_to_forms'),
     path('comparison-nfp/<int:pk>/', views.ComparisonNetFamilyPropertyDetailView.as_view(), name='comparison_nfp_detail'),
     path('comparison-nfp/delete/<int:pk>/', views.comparison_nfp_delete, name='comparison_nfp_delete'),
     path('comparison-nfp/new/', views.comparison_nfp_create, name='comparison_nfp_create'),
@@ -75,4 +79,106 @@ urlpatterns = [
     # Settings
     path('settings/', views.settings_page_view, name='settings_page'),
     path('settings/email/', views.email_settings_view, name='email_settings'),
+    path("affidavit-service/list/", views.affidavit_service_list, name="affidavit_service_list"),
+    path("affidavit-service/new/", views.affidavit_service_page1, name="affidavit_service_page1"),
+    path("affidavit-service/<int:pk>/page1/", views.affidavit_service_page1, name="affidavit_service_page1_edit"),
+    path("affidavit-service/<int:pk>/page2/", views.affidavit_service_page2, name="affidavit_service_page2"),
+    path("affidavit-service/view/<int:pk>/", views.affidavit_service_view, name="affidavit_service_view"),
+    path("affidavit-service/print/<int:pk>/", views.affidavit_service_print, name="affidavit_service_print"),
+    path("affidavit-service/print-view/<int:pk>/", views.affidavit_service_print_view, name="affidavit_service_print_view"),
+    path("affidavit-service/delete/<int:pk>/", views.affidavit_service_delete, name="affidavit_service_delete"),
+    # Certificate of Divorce (Form 36B)
+    path('certificate-of-divorce/list/', views.certificate_of_divorce_list, name='certificate_of_divorce_list'),
+    path('certificate-of-divorce/new/', views.certificate_of_divorce_create, name='certificate_of_divorce_create'),
+    path('certificate-of-divorce/<int:pk>/page1/', views.certificate_of_divorce_page1, name='certificate_of_divorce_page1'),
+    path('certificate-of-divorce/view/<int:pk>/', views.certificate_of_divorce_view, name='certificate_of_divorce_view'),
+    path('certificate-of-divorce/print/<int:pk>/', views.certificate_of_divorce_print, name='certificate_of_divorce_print'),
+    path('certificate-of-divorce/print-view/<int:pk>/', views.certificate_of_divorce_print_view, name='certificate_of_divorce_print_view'),
+    path('certificate-of-divorce/delete/<int:pk>/', views.certificate_of_divorce_delete, name='certificate_of_divorce_delete'),
+    # Divorce Order (Form 25A)
+    path('divorce-order/list/', views.divorce_order_list, name='divorce_order_list'),
+    path('divorce-order/new/', views.divorce_order_create, name='divorce_order_create'),
+    path('divorce-order/<int:pk>/page/', views.divorce_order_page, name='divorce_order_page'),
+    path('divorce-order/view/<int:pk>/', views.divorce_order_view, name='divorce_order_view'),
+    path('divorce-order/print/<int:pk>/', views.divorce_order_print, name='divorce_order_print'),
+    path('divorce-order/print-view/<int:pk>/', views.divorce_order_print_view, name='divorce_order_print_view'),
+    path('divorce-order/delete/<int:pk>/', views.divorce_order_delete, name='divorce_order_delete'),
+# =====================================================
+# FORM 8A — APPLICATION (DIVORCE)
+# =====================================================
+
+    path(
+        'application-divorce-8a/',
+        views.application_divorce_8a_list,
+        name='application_divorce_8a_list'
+    ),
+
+    path(
+        'application-divorce-8a/create/',
+        views.application_divorce_8a_create,
+        name='application_divorce_8a_create'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/page1/',
+        views.application_divorce_8a_page1,
+        name='application_divorce_8a_page1'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/page1/',
+        views.application_divorce_8a_page1,
+        name='application_divorce_8a_page1_edit'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/page2/',
+        views.application_divorce_8a_page2,
+        name='application_divorce_8a_page2'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/page3/',
+        views.application_divorce_8a_page3,
+        name='application_divorce_8a_page3'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/page4/',
+        views.application_divorce_8a_page4,
+        name='application_divorce_8a_page4'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/page5/',
+        views.application_divorce_8a_page5,
+        name='application_divorce_8a_page5'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/page6/',
+        views.application_divorce_8a_page6,
+        name='application_divorce_8a_page6'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/view/',
+        views.application_divorce_8a_view,
+        name='application_divorce_8a_view'
+    ),
+
+    path(
+        'application-divorce-8a/<int:pk>/print/',
+        views.application_divorce_8a_print,
+        name='application_divorce_8a_print'
+    ),
+
+    path(
+        'application-divorce-8a/delete/<int:pk>/',
+        views.application_divorce_8a_delete,
+        name='application_divorce_8a_delete'
+    ),
+
+    path("affidavit-service/<int:pk>/page-3/", views.affidavit_service_page3, name="affidavit_service_page3"),      
+        
 ]

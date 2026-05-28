@@ -62,6 +62,29 @@ def is_notification_enabled(notification_type='all'):
         return True  # Default enabled
 
 
+def _get_form_display_name(form_type, form_instance):
+    if form_type == 'affidavit_service':
+        form_display_name = 'Affidavit of Service (Form 6B)'
+        if hasattr(form_instance, 'form_variant'):
+            try:
+                variant = form_instance.get_form_variant_display()
+                if variant:
+                    form_display_name = f'Affidavit of Service ({variant})'
+            except Exception:
+                pass
+        return form_display_name
+
+    form_names = {
+        'financial_statement': 'Financial Statement (Form 13)',
+        'financial_statement_131': 'Financial Statement - Property & Support (Form 13.1)',
+        'net_family_property_13b': 'Net Family Property (Form 13B)',
+        'comparison_nfp': 'Comparison of Net Family Property (Form 13C)',
+        'affidavit_service': 'Affidavit of Service (Form 6B)',
+        'application_divorce_8a': 'Form 8A — Application (Divorce)',
+    }
+    return form_names.get(form_type, form_type)
+
+
 def send_form_created_notification(form_type, form_instance, user):
     """
     Send email notification when a form is created.
@@ -83,13 +106,7 @@ def send_form_created_notification(form_type, form_instance, user):
             return False
         
         # Get form display name
-        form_names = {
-            'financial_statement': 'Financial Statement (Form 13)',
-            'financial_statement_131': 'Financial Statement - Property & Support (Form 13.1)',
-            'net_family_property_13b': 'Net Family Property (Form 13B)',
-            'comparison_nfp': 'Comparison of Net Family Property (Form 13C)',
-        }
-        form_display_name = form_names.get(form_type, form_type)
+        form_display_name = _get_form_display_name(form_type, form_instance)
         
         # Build applicant name if available
         applicant_name = "N/A"
@@ -187,13 +204,7 @@ def send_form_printed_notification(form_type, form_instance, user, price_charged
             return False
         
         # Get form display name
-        form_names = {
-            'financial_statement': 'Financial Statement (Form 13)',
-            'financial_statement_131': 'Financial Statement - Property & Support (Form 13.1)',
-            'net_family_property_13b': 'Net Family Property (Form 13B)',
-            'comparison_nfp': 'Comparison of Net Family Property (Form 13C)',
-        }
-        form_display_name = form_names.get(form_type, form_type)
+        form_display_name = _get_form_display_name(form_type, form_instance)
         
         # Build applicant name if available
         applicant_name = "N/A"

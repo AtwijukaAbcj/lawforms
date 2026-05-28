@@ -8,6 +8,9 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils import timezone
 
+from forms.models import DivorceOrder
+from users.context_processors import user_permissions
+
 from .models import Role, Module, Permission, UserProfile, AuditLog
 from .forms import UserForm, RoleForm, ModuleForm, AdminPasswordResetForm, UserPasswordChangeForm
 
@@ -275,62 +278,74 @@ def role_list(request):
 @login_required
 @user_passes_test(is_admin)
 def role_create(request):
-    """Create a new role"""
     modules = Module.objects.filter(is_active=True).prefetch_related('permissions')
-    
+
     if request.method == 'POST':
         form = RoleForm(request.POST)
         if form.is_valid():
             role = form.save()
-            
-            # Save permissions
+
             permission_ids = request.POST.getlist('permissions')
             role.permissions.set(permission_ids)
-            
+
             log_action(request, 'create', 'roles', role.id, role.name, f'Created role: {role.name}')
             messages.success(request, f'Role "{role.name}" created successfully.')
             return redirect('users:role_list')
     else:
         form = RoleForm()
-    
+
     return render(request, 'users/role_form.html', {
         'form': form,
         'modules': modules,
+        'selected_permissions': [],
         'title': 'Create Role',
         'action': 'Create'
     })
 
+@login_required
+def divorce_order_list(request):
+    orders = DivorceOrder.objects.all().order_by("-updated_at")
+
+    perms = user_permissions(request).get("user_permissions", {}).get("divorce_order", {})
+
+    for order in orders:
+        order.can_view = request.user.is_superuser or perms.get("view", False)
+        order.can_edit = request.user.is_superuser or perms.get("edit", False)
+        order.can_print = request.user.is_superuser or perms.get("print", False)
+        order.can_delete = request.user.is_superuser or perms.get("delete", False)
+
+    return render(request, "forms/divorce_order_list.html", {
+        "orders": orders,
+    })
 
 @login_required
 @user_passes_test(is_admin)
 def role_edit(request, pk):
-    """Edit an existing role"""
     role = get_object_or_404(Role, pk=pk)
     modules = Module.objects.filter(is_active=True).prefetch_related('permissions')
-    
+
     if request.method == 'POST':
         form = RoleForm(request.POST, instance=role)
         if form.is_valid():
             role = form.save()
-            
-            # Save permissions
+
             permission_ids = request.POST.getlist('permissions')
             role.permissions.set(permission_ids)
-            
+
             log_action(request, 'update', 'roles', role.id, role.name, f'Updated role: {role.name}')
             messages.success(request, f'Role "{role.name}" updated successfully.')
             return redirect('users:role_list')
     else:
         form = RoleForm(instance=role)
-    
+
     return render(request, 'users/role_form.html', {
         'form': form,
         'modules': modules,
         'role': role,
+        'selected_permissions': role.permissions.all(),
         'title': f'Edit Role: {role.name}',
         'action': 'Update'
     })
-
 
 @login_required
 @user_passes_test(is_admin)

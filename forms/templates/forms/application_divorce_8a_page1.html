@@ -1,0 +1,661 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}Form 8A — Application (Divorce) — Page 1{% endblock %}
+{% block header %}Form 8A — Application (Divorce){% endblock %}
+{% block subheader %}Page 1 — Court & Party Information{% endblock %}
+
+{% block content %}
+<style>
+  .form8a-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 0 30px;
+  }
+
+  .case-load-bar {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .case-load-bar label,
+  .form8a-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 5px;
+  }
+
+  .case-load-bar select {
+    width: 260px;
+    height: 36px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 9px;
+    font-size: 13px;
+    background: #fff;
+  }
+
+  .btn-load {
+    height: 36px;
+    border: 0;
+    border-radius: 6px;
+    background: #64748b;
+    color: #fff;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .form8a-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .form8a-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #0f172a;
+  }
+
+  .form8a-subtitle {
+    margin: 4px 0 0;
+    font-size: 13px;
+    color: #64748b;
+  }
+
+  .page-badge {
+    display: inline-block;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 800;
+  }
+
+  .form8a-court-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  .court-field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .court-address {
+    grid-column: 1 / -1;
+  }
+
+  .court-input {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 0 12px;
+    font-size: 14px;
+    color: #0f172a;
+    transition: all .15s ease;
+    box-sizing: border-box;
+  }
+
+  .court-input:focus {
+    outline: none;
+    border-color: #0f172a;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+  }
+
+  .type-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 9px;
+    background: #fff;
+    padding: 12px 14px;
+    margin-bottom: 18px;
+  }
+
+  .type-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 10px;
+  }
+
+  .type-options {
+    display: flex;
+    gap: 22px;
+    flex-wrap: wrap;
+  }
+
+  .type-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+
+  .type-option input {
+    width: 16px;
+    height: 16px;
+  }
+
+  .party-grid-ui {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  .party-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 9px;
+    background: #f8fafc;
+    overflow: hidden;
+  }
+
+  .party-card-head {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    background: #fff;
+    border-bottom: 1px solid #dbe3ee;
+  }
+
+  .party-card-head span {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .04em;
+    color: #0f172a;
+  }
+
+  .party-card-head small {
+    border: 1px solid #dbe3ee;
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 9px;
+    font-weight: 900;
+    color: #64748b;
+    letter-spacing: .06em;
+    background: #fff;
+  }
+
+  .party-row {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    align-items: stretch;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .party-row:last-child {
+    border-bottom: 0;
+  }
+
+  .party-row label {
+    padding: 10px 12px;
+    font-size: 11px;
+    color: #334155;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+  }
+
+  .party-row input,
+  .party-row textarea {
+    margin: 6px;
+    width: calc(100% - 12px);
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    box-sizing: border-box;
+  }
+
+  .notice-card {
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 18px 20px;
+    margin-top: 18px;
+  }
+
+  .notice-line {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .notice-title {
+    font-size: 15px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .notice-block {
+    font-size: 13px;
+    line-height: 1.5;
+    color: #111827;
+    margin-bottom: 14px;
+  }
+
+  .notice-block strong {
+    font-weight: 900;
+  }
+
+  .notice-list {
+    margin: 0 0 16px 20px;
+    padding: 0;
+  }
+
+  .notice-list li {
+    margin-bottom: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .final-warning {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 14px;
+    margin-top: 12px;
+  }
+
+  .form8a-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  .btn-cancel,
+  .btn-next {
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 800;
+    text-decoration: none;
+    border: 0;
+  }
+
+  .btn-cancel {
+    background: #fff;
+    color: #0f172a;
+    border: 1px solid #cbd5e1;
+  }
+
+  .btn-next {
+    background: #0f172a;
+    color: #fff;
+  }
+
+  @media (max-width: 900px) {
+    .form8a-court-grid,
+    .party-grid-ui {
+      grid-template-columns: 1fr;
+    }
+
+    .party-row {
+      grid-template-columns: 1fr;
+    }
+
+    .case-load-bar,
+    .form8a-top,
+    .form8a-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .case-load-bar select {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="form8a-wrap">
+
+  {% if case_list %}
+  <form method="get" class="case-load-bar">
+    <div>
+      <label>Select Case</label>
+
+      <select name="case_id">
+        <option value="">— None —</option>
+
+        {% for c in case_list %}
+        <option value="{{ c.id }}"
+          {% if selected_case and selected_case.id == c.id %}selected{% endif %}>
+          {{ c.court_file_number|default:"" }}
+          —
+          {{ c.applicant_name|default:"" }}
+          vs
+          {{ c.respondent_name|default:"" }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <button type="submit" class="btn-load">
+      Load Case
+    </button>
+  </form>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if selected_case %}
+      <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+    {% endif %}
+
+    <div class="form8a-top">
+
+      <div>
+        <h5 class="form8a-title">
+          Divorce Application
+        </h5>
+
+        <p class="form8a-subtitle">
+          Complete court, applicant and respondent information.
+        </p>
+      </div>
+
+      <span class="page-badge">
+        PAGE 1 OF 6
+      </span>
+
+    </div>
+
+    <!-- COURT SECTION -->
+    <div class="form8a-court-grid">
+
+      <div class="court-field">
+        <label class="form8a-label">
+          Name of Court
+        </label>
+
+        {{ form.court_name|add_class:"court-input" }}
+      </div>
+
+      <div class="court-field">
+        <label class="form8a-label">
+          Court File Number
+        </label>
+
+        {{ form.court_file_number|add_class:"court-input" }}
+      </div>
+
+      <div class="court-field court-address">
+        <label class="form8a-label">
+          Court office address
+        </label>
+
+        {{ form.court_office_address|add_class:"court-input" }}
+      </div>
+
+    </div>
+
+    <!-- APPLICATION TYPE -->
+    <div class="type-card">
+
+      <div class="type-title">
+        Application Type
+      </div>
+
+      <div class="type-options">
+
+        <label class="type-option">
+          {{ form.is_simple_divorce }}
+          <span>Simple Divorce</span>
+        </label>
+
+        <label class="type-option">
+          {{ form.is_joint_application }}
+          <span>Joint Application</span>
+        </label>
+
+      </div>
+
+    </div>
+
+    <!-- PARTY GRID -->
+    <div class="party-grid-ui">
+
+      <!-- APPLICANT -->
+      <div class="party-card">
+
+        <div class="party-card-head">
+          <span>APPLICANT(S)</span>
+          <small>SERVICE DETAILS</small>
+        </div>
+
+        <div class="party-row">
+          <label>Full legal name</label>
+          {{ form.applicant_name }}
+        </div>
+
+        <div class="party-row">
+          <label>Address for service</label>
+          {{ form.applicant_address }}
+        </div>
+
+        <div class="party-row">
+          <label>Phone / Fax</label>
+          {{ form.applicant_phone_fax }}
+        </div>
+
+        <div class="party-row">
+          <label>Email</label>
+          {{ form.applicant_email }}
+        </div>
+
+      </div>
+
+      <!-- RESPONDENT -->
+      <div class="party-card">
+
+        <div class="party-card-head">
+          <span>RESPONDENT(S)</span>
+          <small>SERVICE DETAILS</small>
+        </div>
+
+        <div class="party-row">
+          <label>Full legal name</label>
+          {{ form.respondent_name }}
+        </div>
+
+        <div class="party-row">
+          <label>Address for service</label>
+          {{ form.respondent_address }}
+        </div>
+
+        <div class="party-row">
+          <label>Phone / Fax</label>
+          {{ form.respondent_phone_fax }}
+        </div>
+
+        <div class="party-row">
+          <label>Email</label>
+          {{ form.respondent_email }}
+        </div>
+
+      </div>
+
+      <!-- APPLICANT LAWYER -->
+      <div class="party-card">
+
+        <div class="party-card-head">
+          <span>APPLICANT(S) LAWYER</span>
+          <small>IF APPLICABLE</small>
+        </div>
+
+        <div class="party-row">
+          <label>Lawyer name</label>
+          {{ form.applicant_lawyer_name }}
+        </div>
+
+        <div class="party-row">
+          <label>Address</label>
+          {{ form.applicant_lawyer_address }}
+        </div>
+
+        <div class="party-row">
+          <label>Phone / Fax</label>
+          {{ form.applicant_lawyer_phone_fax }}
+        </div>
+
+        <div class="party-row">
+          <label>Email</label>
+          {{ form.applicant_lawyer_email }}
+        </div>
+
+      </div>
+
+      <!-- RESPONDENT LAWYER -->
+      <div class="party-card">
+
+        <div class="party-card-head">
+          <span>RESPONDENT(S) LAWYER</span>
+          <small>IF APPLICABLE</small>
+        </div>
+
+        <div class="party-row">
+          <label>Lawyer name</label>
+          {{ form.respondent_lawyer_name }}
+        </div>
+
+        <div class="party-row">
+          <label>Address</label>
+          {{ form.respondent_lawyer_address }}
+        </div>
+
+        <div class="party-row">
+          <label>Phone / Fax</label>
+          {{ form.respondent_lawyer_phone_fax }}
+        </div>
+
+        <div class="party-row">
+          <label>Email</label>
+          {{ form.respondent_lawyer_email }}
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- NOTICE -->
+    <div class="notice-card">
+
+      <div class="notice-line">
+
+        <div class="notice-title">
+          IN THIS CASE, THE APPLICANT IS CLAIMING DIVORCE ONLY.
+        </div>
+
+      </div>
+
+      <div class="notice-block">
+        <strong>TO THE RESPONDENT(S):</strong>
+
+        A COURT CASE FOR DIVORCE HAS BEEN STARTED AGAINST YOU IN THIS COURT.
+        THE DETAILS ARE SET OUT ON THE ATTACHED PAGES.
+      </div>
+
+      <div class="notice-block">
+        <strong>THIS CASE IS ON THE STANDARD TRACK OF THE CASE MANAGEMENT SYSTEM.</strong>
+
+        No court date has been set for this case but, if you have been served
+        with a notice of motion, it has a court date and you or your lawyer
+        should come to court for the motion.
+      </div>
+
+      <div class="notice-block">
+        <strong>IF, AFTER 365 DAYS, THE CASE HAS NOT BEEN SCHEDULED FOR TRIAL,</strong>
+
+        the clerk of the court will send out a warning that the case will be
+        dismissed within 60 days unless the parties file proof that the case
+        has been settled.
+      </div>
+
+      <div class="notice-block">
+        <strong>IF YOU WANT TO OPPOSE ANY CLAIM IN THIS CASE,</strong>
+
+        you or your lawyer must prepare an Answer (Form 10),
+        serve a copy on the applicant and file a copy in the court office.
+
+        <strong>
+          YOU HAVE ONLY 30 DAYS AFTER THIS APPLICATION IS SERVED ON YOU
+          TO SERVE AND FILE AN ANSWER.
+        </strong>
+      </div>
+
+      <div class="notice-block">
+        <strong>IF YOU WANT TO MAKE A CLAIM OF YOUR OWN,</strong>
+
+        you or your lawyer must fill out the claim portion in the Answer.
+      </div>
+
+      <ul class="notice-list">
+
+        <li>
+          If you want to make a claim for support but do not want to make
+          a claim for property or exclusive possession of the matrimonial
+          home and its contents, you MUST fill out a Financial Statement.
+        </li>
+
+        <li>
+          If your only claim for support is for child support in the table
+          amount specified under the Child Support Guidelines, you do not
+          need to file a Financial Statement.
+        </li>
+
+        <li>
+          If you want to make a claim for property or exclusive possession
+          of the matrimonial home and its contents, you MUST fill out a
+          Financial Statement (Form 13.1).
+        </li>
+
+      </ul>
+
+      <div class="notice-block final-warning">
+
+        <strong>
+          YOU SHOULD GET LEGAL ADVICE ABOUT THIS CASE RIGHT AWAY.
+        </strong>
+
+        If you cannot afford a lawyer, you may be able to get help from
+        your local Legal Aid Ontario office.
+
+      </div>
+
+    </div>
+
+    <div class="form8a-actions">
+
+      <a href="{% url 'application_divorce_8a_list' %}"
+         class="btn-cancel">
+        Cancel
+      </a>
+
+      <button type="submit" class="btn-next">
+        Save & Continue →
+      </button>
+
+    </div>
+
+  </form>
+
+</div>
+{% endblock %}

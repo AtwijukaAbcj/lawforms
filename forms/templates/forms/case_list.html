@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<style>
+  .page-wrap{ max-width:1180px; margin:22px auto 56px; padding:0 14px; }
+  .shell{ border-radius:10px; overflow:hidden; }
+  .header{ padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .title-block h2{ margin:0; font-size:16px; font-weight:700; color:#0f172a; }
+  .title-block p{ margin:4px 0 0; font-size:13px; color:#64748b; }
+  .btn-modern{ border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; color:#fff; border:none; cursor:pointer; }
+  .btn-primary-modern{ background:#1e293b; border-color:#1e293b; color:#fff; }
+  table.modern{ width:100%; margin:0; border-collapse:collapse; font-size:.9rem; }
+  table.modern thead th{ padding:10px 12px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#64748b; text-align:left; white-space:nowrap; background:#f8fafc; border-bottom:1px solid #e2e8f0; }
+  table.modern tbody td{ padding:11px 12px; border-bottom:1px solid #f1f5f9; color:#0f172a; vertical-align:middle; }
+</style>
+
+<div class="page-wrap">
+  <div class="shell">
+    <div class="header">
+      <div class="title-block">
+        <h2>Cases</h2>
+        <p>Your saved case master records</p>
+      </div>
+      <a class="btn-modern btn-primary-modern" href="{% url 'case_create' %}">+ New Case</a>
+    </div>
+
+    <div class="content" style="padding:16px 18px 20px;">
+      <div class="table-shell">
+        <div class="table-responsive">
+          <table class="modern">
+            <thead>
+              <tr>
+                <th style="width:80px;">ID</th>
+                <th>Court File #</th>
+                <th>Parties</th>
+                <th style="width:190px;">Updated</th>
+                <th style="width:120px; text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in cases %}
+              <tr>
+                <td>#{{ c.id }}</td>
+                <td>{{ c.court_file_number|default:'—' }}</td>
+                <td>{{ c.applicant_name|default:'—' }} vs {{ c.respondent_name|default:'—' }}</td>
+                <td>{{ c.updated_at|date:'Y-m-d H:i' }}</td>
+                <td style="text-align:right;"><a class="btn-modern" href="{% url 'case_detail' c.pk %}" role="button" aria-label="Open case {{ c.id }}" tabindex="0">Open</a></td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5" style="padding:20px; text-align:center; color:#64748b;">No cases found.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

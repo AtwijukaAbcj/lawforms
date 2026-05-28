@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="page-wrap">
+  <h1>Create Case</h1>
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-success">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
+      <div class="page-card">
+        <h4 style="margin-top:0;">Applicant(s)</h4>
+        <div style="display:grid; gap:8px;">
+          <label>Full legal name</label>
+          <input name="applicant_name" class="ui-input" value="{{ request.POST.applicant_name }}">
+          <label>Address</label>
+          <input name="applicant_address" class="ui-input" value="{{ request.POST.applicant_address }}">
+          <label>Phone &amp; Fax</label>
+          <input name="applicant_phone" class="ui-input" value="{{ request.POST.applicant_phone }}">
+          <label>Email</label>
+          <input name="applicant_email" class="ui-input" value="{{ request.POST.applicant_email }}">
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h4 style="margin-top:0;">Respondent(s)</h4>
+        <div style="display:grid; gap:8px;">
+          <label>Full legal name</label>
+          <input name="respondent_name" class="ui-input" value="{{ request.POST.respondent_name }}">
+          <label>Address</label>
+          <input name="respondent_address" class="ui-input" value="{{ request.POST.respondent_address }}">
+          <label>Phone &amp; Fax</label>
+          <input name="respondent_phone" class="ui-input" value="{{ request.POST.respondent_phone }}">
+          <label>Email</label>
+          <input name="respondent_email" class="ui-input" value="{{ request.POST.respondent_email }}">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:12px;">
+      <div class="page-card">
+        <h4 style="margin-top:0;">Applicant Lawyer</h4>
+        <div style="display:grid; gap:8px;">
+          <label>Name</label>
+          <input name="applicant_lawyer_name" class="ui-input" value="{{ request.POST.applicant_lawyer_name }}">
+          <label>Address</label>
+          <input name="applicant_lawyer_address" class="ui-input" value="{{ request.POST.applicant_lawyer_address }}">
+          <label>Phone</label>
+          <input name="applicant_lawyer_phone" class="ui-input" value="{{ request.POST.applicant_lawyer_phone }}">
+          <label>Email</label>
+          <input name="applicant_lawyer_email" class="ui-input" value="{{ request.POST.applicant_lawyer_email }}">
+        </div>
+      </div>
+
+      <div class="page-card">
+        <h4 style="margin-top:0;">Respondent Lawyer</h4>
+        <div style="display:grid; gap:8px;">
+          <label>Name</label>
+          <input name="respondent_lawyer_name" class="ui-input" value="{{ request.POST.respondent_lawyer_name }}">
+          <label>Address</label>
+          <input name="respondent_lawyer_address" class="ui-input" value="{{ request.POST.respondent_lawyer_address }}">
+          <label>Phone</label>
+          <input name="respondent_lawyer_phone" class="ui-input" value="{{ request.POST.respondent_lawyer_phone }}">
+          <label>Email</label>
+          <input name="respondent_lawyer_email" class="ui-input" value="{{ request.POST.respondent_lawyer_email }}">
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:12px; align-items:flex-end; margin-top:12px;">
+      <div style="flex:1;">
+        <label>Name of court</label>
+        <input name="court_name" class="ui-input" placeholder="(Name of court)" value="{{ request.POST.court_name }}">
+        <label style="margin-top:6px;">Court office address</label>
+        <input name="court_office_address" class="ui-input" placeholder="Court office address" value="{{ request.POST.court_office_address }}">
+      </div>
+      <div style="flex:1;">
+        <label>Court file number</label>
+        <input name="court_file_number" class="ui-input" value="{{ request.POST.court_file_number }}">
+      </div>
+      <div style="width:240px;">
+        <label>Valuation date</label>
+        <input type="date" name="valuation_date" class="ui-input" value="{{ request.POST.valuation_date }}">
+      </div>
+    </div>
+
+    <div style="margin-top:14px;"><button type="submit" class="btn btn-primary">Create Case</button></div>
+  </form>
+</div>
+{% endblock %}

@@ -2,129 +2,432 @@
 {% block content %}
 
 <style>
-  /* ── list page styles ── */
 
-  .page-wrap{ max-width:1180px; margin:22px auto 56px; padding:0 14px; }
-  .shell{ border-radius:10px; overflow:hidden; }
-  .header{ padding:16px 18px; display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; }
-  .title-block h2{ margin:0; font-size:16px; font-weight:700; color:#0f172a; }
-  .title-block p{ margin:4px 0 0; font-size:13px; color:#64748b; }
-  .btn-modern{ border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; color:#fff; border:none; cursor:pointer; }
-  .btn-primary-modern{ background:#1e293b; }
-  .btn-primary-modern:hover{ background:#334155; color:#fff; text-decoration:none; }
-  .content{ padding:16px 18px 20px; }
-  .table-shell{ border-radius:8px; overflow:hidden; border:1px solid #e2e8f0; background:#fff; }
-  table.modern{ width:100%; margin:0; border-collapse:collapse; font-size:.9rem; }
-  table.modern thead th{ padding:10px 12px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#64748b; text-align:left; white-space:nowrap; background:#f8fafc; border-bottom:1px solid #e2e8f0; }
-  table.modern tbody td{ padding:11px 12px; border-bottom:1px solid #f1f5f9; color:#0f172a; vertical-align:middle; }
-  table.modern tbody tr:last-child td{ border-bottom:none; }
-  table.modern tbody tr:hover td{ background:#f8fafc; }
-  .chip{ display:inline-flex; align-items:center; padding:3px 8px; border-radius:6px; border:1px solid #e2e8f0; background:#fff; font-size:12px; font-weight:600; color:#64748b; white-space:nowrap; }
-  .actions{ display:flex; gap:6px; justify-content:flex-end; }
-  .btn-mini{ border-radius:6px; padding:6px 10px; font-weight:600; border:1px solid #e2e8f0; background:#fff; color:#0f172a; text-decoration:none; display:inline-flex; align-items:center; gap:5px; font-size:12px; white-space:nowrap; }
-  .btn-mini:hover{ background:#f1f5f9; color:#0f172a; text-decoration:none; }
-  .btn-info-modern{ background:#0369a1; border-color:#0369a1; color:#fff; }
-  .btn-info-modern:hover{ background:#075985; color:#fff; }
-  .btn-edit-modern{ background:#15803d; border-color:#15803d; color:#fff; }
-  .btn-edit-modern:hover{ background:#166534; color:#fff; }
-  .btn-delete-modern{ background:#b91c1c; border-color:#b91c1c; color:#fff; }
-  .btn-delete-modern:hover{ background:#991b1b; color:#fff; }
-  .empty{ padding:20px; text-align:center; color:#64748b; font-size:13px; }
-  .search-box{ display:flex; gap:8px; margin-bottom:14px; }
-  .search-input{ flex:1; max-width:380px; padding:7px 12px; border:1px solid #e2e8f0; border-radius:7px; font-size:13px; outline:none; background:#fff; color:#0f172a; }
-  .search-input:focus{ border-color:#94a3b8; box-shadow:0 0 0 3px rgba(30,41,59,.07); }
-  .search-input::placeholder{ color:#94a3b8; }
-  @media(max-width:768px){ .actions{ justify-content:flex-start; } .search-input{ max-width:100%; } }
+.page-wrap{
+    max-width:1180px;
+    margin:22px auto 56px;
+    padding:0 14px;
+}
+
+.shell{
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.header{
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.title-block h2{
+    margin:0;
+    font-size:16px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.title-block p{
+    margin:4px 0 0;
+    font-size:13px;
+    color:#64748b;
+}
+
+.btn-modern{
+    border-radius:7px;
+    padding:8px 14px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-primary-modern{
+    background:#1e293b;
+}
+
+.btn-primary-modern:hover{
+    background:#334155;
+    color:#fff;
+    text-decoration:none;
+}
+
+.content{
+    padding:16px 18px 20px;
+}
+
+.table-shell{
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid #e2e8f0;
+    background:#fff;
+}
+
+table.modern{
+    width:100%;
+    margin:0;
+    border-collapse:collapse;
+    font-size:.9rem;
+}
+
+table.modern thead th{
+    padding:10px 12px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#64748b;
+    text-align:left;
+    white-space:nowrap;
+    background:#f8fafc;
+    border-bottom:1px solid #e2e8f0;
+}
+
+table.modern tbody td{
+    padding:11px 12px;
+    border-bottom:1px solid #f1f5f9;
+    color:#0f172a;
+    vertical-align:middle;
+}
+
+table.modern tbody tr:last-child td{
+    border-bottom:none;
+}
+
+table.modern tbody tr:hover td{
+    background:#f8fafc;
+}
+
+.chip{
+    display:inline-flex;
+    align-items:center;
+    padding:3px 8px;
+    border-radius:6px;
+    border:1px solid #e2e8f0;
+    background:#fff;
+    font-size:12px;
+    font-weight:600;
+    color:#64748b;
+    white-space:nowrap;
+}
+
+.action-buttons{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+.btn-mini{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:45px;
+    height:34px;
+    padding:0;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none !important;
+    transition:all .2s ease;
+    border:none;
+    cursor:pointer;
+    line-height:1;
+}
+
+.btn-info-modern{
+    background:#2563eb;
+    color:#ffffff !important;
+}
+
+.btn-info-modern:hover{
+    background:#1d4ed8;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern{
+    background:#15803d;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern:hover{
+    background:#166534;
+    color:#ffffff !important;
+}
+
+.btn-print-modern{
+    background:#1f2937;
+    color:#ffffff !important;
+}
+
+.btn-print-modern:hover{
+    background:#111827;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern{
+    background:#dc2626;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern:hover{
+    background:#b91c1c;
+    color:#ffffff !important;
+}
+
+.empty{
+    padding:20px;
+    text-align:center;
+    color:#64748b;
+    font-size:13px;
+}
+
+.search-box{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.search-input{
+    flex:1;
+    max-width:380px;
+    padding:7px 12px;
+    border:1px solid #e2e8f0;
+    border-radius:7px;
+    font-size:13px;
+    outline:none;
+    background:#fff;
+    color:#0f172a;
+}
+
+.search-input:focus{
+    border-color:#94a3b8;
+    box-shadow:0 0 0 3px rgba(30,41,59,.07);
+}
+
+.search-input::placeholder{
+    color:#94a3b8;
+}
+
+@media(max-width:768px){
+
+    .action-buttons{
+        justify-content:flex-start;
+    }
+
+    .search-input{
+        max-width:100%;
+    }
+}
+
 </style>
 
 <div class="page-wrap">
+
   <div class="shell">
+
     <div class="header">
+
       <div class="title-block">
-        <h2>Comparison of Net Family Property Forms (Form 13C)</h2>
-        <p>Browse created comparison forms and open any record to continue.</p>
+
+        <h2>
+          Comparison of Net Family Property Forms (Form 13C)
+        </h2>
+
+        <p>
+          Browse created comparison forms and open any record to continue.
+        </p>
+
       </div>
 
-      <a class="btn-modern btn-primary-modern" href="/forms/comparison-nfp/new/">
+      <a class="btn-modern btn-primary-modern"
+         href="{% url 'comparison_nfp_create' %}">
         + Add New
       </a>
+
     </div>
 
     <div class="content">
+
       <div class="search-box">
-        <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search by ID, Court File #, Applicant, or Respondent...">
+
+        <input type="text"
+               class="search-input"
+               id="searchInput"
+               placeholder="🔍 Search by ID, Court File #, Applicant, or Respondent...">
+
       </div>
+
       <div class="table-shell">
+
         <div class="table-responsive">
+
           <table class="modern">
+
             <thead>
+
               <tr>
-                <th style="width:80px;">ID</th>
-                <th>Court File #</th>
-                <th>Applicant</th>
-                <th>Respondent</th>
-                <th style="width:160px;">Valuation Date</th>
-                <th style="width:190px;">Created</th>
-                <th style="width:250px; text-align:right;">Actions</th>
+
+                <th style="width:80px;">
+                  ID
+                </th>
+
+                <th>
+                  Court File #
+                </th>
+
+                <th>
+                  Applicant
+                </th>
+
+                <th>
+                  Respondent
+                </th>
+
+                <th style="width:160px;">
+                  Valuation Date
+                </th>
+
+                <th style="width:190px;">
+                  Created
+                </th>
+
+                <th style="width:250px; text-align:right;">
+                  Actions
+                </th>
+
               </tr>
+
             </thead>
+
             <tbody>
+
               {% for nfp in nfp_list %}
+
               <tr>
-                <td><span class="chip">#{{ nfp.id }}</span></td>
-                <td>{{ nfp.court_file_number }}</td>
-                <td>{{ nfp.applicant_name }}</td>
-                <td>{{ nfp.respondent_name }}</td>
-                <td><span class="chip">{{ nfp.valuation_date }}</span></td>
-                <td>{{ nfp.created_at }}</td>
+
                 <td>
-                  <div class="actions">
-                    <a class="btn-mini btn-info-modern" href="{% url 'comparison_nfp_full_view' nfp.id %}">View</a>
-                    <a class="btn-mini btn-edit-modern" href="{% url 'comparison_nfp_page1_edit' nfp.id %}">Edit</a>
-                    <a class="btn-mini" href="{% url 'comparison_nfp_print' nfp.id %}" target="_blank"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6z"/></svg></a>
-                    {% if request.user.is_staff or request.user.is_superuser %}
-                    <a class="btn-mini btn-delete-modern" href="{% url 'comparison_nfp_delete' nfp.id %}"><svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: -1px;"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg></a>
-                    {% endif %}
-                  </div>
+                  <span class="chip">
+                    #{{ nfp.id }}
+                  </span>
                 </td>
+
+                <td>
+                  {{ nfp.court_file_number|default:"—" }}
+                </td>
+
+                <td>
+                  {{ nfp.applicant_name|default:"—" }}
+                </td>
+
+                <td>
+                  {{ nfp.respondent_name|default:"—" }}
+                </td>
+
+                <td>
+                  <span class="chip">
+                    {{ nfp.valuation_date|default:"—" }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ nfp.created_at|date:'Y-m-d H:i' }}
+                </td>
+
+                <td class="text-end">
+
+                  {% with can_view=nfp.can_view can_edit=nfp.can_edit can_print=nfp.can_print can_delete=nfp.can_delete %}
+
+                    {% include 'partials/action_buttons.html' with object_id=nfp.id view_name='comparison_nfp_full_view' edit_name='comparison_nfp_page1_edit' print_name='comparison_nfp_print' delete_name='comparison_nfp_delete' can_view=can_view can_edit=can_edit can_print=can_print can_delete=can_delete object_label='Comparison NFP' %}
+
+                  {% endwith %}
+
+                </td>
+
               </tr>
+
               {% empty %}
+
               <tr>
-                <td colspan="7" class="empty">No forms found.</td>
+
+                <td colspan="7"
+                    class="empty">
+
+                  No forms found.
+
+                </td>
+
               </tr>
+
               {% endfor %}
+
             </tbody>
+
           </table>
+
         </div>
+
       </div>
+
     </div>
 
   </div>
+
 </div>
 
 <script>
+
 document.getElementById('searchInput').addEventListener('input', function() {
-  const searchTerm = this.value.toLowerCase();
-  const rows = document.querySelectorAll('table.modern tbody tr');
-  let visibleCount = 0;
-  
-  rows.forEach(row => {
-    if (row.querySelector('.empty')) return;
-    const text = row.textContent.toLowerCase();
-    const match = text.includes(searchTerm);
-    row.style.display = match ? '' : 'none';
-    if (match) visibleCount++;
-  });
-  
-  let noResultsRow = document.querySelector('.no-results-row');
-  if (!noResultsRow) {
-    noResultsRow = document.createElement('tr');
-    noResultsRow.className = 'no-results-row';
-    noResultsRow.innerHTML = '<td colspan="7" class="empty">No matching records found.</td>';
-    document.querySelector('table.modern tbody').appendChild(noResultsRow);
-  }
-  noResultsRow.style.display = (visibleCount === 0 && searchTerm) ? '' : 'none';
+
+    const searchTerm = this.value.toLowerCase();
+
+    const rows = document.querySelectorAll('table.modern tbody tr');
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+
+        if (row.querySelector('.empty')) return;
+
+        const text = row.textContent.toLowerCase();
+
+        const match = text.includes(searchTerm);
+
+        row.style.display = match ? '' : 'none';
+
+        if (match) visibleCount++;
+
+    });
+
+    let noResultsRow = document.querySelector('.no-results-row');
+
+    if (!noResultsRow) {
+
+        noResultsRow = document.createElement('tr');
+
+        noResultsRow.className = 'no-results-row';
+
+        noResultsRow.innerHTML =
+            '<td colspan="7" class="empty">No matching records found.</td>';
+
+        document.querySelector('table.modern tbody')
+            .appendChild(noResultsRow);
+    }
+
+    noResultsRow.style.display =
+        (visibleCount === 0 && searchTerm) ? '' : 'none';
 });
+
 </script>
 
 {% endblock %}

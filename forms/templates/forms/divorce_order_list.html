@@ -1,0 +1,208 @@
+{% extends "base.html" %}
+
+{% block title %}
+Form 25A — Divorce Order
+{% endblock %}
+
+{% block header %}
+Form 25A — Divorce Order
+{% endblock %}
+
+{% block subheader %}
+Manage divorce orders
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.action-buttons{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.btn-mini{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:45px;
+    height:34px;
+    padding:0 14px;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none !important;
+    transition:all .2s ease;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-info-modern{
+    background:#dbeafe;
+    color:#fcfcfc;
+}
+
+.btn-info-modern:hover{
+    background:#bfdbfe;
+    color:#fcfcfc;
+}
+
+.btn-edit-modern{
+    background:#dcfce7;
+    color:#ffffff;
+}
+
+.btn-edit-modern:hover{
+    background:#bbf7d0;
+    color:#ffffff;
+}
+
+.btn-print-modern{
+    background:#e5e7eb;
+    color:#111827;
+}
+
+.btn-print-modern:hover{
+    background:#d1d5db;
+    color:#000;
+}
+
+.btn-delete-modern{
+    background:#fee2e2;
+    color:#ffffff;
+    width:24px;
+    height: 34px;
+}
+
+.btn-delete-modern:hover{
+    background:#fecaca;
+    color:#ffffff;
+    width:fit-content;
+    height:fit-content;
+  
+}
+
+</style>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+  <div>
+    <h5 class="fw-bold mb-1">
+      Divorce Orders
+    </h5>
+
+    <p class="text-muted mb-0">
+      Create, review, print and manage Form 25A divorce orders.
+    </p>
+  </div>
+
+  <div>
+    <a href="{% url 'divorce_order_create' %}"
+       class="btn btn-primary">
+      + New Form 25A
+    </a>
+  </div>
+
+</div>
+
+<div class="card shadow-sm border-0">
+
+  <div class="card-body p-0">
+
+    <div class="table-responsive">
+
+      <table class="table table-hover align-middle mb-0">
+
+        <thead class="table-light">
+
+          <tr>
+
+            <th style="width:160px;">
+              Court File No.
+            </th>
+
+            <th>
+              Applicant
+            </th>
+
+            <th>
+              Respondent
+            </th>
+
+            <th style="width:140px;">
+              Updated
+            </th>
+
+            <th class="text-end" style="width:340px;">
+              Actions
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          {% for order in orders %}
+
+          <tr>
+
+            <td>
+              <strong>
+                {{ order.court_file_number|default:"—" }}
+              </strong>
+            </td>
+
+            <td>
+              {{ order.applicant_name|default:"—" }}
+            </td>
+
+            <td>
+              {{ order.respondent_name|default:"—" }}
+            </td>
+
+            <td>
+              {{ order.updated_at|date:"M d, Y" }}
+            </td>
+
+            <td class="text-end">
+
+              {% with can_view=order.can_view can_edit=order.can_edit can_print=order.can_print can_delete=order.can_delete %}
+
+                {% include 'partials/action_buttons.html' with object_id=order.id view_name='divorce_order_view' edit_name='divorce_order_page' print_name='divorce_order_print' delete_name='divorce_order_delete' can_view=can_view can_edit=can_edit can_print=can_print can_delete=can_delete object_label='Divorce Order' %}
+
+              {% endwith %}
+
+            </td>
+
+          </tr>
+
+          {% empty %}
+
+          <tr>
+
+            <td colspan="5"
+                class="text-center py-5 text-muted">
+
+              No divorce orders found.
+
+            </td>
+
+          </tr>
+
+          {% endfor %}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}s
