@@ -304,11 +304,6 @@
         <div class="info-row"><span class="label">File Number:</span><span class="value">{{ statement.court_file_number|default:"—" }}</span></div>
         <div class="info-row"><span class="label">Filed By:</span><span class="value">{{ statement.get_prepared_by_display|default:"—" }}</span></div>
       </div>
-      <div class="info-box">
-        <h4>Important Dates</h4>
-        <div class="info-row"><span class="label">Valuation Date:</span><span class="value">{{ statement.valuation_date|default:"—" }}</span></div>
-        <div class="info-row"><span class="label">Statement Date:</span><span class="value">{{ statement.statement_date|default:"—" }}</span></div>
-      </div>
     </div>
     
     <div class="info-grid">
@@ -411,27 +406,43 @@
       <div class="subtitle">Other Benefits & Part 2: Expenses</div>
     </div>
 
-    <div class="section-title">6. Other Benefits</div>
+    <div class="section-title">14. Other Benefits</div>
     <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
-      In addition to my income listed on page 2, I receive the following benefits:
+      Provide details of any non-cash benefits that your employer provides to you or are paid for by your business (e.g., medical insurance, company car, room and board).
     </p>
     <table class="data-table">
       <thead>
         <tr>
           <th>Item</th>
-          <th style="width:25%">Who Provides</th>
-          <th style="width:20%">Value / Month</th>
+          <th>Details</th>
+          <th style="width:20%">Yearly Market Value</th>
         </tr>
       </thead>
       <tbody>
-        <tr><td>Use of vehicle or vehicle allowance</td><td></td><td class="text-right">$________________</td></tr>
-        <tr><td>Room and board</td><td></td><td class="text-right">$________________</td></tr>
-        <tr><td>Accommodations (e.g., house, apartment)</td><td></td><td class="text-right">$________________</td></tr>
-        <tr><td>Other (Specify)</td><td></td><td class="text-right">$________________</td></tr>
+        <tr>
+          <td>{{ statement.benefit_item_1|default:"—" }}</td>
+          <td>{{ statement.benefit_details_1|default:"—" }}</td>
+          <td class="text-right">${{ statement.benefit_value_1|floatformat:2|default:"—" }}</td>
+        </tr>
+        <tr>
+          <td>{{ statement.benefit_item_2|default:"—" }}</td>
+          <td>{{ statement.benefit_details_2|default:"—" }}</td>
+          <td class="text-right">${{ statement.benefit_value_2|floatformat:2|default:"—" }}</td>
+        </tr>
+        <tr>
+          <td>{{ statement.benefit_item_3|default:"—" }}</td>
+          <td>{{ statement.benefit_details_3|default:"—" }}</td>
+          <td class="text-right">${{ statement.benefit_value_3|floatformat:2|default:"—" }}</td>
+        </tr>
+        <tr>
+          <td>{{ statement.benefit_item_4|default:"—" }}</td>
+          <td>{{ statement.benefit_details_4|default:"—" }}</td>
+          <td class="text-right">${{ statement.benefit_value_4|floatformat:2|default:"—" }}</td>
+        </tr>
       </tbody>
     </table>
 
-    <div class="section-title">PART 2: EXPENSES</div>
+    <div class="section-title" style="margin-top: 20px;">PART 2: EXPENSES</div>
     <p style="font-size: 12px; color: var(--muted); margin-bottom: 12px;">
       My current monthly expenses are as follows:
     </p>
@@ -440,12 +451,76 @@
       <h4>Automatic Deductions from Pay</h4>
       <table class="data-table">
         <tbody>
-          <tr><td>Income tax</td><td class="text-right" style="width:25%;">${{ statement.income_taxes|floatformat:2|default:"—" }}</td></tr>
-          <tr><td>CPP/QPP</td><td class="text-right">${{ statement.cpp_contributions|floatformat:2|default:"—" }}</td></tr>
-          <tr><td>EI</td><td class="text-right">${{ statement.ei_premiums|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>CPP contributions</td><td class="text-right" style="width:25%;">${{ statement.cpp_contributions|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>EI premiums</td><td class="text-right">${{ statement.ei_premiums|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Income taxes</td><td class="text-right">${{ statement.income_taxes|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Employee pension contributions</td><td class="text-right">${{ statement.employee_pension_contributions|floatformat:2|default:"—" }}</td></tr>
           <tr><td>Union dues</td><td class="text-right">${{ statement.union_dues|floatformat:2|default:"—" }}</td></tr>
-          <tr><td>Group insurance</td><td class="text-right">${{ statement.group_insurance|floatformat:2|default:"—" }}</td></tr>
           <tr class="total-row"><td><strong>Subtotal</strong></td><td class="text-right"><strong>${{ statement.automatic_deductions_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <h4>Housing</h4>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Rent or mortgage</td><td class="text-right" style="width:25%;">${{ statement.rent_or_mortgage|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Property taxes</td><td class="text-right">${{ statement.property_taxes|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Property insurance</td><td class="text-right">${{ statement.property_insurance|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Condominium fees</td><td class="text-right">${{ statement.condo_fees|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Repairs and maintenance</td><td class="text-right">${{ statement.repairs_maintenance|floatformat:2|default:"—" }}</td></tr>
+          <tr class="total-row"><td><strong>Subtotal</strong></td><td class="text-right"><strong>${{ statement.housing_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <h4>Utilities</h4>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Water</td><td class="text-right" style="width:25%;">${{ statement.water|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Heat</td><td class="text-right">${{ statement.heat|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Electricity</td><td class="text-right">${{ statement.electricity|floatformat:2|default:"—" }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <h4>Transportation</h4>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Public transit, taxis</td><td class="text-right" style="width:25%;">${{ statement.public_transit_taxis|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Gas and oil</td><td class="text-right">${{ statement.gas_oil|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Car insurance and license</td><td class="text-right">${{ statement.car_insurance_license|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Repairs and maintenance</td><td class="text-right">${{ statement.car_repairs_maintenance|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Parking</td><td class="text-right">${{ statement.parking|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Car loan or lease payments</td><td class="text-right">${{ statement.car_loan_lease_payments|floatformat:2|default:"—" }}</td></tr>
+          <tr class="total-row"><td><strong>Subtotal</strong></td><td class="text-right"><strong>${{ statement.transportation_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <h4>Health</h4>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Health insurance premiums</td><td class="text-right" style="width:25%;">${{ statement.health_insurance_premiums|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Dental expenses</td><td class="text-right">${{ statement.dental_expenses|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Medicine and drugs</td><td class="text-right">${{ statement.medicine_drugs|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Eye care</td><td class="text-right">${{ statement.eye_care|floatformat:2|default:"—" }}</td></tr>
+          <tr class="total-row"><td><strong>Subtotal</strong></td><td class="text-right"><strong>${{ statement.health_subtotal|floatformat:2|default:"—" }}</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <h4>Personal</h4>
+      <table class="data-table">
+        <tbody>
+          <tr><td>Clothing</td><td class="text-right" style="width:25%;">${{ statement.clothing|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Hair care and beauty</td><td class="text-right">${{ statement.hair_care_beauty|floatformat:2|default:"—" }}</td></tr>
+          <tr><td>Alcohol and tobacco</td><td class="text-right">${{ statement.alcohol_tobacco|floatformat:2|default:"—" }}</td></tr>
         </tbody>
       </table>
     </div>
@@ -590,7 +665,7 @@
         {% empty %}
         <tr><td>Other debts</td><td></td><td class="text-right">$________________</td><td class="text-right">$________________</td></tr>
         {% endfor %}
-        <tr class="total-row"><td colspan="2"><strong>TOTAL DEBTS</strong></td><td class="text-right"><strong>${{ statement.total_debts|floatformat:2|default:"—" }}</strong></td><td class="text-right"><strong>—</strong></td></tr>
+        <tr class="total-row"><td colspan="2"><strong>TOTAL DEBTS</strong></td><td class="text-right"><strong>${{ statement.total_debts|floatformat:2|default:"—" }}</strong></td><td class="text-right"><strong>${{ total_monthly_debt_payments|floatformat:2|default:"—" }}</strong></td></tr>
       </tbody>
     </table>
 
@@ -634,11 +709,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>Capital gains or losses</td><td class="text-right">$________________</td></tr>
-        <tr><td>Taxable dividends received</td><td class="text-right">$________________</td></tr>
-        <tr><td>RRSP income or withdrawals</td><td class="text-right">$________________</td></tr>
-        <tr><td>Rental income (net)</td><td class="text-right">$________________</td></tr>
-        <tr><td>Other</td><td class="text-right">$________________</td></tr>
+        <tr><td>Capital gains or losses</td><td class="text-right">{% if statement.schedule_a_capital_gains or statement.schedule_a_capital_losses %}<strong>${{ statement.schedule_a_capital_gains|floatformat:2|default:"" }}{% if statement.schedule_a_capital_losses %} (loss: ${{ statement.schedule_a_capital_losses|floatformat:2 }}){% endif %}</strong>{% else %}$________________{% endif %}</td></tr>
+        <tr><td>Taxable dividends received</td><td class="text-right">{% if statement.schedule_a_dividends %}<strong>${{ statement.schedule_a_dividends|floatformat:2 }}</strong>{% else %}$________________{% endif %}</td></tr>
+        <tr><td>RRSP income or withdrawals</td><td class="text-right">{% if statement.schedule_a_rrsp_withdrawals or statement.schedule_a_rrif_annuity %}<strong>${{ statement.schedule_a_rrsp_withdrawals|floatformat:2|default:"" }}{% if statement.schedule_a_rrif_annuity %} + ${{ statement.schedule_a_rrif_annuity|floatformat:2 }}{% endif %}</strong>{% else %}$________________{% endif %}</td></tr>
+        <tr><td>Rental income (net)</td><td class="text-right">{% if statement.schedule_a_rental_income_net %}<strong>${{ statement.schedule_a_rental_income_net|floatformat:2 }}</strong>{% else %}$________________{% endif %}</td></tr>
+        <tr><td>{% if statement.schedule_a_other_income_source %}{{ statement.schedule_a_other_income_source }}{% else %}Other{% endif %}</td><td class="text-right">{% if statement.schedule_a_other_income_amount %}<strong>${{ statement.schedule_a_other_income_amount|floatformat:2 }}</strong>{% else %}$________________{% endif %}</td></tr>
       </tbody>
     </table>
 
@@ -652,8 +727,17 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td></td><td></td><td class="text-right">$________________</td></tr>
-        <tr><td></td><td></td><td class="text-right">$________________</td></tr>
+        {% if schedule_b_earners %}
+          {% for earner in schedule_b_earners %}
+          <tr>
+            <td>{{ earner.name|default:"—" }}</td>
+            <td>{{ earner.relationship|default:"—" }}</td>
+            <td class="text-right">${{ earner.income|floatformat:2|default:"—" }}</td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="3" style="text-align:center; padding:20px; color:#999;">No additional household earners recorded</td></tr>
+        {% endif %}
       </tbody>
     </table>
 

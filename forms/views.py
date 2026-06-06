@@ -1756,14 +1756,13 @@ def financial_statement_page1(request, pk=None):
         if form.is_valid():
             statement = form.save()
             _save_page1_fields(statement, request.POST)
-            # Return JSON for AJAX autosave requests
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'saved', 'pk': statement.pk})
             return redirect("financial_statement_page2", pk=statement.pk)
     else:
         form = FinancialStatementForm(instance=statement)
     
-        page_data = {
+    # BUILD PAGE_DATA FOR BOTH GET AND POST REQUESTS
+    # This ensures data is always available, even if POST validation fails
+    page_data = {
         "court_name": statement.court_name or "",
         "court_file_number": statement.court_file_number or "",
         "court_office_address": statement.court_office_address or "",
@@ -1771,21 +1770,25 @@ def financial_statement_page1(request, pk=None):
         "applicant_name": statement.applicant_name or "",
         "applicant_address": statement.applicant_address or "",
         "applicant_phone": statement.applicant_phone or "",
+        "applicant_fax": statement.applicant_fax or "",
         "applicant_email": statement.applicant_email or "",
 
         "applicant_lawyer_name": statement.applicant_lawyer_name or "",
         "applicant_lawyer_address": statement.applicant_lawyer_address or "",
         "applicant_lawyer_phone": statement.applicant_lawyer_phone or "",
+        "applicant_lawyer_fax": statement.applicant_lawyer_fax or "",
         "applicant_lawyer_email": statement.applicant_lawyer_email or "",
 
         "respondent_name": statement.respondent_name or "",
         "respondent_address": statement.respondent_address or "",
         "respondent_phone": statement.respondent_phone or "",
+        "respondent_fax": statement.respondent_fax or "",
         "respondent_email": statement.respondent_email or "",
 
         "respondent_lawyer_name": statement.respondent_lawyer_name or "",
         "respondent_lawyer_address": statement.respondent_lawyer_address or "",
         "respondent_lawyer_phone": statement.respondent_lawyer_phone or "",
+        "respondent_lawyer_fax": statement.respondent_lawyer_fax or "",
         "respondent_lawyer_email": statement.respondent_lawyer_email or "",
     }
 
@@ -1813,54 +1816,57 @@ def _save_page1_fields(statement, post_data):
 
 @login_required
 def financial_statement_page2(request, pk):
-    """Financial Statement Page 2 - Income Proof and Income Table."""
     statement = get_object_or_404(FinancialStatement, pk=pk)
-    
+
+    decimal_fields = [
+        "last_year_gross_income",
+        "income_employment",
+        "income_commissions",
+        "income_self_employment_before_expenses",
+        "income_self_employment",
+        "income_ei",
+        "income_workers_comp",
+        "income_social_assistance",
+        "income_investment",
+        "income_pension",
+        "income_spousal_support",
+        "income_tax_benefits",
+        "income_other",
+        "income_total_monthly",
+        "income_total_annual",
+    ]
+
+    checkbox_fields = [
+        "pay_cheque_stub",
+        "social_assistance_stub",
+        "pension_stub",
+        "workers_comp_stub",
+        "ei_stub",
+        "statement_of_income",
+        "other_income_proof",
+        "indian_status",
+    ]
+
     if request.method == "POST":
-        # Save proof checkboxes
-        statement.pay_cheque_stub = 'pay_cheque_stub' in request.POST
-        statement.social_assistance_stub = 'social_assistance_stub' in request.POST
-        statement.pension_stub = 'pension_stub' in request.POST
-        statement.workers_comp_stub = 'workers_comp_stub' in request.POST
-        statement.ei_stub = 'ei_stub' in request.POST
-        statement.statement_of_income = 'statement_of_income' in request.POST
-        statement.other_income_proof = 'other_income_proof' in request.POST
-        
-        # Save last year gross income
-        statement.last_year_gross_income = parse_decimal(request.POST.get('last_year_gross_income'))
-        
-        # Save Indian status
-        statement.indian_status = 'indian_status' in request.POST
-        statement.indian_status_docs = request.POST.get('indian_status_docs', '')
-        
-        # Save income table
-        statement.income_employment = parse_decimal(request.POST.get('income_employment'))
-        statement.income_commissions = parse_decimal(request.POST.get('income_commissions'))
-        statement.income_self_employment_before_expenses = parse_decimal(request.POST.get('income_self_employment_before_expenses'))
-        statement.income_self_employment = parse_decimal(request.POST.get('income_self_employment'))
-        statement.income_ei = parse_decimal(request.POST.get('income_ei'))
-        statement.income_workers_comp = parse_decimal(request.POST.get('income_workers_comp'))
-        statement.income_social_assistance = parse_decimal(request.POST.get('income_social_assistance'))
-        statement.income_investment = parse_decimal(request.POST.get('income_investment'))
-        statement.income_pension = parse_decimal(request.POST.get('income_pension'))
-        statement.income_spousal_support = parse_decimal(request.POST.get('income_spousal_support'))
-        statement.income_tax_benefits = parse_decimal(request.POST.get('income_tax_benefits'))
-        statement.income_other = parse_decimal(request.POST.get('income_other'))
-        statement.income_total_monthly = parse_decimal(request.POST.get('income_total_monthly'))
-        statement.income_total_annual = parse_decimal(request.POST.get('income_total_annual'))
-        
+        for field in checkbox_fields:
+            setattr(statement, field, field in request.POST)
+
+        for field in decimal_fields:
+            setattr(statement, field, parse_decimal(request.POST.get(field)))
+
+        statement.indian_status_docs = request.POST.get("indian_status_docs", "")
+
         statement.save()
-        
-        # Return JSON for AJAX autosave requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved', 'pk': statement.pk})
-        
+
         if "prev" in request.POST:
             return redirect("financial_statement_page1", pk=statement.pk)
-        return redirect("financial_statement_page3", pk=statement.pk)
-    
-    return render(request, "forms/financial_statement_page2.html", {"statement": statement})
 
+        return redirect("financial_statement_page3", pk=statement.pk)
+
+    return render(request, "forms/financial_statement_page2.html", {
+        "statement": statement,
+        "pk": statement.pk,
+    })
 
 @login_required
 def financial_statement_page3(request, pk):
@@ -1942,10 +1948,6 @@ def financial_statement_page3(request, pk):
         statement.alcohol_tobacco = parse_decimal(request.POST.get('alcohol_tobacco'))
         
         statement.save()
-        
-        # Return JSON for AJAX autosave requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved', 'pk': statement.pk})
         
         if "prev" in request.POST:
             return redirect("financial_statement_page2", pk=statement.pk)
@@ -2036,19 +2038,7 @@ def financial_statement_page4(request, pk):
                 vehicles.append({'details': details, 'value': value})
             i += 1
         statement.vehicles = vehicles if vehicles else None
-        
-        # Save all POST data to draft field as well
-        # Exclude csrfmiddlewaretoken and any file uploads
-        draft_data = {}
-        for k, v in request.POST.items():
-            if k != 'csrfmiddlewaretoken':
-                draft_data[k] = v
-        statement.draft = draft_data
         statement.save()
-        
-        # Return JSON for AJAX autosave requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved', 'pk': statement.pk})
         
         if "prev" in request.POST:
             return redirect("financial_statement_page3", pk=statement.pk)
@@ -2177,10 +2167,6 @@ def financial_statement_page5(request, pk):
         
         statement.save()
         
-        # Return JSON for AJAX autosave requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved', 'pk': statement.pk})
-        
         if "prev" in request.POST:
             return redirect("financial_statement_page4", pk=statement.pk)
         return redirect("financial_statement_page6", pk=statement.pk)
@@ -2306,10 +2292,6 @@ def financial_statement_page6(request, pk):
         
         statement.save()
         
-        # Return JSON for AJAX autosave requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved', 'pk': statement.pk})
-        
         if "prev" in request.POST:
             return redirect("financial_statement_page5", pk=statement.pk)
         return redirect("financial_statement_page7", pk=statement.pk)
@@ -2366,10 +2348,6 @@ def financial_statement_page7(request, pk):
         
         statement.save()
         
-        # Return JSON for AJAX autosave requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved', 'pk': statement.pk})
-        
         if "prev" in request.POST:
             return redirect("financial_statement_page6", pk=statement.pk)
         return redirect("financial_statement_page8", pk=statement.pk)
@@ -2385,25 +2363,32 @@ def financial_statement_page8(request, pk):
     if request.method == "POST":
         # Save Schedule C - Expenses for Children (dynamic rows)
         schedule_c_expenses = []
-        i = 1
-        while True:
+        consecutive_empty = 0
+        max_rows = 50
+        
+        for i in range(1, max_rows + 1):
             child_name = request.POST.get(f'schedule_c_child_name_{i}', '')
             expense = request.POST.get(f'schedule_c_expense_{i}', '')
             amount = request.POST.get(f'schedule_c_amount_{i}', '')
             tax_credits = request.POST.get(f'schedule_c_tax_credits_{i}', '')
-            # Stop if no fields found for this index
-            if not any([child_name, expense, amount, tax_credits]) and i > 2:
-                break
+            
+            # Check if this row has any data
             if child_name or expense or amount or tax_credits:
+                # Row has data - save it and reset empty counter
                 schedule_c_expenses.append({
                     'child_name': child_name,
                     'expense': expense,
                     'amount_per_year': amount,
                     'tax_credits': tax_credits
                 })
-            i += 1
-            if i > 50:  # Safety limit
-                break
+                consecutive_empty = 0
+            else:
+                # Empty row - increment counter
+                consecutive_empty += 1
+                # Stop if we've seen 5 consecutive empty rows (allows gaps in data)
+                if consecutive_empty >= 5:
+                    break
+        
         statement.schedule_c_expenses = schedule_c_expenses if schedule_c_expenses else None
         
         statement.schedule_c_total_annual = parse_decimal(request.POST.get('schedule_c_total_annual'))
@@ -2411,10 +2396,6 @@ def financial_statement_page8(request, pk):
         statement.schedule_c_my_income_for_share = parse_decimal(request.POST.get('schedule_c_my_income_for_share'))
         
         statement.save()
-        
-        # Return JSON for AJAX autosave requests
-        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-            return JsonResponse({'status': 'saved', 'pk': statement.pk})
         
         if "prev" in request.POST:
             return redirect("financial_statement_page7", pk=statement.pk)
@@ -2541,6 +2522,18 @@ def financial_statement_view(request, pk):
         i += 1
     context['other_debts'] = other_debts
     
+    # Calculate total monthly debt payments
+    total_monthly_payments = 0
+    for debt_list in [mortgages_loans, credit_cards, unpaid_support, other_debts]:
+        for debt in debt_list:
+            try:
+                monthly_val = debt.get('monthly_payment')
+                if monthly_val:
+                    total_monthly_payments += float(monthly_val)
+            except (ValueError, TypeError):
+                pass
+    context['total_monthly_debt_payments'] = total_monthly_payments
+    
     return render(request, "forms/financial_statement_full_view.html", context)
 
 
@@ -2640,6 +2633,18 @@ def financial_statement_print(request, pk):
             })
         i += 1
     context['other_debts'] = other_debts
+    
+    # Calculate total monthly debt payments
+    total_monthly_payments = 0
+    for debt_list in [mortgages_loans, credit_cards, unpaid_support, other_debts]:
+        for debt in debt_list:
+            try:
+                monthly_val = debt.get('monthly_payment')
+                if monthly_val:
+                    total_monthly_payments += float(monthly_val)
+            except (ValueError, TypeError):
+                pass
+    context['total_monthly_debt_payments'] = total_monthly_payments
     
     # Log the print event for billing
     print_event = PrintEvent.log_print(

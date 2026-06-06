@@ -428,28 +428,32 @@
       <div class="party-box-header">Applicant(s)</div>
       <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ pages.page1.applicant_name|default:statement.applicant_name|default:"" }}</span></div>
       <div class="party-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_address|default:"" }}</span></div>
-      <div class="party-row"><span class="label">Phone & fax:</span><span class="value">{{ statement.applicant_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Fax:</span><span class="value">{{ statement.applicant_fax|default:"" }}</span></div>
       <div class="party-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_email|default:"" }}</span></div>
     </div>
     <div class="party-box">
       <div class="party-box-header">Applicant(s) Lawyer</div>
       <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ statement.applicant_lawyer_name|default:"" }}</span></div>
       <div class="party-row"><span class="label">Address:</span><span class="value">{{ statement.applicant_lawyer_address|default:"" }}</span></div>
-      <div class="party-row"><span class="label">Phone & fax:</span><span class="value">{{ statement.applicant_lawyer_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Phone:</span><span class="value">{{ statement.applicant_lawyer_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Fax:</span><span class="value">{{ statement.applicant_lawyer_fax|default:"" }}</span></div>
       <div class="party-row"><span class="label">Email:</span><span class="value">{{ statement.applicant_lawyer_email|default:"" }}</span></div>
     </div>
     <div class="party-box">
       <div class="party-box-header">Respondent(s)</div>
       <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ pages.page1.respondent_name|default:statement.respondent_name|default:"" }}</span></div>
       <div class="party-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_address|default:"" }}</span></div>
-      <div class="party-row"><span class="label">Phone & fax:</span><span class="value">{{ statement.respondent_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Fax:</span><span class="value">{{ statement.respondent_fax|default:"" }}</span></div>
       <div class="party-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_email|default:"" }}</span></div>
     </div>
     <div class="party-box">
       <div class="party-box-header">Respondent(s) Lawyer</div>
       <div class="party-row"><span class="label">Full legal name:</span><span class="value">{{ statement.respondent_lawyer_name|default:"" }}</span></div>
       <div class="party-row"><span class="label">Address:</span><span class="value">{{ statement.respondent_lawyer_address|default:"" }}</span></div>
-      <div class="party-row"><span class="label">Phone & fax:</span><span class="value">{{ statement.respondent_lawyer_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Phone:</span><span class="value">{{ statement.respondent_lawyer_phone|default:"" }}</span></div>
+      <div class="party-row"><span class="label">Fax:</span><span class="value">{{ statement.respondent_lawyer_fax|default:"" }}</span></div>
       <div class="party-row"><span class="label">Email:</span><span class="value">{{ statement.respondent_lawyer_email|default:"" }}</span></div>
     </div>
   </div>
@@ -1135,6 +1139,7 @@
 
   <table class="summary-table" style="margin-top:15px;">
     <tr><td><strong>Total Amount of Debts Outstanding</strong></td><td class="money">${{ statement.total_debts|floatformat:2|default:"" }}</td></tr>
+    <tr><td><strong>Total Monthly Debt Payments</strong></td><td class="money">${{ total_monthly_debt_payments|floatformat:2|default:"" }}</td></tr>
   </table>
 
   <div class="section-title">PART 5: SUMMARY OF ASSETS AND LIABILITIES</div>
@@ -1288,6 +1293,18 @@
     <span class="underline-field" style="min-width:80px;">{{ statement.schedule_c_my_income_for_share|floatformat:2|default:"" }}</span>
     per year which should be used to determine my share of the above expenses.
   </p>
+
+  <div style="padding: 12px; margin-top: 20px; font-size: 9px; line-height: 1.4;">
+    <p style="margin: 0 0 8px 0; font-weight: bold;">NOTE:</p>
+    <p style="margin: 0 0 8px 0;">Pursuant to the Child Support Guidelines, a court can order that the parents of a child share the costs of the following expenses for the child:</p>
+    <ul style="margin: 6px 0; padding-left: 20px;">
+      <li>Necessary childcare expenses;</li>
+      <li>Medical insurance premiums and certain health-related expenses for the child that cost more than $100 annually;</li>
+      <li>Extraordinary expenses for the child's education;</li>
+      <li>Post-secondary school expenses; and,</li>
+      <li>Extraordinary expenses for extracurricular activities.</li>
+    </ul>
+  </div>
 
   <div class="page-footer">
     <span>FLR 13 (May 1, 2021)</span>

@@ -361,8 +361,13 @@
               </div>
 
               <div class="mt-2">
-                <label class="ui-label" for="id_applicant_phone">Phone/fax</label>
+                <label class="ui-label" for="id_applicant_phone">Phone</label>
                 <input type="text" name="applicant_phone" class="form-control ui-input" id="id_applicant_phone" value="{{ page_data.applicant_phone }}">
+              </div>
+
+              <div class="mt-2">
+                <label class="ui-label" for="id_applicant_fax">Fax</label>
+                <input type="text" name="applicant_fax" class="form-control ui-input" id="id_applicant_fax" value="{{ page_data.applicant_fax }}">
               </div>
 
               <div class="mt-2">
@@ -388,8 +393,13 @@
               </div>
 
               <div class="mt-2">
-                <label class="ui-label" for="id_applicant_lawyer_phone">Lawyer phone/fax</label>
+                <label class="ui-label" for="id_applicant_lawyer_phone">Lawyer phone</label>
                 <input type="text" name="applicant_lawyer_phone" class="form-control ui-input" id="id_applicant_lawyer_phone" value="{{ page_data.applicant_lawyer_phone }}">
+              </div>
+
+              <div class="mt-2">
+                <label class="ui-label" for="id_applicant_lawyer_fax">Lawyer fax</label>
+                <input type="text" name="applicant_lawyer_fax" class="form-control ui-input" id="id_applicant_lawyer_fax" value="{{ page_data.applicant_lawyer_fax }}">
               </div>
 
               <div class="mt-2">
@@ -415,8 +425,13 @@
               </div>
 
               <div class="mt-2">
-                <label class="ui-label" for="id_respondent_phone">Phone/fax</label>
+                <label class="ui-label" for="id_respondent_phone">Phone</label>
                 <input type="text" name="respondent_phone" class="form-control ui-input" id="id_respondent_phone" value="{{ page_data.respondent_phone }}">
+              </div>
+
+              <div class="mt-2">
+                <label class="ui-label" for="id_respondent_fax">Fax</label>
+                <input type="text" name="respondent_fax" class="form-control ui-input" id="id_respondent_fax" value="{{ page_data.respondent_fax }}">
               </div>
 
               <div class="mt-2">
@@ -442,8 +457,13 @@
               </div>
 
               <div class="mt-2">
-                <label class="ui-label" for="id_respondent_lawyer_phone">Lawyer phone/fax</label>
+                <label class="ui-label" for="id_respondent_lawyer_phone">Lawyer phone</label>
                 <input type="text" name="respondent_lawyer_phone" class="form-control ui-input" id="id_respondent_lawyer_phone" value="{{ page_data.respondent_lawyer_phone }}">
+              </div>
+
+              <div class="mt-2">
+                <label class="ui-label" for="id_respondent_lawyer_fax">Lawyer fax</label>
+                <input type="text" name="respondent_lawyer_fax" class="form-control ui-input" id="id_respondent_lawyer_fax" value="{{ page_data.respondent_lawyer_fax }}">
               </div>
 
               <div class="mt-2">
@@ -481,9 +501,7 @@
           </p>
         </div>
 
-        <div class="section-label">
-          <span>Part 1 — Income</span>
-        </div>
+
 
         <div class="panel">
 
@@ -496,7 +514,6 @@
                   <label class="ui-label" for="id_my_name">My name is</label>
                   <input type="text" class="form-control ui-input" id="id_my_name" name="my_name" value="{{ statement.my_name|default:'' }}">
                 </div>
-
                 <div class="col-md-6">
                   <label class="ui-label" for="id_my_location">I live in</label>
                   <input type="text" class="form-control ui-input" id="id_my_location" name="my_location" value="{{ statement.my_location|default:'' }}">
@@ -504,6 +521,9 @@
               </div>
             </div>
           </div>
+              <div class="section-label">
+                <span>Part 1 — Income</span>
+              </div>
 
           <div class="form-num-row">
             <div class="form-num">2.</div>
