@@ -191,10 +191,14 @@ th { font-weight: bold; background: #fff; }
 
   <div style="display:flex; margin-bottom:6px;">
     <div style="flex:1;"></div>
-    <div style="flex:2; text-align:center;">
-      <div style="margin-top:4px;">at <span style="border-bottom:1px solid #000; display:inline-block; min-width:300px;"><span class="val">{{ pages.page1.court_location|default:"" }}</span></span></div>
-      <div style="font-size:7pt; font-style:italic;">Court office address</div>
-    </div>
+  <div style="margin-top:4px;">
+    at
+    <span style="border-bottom:1px solid #000; display:inline-block; min-width:300px;">
+        <span class="val">
+            {{ pages.page1.court_office_address|default:"" }}
+        </span>
+    </span>
+  </div>
     <div style="width:150px; text-align:right; font-size:8pt; line-height:1.3;">
       <strong>Form 13.1: Financial<br>Statement (Property and<br>Support Claims)</strong><br>sworn/affirmed
     </div>
@@ -411,8 +415,8 @@ th { font-weight: bold; background: #fff; }
       <span class="cb-inline"><span class="cb-box">{% if pages.page2.pension_stub %}<span class="cb-checked">✓</span>{% endif %}</span> pension stub</span>
       <span class="cb-inline"><span class="cb-box">{% if pages.page2.workers_comp_stub %}<span class="cb-checked">✓</span>{% endif %}</span> workers' compensation stub</span><br>
       <span class="cb-inline"><span class="cb-box">{% if pages.page2.ei_stub %}<span class="cb-checked">✓</span>{% endif %}</span> employment insurance stub and last Record of Employment</span><br>
-      <span class="cb-inline"><span class="cb-box">{% if pages.page2.statement_of_income %}<span class="cb-checked">✓</span>{% endif %}</span> statement of income and expenses/ professional activities (for self-employed individuals)</span><br>
-      <span class="cb-inline"><span class="cb-box">{% if pages.page2.other_income_proof %}<span class="cb-checked">✓</span>{% endif %}</span> other (e.g. a letter from your employer confirming all income received to date this year)</span>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.self_employed_statement %}<span class="cb-checked">✓</span>{% endif %}</span> statement of income and expenses/ professional activities (for self-employed individuals)</span><br>
+      <span class="cb-inline"><span class="cb-box">{% if pages.page2.employer_letter %}<span class="cb-checked">✓</span>{% endif %}</span> other (e.g. a letter from your employer confirming all income received to date this year)</span>
     </span>
   </div>
 
@@ -424,14 +428,14 @@ th { font-weight: bold; background: #fff; }
   <div class="item">
     <span class="item-num">5.</span>
     <span class="item-content">
-      <div class="cb"><span class="cb-box">{% if pages.page2.attaching_tax_docs %}<span class="cb-checked">✓</span>{% endif %}</span><span class="cb-label">I am attaching all of the following required documents to this financial statement as proof of my income over the past three years, if they have not already been provided:</span></div>
+      <div class="cb"><span class="cb-box">{% if pages.page2.attach_tax_docs %}<span class="cb-checked">✓</span>{% endif %}</span><span class="cb-label">I am attaching all of the following required documents to this financial statement as proof of my income over the past three years, if they have not already been provided:</span></div>
       <ul style="list-style:disc;margin-left:30px;font-size:9pt;">
         <li>a copy of my personal income tax returns for each of the past three taxation years, including any materials that were filed with the returns.</li>
         <li>a copy of my notices of assessment and any notices of reassessment for each of the past three taxation years;</li>
         <li>where my notices of assessment and reassessment are unavailable for any of the past three taxation years or where I have not filed a return for any of the past three taxation years, an Income and Deductions printout from the Canada Revenue Agency for each of those years.</li>
       </ul>
       <p style="font-size:8pt;margin:8px 0;"><strong>OR</strong></p>
-      <div class="cb"><span class="cb-box">{% if pages.page2.indian_status %}<span class="cb-checked">✓</span>{% endif %}</span><span class="cb-label">I am an Indian within the meaning of the <em>Indian Act</em> (Canada) and I have chosen not to file income tax returns for the past three years. I am attaching the following proof of income for the last three years <em>(list documents you have provided)</em>: <span class="fill-line">{{ pages.page2.indian_status_docs|default:"" }}</span></span></div>
+      <div class="cb"><span class="cb-box">{% if pages.page2.indian_act %}<span class="cb-checked">✓</span>{% endif %}</span><span class="cb-label">I am an Indian within the meaning of the <em>Indian Act</em> (Canada) and I have chosen not to file income tax returns for the past three years. I am attaching the following proof of income for the last three years <em>(list documents you have provided)</em>: <span class="fill-line">{{ pages.page2.indian_act_docs|default:"" }}</span></span></div>
     </span>
   </div>
 
@@ -444,17 +448,17 @@ th { font-weight: bold; background: #fff; }
     </tr>
     <tr><td class="row-num">1.</td><td>Employment income (before deductions)</td><td class="amount-col">{{ pages.page2.income_employment|default:"" }}</td></tr>
     <tr><td class="row-num">2.</td><td>Commissions, tips and bonuses</td><td class="amount-col">{{ pages.page2.income_commissions|default:"" }}</td></tr>
-    <tr><td class="row-num">3.</td><td>Self-employment income (Monthly amount before expenses: $ {{ pages.page2.income_self_employment_before_expenses|default:"" }} )</td><td class="amount-col">{{ pages.page2.income_self_employment|default:"" }}</td></tr>
+    <tr><td class="row-num">3.</td><td>Self-employment income (Monthly amount before expenses: $ {{ pages.page2.self_emp_before_expenses|default:"" }} )</td><td class="amount-col">{{ pages.page2.income_self_employment|default:"" }}</td></tr>
     <tr><td class="row-num">4.</td><td>Employment Insurance benefits</td><td class="amount-col">{{ pages.page2.income_ei|default:"" }}</td></tr>
     <tr><td class="row-num">5.</td><td>Workers' compensation benefits</td><td class="amount-col">{{ pages.page2.income_workers_comp|default:"" }}</td></tr>
     <tr><td class="row-num">6.</td><td>Social assistance income (including ODSP payments)</td><td class="amount-col">{{ pages.page2.income_social_assistance|default:"" }}</td></tr>
-    <tr><td class="row-num">7.</td><td>Interest and investment income</td><td class="amount-col">{{ pages.page2.income_investment|default:"" }}</td></tr>
+    <tr><td class="row-num">7.</td><td>Interest and investment income</td><td class="amount-col">{{ pages.page2.income_interest|default:"" }}</td></tr>
     <tr><td class="row-num">8.</td><td>Pension income (including CPP and OAS)</td><td class="amount-col">{{ pages.page2.income_pension|default:"" }}</td></tr>
     <tr><td class="row-num">9.</td><td>Spousal support received from a former spouse/partner</td><td class="amount-col">{{ pages.page2.income_spousal_support|default:"" }}</td></tr>
-    <tr><td class="row-num">10.</td><td>Child Tax Benefits or Tax Rebates (e.g. GST)</td><td class="amount-col">{{ pages.page2.income_tax_benefits|default:"" }}</td></tr>
+    <tr><td class="row-num">10.</td><td>Child Tax Benefits or Tax Rebates (e.g. GST)</td><td class="amount-col">{{ pages.page2.income_child_tax|default:"" }}</td></tr>
     <tr><td class="row-num">11.</td><td>Other sources of income (e.g. RRSP withdrawals, capital gains) <em>(*attach Schedule A and divide annual amount by 12)</em></td><td class="amount-col">{{ pages.page2.income_other|default:"" }}</td></tr>
-    <tr class="total-row"><td class="row-num">12.</td><td>Total monthly income from all sources:</td><td class="amount-col">{{ pages.page2.income_total_monthly|default:"" }}</td></tr>
-    <tr class="total-row"><td class="row-num">13.</td><td>Total monthly income X 12 = Total annual income:</td><td class="amount-col">{{ pages.page2.income_total_annual|default:"" }}</td></tr>
+    <tr class="total-row"><td class="row-num">12.</td><td>Total monthly income from all sources:</td><td class="amount-col">{{ pages.page2.total_monthly_income|default:"" }}</td></tr>
+    <tr class="total-row"><td class="row-num">13.</td><td>Total monthly income X 12 = Total annual income:</td><td class="amount-col">{{ pages.page2.total_annual_income|default:"" }}</td></tr>
   </table>
 
   <div class="page-footer">
@@ -563,7 +567,7 @@ th { font-weight: bold; background: #fff; }
         <tr><th>Expense</th><th style="width:100px;">Monthly Amount</th></tr>
         <tr><td colspan="2" style="font-weight:bold;">Utilities, continued</td></tr>
         <tr><td>Telephone</td><td class="amount-col">{{ pages.page4.exp_telephone|default:"" }}</td></tr>
-        <tr><td>Cell phone</td><td class="amount-col">{{ pages.page4.exp_cell_phone|default:"" }}</td></tr>
+        <tr><td>Cell phone</td><td class="amount-col">{{ pages.page4.exp_cellphone|default:"" }}</td></tr>
         <tr><td>Cable</td><td class="amount-col">{{ pages.page4.exp_cable|default:"" }}</td></tr>
         <tr><td>Internet</td><td class="amount-col">{{ pages.page4.exp_internet|default:"" }}</td></tr>
         <tr class="total-row"><td>SUBTOTAL</td><td class="amount-col">{{ pages.page4.subtotal_utilities|default:"" }}</td></tr>
@@ -609,17 +613,109 @@ th { font-weight: bold; background: #fff; }
     <tr class="total-row"><td>Total Amount of Yearly Expenses</td><td class="amount-col">{{ pages.page4.total_yearly_expenses|default:"" }}</td></tr>
   </table>
 
-  <div class="part-title">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
-  <p style="font-size:9pt;font-style:italic;margin-bottom:10px;">Complete this part only if you are making or responding to a claim for undue hardship or spousal support. Check and complete all sections that apply to your circumstances.</p>
 
-  <div class="item"><span class="item-num">1.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.live_alone %}<span class="cb-checked">✓</span>{% endif %}</span> I live alone.</span></span></div>
-  <div class="item"><span class="item-num">2.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.living_with_partner %}<span class="cb-checked">✓</span>{% endif %}</span> I am living with <span class="fill-line">{{ pages.page4.partner_name|default:"" }}</span> <em>(full legal name of person you are married to or cohabiting with)</em></span></span></div>
-  <div class="item"><span class="item-num">3.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.other_adults %}<span class="cb-checked">✓</span>{% endif %}</span> I/we live with the following other adult(s): <span class="fill-line">{{ pages.page4.other_adults_names|default:"" }}</span></span></span></div>
-  <div class="item"><span class="item-num">4.</span><span class="item-content"><span class="cb-inline"><span class="cb-box">{% if pages.page4.has_children %}<span class="cb-checked">✓</span>{% endif %}</span> I/we have <span class="fill-line short">{{ pages.page4.num_children|default:"" }}</span> child(ren) who live(s) in the home.</span></span></div>
-  <div class="item"><span class="item-num">5.</span><span class="item-content">My spouse/partner <span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_works %}<span class="cb-checked">✓</span>{% endif %}</span> works at <span class="fill-line">{{ pages.page4.partner_workplace|default:"" }}</span> <em>(place of work or business)</em></span><br><span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_not_work %}<span class="cb-checked">✓</span>{% endif %}</span> does not work outside the home.</span></span></div>
-  <div class="item"><span class="item-num">6.</span><span class="item-content">My spouse/partner <span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_earns %}<span class="cb-checked">✓</span>{% endif %}</span> earns <span class="fill-line short">{{ pages.page4.partner_income|default:"" }}</span> per <span class="fill-line short">{{ pages.page4.partner_income_period|default:"" }}</span></span><br><span class="cb-inline"><span class="cb-box">{% if pages.page4.partner_no_income %}<span class="cb-checked">✓</span>{% endif %}</span> does not earn any income.</span></span></div>
-  <div class="item"><span class="item-num">7.</span><span class="item-content">My spouse/partner or other adult residing in the home contributes about $ <span class="fill-line short">{{ pages.page4.household_contribution|default:"" }}</span> per <span class="fill-line short">{{ pages.page4.contribution_period|default:"" }}</span> towards the household expenses.</span></div>
 
+
+  
+<div class="part-title">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
+
+<p style="font-size:9pt;font-style:italic;margin-bottom:10px;">
+  Complete this part only if you are making or responding to a claim for undue hardship or spousal support.
+  Check and complete all sections that apply to your circumstances.
+</p>
+
+<div class="item">
+  <span class="item-num">1.</span>
+  <span class="item-content">
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.live_alone %}<span class="cb-checked">✓</span>{% endif %}</span>
+      I live alone.
+    </span>
+  </span>
+</div>
+
+<div class="item">
+  <span class="item-num">2.</span>
+  <span class="item-content">
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.living_with_someone %}<span class="cb-checked">✓</span>{% endif %}</span>
+      I am living with
+      <span class="fill-line">{{ pages.page4.living_with_name|default:"" }}</span>
+      <em>(full legal name of person you are married to or cohabiting with)</em>
+    </span>
+  </span>
+</div>
+
+<div class="item">
+  <span class="item-num">3.</span>
+  <span class="item-content">
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.lives_with_other_adults %}<span class="cb-checked">✓</span>{% endif %}</span>
+      I/we live with the following other adult(s):
+      <span class="fill-line">{{ pages.page4.other_adults_names|default:"" }}</span>
+    </span>
+  </span>
+</div>
+
+<div class="item">
+  <span class="item-num">4.</span>
+  <span class="item-content">
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.has_children_in_home %}<span class="cb-checked">✓</span>{% endif %}</span>
+      I/we have
+      <span class="fill-line short">{{ pages.page4.number_of_children_in_home|default:"" }}</span>
+      child(ren) who live(s) in the home.
+    </span>
+  </span>
+</div>
+
+<div class="item">
+  <span class="item-num">5.</span>
+  <span class="item-content">
+    My spouse/partner
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.spouse_works %}<span class="cb-checked">✓</span>{% endif %}</span>
+      works at
+      <span class="fill-line">{{ pages.page4.spouse_work_place|default:"" }}</span>
+      <em>(place of work or business)</em>
+    </span>
+    <br>
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.spouse_does_not_work %}<span class="cb-checked">✓</span>{% endif %}</span>
+      does not work outside the home.
+    </span>
+  </span>
+</div>
+
+<div class="item">
+  <span class="item-num">6.</span>
+  <span class="item-content">
+    My spouse/partner
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.spouse_earns_income %}<span class="cb-checked">✓</span>{% endif %}</span>
+      earns
+      <span class="fill-line short">{{ pages.page4.spouse_income_amount|default:"" }}</span>
+      per
+      <span class="fill-line short">{{ pages.page4.spouse_income_period|default:"" }}</span>
+    </span>
+    <br>
+    <span class="cb-inline">
+      <span class="cb-box">{% if pages.page4.spouse_no_income %}<span class="cb-checked">✓</span>{% endif %}</span>
+      does not earn any income.
+    </span>
+  </span>
+</div>
+
+<div class="item">
+  <span class="item-num">7.</span>
+  <span class="item-content">
+    My spouse/partner or other adult residing in the home contributes about $
+    <span class="fill-line short">{{ pages.page4.household_contribution_amount|default:"" }}</span>
+    per
+    <span class="fill-line short">{{ pages.page4.household_contribution_period|default:"" }}</span>
+    towards the household expenses.
+  </span>
+</div>
   <div class="page-footer">
     <span>FLR 13.1 (May 1, 2021)</span>
     <span>Page 4 of 10</span>
@@ -706,11 +802,11 @@ th { font-weight: bold; background: #fff; }
     </tr>
     <tr>
       <td>Household goods & furniture</td>
-      <td>{{ pages.page5.household_desc|default:"" }}</td>
-      <td>{{ pages.page5.household_not_possession|default:"" }}</td>
-      <td class="amount-col">{{ pages.page5.household_marriage|default:"" }}</td>
-      <td class="amount-col">{{ pages.page5.household_valuation|default:"" }}</td>
-      <td class="amount-col">{{ pages.page5.household_today|default:"" }}</td>
+      <td>{{ pages.page5.household_goods_desc|default:"" }}</td>
+      <td>{{ pages.page5.household_goods_possession|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.household_goods_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.household_goods_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page5.household_goods_today|default:"" }}</td>
     </tr>
     <tr>
       <td>Cars, boats, vehicles</td>
@@ -843,22 +939,22 @@ th { font-weight: bold; background: #fff; }
       <th class="col-header">today</th>
     </tr>
     <tr>
-      <td>{{ pages.page6.ins_1_company|default:"" }}</td>
-      <td>{{ pages.page6.ins_1_owner|default:"" }}</td>
-      <td>{{ pages.page6.ins_1_beneficiary|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_1_face|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_1_marriage|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_1_valuation|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_1_today|default:"" }}</td>
+      <td>{{ pages.page6.insurance_1_company|default:"" }}</td>
+      <td>{{ pages.page6.insurance_1_owner|default:"" }}</td>
+      <td>{{ pages.page6.insurance_1_beneficiary|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_1_face|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_1_today|default:"" }}</td>
     </tr>
     <tr>
-      <td>{{ pages.page6.ins_2_company|default:"" }}</td>
-      <td>{{ pages.page6.ins_2_owner|default:"" }}</td>
-      <td>{{ pages.page6.ins_2_beneficiary|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_2_face|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_2_marriage|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_2_valuation|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.ins_2_today|default:"" }}</td>
+      <td>{{ pages.page6.insurance_2_company|default:"" }}</td>
+      <td>{{ pages.page6.insurance_2_owner|default:"" }}</td>
+      <td>{{ pages.page6.insurance_2_beneficiary|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_2_face|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.insurance_2_today|default:"" }}</td>
     </tr>
     <tr class="total-row">
       <td colspan="4" style="text-align:right;">18. TOTAL CASH SURRENDER VALUE OF INSURANCE POLICIES</td>
@@ -883,18 +979,18 @@ th { font-weight: bold; background: #fff; }
       <th class="col-header">today</th>
     </tr>
     <tr>
-      <td>{{ pages.page6.biz_1_name|default:"" }}</td>
-      <td>{{ pages.page6.biz_1_interest|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.biz_1_marriage|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.biz_1_valuation|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.biz_1_today|default:"" }}</td>
+      <td>{{ pages.page6.business_1_name|default:"" }}</td>
+      <td>{{ pages.page6.business_1_interest|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.business_1_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.business_1_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.business_1_today|default:"" }}</td>
     </tr>
     <tr>
-      <td>{{ pages.page6.biz_2_name|default:"" }}</td>
-      <td>{{ pages.page6.biz_2_interest|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.biz_2_marriage|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.biz_2_valuation|default:"" }}</td>
-      <td class="amount-col">{{ pages.page6.biz_2_today|default:"" }}</td>
+      <td>{{ pages.page6.business_2_name|default:"" }}</td>
+      <td>{{ pages.page6.business_2_interest|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.business_2_marriage|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.business_2_valuation|default:"" }}</td>
+      <td class="amount-col">{{ pages.page6.business_2_today|default:"" }}</td>
     </tr>
     <tr class="total-row">
       <td colspan="2" style="text-align:right;">19. TOTAL VALUE OF BUSINESS INTERESTS</td>
@@ -1457,9 +1553,28 @@ th { font-weight: bold; background: #fff; }
 
   <p style="font-size:8pt;margin-top:10px;">* Some of these expenses can be claimed in a parent's income tax return in relation to a tax credit or deduction (for example childcare costs). These credits or deductions must be shown in the above chart.</p>
 
-  <div style="margin:12px 0;">
+
+    <div style="margin-top:8px;">
+    <span class="cb-box">
+      {% if pages.page10.schedule_b_i_earn_checked %}
+        <span class="cb-checked">✓</span>
+      {% endif %}
+    </span>
+
+    I earn $
+
+    <span class="fill-line short">
+      <span class="val">
+        {{ pages.page10.schedule_b_i_earn_amount|default:"" }}
+      </span>
+    </span>
+
+      per year which should be used to determine my share of the above expenses.
+    </div>
+
+  <!-- <div style="margin:12px 0;">
     <span class="cb-inline"><span class="cb-box">{% if pages.page10.income_share_checkbox %}<span class="cb-checked">✓</span>{% endif %}</span> I earn $ <span class="fill-line short">{{ pages.page10.income_share_amount|default:"" }}</span> per year which should be used to determine my share of the above expenses.</span>
-  </div>
+  </div> -->
 
   <div style="font-size:9pt;margin-top:15px;">
     <p><strong>NOTE:</strong> Pursuant to the Child Support Guidelines, a court can order that the parents of a child share the costs of the following expenses for the child:</p>

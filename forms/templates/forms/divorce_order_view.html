@@ -5,94 +5,393 @@
 {% block subheader %}Review saved divorce order details{% endblock %}
 
 {% block content %}
-<div class="mb-4 d-flex justify-content-between align-items-start gap-3">
-  <div>
-    <h2 class="mb-1">Divorce Order</h2>
-    <p class="text-muted mb-0">Court File No. {{ order.court_file_number|default:'—' }}</p>
-  </div>
-  <div class="btn-group" role="group" aria-label="Order actions">
-    <a href="{% url 'divorce_order_list' %}" class="btn btn-outline-secondary">← List</a>
-    <a href="{% url 'divorce_order_page' order.pk %}" class="btn btn-outline-primary">Edit</a>
-    <a href="{% url 'divorce_order_print' order.pk %}" class="btn btn-dark">Print</a>
-  </div>
-</div>
 
-<div class="row gy-4">
-  <div class="col-12 col-lg-6">
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <h5>Court Information</h5>
-        <p class="text-muted">Court details and file number.</p>
-        <dl class="row">
-          <dt class="col-4">Court Name</dt><dd class="col-8">{{ order.court_name|default:'Not provided' }}</dd>
-          <dt class="col-4">File Number</dt><dd class="col-8">{{ order.court_file_number|default:'Not provided' }}</dd>
-          <dt class="col-4">Office Address</dt><dd class="col-8">{{ order.court_office_address|default:'Not provided' }}</dd>
-          <dt class="col-4">Judge</dt><dd class="col-8">{{ order.judge_name|default:'Not provided' }} {{ order.judge_title|default:'' }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
+<style>
+.page-wrap{
+    max-width:1180px;
+    margin:22px auto 56px;
+    padding:0 14px;
+}
 
-  <div class="col-12 col-lg-6">
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <h5>Application & Marriage</h5>
-        <p class="text-muted">Parties, application details and marriage information.</p>
-        <dl class="row">
-          <dt class="col-4">Applicant</dt><dd class="col-8">{{ order.applicant_name|default:'Not provided' }}</dd>
-          <dt class="col-4">Respondent</dt><dd class="col-8">{{ order.respondent_name|default:'Not provided' }}</dd>
-          <dt class="col-4">Marriage Place</dt><dd class="col-8">{{ order.marriage_place|default:'Not provided' }}</dd>
-          <dt class="col-4">Marriage Date</dt><dd class="col-8">{{ order.marriage_date|default:'Not provided' }}</dd>
-          <dt class="col-4">Effective Days</dt><dd class="col-8">{{ order.divorce_effective_days|default:'Not provided' }}</dd>
-          <dt class="col-4">Application</dt><dd class="col-8">{{ order.application_of_name|default:'Not provided' }}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
+.view-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:16px;
+    flex-wrap:wrap;
+    margin-bottom:20px;
+}
 
-  <div class="col-12">
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <h5>Parties & Lawyers</h5>
-        <div class="row gy-3">
-          <div class="col-12 col-lg-6">
-            <strong>Applicant</strong>
-            <p class="mb-1">{{ order.applicant_name|default:'Not provided' }}</p>
-            <p class="text-muted small">{{ order.applicant_address|default:'Not provided' }}</p>
-          </div>
-          <div class="col-12 col-lg-6">
-            <strong>Respondent</strong>
-            <p class="mb-1">{{ order.respondent_name|default:'Not provided' }}</p>
-            <p class="text-muted small">{{ order.respondent_address|default:'Not provided' }}</p>
-          </div>
-          <div class="col-12 col-lg-6">
-            <strong>Applicant Lawyer</strong>
-            <p class="mb-1">{{ order.applicant_lawyer_name|default:'Not provided' }}</p>
-            <p class="text-muted small">{{ order.applicant_lawyer_address|default:'Not provided' }}</p>
-          </div>
-          <div class="col-12 col-lg-6">
-            <strong>Respondent Lawyer</strong>
-            <p class="mb-1">{{ order.respondent_lawyer_name|default:'Not provided' }}</p>
-            <p class="text-muted small">{{ order.respondent_lawyer_address|default:'Not provided' }}</p>
-          </div>
+.title-block h2{
+    margin:0;
+    font-size:26px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.title-block p{
+    margin:6px 0 0;
+    font-size:15px;
+    color:#64748b;
+}
+
+.action-buttons{
+    display:flex;
+    align-items:center;
+    justify-content:flex-end;
+    gap:8px;
+    flex-wrap:wrap;
+}
+
+.btn-modern{
+    border-radius:8px;
+    padding:10px 15px;
+    font-size:14px;
+    font-weight:700;
+    text-decoration:none !important;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    white-space:nowrap;
+    color:#fff !important;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-list{ background:#64748b; }
+.btn-list:hover{ background:#475569; }
+
+.btn-edit{ background:#15803d; }
+.btn-edit:hover{ background:#166534; }
+
+.btn-print{ background:#1f2937; }
+.btn-print:hover{ background:#111827; }
+
+.btn-onepage{ background:#0b79a5; }
+.btn-onepage:hover{ background:#075985; }
+
+.card-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.info-card{
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:12px;
+    overflow:hidden;
+    box-shadow:0 4px 14px rgba(15,23,42,.04);
+}
+
+.info-card.full{
+    grid-column:1 / -1;
+}
+
+.card-head{
+    padding:15px 18px;
+    border-bottom:1px solid #e2e8f0;
+    background:#f8fafc;
+}
+
+.card-head h3{
+    margin:0;
+    font-size:16px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.card-head p{
+    margin:4px 0 0;
+    font-size:13px;
+    color:#64748b;
+}
+
+.card-body-clean{
+    padding:16px 18px;
+}
+
+.detail-grid{
+    display:grid;
+    grid-template-columns:170px 1fr;
+    gap:10px 14px;
+    font-size:14px;
+}
+
+.label{
+    font-weight:700;
+    color:#475569;
+}
+
+.value{
+    color:#0f172a;
+    word-break:break-word;
+}
+
+.party-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px;
+}
+
+.party-box{
+    border:1px solid #e2e8f0;
+    border-radius:10px;
+    padding:18px;
+    background:#fff;
+}
+
+.party-box h4{
+    margin:0 0 12px;
+    font-size:15px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.party-name{
+    margin:0 0 10px;
+    font-size:15px;
+    font-weight:600;
+    color:#0f172a;
+}
+
+.party-address{
+    white-space:pre-line;
+    line-height:1.8;
+    color:#64748b;
+    font-size:14px;
+}
+
+.long-text{
+    white-space:pre-wrap;
+    line-height:1.55;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:10px;
+    padding:12px;
+    font-size:14px;
+    color:#0f172a;
+    min-height:48px;
+}
+
+@media(max-width:900px){
+    .card-grid,
+    .party-grid{
+        grid-template-columns:1fr;
+    }
+
+    .detail-grid{
+        grid-template-columns:1fr;
+    }
+
+    .action-buttons{
+        justify-content:flex-start;
+    }
+}
+</style>
+
+<div class="page-wrap">
+
+    <div class="view-header">
+
+        <div class="title-block">
+            <h2>Divorce Order</h2>
+            <p>Court File No. {{ order.court_file_number|default:'—' }}</p>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="col-12">
-    <div class="card shadow-sm border-0">
-      <div class="card-body">
-        <h5>Order Details</h5>
-        <dl class="row">
-          <dt class="col-4">Evidence Submissions</dt><dd class="col-8">{{ order.evidence_submissions|default:'Not provided' }}</dd>
-          <dt class="col-4">Other Relief</dt><dd class="col-8">{{ order.other_relief_details|default:'Not provided' }}</dd>
-          <dt class="col-4">Date of Order</dt><dd class="col-8">{{ order.date_of_order|default:'Not provided' }}</dd>
-          <dt class="col-4">Date of Signature</dt><dd class="col-8">{{ order.date_of_signature|default:'Not provided' }}</dd>
-          <dt class="col-4">Judge/Clerk Signature</dt><dd class="col-8">{{ order.judge_or_clerk_signature|default:'Not provided' }}</dd>
-        </dl>
-      </div>
+        <div class="action-buttons">
+            <a href="{% url 'divorce_order_list' %}" class="btn-modern btn-list">
+                ← List
+            </a>
+
+            <a href="{% url 'divorce_order_page' order.pk %}" class="btn-modern btn-edit">
+                Edit
+            </a>
+
+            <a href="{% url 'divorce_order_print' order.pk %}" class="btn-modern btn-print">
+                Print
+            </a>
+
+            <a href="{% url 'divorce_order_print_onepage' order.pk %}" class="btn-modern btn-onepage">
+                Print One Page
+            </a>
+        </div>
+
     </div>
-  </div>
+
+    <div class="card-grid">
+
+        <div class="info-card">
+
+            <div class="card-head">
+                <h3>Court Information</h3>
+                <p>Court details and file number.</p>
+            </div>
+
+            <div class="card-body-clean">
+
+                <div class="detail-grid">
+
+                    <div class="label">Court Name</div>
+                    <div class="value">{{ order.court_name|default:'Not provided' }}</div>
+
+                    <div class="label">File Number</div>
+                    <div class="value">{{ order.court_file_number|default:'Not provided' }}</div>
+
+                    <div class="label">Office Address</div>
+                    <div class="value">{{ order.court_office_address|default:'Not provided' }}</div>
+
+                    <div class="label">Judge</div>
+                    <div class="value">
+                        {{ order.judge_name|default:'Not provided' }}
+                        {{ order.judge_title|default:'' }}
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="info-card">
+
+            <div class="card-head">
+                <h3>Application & Marriage</h3>
+                <p>Application details and marriage information.</p>
+            </div>
+
+            <div class="card-body-clean">
+
+                <div class="detail-grid">
+
+                    <div class="label">Applicant</div>
+                    <div class="value">{{ order.applicant_name|default:'Not provided' }}</div>
+
+                    <div class="label">Respondent</div>
+                    <div class="value">{{ order.respondent_name|default:'Not provided' }}</div>
+
+                    <div class="label">Marriage Place</div>
+                    <div class="value">{{ order.marriage_place|default:'Not provided' }}</div>
+
+                    <div class="label">Marriage Date</div>
+                    <div class="value">{{ order.marriage_date|default:'Not provided' }}</div>
+
+                    <div class="label">Effective Days</div>
+                    <div class="value">{{ order.divorce_effective_days|default:'Not provided' }}</div>
+
+                    <div class="label">Application</div>
+                    <div class="value">{{ order.application_of_name|default:'Not provided' }}</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="info-card full">
+
+            <div class="card-head">
+                <h3>Parties & Lawyers</h3>
+                <p>Applicant, respondent and lawyer contact details.</p>
+            </div>
+
+            <div class="card-body-clean">
+
+                <div class="party-grid">
+
+                    <div class="party-box">
+                        <h4>Applicant</h4>
+
+                        <p class="party-name">
+                            {{ order.applicant_name|default:'Not provided' }}
+                        </p>
+
+                        <div class="party-address">
+{{ order.applicant_address|default:'Not provided' }}
+                        </div>
+                    </div>
+
+                    <div class="party-box">
+                        <h4>Respondent</h4>
+
+                        <p class="party-name">
+                            {{ order.respondent_name|default:'Not provided' }}
+                        </p>
+
+                        <div class="party-address">
+{{ order.respondent_address|default:'Not provided' }}
+                        </div>
+                    </div>
+
+                    <div class="party-box">
+                        <h4>Applicant Lawyer</h4>
+
+                        <p class="party-name">
+                            {{ order.applicant_lawyer_name|default:'Not provided' }}
+                        </p>
+
+                        <div class="party-address">
+{{ order.applicant_lawyer_address|default:'Not provided' }}
+                        </div>
+                    </div>
+
+                    <div class="party-box">
+                        <h4>Respondent Lawyer</h4>
+
+                        <p class="party-name">
+                            {{ order.respondent_lawyer_name|default:'Not provided' }}
+                        </p>
+
+                        <div class="party-address">
+{{ order.respondent_lawyer_address|default:'Not provided' }}
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="info-card full">
+
+            <div class="card-head">
+                <h3>Order Details</h3>
+                <p>Evidence, submissions, relief and signature details.</p>
+            </div>
+
+            <div class="card-body-clean">
+
+                <div class="detail-grid">
+
+                    <div class="label">Evidence Submissions</div>
+                    <div class="value">
+                        <div class="long-text">{{ order.evidence_submissions|default:'Not provided' }}</div>
+                    </div>
+
+                    <div class="label">Other Relief</div>
+                    <div class="value">
+                        <div class="long-text">{{ order.other_relief_details|default:'Not provided' }}</div>
+                    </div>
+
+                    <div class="label">Date of Order</div>
+                    <div class="value">{{ order.date_of_order|default:'Not provided' }}</div>
+
+                    <div class="label">Date of Signature</div>
+                    <div class="value">{{ order.date_of_signature|default:'Not provided' }}</div>
+
+                    <div class="label">Judge/Clerk Signature</div>
+                    <div class="value">{{ order.judge_or_clerk_signature|default:'Not provided' }}</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
+
 {% endblock %}

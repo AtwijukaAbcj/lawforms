@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Preview Form A-25A — Divorce Order{% endblock %}
+{% block header %}Preview Form A-25A — Divorce Order{% endblock %}
+{% block subheader %}Review the A-25A layout before printing{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <div class="d-flex justify-content-between align-items-center gap-3">
+    <div>
+      <h2 class="mb-1">Print Preview</h2>
+      <p class="text-muted mb-0">Preview the filled Form A-25A before printing.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'divorce_order_onepage_list' %}" class="btn btn-outline-secondary">← Back to List</a>
+      <a href="{% url 'divorce_order_a25a_view' order.pk %}" class="btn btn-outline-secondary">Back to Order</a>
+      <a href="{% url 'divorce_order_a25a_print' order.pk %}" target="_blank" class="btn btn-dark">Open Printable Form</a>
+    </div>
+  </div>
+</div>
+
+<iframe src="{% url 'divorce_order_a25a_print' order.pk %}" width="100%" height="1100" style="border: 1px solid #d1d5db; border-radius: 12px;"></iframe>
+{% endblock %}

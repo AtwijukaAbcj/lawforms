@@ -81,6 +81,9 @@ def _get_form_display_name(form_type, form_instance):
         'comparison_nfp': 'Comparison of Net Family Property (Form 13C)',
         'affidavit_service': 'Affidavit of Service (Form 6B)',
         'application_divorce_8a': 'Form 8A — Application (Divorce)',
+        'divorce_order': 'Divorce Order (Form 25A)',
+        'divorce_order_onepage': 'Divorce Order (one page)',
+        'divorce_order_a25a': 'Divorce Order (Form A-25A)',
     }
     return form_names.get(form_type, form_type)
 

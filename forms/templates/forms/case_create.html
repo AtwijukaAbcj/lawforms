@@ -1,92 +1,333 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="page-wrap">
-  <h1>Create Case</h1>
-  {% if messages %}
-    {% for message in messages %}
-      <div class="alert alert-success">{{ message }}</div>
-    {% endfor %}
-  {% endif %}
-  <form method="post">
-    {% csrf_token %}
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px;">
-      <div class="page-card">
-        <h4 style="margin-top:0;">Applicant(s)</h4>
-        <div style="display:grid; gap:8px;">
-          <label>Full legal name</label>
-          <input name="applicant_name" class="ui-input" value="{{ request.POST.applicant_name }}">
-          <label>Address</label>
-          <input name="applicant_address" class="ui-input" value="{{ request.POST.applicant_address }}">
-          <label>Phone &amp; Fax</label>
-          <input name="applicant_phone" class="ui-input" value="{{ request.POST.applicant_phone }}">
-          <label>Email</label>
-          <input name="applicant_email" class="ui-input" value="{{ request.POST.applicant_email }}">
+
+<style>
+.case-wrap{
+    max-width:1180px;
+    margin:22px auto 56px;
+    padding:0 14px;
+}
+
+.case-title{
+    font-size:42px;
+    font-weight:700;
+    color:#0f172a;
+    margin-bottom:18px;
+}
+
+.case-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+}
+
+.case-card{
+    background:#fff;
+    border:1px solid #eef2f7;
+    border-radius:12px;
+    padding:22px;
+    box-shadow:0 4px 14px rgba(15,23,42,.04);
+}
+
+.case-card h3{
+    margin:0 0 14px;
+    font-size:28px;
+    font-weight:600;
+    color:#0f172a;
+}
+
+.form-group{
+    margin-bottom:12px;
+}
+
+.form-group label{
+    display:block;
+    margin-bottom:6px;
+    font-size:16px;
+    color:#0f172a;
+}
+
+.form-control{
+    width:100%;
+    height:40px;
+    border:1px solid #cbd5e1;
+    border-radius:7px;
+    padding:8px 10px;
+    font-size:15px;
+    outline:none;
+}
+
+.form-control:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,.12);
+}
+
+.case-actions{
+    margin-top:22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+}
+
+.btn-case{
+    border:0;
+    border-radius:8px;
+    padding:10px 18px;
+    font-size:15px;
+    font-weight:600;
+    text-decoration:none;
+    cursor:pointer;
+}
+
+.btn-save{
+    background:#1e293b;
+    color:#fff;
+}
+
+.btn-save:hover{
+    background:#334155;
+    color:#fff;
+}
+
+.btn-cancel{
+    background:#f1f5f9;
+    color:#0f172a;
+}
+
+.btn-cancel:hover{
+    background:#e2e8f0;
+    color:#0f172a;
+}
+
+@media(max-width:900px){
+    .case-grid{
+        grid-template-columns:1fr;
+    }
+
+    .case-title{
+        font-size:32px;
+    }
+}
+</style>
+
+<div class="case-wrap">
+
+    <h1 class="case-title">
+        {% if case %}
+            Edit Case
+        {% else %}
+            Create Case
+        {% endif %}
+    </h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="case-card" style="margin-bottom:18px;">
+            <h3>Court Information</h3>
+
+            <div class="form-group">
+                <label>Court File Number</label>
+                <input type="text"
+                       name="court_file_number"
+                       class="form-control"
+                       value="{{ case.court_file_number|default:'' }}">
+            </div>
+
+            <div class="form-group">
+                <label>Court Name</label>
+                <input type="text"
+                       name="court_name"
+                       class="form-control"
+                       value="{{ case.court_name|default:'' }}">
+            </div>
+
+            <div class="form-group">
+                <label>Court Office Address</label>
+                <input type="text"
+                       name="court_office_address"
+                       class="form-control"
+                       value="{{ case.court_office_address|default:'' }}">
+            </div>
+
+            <div class="form-group">
+                <label>Valuation Date</label>
+                <input type="date"
+                       name="valuation_date"
+                       class="form-control"
+                       value="{{ case.valuation_date|date:'Y-m-d' }}">
+            </div>
         </div>
-      </div>
 
-      <div class="page-card">
-        <h4 style="margin-top:0;">Respondent(s)</h4>
-        <div style="display:grid; gap:8px;">
-          <label>Full legal name</label>
-          <input name="respondent_name" class="ui-input" value="{{ request.POST.respondent_name }}">
-          <label>Address</label>
-          <input name="respondent_address" class="ui-input" value="{{ request.POST.respondent_address }}">
-          <label>Phone &amp; Fax</label>
-          <input name="respondent_phone" class="ui-input" value="{{ request.POST.respondent_phone }}">
-          <label>Email</label>
-          <input name="respondent_email" class="ui-input" value="{{ request.POST.respondent_email }}">
+        <div class="case-grid">
+
+            <div class="case-card">
+                <h3>Applicant(s)</h3>
+
+                <div class="form-group">
+                    <label>Full legal name</label>
+                    <input type="text"
+                           name="applicant_name"
+                           class="form-control"
+                           value="{{ case.applicant_name|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text"
+                           name="applicant_address"
+                           class="form-control"
+                           value="{{ case.applicant_address|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone &amp; Fax</label>
+                    <input type="text"
+                           name="applicant_phone"
+                           class="form-control"
+                           value="{{ case.applicant_phone|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email"
+                           name="applicant_email"
+                           class="form-control"
+                           value="{{ case.applicant_email|default:'' }}">
+                </div>
+            </div>
+
+            <div class="case-card">
+                <h3>Respondent(s)</h3>
+
+                <div class="form-group">
+                    <label>Full legal name</label>
+                    <input type="text"
+                           name="respondent_name"
+                           class="form-control"
+                           value="{{ case.respondent_name|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text"
+                           name="respondent_address"
+                           class="form-control"
+                           value="{{ case.respondent_address|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone &amp; Fax</label>
+                    <input type="text"
+                           name="respondent_phone"
+                           class="form-control"
+                           value="{{ case.respondent_phone|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email"
+                           name="respondent_email"
+                           class="form-control"
+                           value="{{ case.respondent_email|default:'' }}">
+                </div>
+            </div>
+
+            <div class="case-card">
+                <h3>Applicant Lawyer</h3>
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text"
+                           name="applicant_lawyer_name"
+                           class="form-control"
+                           value="{{ case.applicant_lawyer_name|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text"
+                           name="applicant_lawyer_address"
+                           class="form-control"
+                           value="{{ case.applicant_lawyer_address|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text"
+                           name="applicant_lawyer_phone"
+                           class="form-control"
+                           value="{{ case.applicant_lawyer_phone|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email"
+                           name="applicant_lawyer_email"
+                           class="form-control"
+                           value="{{ case.applicant_lawyer_email|default:'' }}">
+                </div>
+            </div>
+
+            <div class="case-card">
+                <h3>Respondent Lawyer</h3>
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text"
+                           name="respondent_lawyer_name"
+                           class="form-control"
+                           value="{{ case.respondent_lawyer_name|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Address</label>
+                    <input type="text"
+                           name="respondent_lawyer_address"
+                           class="form-control"
+                           value="{{ case.respondent_lawyer_address|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone</label>
+                    <input type="text"
+                           name="respondent_lawyer_phone"
+                           class="form-control"
+                           value="{{ case.respondent_lawyer_phone|default:'' }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email"
+                           name="respondent_lawyer_email"
+                           class="form-control"
+                           value="{{ case.respondent_lawyer_email|default:'' }}">
+                </div>
+            </div>
+
         </div>
-      </div>
-    </div>
 
-    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:14px; margin-top:12px;">
-      <div class="page-card">
-        <h4 style="margin-top:0;">Applicant Lawyer</h4>
-        <div style="display:grid; gap:8px;">
-          <label>Name</label>
-          <input name="applicant_lawyer_name" class="ui-input" value="{{ request.POST.applicant_lawyer_name }}">
-          <label>Address</label>
-          <input name="applicant_lawyer_address" class="ui-input" value="{{ request.POST.applicant_lawyer_address }}">
-          <label>Phone</label>
-          <input name="applicant_lawyer_phone" class="ui-input" value="{{ request.POST.applicant_lawyer_phone }}">
-          <label>Email</label>
-          <input name="applicant_lawyer_email" class="ui-input" value="{{ request.POST.applicant_lawyer_email }}">
+        <div class="case-actions">
+
+            <a href="{% url 'case_list' %}"
+               class="btn-case btn-cancel">
+                Cancel
+            </a>
+
+            <button type="submit"
+                    class="btn-case btn-save">
+                {% if case %}
+                    Save Changes
+                {% else %}
+                    Create Case
+                {% endif %}
+            </button>
+
         </div>
-      </div>
 
-      <div class="page-card">
-        <h4 style="margin-top:0;">Respondent Lawyer</h4>
-        <div style="display:grid; gap:8px;">
-          <label>Name</label>
-          <input name="respondent_lawyer_name" class="ui-input" value="{{ request.POST.respondent_lawyer_name }}">
-          <label>Address</label>
-          <input name="respondent_lawyer_address" class="ui-input" value="{{ request.POST.respondent_lawyer_address }}">
-          <label>Phone</label>
-          <input name="respondent_lawyer_phone" class="ui-input" value="{{ request.POST.respondent_lawyer_phone }}">
-          <label>Email</label>
-          <input name="respondent_lawyer_email" class="ui-input" value="{{ request.POST.respondent_lawyer_email }}">
-        </div>
-      </div>
-    </div>
+    </form>
 
-    <div style="display:flex; gap:12px; align-items:flex-end; margin-top:12px;">
-      <div style="flex:1;">
-        <label>Name of court</label>
-        <input name="court_name" class="ui-input" placeholder="(Name of court)" value="{{ request.POST.court_name }}">
-        <label style="margin-top:6px;">Court office address</label>
-        <input name="court_office_address" class="ui-input" placeholder="Court office address" value="{{ request.POST.court_office_address }}">
-      </div>
-      <div style="flex:1;">
-        <label>Court file number</label>
-        <input name="court_file_number" class="ui-input" value="{{ request.POST.court_file_number }}">
-      </div>
-      <div style="width:240px;">
-        <label>Valuation date</label>
-        <input type="date" name="valuation_date" class="ui-input" value="{{ request.POST.valuation_date }}">
-      </div>
-    </div>
-
-    <div style="margin-top:14px;"><button type="submit" class="btn btn-primary">Create Case</button></div>
-  </form>
 </div>
+
 {% endblock %}

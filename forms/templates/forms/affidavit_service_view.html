@@ -65,7 +65,7 @@
         </div>
         <div class="form-view-party-col">
           <div class="form-view-party-head">Applicant's Lawyer</div>
-          <div class="form-view-field"><span class="form-view-label">Name &amp; Address</span><span class="form-view-value {% if not affidavit.applicant_lawyer_name %}empty{% endif %}">{{ affidavit.applicant_lawyer_name|default:"Not provided" }}</span></div>
+          <div class="form-view-field"><span class="form-view-label">Name &amp; Address</span><span class="form-view-value {% if not affidavit.applicant_lawyer_details %}empty{% endif %}">{{ affidavit.applicant_lawyer_details|default:"Not provided" }}</span></div>
         </div>
       </div>
       <div class="form-view-party-pair">
@@ -75,7 +75,7 @@
         </div>
         <div class="form-view-party-col">
           <div class="form-view-party-head">Respondent's Lawyer</div>
-          <div class="form-view-field"><span class="form-view-label">Name &amp; Address</span><span class="form-view-value {% if not affidavit.respondent_lawyer_name %}empty{% endif %}">{{ affidavit.respondent_lawyer_name|default:"Not provided" }}</span></div>
+          <div class="form-view-field"><span class="form-view-label">Name &amp; Address</span><span class="form-view-value {% if not affidavit.respondent_lawyer_details %}empty{% endif %}">{{ affidavit.respondent_lawyer_details|default:"Not provided" }}</span></div>
         </div>
       </div>
     </div>
@@ -119,15 +119,44 @@
             </tr>
           </thead>
           <tbody>
-            {% for doc in affidavit.documents.all %}
+            {% if affidavit.document_1_name %}
             <tr>
-              <td>{{ doc.name }}</td>
-              <td>{{ doc.author|default:"—" }}</td>
-              <td>{{ doc.date|date:"F j, Y" }}</td>
+              <td>{{ affidavit.document_1_name }}</td>
+              <td>{{ affidavit.document_1_author|default:"—" }}</td>
+              <td>{{ affidavit.document_1_date|date:"F j, Y"|default:"—" }}</td>
             </tr>
-            {% empty %}
-            <tr><td colspan="3" style="color:var(--slate); font-style:italic; font-size:12.5px;">{{ affidavit.documents_served|default:"No documents recorded." }}</td></tr>
-            {% endfor %}
+            {% endif %}
+            {% if affidavit.document_2_name %}
+            <tr>
+              <td>{{ affidavit.document_2_name }}</td>
+              <td>{{ affidavit.document_2_author|default:"—" }}</td>
+              <td>{{ affidavit.document_2_date|date:"F j, Y"|default:"—" }}</td>
+            </tr>
+            {% endif %}
+            {% if affidavit.document_3_name %}
+            <tr>
+              <td>{{ affidavit.document_3_name }}</td>
+              <td>{{ affidavit.document_3_author|default:"—" }}</td>
+              <td>{{ affidavit.document_3_date|date:"F j, Y"|default:"—" }}</td>
+            </tr>
+            {% endif %}
+            {% if affidavit.document_4_name %}
+            <tr>
+              <td>{{ affidavit.document_4_name }}</td>
+              <td>{{ affidavit.document_4_author|default:"—" }}</td>
+              <td>{{ affidavit.document_4_date|date:"F j, Y"|default:"—" }}</td>
+            </tr>
+            {% endif %}
+            {% if affidavit.document_5_name %}
+            <tr>
+              <td>{{ affidavit.document_5_name }}</td>
+              <td>{{ affidavit.document_5_author|default:"—" }}</td>
+              <td>{{ affidavit.document_5_date|date:"F j, Y"|default:"—" }}</td>
+            </tr>
+            {% endif %}
+            {% if not affidavit.document_1_name and not affidavit.document_2_name and not affidavit.document_3_name and not affidavit.document_4_name and not affidavit.document_5_name %}
+            <tr><td colspan="3" style="color:var(--slate); font-style:italic; font-size:12.5px;">No documents recorded.</td></tr>
+            {% endif %}
           </tbody>
         </table>
       </div>
@@ -143,16 +172,16 @@
     </div>
     <div class="form-view-card-body">
       <div style="display:flex; flex-wrap:wrap; gap:8px;">
-        {% if affidavit.service_by_special %}<span class="form-view-method-badge">✓ Special Service (¶3)</span>{% endif %}
-        {% if affidavit.service_by_mail %}<span class="form-view-method-badge">✓ Mail (¶4)</span>{% endif %}
-        {% if affidavit.service_by_same_day_courier %}<span class="form-view-method-badge">✓ Same Day Courier (¶5)</span>{% endif %}
-        {% if affidavit.service_by_next_day_courier %}<span class="form-view-method-badge">✓ Next Day Courier (¶5)</span>{% endif %}
+        {% if affidavit.service_special %}<span class="form-view-method-badge">✓ Special Service (¶3)</span>{% endif %}
+        {% if affidavit.service_mail %}<span class="form-view-method-badge">✓ Mail (¶4)</span>{% endif %}
+        {% if affidavit.service_same_day_courier %}<span class="form-view-method-badge">✓ Same Day Courier (¶5)</span>{% endif %}
+        {% if affidavit.service_next_day_courier %}<span class="form-view-method-badge">✓ Next Day Courier (¶5)</span>{% endif %}
         {% if affidavit.document_exchange_service %}<span class="form-view-method-badge">✓ Document Exchange (¶6)</span>{% endif %}
         {% if affidavit.electronic_document_exchange_service %}<span class="form-view-method-badge">✓ Electronic Exchange (¶7)</span>{% endif %}
         {% if affidavit.fax_service %}<span class="form-view-method-badge">✓ Fax (¶8)</span>{% endif %}
         {% if affidavit.email_service %}<span class="form-view-method-badge">✓ Email (¶9)</span>{% endif %}
-        {% if affidavit.service_by_substituted %}<span class="form-view-method-badge">✓ Substituted / Advertisement (¶10)</span>{% endif %}
-        {% if not affidavit.service_by_special and not affidavit.service_by_mail and not affidavit.service_by_same_day_courier and not affidavit.service_by_next_day_courier and not affidavit.document_exchange_service and not affidavit.electronic_document_exchange_service and not affidavit.fax_service and not affidavit.email_service and not affidavit.service_by_substituted %}
+        {% if affidavit.service_substituted %}<span class="form-view-method-badge">✓ Substituted / Advertisement (¶10)</span>{% endif %}
+        {% if not affidavit.service_special and not affidavit.service_mail and not affidavit.service_same_day_courier and not affidavit.service_next_day_courier and not affidavit.document_exchange_service and not affidavit.electronic_document_exchange_service and not affidavit.fax_service and not affidavit.email_service and not affidavit.service_substituted %}
           <span class="form-view-value empty">No method selected</span>
         {% endif %}
       </div>
@@ -160,7 +189,7 @@
   </div>
 
   <!-- ── ¶3 Special Service ── -->
-  {% if affidavit.service_by_special or affidavit.personal_service_person or affidavit.special_service_left_with_named_person or affidavit.special_service_prepaid_return_postcard or affidavit.special_service_sealed_envelope_residence %}
+  {% if affidavit.service_special or affidavit.personal_service_person or affidavit.special_service_left_with_named_person or affidavit.special_service_prepaid_return_postcard or affidavit.special_service_sealed_envelope_residence %}
   <div class="form-view-card">
     <div class="form-view-card-head">
       <div class="form-view-card-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
@@ -191,7 +220,7 @@
   {% endif %}
 
   <!-- ── ¶4 Mail Service ── -->
-  {% if affidavit.service_by_mail or affidavit.mail_service_address %}
+  {% if affidavit.service_mail or affidavit.mail_service_address %}
   <div class="form-view-card">
     <div class="form-view-card-head">
       <div class="form-view-card-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
@@ -208,7 +237,7 @@
   {% endif %}
 
   <!-- ── ¶5 Courier Service ── -->
-  {% if affidavit.service_by_same_day_courier or affidavit.service_by_next_day_courier or affidavit.courier_service_name %}
+  {% if affidavit.service_same_day_courier or affidavit.service_next_day_courier or affidavit.courier_service_name %}
   <div class="form-view-card">
     <div class="form-view-card-head">
       <div class="form-view-card-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/></svg></div>
@@ -244,7 +273,7 @@
   {% endif %}
 
   <!-- ── ¶10 Court-Ordered Service ── -->
-  {% if affidavit.service_by_substituted or affidavit.service_order_date %}
+  {% if affidavit.service_substituted or affidavit.service_order_date %}
   <div class="form-view-card">
     <div class="form-view-card-head">
       <div class="form-view-card-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg></div>

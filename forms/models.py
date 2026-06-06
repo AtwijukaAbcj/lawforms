@@ -123,8 +123,8 @@ class NetFamilyPropertyAsset(models.Model):
         db_index=True,
     )
     item = models.CharField(max_length=255, blank=True, null=True)
-    applicant_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -253,124 +253,124 @@ class FinancialStatement(SoftDeleteMixin, models.Model):
     other_income_proof = models.BooleanField(default=False)
     
     # Page 2 - Last year gross income
-    last_year_gross_income = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    last_year_gross_income = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Page 2 - Indian status option
     indian_status = models.BooleanField(default=False)
     indian_status_docs = models.TextField(blank=True, null=True)
     
     # Page 2 - Income table (monthly amounts)
-    income_employment = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_commissions = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_self_employment_before_expenses = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_self_employment = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_ei = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_workers_comp = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_social_assistance = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_investment = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_pension = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_spousal_support = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_tax_benefits = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_other = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_total_monthly = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_total_annual = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    income_employment = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_commissions = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_self_employment_before_expenses = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_self_employment = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_ei = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_workers_comp = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_social_assistance = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_investment = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_pension = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_spousal_support = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_tax_benefits = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_other = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_total_monthly = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_total_annual = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     # Page 3 - Other Benefits (14)
     benefit_item_1 = models.CharField(max_length=255, blank=True, null=True)
     benefit_details_1 = models.TextField(blank=True, null=True)
-    benefit_value_1 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    benefit_value_1 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     benefit_item_2 = models.CharField(max_length=255, blank=True, null=True)
     benefit_details_2 = models.TextField(blank=True, null=True)
-    benefit_value_2 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    benefit_value_2 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     benefit_item_3 = models.CharField(max_length=255, blank=True, null=True)
     benefit_details_3 = models.TextField(blank=True, null=True)
-    benefit_value_3 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    benefit_value_3 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     benefit_item_4 = models.CharField(max_length=255, blank=True, null=True)
     benefit_details_4 = models.TextField(blank=True, null=True)
-    benefit_value_4 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    benefit_value_4 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     # Part 2 - Expenses (Pages 3-4) - All monthly amounts
     # Automatic Deductions
-    cpp_contributions = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    ei_premiums = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    income_taxes = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    employee_pension_contributions = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    union_dues = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    automatic_deductions_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    cpp_contributions = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    ei_premiums = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    income_taxes = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    employee_pension_contributions = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    union_dues = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    automatic_deductions_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Housing
-    rent_or_mortgage = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    property_taxes = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    property_insurance = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    condo_fees = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    repairs_maintenance = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    housing_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    rent_or_mortgage = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    property_taxes = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    property_insurance = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    condo_fees = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    repairs_maintenance = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    housing_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Utilities
-    water = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    heat = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    electricity = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    telephone = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    cell_phone = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    cable = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    internet = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    utilities_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    water = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    heat = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    electricity = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    telephone = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    cell_phone = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    cable = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    internet = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    utilities_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Transportation
-    public_transit_taxis = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    gas_oil = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    car_insurance_license = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    car_repairs_maintenance = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    parking = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    car_loan_lease_payments = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    transportation_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    public_transit_taxis = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    gas_oil = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    car_insurance_license = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    car_repairs_maintenance = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    parking = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    car_loan_lease_payments = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    transportation_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Health
-    health_insurance_premiums = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    dental_expenses = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    medicine_drugs = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    eye_care = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    health_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    health_insurance_premiums = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    dental_expenses = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    medicine_drugs = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    eye_care = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    health_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Personal
-    clothing = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    hair_care_beauty = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    alcohol_tobacco = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    education = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    entertainment = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    gifts = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    personal_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    clothing = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    hair_care_beauty = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    alcohol_tobacco = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    education = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    entertainment = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    gifts = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    personal_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Household Expenses
-    groceries = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    household_supplies = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    meals_outside = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    pet_care = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    laundry_dry_cleaning = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    household_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    groceries = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    household_supplies = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    meals_outside = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    pet_care = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    laundry_dry_cleaning = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    household_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Childcare Costs
-    daycare_expense = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    babysitting_costs = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    childcare_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    daycare_expense = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    babysitting_costs = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    childcare_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Other expenses
-    life_insurance_premiums = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    rrsp_resp_withdrawals = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    vacations = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    school_fees_supplies = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    clothing_for_children = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    children_activities = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    summer_camp_expenses = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    debt_payments = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    support_paid_for_other_children = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    life_insurance_premiums = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    rrsp_resp_withdrawals = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    vacations = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    school_fees_supplies = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    clothing_for_children = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    children_activities = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    summer_camp_expenses = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    debt_payments = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    support_paid_for_other_children = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     other_expenses_specify = models.TextField(blank=True, null=True)
-    other_expenses_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    other_expenses_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    other_expenses_amount = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    other_expenses_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Total expenses
-    total_monthly_expenses = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total_yearly_expenses = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    total_monthly_expenses = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total_yearly_expenses = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     # Part 3 - Assets (Pages 4-5) - JSON fields for variable number of entries
     real_estate = models.JSONField(blank=True, null=True)  # list of {address, value}
@@ -383,16 +383,16 @@ class FinancialStatement(SoftDeleteMixin, models.Model):
     interest_in_business = models.JSONField(blank=True, null=True)  # list of {name_address_of_business, value}
     money_owed_to_you = models.JSONField(blank=True, null=True)  # list of {name_address_of_debtors, value}
     other_assets = models.JSONField(blank=True, null=True)  # list of {description, value}
-    total_value_all_property = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    total_value_all_property = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     # Part 4 - Debts (Page 6) - JSON field for variable number of entries
     debts = models.JSONField(blank=True, null=True)  # list of {type, creditor, full_amount, monthly_payment, payments_being_made}
-    total_debts_outstanding = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    total_debts_outstanding = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Part 5 - Summary of Assets and Liabilities
-    total_assets = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total_debts = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    net_worth = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    total_assets = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total_debts = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    net_worth = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
     # Signature section (Page 6)
     sworn_municipality = models.CharField(max_length=255, blank=True, null=True)
@@ -401,17 +401,17 @@ class FinancialStatement(SoftDeleteMixin, models.Model):
     commissioner_signature = models.CharField(max_length=255, blank=True, null=True)
 
     # Schedule A - Additional Sources of Income (Page 7)
-    schedule_a_partnership_income = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_rental_income_gross = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_rental_income_net = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_dividends = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_capital_gains = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_capital_losses = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_rrsp_withdrawals = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_rrif_annuity = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    schedule_a_partnership_income = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_rental_income_gross = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_rental_income_net = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_dividends = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_capital_gains = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_capital_losses = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_rrsp_withdrawals = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_rrif_annuity = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     schedule_a_other_income_source = models.TextField(blank=True, null=True)
-    schedule_a_other_income_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_a_subtotal = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    schedule_a_other_income_amount = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_a_subtotal = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     # Schedule B - Other Income Earners in the Home (Page 7)
     lives_alone = models.BooleanField(default=False)
@@ -430,19 +430,19 @@ class FinancialStatement(SoftDeleteMixin, models.Model):
     spouse_does_not_work = models.BooleanField(default=False)
     
     spouse_earns_income = models.BooleanField(default=False)
-    spouse_income_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    spouse_income_amount = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     spouse_income_period = models.CharField(max_length=50, blank=True, null=True)
     spouse_no_income = models.BooleanField(default=False)
     
     household_contribution = models.BooleanField(default=False)
-    household_contribution_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    household_contribution_amount = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     household_contribution_period = models.CharField(max_length=100, blank=True, null=True)
 
     # Schedule C - Special or Extraordinary Expenses for Children (Page 8)
     schedule_c_expenses = models.JSONField(blank=True, null=True)  # list of {child_name, expense, amount_per_year, tax_credits}
-    schedule_c_total_annual = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_c_total_monthly = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    schedule_c_my_income_for_share = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    schedule_c_total_annual = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_c_total_monthly = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    schedule_c_my_income_for_share = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -505,8 +505,8 @@ class NetFamilyProperty13B(SoftDeleteMixin, models.Model):
 class NetFamilyProperty13BAsset(models.Model):
     statement = models.ForeignKey(NetFamilyProperty13B, related_name="assets", on_delete=models.CASCADE, db_index=True)
     item = models.CharField(max_length=255, blank=True, null=True)
-    applicant_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -518,8 +518,8 @@ class NetFamilyProperty13BAsset(models.Model):
 class NetFamilyProperty13BDebt(models.Model):
     statement = models.ForeignKey(NetFamilyProperty13B, related_name="debts", on_delete=models.CASCADE, db_index=True)
     item = models.CharField(max_length=255, blank=True, null=True)
-    applicant_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -531,8 +531,8 @@ class NetFamilyProperty13BDebt(models.Model):
 class NetFamilyProperty13BMarriageProperty(models.Model):
     statement = models.ForeignKey(NetFamilyProperty13B, related_name="marriage_properties", on_delete=models.CASCADE)
     item = models.CharField(max_length=255, blank=True, null=True)  # ✅ item (NOT property_item)
-    applicant_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -544,8 +544,8 @@ class NetFamilyProperty13BMarriageProperty(models.Model):
 class NetFamilyProperty13BMarriageDebt(models.Model):
     statement = models.ForeignKey(NetFamilyProperty13B, related_name="marriage_debts", on_delete=models.CASCADE)
     item = models.CharField(max_length=255, blank=True, null=True)  # ✅ item (NOT debt_item)
-    applicant_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -562,8 +562,8 @@ class NetFamilyProperty13BExcluded(models.Model):
         db_index=True,
     )
     item = models.CharField(max_length=255, blank=True, null=True)
-    applicant_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_value = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_value = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -579,12 +579,12 @@ class NetFamilyProperty13BFinalTotals(models.Model):
         on_delete=models.CASCADE
     )
 
-    total1 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total2 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total3 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total4 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total5 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total6 = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    total1 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total2 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total3 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total4 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total5 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total6 = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     # NEW FIELD
     equalisation_note = models.TextField(blank=True, null=True)
@@ -827,9 +827,9 @@ class AffidavitOfService(SoftDeleteMixin, models.Model):
 
     relationship_to_party = models.TextField(blank=True, null=True)
     is_at_least_18 = models.BooleanField(default=False)
-    kilometres_travelled = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    service_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    travel_fee = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    kilometres_travelled = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    service_fee = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    travel_fee = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     commissioner_municipality = models.CharField(max_length=255, blank=True, null=True)
     commissioner_province = models.CharField(max_length=255, blank=True, null=True)
@@ -889,9 +889,67 @@ class DivorceOrder(SoftDeleteMixin, models.Model):
     court_name = models.CharField(max_length=255, blank=True, null=True)
     court_file_number = models.CharField(max_length=100, blank=True, null=True)
     court_office_address = models.CharField(max_length=255, blank=True, null=True)
+
+    case_file = models.ForeignKey(
+        'CaseFile',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        related_name='divorce_orders'
+    )
+
+    judge_name = models.CharField(max_length=255, blank=True, null=True)
+    judge_title = models.CharField(max_length=255, blank=True, null=True)
+
+    applicant_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_address = models.TextField(blank=True, null=True)
+    applicant_phone = models.CharField(max_length=100, blank=True, null=True)
+    applicant_email = models.EmailField(blank=True, null=True)
+
+    applicant_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    applicant_lawyer_address = models.TextField(blank=True, null=True)
+    applicant_lawyer_phone = models.CharField(max_length=100, blank=True, null=True)
+    applicant_lawyer_email = models.EmailField(blank=True, null=True)
+
+    respondent_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_address = models.TextField(blank=True, null=True)
+    respondent_phone = models.CharField(max_length=100, blank=True, null=True)
+    respondent_email = models.EmailField(blank=True, null=True)
+
+    respondent_lawyer_name = models.CharField(max_length=255, blank=True, null=True)
+    respondent_lawyer_address = models.TextField(blank=True, null=True)
+    respondent_lawyer_phone = models.CharField(max_length=100, blank=True, null=True)
+    respondent_lawyer_email = models.EmailField(blank=True, null=True)
+
+    application_of_name = models.CharField(max_length=255, blank=True, null=True)
+    persons_in_court = models.TextField(blank=True, null=True)
+    evidence_submissions = models.TextField(blank=True, null=True)
+
+    marriage_place = models.CharField(max_length=255, blank=True, null=True)
+    marriage_date = models.DateField(blank=True, null=True)
+    divorce_effective_days = models.PositiveIntegerField(default=31, blank=True, null=True)
+    other_relief_details = models.TextField(blank=True, null=True)
+
+    date_of_order = models.DateField(blank=True, null=True)
+    date_of_signature = models.DateField(blank=True, null=True)
+    judge_or_clerk_signature = models.CharField(max_length=255, blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self):
+        return f"Divorce Order (Form 25A): {self.court_file_number or self.id}"
+    
+class DivorceOrderA25A(SoftDeleteMixin, models.Model):
+    court_name = models.CharField(max_length=255, blank=True, null=True)
+    court_file_number = models.CharField(max_length=100, blank=True, null=True)
+    court_office_address = models.CharField(max_length=255, blank=True, null=True)
     case_file = models.ForeignKey(
         'CaseFile', on_delete=models.SET_NULL, blank=True, null=True,
-        related_name='divorce_orders'
+        related_name='divorce_order_a25as'
     )
 
     judge_name = models.CharField(max_length=255, blank=True, null=True)
@@ -927,7 +985,7 @@ class DivorceOrder(SoftDeleteMixin, models.Model):
         ordering = ["-updated_at", "-created_at"]
 
     def __str__(self):
-        return f"Divorce Order (Form 25A): {self.court_file_number or self.id}"
+        return f"Divorce Order (Form A-25A): {self.court_file_number or self.id}"
 
 
 class ComparisonNetFamilyPropertyHouseholdItem(models.Model):
@@ -938,10 +996,10 @@ class ComparisonNetFamilyPropertyHouseholdItem(models.Model):
     document_number = models.CharField(max_length=100, blank=True)
 
     # These 4 fields match the form columns (Applicant/Respondent x Applicant/Respondent)
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -958,10 +1016,10 @@ class ComparisonNetFamilyPropertyBankAccount(models.Model):
     comments = models.TextField(blank=True)
     document_number = models.CharField(max_length=100, blank=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -975,14 +1033,14 @@ class ComparisonNetFamilyPropertyInsurance(models.Model):
     company_policy = models.CharField(max_length=255, blank=True)
     owner = models.CharField(max_length=255, blank=True)
     beneficiary = models.CharField(max_length=255, blank=True)
-    face_amount = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    face_amount = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     comments = models.TextField(blank=True)
     document_number = models.CharField(max_length=100, blank=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -998,10 +1056,10 @@ class ComparisonNetFamilyPropertyBusiness(models.Model):
     comments = models.TextField(blank=True)
     document_number = models.CharField(max_length=100, blank=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -1077,10 +1135,10 @@ class Form13CAsset(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -1097,10 +1155,10 @@ class Form13CGeneralHouseholdItem(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -1117,10 +1175,10 @@ class Form13CBusinessInterest(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -1136,10 +1194,10 @@ class Form13CMoneyOwed(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -1156,10 +1214,10 @@ class Form13COtherProperty(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -1176,10 +1234,10 @@ class Form13CDebtLiability(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
@@ -1195,10 +1253,10 @@ class Form13CMarriageProperty(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     is_debt = models.BooleanField(default=False)
 
@@ -1216,72 +1274,73 @@ class Form13CExcludedProperty(models.Model):
     comments = models.CharField(max_length=255, blank=True, null=True)
     document_number = models.CharField(max_length=50, blank=True, null=True)
 
-    applicant_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    applicant_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    respondent_position_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    applicant_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    applicant_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    respondent_position_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     class Meta:
         ordering = ["id"]
 
     def __str__(self):
         return f"13C Excluded Property: {self.item or self.id}"
-
-
 class Form13CFinalTotals(models.Model):
-    form13c = models.OneToOneField(Form13CComparison, related_name="final_totals", on_delete=models.CASCADE)
+    form13c = models.OneToOneField(
+        Form13CComparison,
+        related_name="final_totals",
+        on_delete=models.CASCADE
+    )
 
-    # TOTAL 1: Value of Property Owned on Valuation Date
-    total1_app_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total1_app_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total1_resp_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total1_resp_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # TOTAL 1
+    total1_app_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total1_app_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total1_resp_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total1_resp_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
-    # TOTAL 2: Debts and Other Liabilities
-    total2_app_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total2_app_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total2_resp_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total2_resp_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # TOTAL 2
+    total2_app_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total2_app_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total2_resp_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total2_resp_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
-    # TOTAL 3: Value of Property Owned on the Date of Marriage
-    total3_app_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total3_app_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total3_resp_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total3_resp_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # TOTAL 3
+    total3_app_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total3_app_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total3_resp_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total3_resp_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
-    # TOTAL 4: Value of Excluded Property
-    total4_app_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total4_app_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total4_resp_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total4_resp_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # TOTAL 4
+    total4_app_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total4_app_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total4_resp_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total4_resp_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
-    # TOTAL 5: Sum of TOTAL 2 + TOTAL 3 + TOTAL 4
-    total5_app_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total5_app_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total5_resp_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total5_resp_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # TOTAL 5
+    total5_app_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total5_app_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total5_resp_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total5_resp_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
-    # TOTAL 5b (duplicate for second table)
-    total5b_app_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total5b_app_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total5b_resp_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total5b_resp_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # TOTAL 5B
+    total5b_app_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total5b_app_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total5b_resp_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total5b_resp_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
-    # TOTAL 6: Net Family Property (TOTAL 1 - TOTAL 5)
-    total6_app_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total6_app_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total6_resp_pos_applicant = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    total6_resp_pos_respondent = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    # TOTAL 6
+    total6_app_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total6_app_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total6_resp_pos_applicant = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    total6_resp_pos_respondent = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     # Equalization Payments
-    eq_app_pos_applicant_pays = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    eq_app_pos_respondent_pays = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    eq_resp_pos_applicant_pays = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
-    eq_resp_pos_respondent_pays = models.DecimalField(max_digits=12, decimal_places=2, blank=True, null=True)
+    eq_app_pos_applicant_pays = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    eq_app_pos_respondent_pays = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    eq_resp_pos_applicant_pays = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
+    eq_resp_pos_respondent_pays = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
 
     def __str__(self):
         return f"13C Final Totals for Form13C {self.form13c_id}"
-
 
 # ============================================================
 # BILLING & PRINT TRACKING
@@ -1290,7 +1349,7 @@ class BillingSetting(models.Model):
     """Global billing settings for print charges."""
     form_type = models.CharField(max_length=100, unique=True)
     form_display_name = models.CharField(max_length=200)
-    price_per_print = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('1.00'))
+    price_per_print = models.DecimalField(max_digits=30, decimal_places=3, default=Decimal('1.00'))
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -1313,6 +1372,8 @@ class PrintEvent(models.Model):
         ('affidavit_service', 'Affidavit of Service (Form 6B)'),
         ('certificate_of_divorce', 'Certificate of Divorce (Form 36B)'),
         ('divorce_order', 'Divorce Order (Form 25A)'),
+        ('divorce_order_onepage', 'Divorce Order (one page)'),
+        ('divorce_order_a25a', 'Divorce Order (Form A-25A)'),
     ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='print_events')
@@ -1320,7 +1381,7 @@ class PrintEvent(models.Model):
     form_id = models.IntegerField()  # The pk of the printed form
     form_identifier = models.CharField(max_length=255, blank=True)  # Court file number or name
     printed_at = models.DateTimeField(auto_now_add=True)
-    price_charged = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    price_charged = models.DecimalField(max_digits=30, decimal_places=3, default=Decimal('0.00'))
     is_billed = models.BooleanField(default=False)
     billed_at = models.DateTimeField(null=True, blank=True)
     notes = models.TextField(blank=True)
@@ -1371,10 +1432,10 @@ class Invoice(models.Model):
     due_date = models.DateField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     print_events = models.ManyToManyField(PrintEvent, related_name='invoices')
-    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
-    tax_rate = models.DecimalField(max_digits=5, decimal_places=2, default=Decimal('0.00'))
-    tax_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
-    total = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    subtotal = models.DecimalField(max_digits=30, decimal_places=3, default=Decimal('0.00'))
+    tax_rate = models.DecimalField(max_digits=30, decimal_places=3, default=Decimal('0.00'))
+    tax_amount = models.DecimalField(max_digits=30, decimal_places=3, default=Decimal('0.00'))
+    total = models.DecimalField(max_digits=30, decimal_places=3, default=Decimal('0.00'))
     notes = models.TextField(blank=True)
     paid_at = models.DateTimeField(null=True, blank=True)
 

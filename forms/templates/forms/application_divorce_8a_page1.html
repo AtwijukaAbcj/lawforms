@@ -81,20 +81,99 @@
     font-weight: 800;
   }
 
-  .form8a-court-grid {
+  .page1-header {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 2fr 320px;
     gap: 18px;
     margin-bottom: 22px;
   }
 
-  .court-field {
-    display: flex;
-    flex-direction: column;
+  .page1-header-left {
+    border: 1px solid #dbe3ee;
+    border-radius: 10px;
+    padding: 18px 20px;
+    background: #fff;
   }
 
-  .court-address {
-    grid-column: 1 / -1;
+  .page1-header-left .court-label {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .08em;
+    color: #0f172a;
+    margin-bottom: 6px;
+    display: inline-block;
+  }
+
+  .page1-header-left .court-organization {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    letter-spacing: .04em;
+  }
+
+  .page1-header-left .court-line {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .page1-header-left .court-line span {
+    flex: 1;
+    border-bottom: 1px solid #cbd5e1;
+    padding-bottom: 6px;
+    min-height: 28px;
+    color: #0f172a;
+    font-size: 14px;
+  }
+
+  .page1-header-left .court-line.small span {
+    font-size: 12px;
+    color: #64748b;
+  }
+
+  .page1-header-right {
+    border: 1px solid #0f172a;
+    border-radius: 10px;
+    padding: 18px 20px;
+    background: #f8fafc;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .page1-header-right .label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+  }
+
+  .page1-header-right .value {
+    font-size: 18px;
+    font-weight: 900;
+    color: #111827;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  .party-grid-ui {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+
+  .type-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 9px;
+    background: #fff;
+    padding: 16px 18px;
+    margin-bottom: 18px;
   }
 
   .court-input {
@@ -114,6 +193,11 @@
     outline: none;
     border-color: #0f172a;
     box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+  }
+
+  .court-address textarea,
+  .court-address .court-input {
+    min-height: 48px;
   }
 
   .type-card {
@@ -239,6 +323,11 @@
     margin-bottom: 16px;
   }
 
+  .notice-checkbox input {
+    width: 18px;
+    height: 18px;
+  }
+
   .notice-title {
     font-size: 15px;
     font-weight: 900;
@@ -355,13 +444,11 @@
 
   <form method="post">
     {% csrf_token %}
-
     {% if selected_case %}
       <input type="hidden" name="case_id" value="{{ selected_case.id }}">
     {% endif %}
 
     <div class="form8a-top">
-
       <div>
         <h5 class="form8a-title">
           Divorce Application
@@ -375,67 +462,51 @@
       <span class="page-badge">
         PAGE 1 OF 6
       </span>
-
     </div>
 
-    <!-- COURT SECTION -->
-    <div class="form8a-court-grid">
+    <div class="page1-header">
+      <div class="page1-header-left">
+        <div class="court-label">ONTARIO</div>
+        <div class="court-organization">Family Court</div>
 
-      <div class="court-field">
-        <label class="form8a-label">
-          Name of Court
-        </label>
+        <div class="court-field">
+          <label class="form8a-label">Name of Court</label>
+          {{ form.court_name|add_class:"court-input" }}
+        </div>
 
-        {{ form.court_name|add_class:"court-input" }}
+        <div class="court-field">
+          <label class="form8a-label">Court office address</label>
+          {{ form.court_office_address|add_class:"court-input" }}
+        </div>
       </div>
 
-      <div class="court-field">
-        <label class="form8a-label">
-          Court File Number
-        </label>
-
-        {{ form.court_file_number|add_class:"court-input" }}
+      <div class="page1-header-right">
+        <div class="label">Court File Number</div>
+        <div class="value">{{ form.court_file_number|add_class:"court-input" }}</div>
       </div>
-
-      <div class="court-field court-address">
-        <label class="form8a-label">
-          Court office address
-        </label>
-
-        {{ form.court_office_address|add_class:"court-input" }}
-      </div>
-
     </div>
 
-    <!-- APPLICATION TYPE -->
     <div class="type-card">
-
       <div class="type-title">
         Application Type
       </div>
 
       <div class="type-options">
-
         <label class="type-option">
           {{ form.is_simple_divorce }}
-          <span>Simple Divorce</span>
+          <span>Simple (divorce only)</span>
         </label>
 
         <label class="type-option">
           {{ form.is_joint_application }}
-          <span>Joint Application</span>
+          <span>Joint</span>
         </label>
-
       </div>
-
     </div>
 
-    <!-- PARTY GRID -->
     <div class="party-grid-ui">
 
-      <!-- APPLICANT -->
       <div class="party-card">
-
         <div class="party-card-head">
           <span>APPLICANT(S)</span>
           <small>SERVICE DETAILS</small>
@@ -443,59 +514,26 @@
 
         <div class="party-row">
           <label>Full legal name</label>
-          {{ form.applicant_name }}
+          {{ form.applicant_name|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Address for service</label>
-          {{ form.applicant_address }}
+          {{ form.applicant_address|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Phone / Fax</label>
-          {{ form.applicant_phone_fax }}
+          {{ form.applicant_phone_fax|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Email</label>
-          {{ form.applicant_email }}
+          {{ form.applicant_email|add_class:"court-input" }}
         </div>
-
       </div>
 
-      <!-- RESPONDENT -->
       <div class="party-card">
-
-        <div class="party-card-head">
-          <span>RESPONDENT(S)</span>
-          <small>SERVICE DETAILS</small>
-        </div>
-
-        <div class="party-row">
-          <label>Full legal name</label>
-          {{ form.respondent_name }}
-        </div>
-
-        <div class="party-row">
-          <label>Address for service</label>
-          {{ form.respondent_address }}
-        </div>
-
-        <div class="party-row">
-          <label>Phone / Fax</label>
-          {{ form.respondent_phone_fax }}
-        </div>
-
-        <div class="party-row">
-          <label>Email</label>
-          {{ form.respondent_email }}
-        </div>
-
-      </div>
-
-      <!-- APPLICANT LAWYER -->
-      <div class="party-card">
-
         <div class="party-card-head">
           <span>APPLICANT(S) LAWYER</span>
           <small>IF APPLICABLE</small>
@@ -503,29 +541,53 @@
 
         <div class="party-row">
           <label>Lawyer name</label>
-          {{ form.applicant_lawyer_name }}
+          {{ form.applicant_lawyer_name|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Address</label>
-          {{ form.applicant_lawyer_address }}
+          {{ form.applicant_lawyer_address|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Phone / Fax</label>
-          {{ form.applicant_lawyer_phone_fax }}
+          {{ form.applicant_lawyer_phone_fax|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Email</label>
-          {{ form.applicant_lawyer_email }}
+          {{ form.applicant_lawyer_email|add_class:"court-input" }}
         </div>
-
       </div>
 
-      <!-- RESPONDENT LAWYER -->
       <div class="party-card">
+        <div class="party-card-head">
+          <span>RESPONDENT(S)</span>
+          <small>SERVICE DETAILS</small>
+        </div>
 
+        <div class="party-row">
+          <label>Full legal name</label>
+          {{ form.respondent_name|add_class:"court-input" }}
+        </div>
+
+        <div class="party-row">
+          <label>Address for service</label>
+          {{ form.respondent_address|add_class:"court-input" }}
+        </div>
+
+        <div class="party-row">
+          <label>Phone / Fax</label>
+          {{ form.respondent_phone_fax|add_class:"court-input" }}
+        </div>
+
+        <div class="party-row">
+          <label>Email</label>
+          {{ form.respondent_email|add_class:"court-input" }}
+        </div>
+      </div>
+
+      <div class="party-card">
         <div class="party-card-head">
           <span>RESPONDENT(S) LAWYER</span>
           <small>IF APPLICABLE</small>
@@ -533,32 +595,35 @@
 
         <div class="party-row">
           <label>Lawyer name</label>
-          {{ form.respondent_lawyer_name }}
+          {{ form.respondent_lawyer_name|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Address</label>
-          {{ form.respondent_lawyer_address }}
+          {{ form.respondent_lawyer_address|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Phone / Fax</label>
-          {{ form.respondent_lawyer_phone_fax }}
+          {{ form.respondent_lawyer_phone_fax|add_class:"court-input" }}
         </div>
 
         <div class="party-row">
           <label>Email</label>
-          {{ form.respondent_lawyer_email }}
+          {{ form.respondent_lawyer_email|add_class:"court-input" }}
         </div>
-
       </div>
 
     </div>
-
-    <!-- NOTICE -->
+    
+    
     <div class="notice-card">
 
       <div class="notice-line">
+
+        <label class="notice-checkbox">
+          {{ form.is_simple_divorce }}
+        </label>
 
         <div class="notice-title">
           IN THIS CASE, THE APPLICANT IS CLAIMING DIVORCE ONLY.
@@ -567,14 +632,18 @@
       </div>
 
       <div class="notice-block">
-        <strong>TO THE RESPONDENT(S):</strong>
+        <strong>
+          TO THE RESPONDENT(S):
+        </strong>
 
         A COURT CASE FOR DIVORCE HAS BEEN STARTED AGAINST YOU IN THIS COURT.
         THE DETAILS ARE SET OUT ON THE ATTACHED PAGES.
       </div>
 
       <div class="notice-block">
-        <strong>THIS CASE IS ON THE STANDARD TRACK OF THE CASE MANAGEMENT SYSTEM.</strong>
+        <strong>
+          THIS CASE IS ON THE STANDARD TRACK OF THE CASE MANAGEMENT SYSTEM.
+        </strong>
 
         No court date has been set for this case but, if you have been served
         with a notice of motion, it has a court date and you or your lawyer
@@ -582,7 +651,9 @@
       </div>
 
       <div class="notice-block">
-        <strong>IF, AFTER 365 DAYS, THE CASE HAS NOT BEEN SCHEDULED FOR TRIAL,</strong>
+        <strong>
+          IF, AFTER 365 DAYS, THE CASE HAS NOT BEEN SCHEDULED FOR TRIAL,
+        </strong>
 
         the clerk of the court will send out a warning that the case will be
         dismissed within 60 days unless the parties file proof that the case
@@ -590,7 +661,9 @@
       </div>
 
       <div class="notice-block">
-        <strong>IF YOU WANT TO OPPOSE ANY CLAIM IN THIS CASE,</strong>
+        <strong>
+          IF YOU WANT TO OPPOSE ANY CLAIM IN THIS CASE,
+        </strong>
 
         you or your lawyer must prepare an Answer (Form 10),
         serve a copy on the applicant and file a copy in the court office.
@@ -602,7 +675,9 @@
       </div>
 
       <div class="notice-block">
-        <strong>IF YOU WANT TO MAKE A CLAIM OF YOUR OWN,</strong>
+        <strong>
+          IF YOU WANT TO MAKE A CLAIM OF YOUR OWN,
+        </strong>
 
         you or your lawyer must fill out the claim portion in the Answer.
       </div>
@@ -630,14 +705,12 @@
       </ul>
 
       <div class="notice-block final-warning">
-
         <strong>
           YOU SHOULD GET LEGAL ADVICE ABOUT THIS CASE RIGHT AWAY.
         </strong>
 
         If you cannot afford a lawyer, you may be able to get help from
         your local Legal Aid Ontario office.
-
       </div>
 
     </div>
@@ -656,6 +729,5 @@
     </div>
 
   </form>
-
 </div>
 {% endblock %}

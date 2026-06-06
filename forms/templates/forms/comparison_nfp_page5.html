@@ -509,23 +509,37 @@
                 </tr>
               </thead>
 
-              <tbody>
-                <tr class="row-strong">
-                  <td class="money" style="background:#fff;">
-                    <div class="money-wrap"><span class="dollar">$</span>{{ form.eq_app_pos_applicant_pays|add_class:"pdf-input" }}</div>
-                  </td>
-                  <td class="money" style="background:#fff;">
-                    <div class="money-wrap"><span class="dollar">$</span>{{ form.eq_app_pos_respondent_pays|add_class:"pdf-input" }}</div>
-                  </td>
+            <tbody>
+              <tr class="row-strong">
+                <td class="money" style="background:#fff;">
+                  <div class="money-wrap">
+                    <span class="dollar">$</span>
+                    {{ form.eq_app_pos_applicant_pays|add_class:"pdf-input"|attr:"step:any"|attr:"inputmode:decimal" }}
+                  </div>
+                </td>
 
-                  <td class="money divider-left" style="background:#fff;">
-                    <div class="money-wrap"><span class="dollar">$</span>{{ form.eq_resp_pos_applicant_pays|add_class:"pdf-input" }}</div>
-                  </td>
-                  <td class="money" style="background:#fff;">
-                    <div class="money-wrap"><span class="dollar">$</span>{{ form.eq_resp_pos_respondent_pays|add_class:"pdf-input" }}</div>
-                  </td>
-                </tr>
-              </tbody>
+                <td class="money" style="background:#fff;">
+                  <div class="money-wrap">
+                    <span class="dollar">$</span>
+                    {{ form.eq_app_pos_respondent_pays|add_class:"pdf-input"|attr:"step:any"|attr:"inputmode:decimal" }}
+                  </div>
+                </td>
+
+                <td class="money divider-left" style="background:#fff;">
+                  <div class="money-wrap">
+                    <span class="dollar">$</span>
+                    {{ form.eq_resp_pos_applicant_pays|add_class:"pdf-input"|attr:"step:any"|attr:"inputmode:decimal" }}
+                  </div>
+                </td>
+
+                <td class="money" style="background:#fff;">
+                  <div class="money-wrap">
+                    <span class="dollar">$</span>
+                    {{ form.eq_resp_pos_respondent_pays|add_class:"pdf-input"|attr:"step:any"|attr:"inputmode:decimal" }}
+                  </div>
+                </td>
+              </tr>
+            </tbody>
             </table>
           </div>
         </div>
@@ -533,7 +547,9 @@
         <div class="actions">
           <button type="submit" name="prev" class="btn-modern">← Previous</button>
           <button type="submit" name="save_draft" class="btn-modern">Save Draft</button>
-          <button type="submit" class="btn-modern btn-primary-modern">Save &amp; Finish →</button>
+          <button type="submit" name="finish" value="1" class="btn-modern btn-primary-modern">
+            Save &amp; Finish →
+          </button>
         </div>
 
       </form>
@@ -601,7 +617,8 @@
         const setVal = (name, val) => {
           const el = document.querySelector(`[name="${name}"]`);
           if (el) {
-            el.value = val.toFixed(2);
+            // el.value = val.toFixed(2);
+            el.value = String(val);
           }
         };
 
@@ -711,5 +728,22 @@
     window.addEventListener('beforeunload', saveDraft);
   })();
 </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const decimalFields = [
+        "eq_app_pos_applicant_pays",
+        "eq_app_pos_respondent_pays",
+        "eq_resp_pos_applicant_pays",
+        "eq_resp_pos_respondent_pays"
+    ];
 
+    decimalFields.forEach(function (name) {
+        const field = document.querySelector(`[name="${name}"]`);
+        if (field) {
+            field.setAttribute("step", "any");
+            field.setAttribute("inputmode", "decimal");
+        }
+    });
+});
+</script>
 {% endblock %}

@@ -1,0 +1,536 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block title %}Edit Form A-25A — Divorce Order{% endblock %}
+{% block header %}Edit Form A-25A — Divorce Order{% endblock %}
+{% block subheader %}Fill in or update the A-25A divorce order details{% endblock %}
+
+{% block content %}
+<style>
+  .form25a-wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 10px 0 40px;
+  }
+
+  .case-load-bar {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .case-load-bar label,
+  .form25a-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+
+  .case-load-bar select,
+  .field-group input,
+  .field-group select,
+  .field-group textarea {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    min-height: 38px;
+    padding: 8px 10px;
+    font-size: 13px;
+    box-sizing: border-box;
+    background: #fff;
+  }
+
+  .case-load-bar select {
+    width: 320px;
+  }
+
+  .btn-load {
+    height: 38px;
+    border: 0;
+    border-radius: 8px;
+    background: #64748b;
+    color: #fff;
+    padding: 0 16px;
+    font-weight: 800;
+  }
+
+  .page-top,
+  .actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .page-top {
+    margin-bottom: 18px;
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: #0f172a;
+  }
+
+  .page-subtitle {
+    margin: 4px 0 0;
+    color: #64748b;
+    font-size: 13px;
+  }
+
+  .page-badge {
+    background: #0f172a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 7px 14px;
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+  }
+
+  .section-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    background: #fff;
+    margin-bottom: 20px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
+  }
+
+  .section-head {
+    background: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 13px 16px;
+    font-size: 13px;
+    font-weight: 900;
+    color: #0f172a;
+    letter-spacing: .03em;
+  }
+
+  .section-body {
+    padding: 18px;
+  }
+
+  .field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+
+  .field-grid.three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .field-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .field-full {
+    grid-column: 1 / -1;
+  }
+
+  .field-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+
+  .large-textarea textarea {
+    min-height: 190px;
+  }
+
+  .party-grid-ui {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+
+  .party-card {
+    border: 1px solid #dbe3ee;
+    border-radius: 10px;
+    background: #f8fafc;
+    overflow: hidden;
+  }
+
+  .party-card-head {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    background: #fff;
+    border-bottom: 1px solid #dbe3ee;
+  }
+
+  .party-card-head span {
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: .04em;
+    color: #0f172a;
+  }
+
+  .party-card-head small {
+    border: 1px solid #dbe3ee;
+    border-radius: 5px;
+    padding: 4px 9px;
+    font-size: 9px;
+    font-weight: 900;
+    color: #64748b;
+    background: #fff;
+  }
+
+  .party-row {
+    display: grid;
+    grid-template-columns: 145px 1fr;
+    align-items: stretch;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .party-row:last-child {
+    border-bottom: 0;
+  }
+
+  .party-row > label {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #334155;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+  }
+
+  .party-row input,
+  .party-row textarea {
+    margin: 6px;
+    width: calc(100% - 12px);
+  }
+
+  .note-card {
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: #334155;
+  }
+
+  .btn-back,
+  .btn-print,
+  .btn-next {
+    border-radius: 8px;
+    padding: 11px 18px;
+    font-size: 14px;
+    font-weight: 900;
+    text-decoration: none;
+    border: 0;
+  }
+
+  .btn-back {
+    background: #fff;
+    border: 1px solid #cbd5e1;
+    color: #0f172a;
+  }
+
+  .btn-print {
+    background: #fff;
+    border: 1px solid #0f172a;
+    color: #0f172a;
+  }
+
+  .btn-next {
+    background: #0f172a;
+    color: #fff;
+  }
+
+  .actions-right {
+    display: flex;
+    gap: 10px;
+  }
+
+  @media (max-width: 900px) {
+    .field-grid,
+    .field-grid.three,
+    .party-grid-ui {
+      grid-template-columns: 1fr;
+    }
+
+    .party-row {
+      grid-template-columns: 1fr;
+    }
+
+    .page-top,
+    .actions-bar,
+    .case-load-bar,
+    .actions-right {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .case-load-bar select {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="form25a-wrap">
+
+  {% if case_list %}
+  <form id="case-load-form" method="get" class="case-load-bar">
+    <div>
+      <label>Select Case</label>
+      <select name="case_id">
+        <option value="">— None —</option>
+        {% for case in case_list %}
+          <option value="{{ case.id }}" {% if selected_case and selected_case.id == case.id %}selected{% endif %}>
+            {{ case.court_file_number|default:"" }} — {{ case.applicant_name|default:"" }} vs {{ case.respondent_name|default:"" }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-load">Load Case</button>
+  </form>
+  {% endif %}
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if selected_case %}
+      <input type="hidden" name="case_id" value="{{ selected_case.id }}">
+    {% endif %}
+
+    {% if form.non_field_errors or form.errors %}
+      <div class="alert alert-danger alert-dismissible fade show">
+        <h5 class="alert-heading mb-2">Form Validation Errors</h5>
+        <hr>
+        {% if form.non_field_errors %}
+          <div class="mb-2">{{ form.non_field_errors }}</div>
+        {% endif %}
+        <div>{{ form.errors }}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endif %}
+
+    <div class="page-top">
+      <div>
+        <h2 class="page-title">Form A-25A — Divorce Order</h2>
+        <p class="page-subtitle">Complete the court, party, order, relief, and signature details.</p>
+      </div>
+      <span class="page-badge">FORM A-25A</span>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">COURT INFORMATION</div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="form25a-label">Name of Court</label>
+            {{ form.court_name|add_class:"" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Court File Number</label>
+            {{ form.court_file_number|add_class:"" }}
+          </div>
+
+          <div class="field-group field-full">
+            <label class="form25a-label">Court office address</label>
+            {{ form.court_office_address|add_class:"" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">JUDGE AND ORDER DATE</div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="form25a-label">Judge Name</label>
+            {{ form.judge_name|add_class:"" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Judge Title</label>
+            {{ form.judge_title|add_class:"" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Date of Order</label>
+            {{ form.date_of_order|attr:"type:date" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Date of Signature</label>
+            {{ form.date_of_signature|attr:"type:date" }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">PARTIES AND LAWYERS</div>
+      <div class="section-body">
+        <div class="party-grid-ui">
+
+          <div class="party-card">
+            <div class="party-card-head">
+              <span>APPLICANT(S)</span>
+              <small>SERVICE DETAILS</small>
+            </div>
+            <div class="party-row">
+              <label>Full legal name</label>
+              {{ form.applicant_name }}
+            </div>
+            <div class="party-row">
+              <label>Address for service</label>
+              {{ form.applicant_address }}
+            </div>
+          </div>
+
+          <div class="party-card">
+            <div class="party-card-head">
+              <span>APPLICANT(S) LAWYER</span>
+              <small>IF APPLICABLE</small>
+            </div>
+            <div class="party-row">
+              <label>Lawyer name</label>
+              {{ form.applicant_lawyer_name }}
+            </div>
+            <div class="party-row">
+              <label>Address</label>
+              {{ form.applicant_lawyer_address }}
+            </div>
+          </div>
+
+          <div class="party-card">
+            <div class="party-card-head">
+              <span>RESPONDENT(S)</span>
+              <small>SERVICE DETAILS</small>
+            </div>
+            <div class="party-row">
+              <label>Full legal name</label>
+              {{ form.respondent_name }}
+            </div>
+            <div class="party-row">
+              <label>Address for service</label>
+              {{ form.respondent_address }}
+            </div>
+          </div>
+
+          <div class="party-card">
+            <div class="party-card-head">
+              <span>RESPONDENT(S) LAWYER</span>
+              <small>IF APPLICABLE</small>
+            </div>
+            <div class="party-row">
+              <label>Lawyer name</label>
+              {{ form.respondent_lawyer_name }}
+            </div>
+            <div class="party-row">
+              <label>Address</label>
+              {{ form.respondent_lawyer_address }}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">APPLICATION CONSIDERED</div>
+      <div class="section-body">
+        <div class="field-group">
+          <label class="form25a-label">The court considered an application of</label>
+          {{ form.application_of_name|add_class:"" }}
+        </div>
+
+        <div class="field-group">
+          <label class="form25a-label">Persons in court</label>
+          {{ form.persons_in_court|attr:"rows:3" }}
+        </div>
+
+        <div class="field-group">
+          <label class="form25a-label">The court received evidence and considered submissions on behalf of</label>
+          {{ form.evidence_submissions|attr:"rows:4" }}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">DIVORCE ORDER DETAILS</div>
+      <div class="section-body">
+        <div class="field-grid three">
+          <div class="field-group">
+            <label class="form25a-label">Full legal names of spouses</label>
+            <input type="text"
+                   value="{{ form.applicant_name.value|default:'' }}{% if form.respondent_name.value %} and {{ form.respondent_name.value }}{% endif %}"
+                   readonly>
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Marriage Place</label>
+            {{ form.marriage_place|add_class:"" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Marriage Date</label>
+            {{ form.marriage_date|attr:"type:date" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Effective Days</label>
+            {{ form.divorce_effective_days|add_class:"" }}
+          </div>
+
+          <div class="field-group field-full large-textarea">
+            <label class="form25a-label">Other relief details / additional order paragraphs</label>
+            {{ form.other_relief_details|attr:"rows:8" }}
+          </div>
+        </div>
+
+        <div style="margin-top: 16px;">
+          <div class="note-card" style="border-color: #cbd5e1; background: #f8fafc;">
+            Put a line through any blank space left on this page. If additional space is needed, extra pages may be attached.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-head">SIGNATURE</div>
+      <div class="section-body">
+        <div class="field-grid">
+          <div class="field-group">
+            <label class="form25a-label">Date of Signature</label>
+            {{ form.date_of_signature|attr:"type:date" }}
+          </div>
+
+          <div class="field-group">
+            <label class="form25a-label">Signature of Judge or Clerk of the Court</label>
+            {{ form.judge_or_clerk_signature|add_class:"" }}
+          </div>
+        </div>
+
+        <div class="note-card" style="margin-top:16px;">
+          Neither spouse is free to remarry until this order takes effect, at which time they can get a Certificate of Divorce from the court office.
+        </div>
+      </div>
+    </div>
+
+    <div class="actions-bar">
+      <a href="{% url 'divorce_order_a25a_view' order.pk %}" class="btn-back">Cancel</a>
+      <div class="actions-right">
+        <a href="{% url 'divorce_order_a25a_print' order.pk %}" target="_blank" class="btn-print">Print</a>
+        <button type="submit" class="btn-next">Save A-25A Divorce Order</button>
+      </div>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

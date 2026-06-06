@@ -1,0 +1,448 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Form A-25A — Divorce Order
+{% endblock %}
+
+{% block header %}
+Form A-25A — Divorce Order
+{% endblock %}
+
+{% block subheader %}
+Manage A-25A divorce orders
+{% endblock %}
+
+{% block content %}
+
+<style>
+
+.page-wrap{
+    max-width:1180px;
+    margin:22px auto 56px;
+    padding:0 14px;
+}
+
+.shell{
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.header{
+    padding:16px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.title-block h2{
+    margin:0;
+    font-size:16px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.title-block p{
+    margin:4px 0 0;
+    font-size:13px;
+    color:#64748b;
+}
+
+.btn-modern{
+    border-radius:7px;
+    padding:8px 14px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+}
+
+.btn-primary-modern{
+    background:#1e293b;
+}
+
+.btn-primary-modern:hover{
+    background:#334155;
+    color:#fff;
+    text-decoration:none;
+}
+
+.content{
+    padding:16px 18px 20px;
+}
+
+.search-box{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+}
+
+.search-input{
+    flex:1;
+    max-width:420px;
+    padding:7px 12px;
+    border:1px solid #e2e8f0;
+    border-radius:7px;
+    font-size:13px;
+    outline:none;
+    background:#fff;
+    color:#0f172a;
+}
+
+.search-input:focus{
+    border-color:#94a3b8;
+    box-shadow:0 0 0 3px rgba(30,41,59,.07);
+}
+
+.search-input::placeholder{
+    color:#94a3b8;
+}
+
+.table-shell{
+    border-radius:8px;
+    overflow:hidden;
+    border:1px solid #e2e8f0;
+    background:#fff;
+}
+
+table.modern{
+    width:100%;
+    margin:0;
+    border-collapse:collapse;
+    font-size:.9rem;
+}
+
+table.modern thead th{
+    padding:10px 12px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:#64748b;
+    text-align:left;
+    white-space:nowrap;
+    background:#f8fafc;
+    border-bottom:1px solid #e2e8f0;
+}
+
+table.modern tbody td{
+    padding:11px 12px;
+    border-bottom:1px solid #f1f5f9;
+    color:#0f172a;
+    vertical-align:middle;
+}
+
+table.modern tbody tr:last-child td{
+    border-bottom:none;
+}
+
+table.modern tbody tr:hover td{
+    background:#f8fafc;
+}
+
+.chip{
+    display:inline-flex;
+    align-items:center;
+    padding:3px 8px;
+    border-radius:6px;
+    border:1px solid #e2e8f0;
+    background:#fff;
+    font-size:12px;
+    font-weight:600;
+    color:#64748b;
+    white-space:nowrap;
+}
+
+.action-buttons{
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
+    gap:6px;
+    flex-wrap:wrap;
+}
+
+.btn-mini,
+.btn-action{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:45px;
+    height:34px;
+    padding:0;
+    border-radius:8px;
+    font-size:13px;
+    font-weight:600;
+    text-decoration:none !important;
+    transition:all .2s ease;
+    border:none;
+    cursor:pointer;
+    line-height:1;
+}
+
+.btn-info-modern,
+.btn-view{
+    background:#2563eb;
+    color:#ffffff !important;
+}
+
+.btn-info-modern:hover,
+.btn-view:hover{
+    background:#1d4ed8;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern,
+.btn-edit{
+    background:#15803d;
+    color:#ffffff !important;
+}
+
+.btn-edit-modern:hover,
+.btn-edit:hover{
+    background:#166534;
+    color:#ffffff !important;
+}
+
+.btn-print-modern,
+.btn-print{
+    background:#1f2937;
+    color:#ffffff !important;
+}
+
+.btn-print-modern:hover,
+.btn-print:hover{
+    background:#111827;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern,
+.btn-delete{
+    background:#dc2626;
+    color:#ffffff !important;
+}
+
+.btn-delete-modern:hover,
+.btn-delete:hover{
+    background:#b91c1c;
+    color:#ffffff !important;
+}
+
+.empty{
+    padding:20px;
+    text-align:center;
+    color:#64748b;
+    font-size:13px;
+}
+
+@media(max-width:768px){
+
+    .action-buttons{
+        justify-content:flex-start;
+    }
+
+    .search-input{
+        max-width:100%;
+    }
+
+}
+
+</style>
+
+<div class="page-wrap">
+
+  <div class="shell">
+
+    <div class="header">
+
+      <div class="title-block">
+
+        <h2>
+          A-25A Divorce Orders
+        </h2>
+
+        <p>
+          Create, review, print and manage Form A-25A divorce orders.
+        </p>
+
+      </div>
+
+      <a class="btn-modern btn-primary-modern"
+         href="{% url 'divorce_order_a25a_create' %}">
+        + New Form A-25A
+      </a>
+
+    </div>
+
+    <div class="content">
+
+      <div class="search-box">
+
+        <input type="text"
+               class="search-input"
+               id="searchInput"
+               placeholder="🔍 Search by ID, Court File #, Applicant, or Respondent...">
+
+      </div>
+
+      <div class="table-shell">
+
+        <div class="table-responsive">
+
+          <table class="modern">
+
+            <thead>
+
+              <tr>
+
+                <th style="width:80px;">
+                  ID
+                </th>
+
+                <th style="width:180px;">
+                  Court File #
+                </th>
+
+                <th>
+                  Applicant
+                </th>
+
+                <th>
+                  Respondent
+                </th>
+
+                <th style="width:160px;">
+                  Updated
+                </th>
+
+                <th style="width:250px; text-align:right;">
+                  Actions
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {% for order in orders %}
+
+              <tr>
+
+                <td>
+                  <span class="chip">
+                    #{{ order.id }}
+                  </span>
+                </td>
+
+                <td>
+                  {{ order.court_file_number|default:"—" }}
+                </td>
+
+                <td>
+                  {{ order.applicant_name|default:"—" }}
+                </td>
+
+                <td>
+                  {{ order.respondent_name|default:"—" }}
+                </td>
+
+                <td>
+                  <span class="chip">
+                    {{ order.updated_at|date:"Y-m-d H:i" }}
+                  </span>
+                </td>
+
+                <td class="text-end">
+
+                  {% with can_view=order.can_view can_edit=order.can_edit can_print=order.can_print can_delete=order.can_delete %}
+
+                    {% include 'partials/action_buttons.html' with object_id=order.id view_name='divorce_order_a25a_view' edit_name='divorce_order_a25a_page' print_name='divorce_order_a25a_print' delete_name='divorce_order_a25a_delete' can_view=can_view can_edit=can_edit can_print=can_print can_delete=can_delete object_label='A-25A Divorce Order' %}
+
+                  {% endwith %}
+
+                </td>
+
+              </tr>
+
+              {% empty %}
+
+              <tr>
+
+                <td colspan="6"
+                    class="empty">
+
+                  No A-25A divorce orders found.
+
+                </td>
+
+              </tr>
+
+              {% endfor %}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+document.getElementById('searchInput').addEventListener('input', function() {
+
+    const searchTerm = this.value.toLowerCase();
+
+    const rows = document.querySelectorAll('table.modern tbody tr');
+
+    let visibleCount = 0;
+
+    rows.forEach(row => {
+
+        if (row.querySelector('.empty')) return;
+
+        const text = row.textContent.toLowerCase();
+
+        const match = text.includes(searchTerm);
+
+        row.style.display = match ? '' : 'none';
+
+        if (match) visibleCount++;
+
+    });
+
+    let noResultsRow = document.querySelector('.no-results-row');
+
+    if (!noResultsRow) {
+
+        noResultsRow = document.createElement('tr');
+
+        noResultsRow.className = 'no-results-row';
+
+        noResultsRow.innerHTML =
+            '<td colspan="6" class="empty">No matching records found.</td>';
+
+        document.querySelector('table.modern tbody')
+            .appendChild(noResultsRow);
+    }
+
+    noResultsRow.style.display =
+        (visibleCount === 0 && searchTerm) ? '' : 'none';
+});
+
+</script>
+
+{% endblock %}

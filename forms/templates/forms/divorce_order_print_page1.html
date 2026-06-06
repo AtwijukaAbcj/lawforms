@@ -1,8 +1,9 @@
-﻿{% extends 'base.html' %}
+{% extends 'base.html' %}
 {% load custom_filters %}
 
 {% block content %}
 <style>
+
 @page {
   size: letter;
   margin: 0;
@@ -44,7 +45,7 @@ body {
   width: 8.5in;
   height: 11in;
   margin: 0 auto;
-  padding: 0.25in 0.35in 0.42in;
+  padding: 0.25in 0.35in;
   box-sizing: border-box;
   position: relative;
   background: #fff;
@@ -57,6 +58,10 @@ body {
 .page-25a:last-child {
   page-break-after: auto;
 }
+
+/* ===================================================
+   TOP HEADER
+=================================================== */
 
 .top-grid {
   display: grid;
@@ -101,6 +106,7 @@ body {
 .line-field {
   height: 0.22in;
   border-bottom: 1px solid #000;
+  background: #eef1fb;
   padding: 2px 5px;
   box-sizing: border-box;
   font-size: 8px;
@@ -159,6 +165,10 @@ body {
   margin-top: 0.15in;
 }
 
+/* ===================================================
+   LEFT SIDE SMALL FIELDS
+=================================================== */
+
 .left-small-fields {
   margin-top: 0.18in;
 }
@@ -166,6 +176,7 @@ body {
 .side-fill {
   height: 0.52in;
   border-bottom: 1px solid #000;
+  background: #eef1fb;
   padding: 3px;
   box-sizing: border-box;
   font-size: 7px;
@@ -180,6 +191,10 @@ body {
   text-align: center;
   margin-top: 2px;
 }
+
+/* ===================================================
+   PARTY SECTIONS
+=================================================== */
 
 .party-section {
   margin-top: -1.82in;
@@ -205,6 +220,7 @@ body {
 .party-box {
   border: 1px solid #000;
   height: 0.86in;
+  background: #eef1fb;
   box-sizing: border-box;
   overflow: hidden;
 }
@@ -232,6 +248,10 @@ body {
   overflow: hidden;
   word-break: break-word;
 }
+
+/* ===================================================
+   MAIN CONTENT
+=================================================== */
 
 .full-line-row {
   margin-top: 0.10in;
@@ -312,95 +332,74 @@ body {
 
 .order-line .line-field {
   height: 0.19in;
-  white-space: normal;
-  word-break: break-word;
-  overflow-wrap: anywhere;
 }
 
 .relief-box {
-  margin-top: 0.06in;
-  min-height: 2.45in;
-  padding: 6px;
-  box-sizing: border-box;
-  white-space: pre-wrap;
-  font-size: 6.6px;
-  line-height: 1.00;
-  border: 1px solid #000;
-  background: #eef1fb;
-  page-break-inside: avoid;
-  overflow: hidden;
-}
+    margin-top: 0.06in;
+    min-height: 4.8in;
+    padding: 6px;
+    box-sizing: border-box;
+    white-space: pre-wrap;
+    font-size: 6.6px;
+    line-height: 1.00;
+    border: 1px solid #000;
+    background: #eef1fb;
+    page-break-inside: avoid;
+    overflow: hidden;
+  }
 
-.blank-lines {
-  display: grid;
-  gap: 0.08in;
-  margin: 0;
-}
+  .blank-lines {
+    display: grid;
+    gap: 0.08in;
+    margin: 0;
+  }
 
-.blank-lines .blank-line {
-  height: 0.18in;
-  border-bottom: 1px solid #000;
-  box-sizing: border-box;
-}
+  .blank-lines .blank-line {
+    height: 0.18in;
+    border-bottom: 1px solid #000;
+    box-sizing: border-box;
+  }
 
-.page1-signature-fixed {
+  .signature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 0.8in;
+    margin-top: 0.22in;
+  }
+
+  .sig-line {
+    min-height: 0.22in;
+    border-bottom: 1px solid #000;
+    padding: 4px 6px;
+    box-sizing: border-box;
+    font-size: 7.8px;
+    line-height: 1.1;
+  }
+
+  .sig-caption {
+    font-size: 7px;
+    font-weight: bold;
+    font-style: italic;
+    margin-top: 0.08in;
+  }
+
+  .note {
+    font-size: 7px;
+    font-style: italic;
+    margin-top: 0.13in;
+    font-weight: bold;
+    line-height: 1.1;
+  }
+
   position: absolute;
   left: 0.35in;
-  right: 0.35in;
-  bottom: 0.35in;
-}
-
-.put-line-note {
-  font-size: 7px;
-  font-style: italic;
-  font-weight: bold;
-  margin-bottom: 0.12in;
-}
-
-.signature-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 0.35in;
-}
-
-.signature-cell {
-  display: flex;
-  flex-direction: column;
-}
-
-.signature-line {
-  min-height: 0.22in;
-  border-bottom: 1px solid #000;
-  padding: 4px 6px;
-  box-sizing: border-box;
-  font-size: 7.8px;
-  line-height: 1.1;
-  text-align: center;
-}
-
-.signature-label {
-  font-size: 7px;
-  font-weight: bold;
-  font-style: italic;
-  margin-top: 0.05in;
-  text-align: center;
-}
-
-.court-note {
-  font-size: 7px;
-  font-style: italic;
-  margin-top: 0.13in;
-  font-weight: bold;
-  line-height: 1.1;
-}
-
-.footer-code {
-  position: absolute;
-  left: 0.35in;
-  bottom: 0.12in;
+  bottom: 0.15in;
   font-size: 6.5px;
-  z-index: 50;
 }
+
+/* ===================================================
+   PAGE 2
+=================================================== */
 
 .page2-header {
   display: grid;
@@ -481,7 +480,12 @@ body {
   line-height: 1.1;
 }
 
+/* ===================================================
+   PRINT
+=================================================== */
+
 @media print {
+
   .print-actions {
     display: none !important;
   }
@@ -500,12 +504,13 @@ body {
     box-shadow: none;
   }
 }
+
 </style>
 
 <div class="print-actions">
   <button type="button" onclick="window.print()">Print Form</button>
-  <a href="{% url 'divorce_order_list' %}">← Back to List</a>
   <a href="{% url 'divorce_order_view' order.pk %}">Back to Order →</a>
+  <a href="{% url 'divorce_order_list' %}">← Back to List</a>
 </div>
 
 <!-- PAGE 1 -->
@@ -568,8 +573,8 @@ body {
           municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
         </div>
         <div class="party-box-body">
-{{ order.applicant_name|default:"" }}
-{{ order.applicant_address|default:"" }}
+          {{ order.applicant_name|default:"" }}
+          {{ order.applicant_address|default:"" }}
         </div>
       </div>
 
@@ -579,8 +584,8 @@ body {
           municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
         </div>
         <div class="party-box-body">
-{{ order.applicant_lawyer_name|default:"" }}
-{{ order.applicant_lawyer_address|default:"" }}
+          {{ order.applicant_lawyer_name|default:"" }}
+          {{ order.applicant_lawyer_address|default:"" }}
         </div>
       </div>
 
@@ -597,8 +602,8 @@ body {
           municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
         </div>
         <div class="party-box-body">
-{{ order.respondent_name|default:"" }}
-{{ order.respondent_address|default:"" }}
+          {{ order.respondent_name|default:"" }}
+          {{ order.respondent_address|default:"" }}
         </div>
       </div>
 
@@ -608,8 +613,8 @@ body {
           municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
         </div>
         <div class="party-box-body">
-{{ order.respondent_lawyer_name|default:"" }}
-{{ order.respondent_lawyer_address|default:"" }}
+          {{ order.respondent_lawyer_name|default:"" }}
+          {{ order.respondent_lawyer_address|default:"" }}
         </div>
       </div>
 
@@ -684,7 +689,7 @@ body {
         days after the date of this order.
       </div>
 
-      <div style="font-style:italic; margin-top:3px;">
+          <div style="font-style:italic; margin-top:3px;">
         (Add further paragraphs where the court orders other relief.)
       </div>
 
@@ -693,7 +698,7 @@ body {
 
   <div class="relief-box">
     {% if order.other_relief_details %}
-      {{ order.other_relief_details|first_sentences_by_words:600|linebreaksbr }}
+      {{ order.other_relief_details|linebreaksbr }}
     {% else %}
       <div class="blank-lines">
         <div class="blank-line"></div>
@@ -707,94 +712,23 @@ body {
     {% endif %}
   </div>
 
-  {% if not order.other_relief_details|remaining_words:1050 %}
-  <div class="page1-signature-fixed">
-
-    <div class="put-line-note">
-      Put a line through any blank space left on this page. If additional space is needed, extra pages may be attached.
-    </div>
-
-    <div class="signature-row">
-      <div class="signature-cell">
-        <div class="signature-line">
-          {{ order.date_of_signature|date:"F j, Y" }}
-        </div>
-        <div class="signature-label">Date of signature</div>
-      </div>
-
-      <div class="signature-cell">
-        <div class="signature-line">
-          {{ order.judge_or_clerk_signature|default:"" }}
-        </div>
-        <div class="signature-label">Signature of judge or clerk of the court</div>
-      </div>
-    </div>
-
-    <div class="court-note">
-      NOTE: Neither spouse is free to remarry until this order takes effect, at which time you can get a Certificate of Divorce from the court office.
-    </div>
-
-  </div>
-  {% endif %}
-
-  <div class="footer-code">FLR-25A-E (2005/09)</div>
-
-</div>
-
-{% if order.other_relief_details|remaining_sentences_by_words:600 %}
-<!-- PAGE 2 -->
-<div class="page-25a page2">
-
-  <div class="page2-header">
-    <div>Form 25A: Divorce Order</div>
-    <div>(page 2)</div>
-    <div class="page2-file-box">
-      Court file number<br>
-      {{ order.court_file_number|default:"" }}
-    </div>
-  </div>
-
-  <div class="top-rule"></div>
-
-  <div class="blank-area continued-relief">
-    <div class="continued-title">
-      Additional order details continued from page 1:
-    </div>
-
-    {{ order.other_relief_details|remaining_sentences_by_words:600|linebreaksbr }}
-  </div>
-
-  <div class="page2-instruction">
-    Put a line through any blank space left on this page.
-    If additional space is needed, extra pages may be attached.
-  </div>
-
   <div class="signature-grid">
-
     <div>
-      <div class="sig-line">
-        {{ order.date_of_signature|date:"F j, Y" }}
-      </div>
+      <div class="sig-line">{{ order.date_of_signature|date:"F j, Y" }}</div>
       <div class="sig-caption">Date of signature</div>
     </div>
-
     <div>
-      <div class="sig-line white">
-        {{ order.judge_or_clerk_signature|default:"" }}
-      </div>
+      <div class="sig-line">{{ order.judge_or_clerk_signature|default:"" }}</div>
       <div class="sig-caption">Signature of judge or clerk of the court</div>
     </div>
-
   </div>
 
   <div class="note">
-    NOTE: Neither spouse is free to remarry until this order takes effect,
-    at which time you can get a Certificate of Divorce from the court office.
+    NOTE: Neither spouse is free to remarry until this order takes effect, at which time you can get a Certificate of Divorce from the court office.
   </div>
 
   <div class="footer-code">FLR-25A-E (2005/09)</div>
 
 </div>
-{% endif %}
 
 {% endblock %}

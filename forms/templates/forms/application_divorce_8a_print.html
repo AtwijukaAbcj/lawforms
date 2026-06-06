@@ -1,9 +1,8 @@
 ﻿{% extends 'base.html' %}
 {% block content %}
 <style>
-
 @page {
-    size: letter;
+    size: letter portrait;
     margin: 0;
 }
 
@@ -33,32 +32,29 @@ body{
 }
 
 .form8a-page{
-    width:8.5in;
+    width:100%;
+    max-width:8.5in;
     min-height:11in;
     height:auto;
-
-    margin:0 auto;
-
-    padding:0.38in 0.55in 0.75in 0.55in;
-
+    margin:24px auto;
+    padding:0.35in 0.45in 1.1in 0.45in;
     box-sizing:border-box;
-
     position:relative;
-
     page-break-after:always;
     break-after:page;
-
     overflow:visible;
-
     font-size:13px;
     line-height:1.18;
-
     background:#fff;
 }
 
 .form8a-page:last-child{
     page-break-after:auto;
     break-after:auto;
+}
+
+.form8a-page:first-child{
+    padding:0.25in 0.4in 0.5in 0.4in;
 }
 
 .top{
@@ -116,7 +112,6 @@ body{
     display:inline-block;
     padding:0 4px;
     vertical-align:baseline;
-
     white-space:pre-wrap;
     word-break:break-word;
 }
@@ -126,7 +121,6 @@ body{
     min-height:16px;
     display:block;
     padding:0 4px;
-
     white-space:pre-wrap;
     word-break:break-word;
 }
@@ -134,48 +128,33 @@ body{
 .box{
     border:1px solid #000;
     padding:6px;
-
     height:auto;
     overflow:visible;
-
     white-space:pre-wrap;
     word-break:break-word;
 }
 
 .bigbox{
     border:1px solid #000;
-
     padding:6px;
-
     min-height:1in;
-
     height:auto;
-
     overflow:visible;
-
     white-space:pre-wrap;
     word-break:break-word;
-
     page-break-inside:auto;
     break-inside:auto;
 }
 
 .agreement-box{
     border:1px solid #000;
-
     min-height:1.1in;
-
     padding:0.12in;
-
     margin-top:0.1in;
-
     height:auto;
-
     overflow:visible;
-
     white-space:pre-wrap;
     word-break:break-word;
-
     page-break-inside:auto;
     break-inside:auto;
 }
@@ -193,18 +172,12 @@ body{
 
 .checkbox{
     display:inline-block;
-
     width:13px;
     height:13px;
-
     border:1.5px solid #000;
-
     margin:0 8px 0 0;
-
     vertical-align:-2px;
-
     text-align:center;
-
     font-size:11px;
     line-height:12px;
 }
@@ -239,44 +212,38 @@ body{
 .party-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:0.18in;
-    margin-top:0.15in;
+    gap:0.09in;
+    margin-top:0.08in;
 }
 
 .party-title{
     font-weight:bold;
-    font-size:15px;
-    margin:3px 0 0;
+    font-size:13.5px;
+    margin:1px 0 0;
 }
 
 .party-box{
     border:1px solid #000;
-
-    min-height:1.25in;
-
-    padding:8px 6px 6px;
-
+    min-height:1.15in;
+    padding:5px 5px 4px;
     box-sizing:border-box;
-
     display:grid;
     gap:0.08in;
-
     height:auto;
     overflow:visible;
 }
 
 .party-box div{
     display:grid;
-    grid-template-columns:1.1in 1fr;
-    gap:0.12in;
+    grid-template-columns:0.95in 1fr;
+    gap:0.06in;
     align-items:flex-start;
-
     word-break:break-word;
 }
 
 .party-box .label{
     display:inline-block;
-    min-width:1.05in;
+    min-width:0.95in;
     font-weight:bold;
 }
 
@@ -288,6 +255,27 @@ body{
     margin:6px 0 4px;
 }
 
+.page4-question{
+    margin-top:0.08in;
+    line-height:1.3;
+    margin-bottom:0.03in;
+    display:block;
+}
+
+.page4-sub-question{
+    margin-left:.45in;
+    margin-top:0.04in;
+    margin-bottom:0.02in;
+    display:block;
+}
+
+.page4-detail{
+    margin-left:.45in;
+    margin-top:0.04in;
+    margin-bottom:0.02in;
+    display:block;
+}
+
 .sub-title{
     font-weight:bold;
     font-size:15px;
@@ -296,21 +284,14 @@ body{
 
 .notice-box{
     border:1px solid #000;
-
     padding:8px;
-
     font-size:14px;
     line-height:1.15;
-
     margin-top:0.16in;
-
     height:auto;
-
     overflow:visible;
-
     white-space:pre-wrap;
     word-break:break-word;
-
     page-break-inside:auto;
     break-inside:auto;
 }
@@ -328,10 +309,8 @@ body{
 
 .claim-line{
     margin:6px 0;
-
     display:grid;
     grid-template-columns:25px 20px 1fr;
-
     column-gap:4px;
     align-items:start;
 }
@@ -346,13 +325,9 @@ table.children{
 table.children th,
 table.children td{
     border:1px solid #000;
-
     min-height:0.27in;
-
     padding:3px;
-
     vertical-align:top;
-
     white-space:pre-wrap;
     word-break:break-word;
 }
@@ -363,12 +338,14 @@ table.children th{
 }
 
 .footer{
-    margin-top:0.35in;
-
+    position:absolute;
+    left:0.52in;
+    right:0.52in;
+    bottom:0.55in;
     display:flex;
     justify-content:space-between;
-
-    font-size:12px;
+    font-size:10px;
+    margin-top:0;
 }
 
 .signature-grid{
@@ -382,7 +359,6 @@ table.children th{
     border-bottom:1px solid #000;
     min-height:18px;
     text-align:center;
-
     white-space:pre-wrap;
     word-break:break-word;
 }
@@ -395,22 +371,15 @@ table.children th{
 
 .cover-head{
     display:grid;
-    grid-template-columns:1.2in 1fr 2.05in;
-    column-gap:0.25in;
-    align-items:start;
+    grid-template-columns:1.0in 1fr 1.7in;
+    column-gap:0.12in;
+    align-items:flex-start;
 }
 
 .seal-text{
-    margin-top:0.6in;
+    margin-top:0.25in;
     text-align:center;
-    font-size:16px;
-}
-
-.ontario{
-    text-align:center;
-    font-style:italic;
-    font-size:17px;
-    margin-bottom:0.38in;
+    font-size:15px;
 }
 
 .cover-form-title{
@@ -428,41 +397,54 @@ table.children th{
     font-weight:bold;
 }
 
+.ontario{
+    text-align:center;
+    font-style:italic;
+    font-size:17px;
+    margin-bottom:0.38in;
+}
+
 .instructions{
     border:1px solid #000;
-
-    padding:6px;
-
-    font-size:14px;
-    line-height:1.12;
-
-    margin-top:0.16in;
-
+    padding:2px 4px;
+    font-size:13px;
+    line-height:1.14;
+    margin-top:0.05in;
     height:auto;
-
     overflow:visible;
-
-    white-space:pre-wrap;
+    white-space:normal;
     word-break:break-word;
-
     page-break-inside:auto;
     break-inside:auto;
 }
 
-.instructions p{
-    margin:8px 0;
+.instructions br{
+    display:block;
+    margin:0 0 8px;
+    padding:0;
+    line-height:1.14;
 }
 
-.small{
-    font-size:11px;
+.instructions p,
+.notice-box p{
+    margin:0;
+    padding:0;
 }
 
-.auto-expand{
-    height:auto;
-    min-height:1in;
-    overflow:visible;
-    white-space:pre-wrap;
-    word-break:break-word;
+.instructions-list{
+    margin:0 0 0 1.1em;
+    padding-left:0.9em;
+}
+
+.instructions-list li{
+    margin:0;
+    padding:0;
+}
+
+.instructions-list ul,
+.instructions-list ol{
+    margin:0;
+    padding:0;
 }
 
 .page-break{
@@ -474,9 +456,240 @@ table.children th{
     page-break-inside:avoid;
     break-inside:avoid;
 }
+/* =========================
+   PAGE 5 OFFICIAL PRINT UI
+   ========================= */
+
+.page5-official{
+    padding:0.30in 0.52in 1.10in 0.52in !important;
+    font-size:11px !important;
+    line-height:1.25 !important;
+}
+
+.page5-header{
+    display:grid !important;
+    grid-template-columns:0.85in 2.5in 1fr 1.95in !important;
+    column-gap:0.18in !important;
+    align-items:start !important;
+    margin-bottom:0.10in !important;
+}
+
+.page5-header div{
+    font-size:12px !important;
+    line-height:1.2 !important;
+}
+
+.page5-header .court-file{
+    font-size:10px !important;
+    min-height:0.42in !important;
+    padding:5px !important;
+}
+
+.page5-official .thin-rule{
+    margin:0.06in 0 0.10in !important;
+}
+
+.page5-cruelty{
+    margin-top:0.08in !important;
+    margin-bottom:0.04in !important;
+    font-size:11px !important;
+    line-height:1.25 !important;
+}
+
+.page5-small-fill{
+    margin-left:0.50in !important;
+    margin-top:0.08in !important;
+    min-height:0.55in !important;
+    max-width:2.6in !important;
+    white-space:pre-wrap !important;
+    word-break:break-word !important;
+    line-height:1.35 !important;
+}
+
+.page5-cert-text{
+    font-size:10px !important;
+    line-height:1.35 !important;
+    margin-top:0.06in !important;
+}
+
+.page5-cert-text ul{
+    margin:0.08in 0 0.06in 0.35in !important;
+    padding:0 !important;
+}
+
+.page5-cert-text li{
+    margin-bottom:0.08in !important;
+    line-height:1.35 !important;
+}
+
+.page5-cert-check{
+    font-size:10px !important;
+    line-height:1.3 !important;
+    margin-top:0.08in !important;
+}
+
+.page5-sign-row{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:0.55in !important;
+    margin-top:0.14in !important;
+}
+
+.page5-sign-line{
+    border-bottom:1px solid #000 !important;
+    min-height:18px !important;
+    text-align:center !important;
+    white-space:pre-wrap !important;
+    word-break:break-word !important;
+}
+
+.page5-underline.small{
+    min-width:1.8in !important;
+}
+
+.page5-joint-box{
+    border:1px solid #000 !important;
+    margin-top:0.25in !important;
+    min-height:3.8in !important;
+    padding:0 !important;
+    box-sizing:border-box !important;
+}
+
+.page5-box-title{
+    border-bottom:1px solid #000 !important;
+    padding:5px 7px !important;
+    font-size:11px !important;
+    line-height:1.2 !important;
+    font-weight:bold !important;
+}
+
+.page5-box-inner{
+    padding:7px !important;
+    font-size:10px !important;
+    line-height:1.35 !important;
+}
+
+.page5-help-line{
+    min-height:0.45in !important;
+}
+
+.page5-entry-area{
+    white-space:pre-wrap !important;
+    word-break:break-word !important;
+    line-height:1.35 !important;
+}
+
+.page5-orders{
+    min-height:1.0in !important;
+    margin-top:0.12in !important;
+}
+
+.page5-facts{
+    min-height:1.4in !important;
+    margin-top:0.12in !important;
+}
+
+.page5-important-title{
+    text-align:center !important;
+    font-weight:bold !important;
+    font-size:12px !important;
+    line-height:1.2 !important;
+    margin-top:0.85in !important;
+    margin-bottom:0.05in !important;
+}
+
+.page5-important-help{
+    text-align:center !important;
+    font-size:10px !important;
+    line-height:1.2 !important;
+    margin-bottom:0.12in !important;
+}
+
+.page5-cert-title{
+    text-align:center !important;
+    font-weight:bold !important;
+    font-size:12px !important;
+    line-height:1.2 !important;
+    margin-top:0.15in !important;
+    margin-bottom:0.05in !important;
+}
+
+.page5-cert-note{
+    font-size:10px !important;
+    margin-top:0.06in !important;
+    line-height:1.3 !important;
+}
+
+.page5-cert-text{
+    font-size:10px !important;
+    line-height:1.35 !important;
+    margin-top:0.06in !important;
+}
+
+.page5-cert-text ul{
+    margin:0.08in 0 0.06in 0.35in !important;
+    padding:0 !important;
+}
+
+.page5-cert-text li{
+    margin-bottom:0.08in !important;
+    line-height:1.35 !important;
+}
+
+.page5-cert-check{
+    font-size:10px !important;
+    line-height:1.3 !important;
+    margin-top:0.08in !important;
+}
+
+.page5-cert-divider{
+    border-top:1px solid #000 !important;
+    margin-top:0.06in !important;
+}
+
+.page5-complete-note{
+    font-size:9px !important;
+    line-height:1.25 !important;
+    margin-top:0.06in !important;
+}
+
+.page5-sign-row{
+    display:grid !important;
+    grid-template-columns:1fr 1fr !important;
+    gap:0.55in !important;
+    margin-top:0.14in !important;
+}
+
+.page5-sign-line{
+    border-bottom:1px solid #000 !important;
+    min-height:18px !important;
+    text-align:center !important;
+    white-space:pre-wrap !important;
+    word-break:break-word !important;
+}
+
+.page5-sign-caption{
+    text-align:center !important;
+    font-style:italic !important;
+    font-size:9px !important;
+    margin-top:3px !important;
+}
+
+.page5-sign-row.third-sign{
+    margin-top:0.15in !important;
+}
+
+.page5-official .footer{
+    position:absolute !important;
+    left:0.52in !important;
+    right:0.52in !important;
+    bottom:0.20in !important;
+    display:flex !important;
+    justify-content:space-between !important;
+    font-size:10px !important;
+}
 
 @media print{
-
     html,
     body{
         width:8.5in;
@@ -494,22 +707,15 @@ table.children th{
 
     .form8a-page{
         position:relative;
-
         width:8.5in;
-
         min-height:11in;
-
-        height:auto;
-
-        overflow:visible;
-
+        height:11in;
+        overflow:hidden;
         margin:0;
-
         page-break-after:always;
         break-after:page;
-
-        page-break-inside:auto;
-        break-inside:auto;
+        page-break-inside:avoid;
+        break-inside:avoid;
     }
 
     .form8a-page:last-child{
@@ -540,7 +746,6 @@ table.children th{
         break-inside:auto;
     }
 }
-
 </style>
 
 {% if not view_only %}
@@ -597,14 +802,22 @@ table.children th{
   </div>
 
   <div class="instructions">
-    <p><span class="checkbox">{% if application.is_simple_divorce %}✓{% endif %}</span><strong>IN THIS CASE, THE APPLICANT IS CLAIMING DIVORCE ONLY.</strong></p>
-    <p><strong>TO THE RESPONDENT(S): A COURT CASE FOR DIVORCE HAS BEEN STARTED AGAINST YOU IN THIS COURT. THE DETAILS ARE SET OUT ON THE ATTACHED PAGES.</strong></p>
-    <p><strong>THIS CASE IS ON THE STANDARD TRACK OF THE CASE MANAGEMENT SYSTEM. No court date has been set for this case</strong> but, if you have been served with a notice of motion, it has a court date and you or your lawyer should come to court for the motion.</p>
-    <p><strong>IF, AFTER 365 DAYS, THE CASE HAS NOT BEEN SCHEDULED FOR TRIAL,</strong> the clerk of the court will send out a warning that the case will be dismissed within 60 days unless the parties file proof that the case has been settled.</p>
-    <p><strong>IF YOU WANT TO OPPOSE ANY CLAIM IN THIS CASE,</strong> you or your lawyer must prepare an Answer (Form 10). <strong>YOU HAVE ONLY 30 DAYS AFTER THIS APPLICATION IS SERVED ON YOU</strong> to serve and file an answer.</p>
-    <p><strong>IF YOU WANT TO MAKE A CLAIM OF YOUR OWN,</strong> you or your lawyer must fill out the claim portion in the Answer, serve a copy on the applicant(s), and file a copy in the court office with an Affidavit of Service.</p>
-    <p><strong>YOU SHOULD GET LEGAL ADVICE ABOUT THIS CASE RIGHT AWAY.</strong></p>
+    <span class="checkbox">{% if application.is_simple_divorce %}✓{% endif %}</span> <strong>IN THIS CASE, THE APPLICANT IS CLAIMING DIVORCE ONLY.</strong><br><br>
+    <strong>TO THE RESPONDENT(S): A COURT CASE FOR DIVORCE HAS BEEN STARTED AGAINST YOU IN THIS COURT. THE DETAILS ARE SET OUT ON THE ATTACHED PAGES.</strong><br><br>
+    <strong>THIS CASE IS ON THE STANDARD TRACK OF THE CASE MANAGEMENT SYSTEM. No court date has been set for this case</strong> but, if you have been served with a notice of motion, it has a court date and you or your lawyer should come to court for the motion.<br><br>
+    <strong>IF, AFTER 365 DAYS, THE CASE HAS NOT BEEN SCHEDULED FOR TRIAL,</strong> the clerk of the court will send out a warning that the case will be dismissed within 60 days unless the parties file proof that the case has been settled.<br><br>
+    <strong>IF YOU WANT TO OPPOSE ANY CLAIM IN THIS CASE,</strong> you or your lawyer must prepare an Answer (Form 10). <strong>YOU HAVE ONLY 30 DAYS AFTER THIS APPLICATION IS SERVED ON YOU</strong> to serve and file an answer.<br><br>
+    <strong>IF YOU WANT TO MAKE A CLAIM OF YOUR OWN,</strong> you or your lawyer must fill out the claim portion in the Answer, serve a copy on the applicant(s), and file a copy in the court office with an Affidavit of Service.<br><br>
+    <ul class="instructions-list">
+      <li>If you want to make a claim for support but do not want to make a claim for property or exclusive possession of the matrimonial home and its contents, you MUST fill out a Financial Statement.</li>
+      <li>If your only claim for support is for child support in the table amount specified under the Child Support Guidelines, you do not need to file a Financial Statement.</li>
+      <li>If you want to make a claim for property or exclusive possession of the matrimonial home and its contents, you MUST fill out a Financial Statement (Form 13.1, not Form 13).</li>
+    </ul>
+    <strong>YOU SHOULD GET LEGAL ADVICE ABOUT THIS CASE RIGHT AWAY.</strong><br>
+    If you cannot afford a lawyer, you may be able to get help from your local Legal Aid Ontario office.
   </div>
+
+
   <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 1 of 6</span></div>
 </div>
 
@@ -684,12 +897,20 @@ table.children th{
 <div class="form8a-page">
   <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 4)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
   <div class="thin-rule"></div>
-  <div>Has a Notice of Calculation and/or a Notice of Recalculation been issued by the online Child Support Service in this case?</div>
-  <div style="margin:8px 0 0 .45in;"><span class="checkbox">{% if not application.notice_of_calculation_issued %}✓{% endif %}</span>No &nbsp;&nbsp;&nbsp;<span class="checkbox">{% if application.notice_of_calculation_issued %}✓{% endif %}</span>Yes <em>(Give date(s) of Notice(s) of Calculation or Recalculation.)</em></div>
-  <div class="section-title" style="margin-top:.55in;">Claims</div>
+  <div class="page4-question">Has a Notice of Calculation and/or a Notice of Recalculation been issued by the online Child Support Service in this case?</div>
+  <div class="page4-sub-question"><span class="checkbox">{% if not application.notice_of_calculation_issued %}✓{% endif %}</span>No &nbsp;&nbsp;&nbsp;<span class="checkbox">{% if application.notice_of_calculation_issued %}✓{% endif %}</span>Yes <em>(Give date(s) of Notice(s) of Calculation or Recalculation.)</em></div>
+  {% if application.notice_of_calculation_details %}
+  <div class="page4-detail">Date(s): {{ application.notice_of_calculation_details }}</div>
+  {% endif %}
+  <div class="page4-question">If yes, are you asking the court to make an order for child support that is different from the amount set out in the Notice?</div>
+  <div class="page4-sub-question"><span class="checkbox">{% if not application.asking_different_child_support %}✓{% endif %}</span>No <span class="checkbox" style="margin-left:0.8in;">{% if application.asking_different_child_support %}✓{% endif %}</span>Yes</div>
+  {% if application.different_child_support_explanation %}
+  <div class="page4-detail"><em>Explanation:</em> {{ application.different_child_support_explanation }}</div>
+  {% endif %}
+  <div class="section-title" style="margin-top:0.18in;">Claims</div>
   <div class="box" style="padding:0;"><div style="border-bottom:1px solid #000;padding:4px;font-weight:bold;font-size:15px;">USE THIS FRAME ONLY IF THIS CASE IS A JOINT APPLICATION FOR DIVORCE</div><div style="padding:6px;"><strong>WE JOINTLY ASK THE COURT FOR THE FOLLOWING:</strong><div class="claim-grid"><div><strong>Claims under the <em>Divorce Act</em></strong>
     <div class="claim-line"><span>00</span><span class="checkbox">{% if application.claim_divorce %}✓{% endif %}</span><span>a divorce</span></div><div class="claim-line"><span>01</span><span class="checkbox">{% if application.claim_spousal_support %}✓{% endif %}</span><span>spousal support</span></div><div class="claim-line"><span>02</span><span class="checkbox">{% if application.claim_child_support_table %}✓{% endif %}</span><span>support for child(ren) – table amount</span></div><div class="claim-line"><span>03</span><span class="checkbox">{% if application.claim_child_support_other %}✓{% endif %}</span><span>support for child(ren) – other than table amount</span></div><div class="claim-line"><span>04</span><span class="checkbox">{% if application.claim_decision_making %}✓{% endif %}</span><span>decision-making responsibility for child(ren)</span></div><div class="claim-line"><span>05</span><span class="checkbox">{% if application.claim_parenting_time %}✓{% endif %}</span><span>parenting time with child(ren)</span></div></div>
-    <div><strong>Claims under the <em>Family Law Act</em> or <em>Children’s Law Reform Act</em></strong><div class="claim-line"><span>10</span><span class="checkbox">{% if application.claim_spousal_support_family_law %}✓{% endif %}</span><span>spousal support</span></div><div class="claim-line"><span>11</span><span class="checkbox">{% if application.claim_support_child_table_family_law %}✓{% endif %}</span><span>support for child(ren) – table amount</span></div><div class="claim-line"><span>12</span><span class="checkbox">{% if application.claim_support_child_other_family_law %}✓{% endif %}</span><span>support for child(ren) – other than table amount</span></div><div class="claim-line"><span>13</span><span class="checkbox">{% if application.claim_decision_making %}✓{% endif %}</span><span>decision-making responsibility for child(ren)</span></div><div class="claim-line"><span>14</span><span class="checkbox">{% if application.claim_parenting_time %}✓{% endif %}</span><span>parenting time with child(ren)</span></div><div class="claim-line"><span>15</span><span class="checkbox">{% if application.claim_restraining_order %}✓{% endif %}</span><span>restraining/non-harassment order</span></div><div class="claim-line"><span>16</span><span class="checkbox">{% if application.claim_indexing_spousal_support %}✓{% endif %}</span><span>indexing spousal support</span></div><div class="claim-line"><span>17</span><span class="checkbox">{% if application.claim_declaration_parentage %}✓{% endif %}</span><span>declaration of parentage</span></div><div class="claim-line"><span>18</span><span class="checkbox">{% if application.claim_guardianship_child_property %}✓{% endif %}</span><span>guardianship over child’s property</span></div></div>
+    <div><strong>Claims under the <em>Family Law Act</em> or <em>Children’s Law Reform Act</em></strong><div class="claim-line"><span>10</span><span class="checkbox">{% if application.claim_spousal_support %}✓{% endif %}</span><span>spousal support</span></div><div class="claim-line"><span>11</span><span class="checkbox">{% if application.claim_support_child_table_family_law %}✓{% endif %}</span><span>support for child(ren) – table amount</span></div><div class="claim-line"><span>12</span><span class="checkbox">{% if application.claim_support_child_other_family_law %}✓{% endif %}</span><span>support for child(ren) – other than table amount</span></div><div class="claim-line"><span>13</span><span class="checkbox">{% if application.claim_decision_making %}✓{% endif %}</span><span>decision-making responsibility for child(ren)</span></div><div class="claim-line"><span>14</span><span class="checkbox">{% if application.claim_parenting_time %}✓{% endif %}</span><span>parenting time with child(ren)</span></div><div class="claim-line"><span>15</span><span class="checkbox">{% if application.claim_restraining_order %}✓{% endif %}</span><span>restraining/non-harassment order</span></div><div class="claim-line"><span>16</span><span class="checkbox">{% if application.claim_indexing_spousal_support %}✓{% endif %}</span><span>indexing spousal support</span></div><div class="claim-line"><span>17</span><span class="checkbox">{% if application.claim_declaration_parentage %}✓{% endif %}</span><span>declaration of parentage</span></div><div class="claim-line"><span>18</span><span class="checkbox">{% if application.claim_guardianship_child_property %}✓{% endif %}</span><span>guardianship over child’s property</span></div></div>
     <div><strong>Claims relating to property</strong><div class="claim-line"><span>20</span><span class="checkbox">{% if application.claim_property_equalization %}✓{% endif %}</span><span>equalization of net family properties</span></div><div class="claim-line"><span>21</span><span class="checkbox">{% if application.claim_exclusive_possession_home %}✓{% endif %}</span><span>exclusive possession of matrimonial home</span></div><div class="claim-line"><span>22</span><span class="checkbox">{% if application.claim_exclusive_possession_contents %}✓{% endif %}</span><span>exclusive possession of contents of matrimonial home</span></div><div class="claim-line"><span>23</span><span class="checkbox">{% if application.claim_freezing_assets %}✓{% endif %}</span><span>freezing assets</span></div><div class="claim-line"><span>24</span><span class="checkbox">{% if application.claim_sale_family_property %}✓{% endif %}</span><span>sale of family property</span></div><br><strong>Other claims</strong><div class="claim-line"><span>30</span><span class="checkbox">{% if application.claim_costs %}✓{% endif %}</span><span>costs</span></div><div class="claim-line"><span>31</span><span class="checkbox">{% if application.claim_annulment %}✓{% endif %}</span><span>annulment of marriage</span></div><div class="claim-line"><span>32</span><span class="checkbox">{% if application.claim_prejudgment_interest %}✓{% endif %}</span><span>prejudgment interest</span></div><div class="claim-line"><span>50</span><span class="checkbox">{% if application.claim_other %}✓{% endif %}</span><span>Other <em>{{ application.other_claims|default:'' }}</em></span></div></div></div></div></div>
   <div class="box" style="padding:0;margin-top:.12in;"><div style="border-bottom:1px solid #000;padding:4px;font-weight:bold;font-size:15px;">USE THIS FRAME ONLY IF THE APPLICANT’S ONLY CLAIM IN THIS CASE IS FOR DIVORCE.</div><div style="padding:6px;"><strong>I ASK THE COURT FOR:</strong><br><em>(Check if applicable.)</em><br>00 &nbsp;<span class="checkbox">{% if application.claim_divorce %}✓{% endif %}</span>a divorce &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 30 &nbsp;<span class="checkbox">{% if application.claim_costs %}✓{% endif %}</span>costs</div></div>
   <div class="section-title">Important Facts Supporting the Claim for Divorce</div>
@@ -697,49 +918,159 @@ table.children th{
   <div style="margin-left:.35in;"><span class="checkbox">{% if application.not_lived_together_since %}✓{% endif %}</span>have not lived together again since that date in an unsuccessful attempt to reconcile.</div>
   <div style="margin-left:.35in;"><span class="checkbox">{% if application.lived_together_attempt_reconcile %}✓{% endif %}</span>have lived together again during the following periods(s) in an unsuccessful attempt to reconcile: <em>{{ application.lived_together_periods|default:'' }}</em></div>
   <div style="margin-top:.25in;"><span class="checkbox">{% if application.divorce_ground_adultery %}✓{% endif %}</span><strong>Adultery:</strong> <em>(Name of spouse)</em> <span class="uline" style="width:3.2in;">{{ application.adultery_spouse_name|default:'' }}</span> has committed adultery.</div>
+  {% if application.adultery_details %}
+  <div style="margin-left:.45in; margin-top:0.1in;">Details: {{ application.adultery_details }}</div>
+  {% endif %}
   <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 4 of 6</span></div>
 </div>
+<div class="form8a-page page5-official">
 
-<div class="form8a-page">
-  <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 5)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
-  <div class="thin-rule"></div>
-  <div style="display:flex; align-items:center; gap:0.08in; margin-top:0.08in; width:100%;">
-    <span class="checkbox">{% if application.divorce_ground_cruelty %}✓{% endif %}</span>
-    <strong>Cruelty:</strong>
-  </div>
-  <div style="display:grid; grid-template-columns: auto 2.1in auto 2.1in auto; gap:0.08in; align-items:center; margin-left:.45in; margin-top:0.08in; width:calc(100% - 0.45in);">
-    <span style="white-space:nowrap;">(Name of spouse)</span>
-    <span class="uline" style="width:2.1in;">{{ application.cruelty_spouse_name|default:' ' }}</span>
-    <span style="white-space:nowrap;">has treated</span>
-    <span class="uline" style="width:2.1in;">{{ application.cruelty_victim_name|default:' ' }}</span>
-    <span style="white-space:nowrap;">with physical or mental cruelty of such a kind as to make continued cohabitation intolerable.</span>
-  </div>
-  <div style="margin-left:.45in; margin-top:0.08in; width:calc(100% - 0.45in);">
-    <em>(Give details.)</em>
-  </div>
-  <div class="bigbox" style="margin-top:0.25in; min-height:1.8in;">
-    {{ application.cruelty_details|default:' ' }}
-  </div>
-  <div class="bigbox" style="margin-top:.65in; min-height:4.15in;">
-    <div style="border-bottom:1px solid #000;padding:4px;font-weight:bold;font-size:15px;">USE THIS FRAME ONLY IF THIS CASE IS A JOINT APPLICATION FOR DIVORCE.</div>
-    <div style="padding:6px;">
-      The details of the other order(s) that we jointly ask the court to make are as follows: <em>(Include any amounts of support and the names of the children for whom support, decision-making responsibility, parenting time or contact is to be ordered.)</em>
-      <div style="margin-top:0.45in;">{{ application.joint_orders_details|default:'' }}</div>
+  <div class="page5-header">
+    <div><strong>Form 8A:</strong></div>
+    <div><strong>Application (Divorce)</strong></div>
+    <div><strong>(page 5)</strong></div>
+    <div class="court-file page5-court-file">
+      Court File Number<br>
+      {{ application.court_file_number|default:'' }}
     </div>
   </div>
-  <div class="section-title" style="margin-top:.3in;">Important Facts Supporting Our Claim(s)</div>
-  <em>(Set out the facts that form the legal basis for your claim(s). Attach an additional page if you need more space.)</em>
-  <div style="margin-top:.12in;">{{ application.important_facts_supporting_claims|default:'' }}</div>
-  <div class="section-title">Applicant’s Certificate</div>
-  <div class="small"><em>(Your lawyer, if you are represented, must complete the Lawyer’s Certificate below.)</em></div>
-  <div class="small">Sections 7.1 to 7.5 of the <em>Divorce Act</em> and section 33.1 of the <em>Children’s Law Reform Act</em> require you and the other party to exercise responsibilities in the best interests of the child, protect the child from conflict, try to resolve issues, provide complete information, and comply with orders.</div>
-  <div style="margin-top:6px;">I/We certify that I am/We are aware of these duties under the <em>Divorce Act</em> and the <em>Children’s Law Reform Act</em>. <span class="checkbox">{% if application.applicant_certificate_confirmed %}✓{% endif %}</span></div>
-  <div class="signature-grid"><div><div class="sig-line">{{ application.applicant_signature_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date of signature</div></div><div><div class="sig-line">{{ application.applicant_signature|default:'' }}</div><div class="sig-caption">Signature of applicant</div></div></div>
-  <div class="signature-grid" style="margin-top:.18in;"><div><div class="sig-line">{{ application.joint_applicant_signature_1_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date of signature</div></div><div><div class="sig-line">{{ application.joint_applicant_signature_1|default:'' }}</div><div class="sig-caption">Signature of joint applicant</div></div></div>
-  <div class="signature-grid" style="margin-top:.18in;"><div><div class="sig-line">{{ application.joint_applicant_signature_2_date|date:'F j, Y'|default:'' }}</div><div class="sig-caption">Date of signature</div></div><div><div class="sig-line">{{ application.joint_applicant_signature_2|default:'' }}</div><div class="sig-caption">Signature of joint applicant</div></div></div>
-  <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 5 of 6</span></div>
-</div>
 
+  <div class="thin-rule"></div>
+
+  <div class="page5-cruelty">
+    <span class="checkbox">{% if application.divorce_ground_cruelty %}✓{% endif %}</span>
+    <strong>Cruelty:</strong>
+    <em>(Name of spouse)</em>
+    <span class="page5-underline">{{ application.cruelty_spouse_name|default:' ' }}</span>
+    has treated
+    <em>(name of spouse)</em>
+    <span class="page5-underline small">{{ application.cruelty_victim_name|default:' ' }}</span>
+    with physical or mental cruelty of such a kind as to make continued cohabitation intolerable.
+    <em>(Give details.)</em>
+  </div>
+
+  <div class="page5-small-fill">
+    {{ application.cruelty_details|default:' ' }}
+  </div>
+
+  <div class="page5-joint-box">
+    <div class="page5-box-title">
+      USE THIS FRAME ONLY IF THIS CASE IS A JOINT APPLICATION FOR DIVORCE.
+    </div>
+
+    <div class="page5-box-inner">
+      <div class="page5-help-line">
+        The details of the other order(s) that we jointly ask the court to make are as follows:
+        <em>
+          (Include any amounts of support and the names of the children for whom support,
+          decision-making responsibility, parenting time or contact is to be ordered.)
+        </em>
+      </div>
+
+      <div class="page5-response-small">
+        {{ application.joint_orders_details|default:' ' }}
+      </div>
+
+      <div class="page5-important-title">
+        IMPORTANT FACTS SUPPORTING OUR CLAIM(S)
+      </div>
+
+      <div class="page5-important-help">
+        <em>
+          (Set out the facts that form the legal basis for your claim(s). Attach an additional page if you need more space.)
+        </em>
+      </div>
+
+      <div class="page5-response-small">
+        {{ application.important_facts_supporting_claims|default:' ' }}
+      </div>
+    </div>
+  </div>
+
+  <div class="page5-cert-title">
+    APPLICANT’S CERTIFICATE
+  </div>
+
+  <div class="page5-cert-note">
+    <em>
+      (Your lawyer, if you are represented, must complete the Lawyer’s Certificate below.)
+    </em>
+  </div>
+
+  <div class="page5-cert-text">
+    Sections 7.1 to 7.5 of the <em>Divorce Act</em> and section 33.1 of the
+    <em>Children’s Law Reform Act</em> require you and the other party to:
+
+    <ul>
+      <li>Exercise your decision-making responsibility, parenting time, or contact with a child in a manner that is consistent with the child’s best interests;</li>
+      <li>Protect the child from conflict arising from this case, to the best of your ability;</li>
+      <li>Try to resolve your family law issues by using out-of-court dispute resolution options, if it is appropriate in your case (for more information on dispute resolution options available to you, including court-connected mediation, you can visit the Ministry of the Attorney General’s website at <a href="https://www.attorneygeneral.jus.gov.on.ca/english/family/faq.php">https://www.attorneygeneral.jus.gov.on.ca/english/family/faq.php</a> or <a href="https://stepstojustice.ca/legal-topic/family-law/out-court-options">https://stepstojustice.ca/legal-topic/family-law/out-court-options</a>);</li>
+      <li>Provide complete, accurate, and up-to-date information in this case; and</li>
+      <li>Comply with any orders made in this case.</li>
+    </ul>
+  </div>
+
+  <div class="page5-cert-check">
+    <span class="checkbox">{% if application.applicant_certificate_confirmed %}✓{% endif %}</span>
+    <strong>We/I certify that we are/I am aware</strong>
+    of these duties under the <em>Divorce Act</em> and the <em>Children’s Law Reform Act</em>.
+  </div>
+
+  <div class="page5-cert-divider"></div>
+
+  <div class="page5-complete-note">
+    <em>
+      Complete this section if your only claim is for a divorce.
+      Your lawyer, if you are represented, must complete the Lawyer’s Certificate below.
+    </em>
+  </div>
+
+  <div class="page5-sign-row">
+    <div>
+      <div class="page5-sign-line">{{ application.applicant_signature_date|date:'F j, Y'|default:' ' }}</div>
+      <div class="page5-sign-caption">Date of signature</div>
+    </div>
+
+    <div>
+      <div class="page5-sign-line">{{ application.applicant_signature|default:' ' }}</div>
+      <div class="page5-sign-caption">Signature of applicant</div>
+    </div>
+  </div>
+
+  <div class="page5-complete-note">
+    <em>Complete this section if you are making a joint application for divorce.</em>
+  </div>
+
+  <div class="page5-sign-row">
+    <div>
+      <div class="page5-sign-line">{{ application.joint_applicant_signature_1_date|date:'F j, Y'|default:' ' }}</div>
+      <div class="page5-sign-caption">Date of signature</div>
+    </div>
+
+    <div>
+      <div class="page5-sign-line">{{ application.joint_applicant_signature_1|default:' ' }}</div>
+      <div class="page5-sign-caption">Signature of joint applicant</div>
+    </div>
+  </div>
+
+  <div class="page5-sign-row third-sign">
+    <div>
+      <div class="page5-sign-line">{{ application.joint_applicant_signature_2_date|date:'F j, Y'|default:' ' }}</div>
+      <div class="page5-sign-caption">Date of signature</div>
+    </div>
+
+    <div>
+      <div class="page5-sign-line">{{ application.joint_applicant_signature_2|default:' ' }}</div>
+      <div class="page5-sign-caption">Signature of joint applicant</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span>FLR 8A (April 1, 2024)</span>
+    <span>Page 5 of 6</span>
+  </div>
+
+</div>
 <div class="form8a-page">
   <div class="top"><div class="top-title">Form 8A: Application (Divorce)</div><div class="page-no">(page 6)</div><div class="court-file">Court File Number<br>{{ application.court_file_number|default:'' }}</div></div>
   <div class="rule"></div>
@@ -753,3 +1084,4 @@ table.children th{
   <div class="footer"><span>FLR 8A (April 1, 2024)</span><span>Page 6 of 6</span></div>
 </div>
 {% endblock %}
+

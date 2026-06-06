@@ -1,0 +1,502 @@
+{% extends 'base.html' %}
+
+{% block title %}Form A-25A — View{% endblock %}
+{% block header %}Form A-25A — Divorce Order{% endblock %}
+{% block subheader %}Review saved A-25A divorce order details{% endblock %}
+
+{% block content %}
+<style>
+  .form-a25a-view {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    gap: 24px;
+  }
+  
+  .form-a25a-topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  }
+  
+  .form-a25a-topbar-left h2 {
+    margin: 0 0 8px 0;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .form-a25a-topbar-left p {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.95rem;
+  }
+  
+  .form-a25a-actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  .form-a25a-actions .btn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+  
+  .form-a25a-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+  }
+  
+  .form-a25a-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #f8fafc;
+  }
+  
+  .form-a25a-card-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .form-a25a-card-body {
+    padding: 24px;
+  }
+  
+  .form-a25a-header-grid {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 24px;
+    align-items: flex-start;
+    margin-bottom: 24px;
+  }
+  
+  .form-a25a-seal {
+    width: 100px;
+    height: 100px;
+    border: 2px solid #0f172a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    text-align: center;
+  }
+  
+  .form-a25a-court-info {
+    display: grid;
+    gap: 16px;
+  }
+  
+  .form-a25a-court-field {
+    display: grid;
+    gap: 4px;
+  }
+  
+  .form-a25a-court-field label {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .form-a25a-court-field .line {
+    border-bottom: 1px solid #0f172a;
+    padding-top: 8px;
+    min-height: 24px;
+    font-size: 0.9rem;
+    color: #0f172a;
+  }
+  
+  .form-a25a-form-title {
+    text-align: right;
+    font-size: 0.95rem;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+  
+  .form-a25a-parties-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .form-a25a-party-section h4 {
+    margin: 0 0 16px 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  
+  .form-a25a-party-boxes {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  .form-a25a-party-box {
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f8fafc;
+    min-height: 140px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-a25a-party-box-head {
+    padding: 12px;
+    background: #fff;
+    border-bottom: 1px solid #cbd5e1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    color: #0f172a;
+  }
+  
+  .form-a25a-party-box-body {
+    padding: 12px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #0f172a;
+    flex: 1;
+    overflow: hidden;
+    word-break: break-word;
+  }
+  
+  .form-a25a-field-row {
+    margin-bottom: 16px;
+  }
+  
+  .form-a25a-field-row label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+    color: #0f172a;
+  }
+  
+  .form-a25a-field-row .line {
+    border-bottom: 1px solid #0f172a;
+    padding-top: 8px;
+    min-height: 24px;
+    font-size: 0.9rem;
+    color: #0f172a;
+  }
+  
+  .form-a25a-relief-section {
+    margin-bottom: 24px;
+  }
+  
+  .form-a25a-relief-box {
+    border: 1px solid #0f172a;
+    border-radius: 0;
+    padding: 16px;
+    background: #f0f4f8;
+    min-height: 200px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #0f172a;
+    margin-bottom: 12px;
+    word-break: break-word;
+    white-space: pre-wrap;
+  }
+  
+  .form-a25a-note {
+    font-size: 0.85rem;
+    font-style: italic;
+    margin-bottom: 16px;
+    color: #0f172a;
+  }
+  
+  .form-a25a-signature-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
+    margin-bottom: 24px;
+  }
+  
+  .form-a25a-signature-col {
+    display: grid;
+    gap: 6px;
+  }
+  
+  .form-a25a-signature-line {
+    border-bottom: 1px solid #0f172a;
+    padding-top: 16px;
+    min-height: 36px;
+    font-size: 0.9rem;
+  }
+  
+  .form-a25a-signature-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    font-style: italic;
+    text-align: center;
+    color: #0f172a;
+  }
+  
+  .form-a25a-footer {
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #0f172a;
+    margin-top: 16px;
+  }
+  
+  .form-a25a-footer strong {
+    font-weight: 700;
+  }
+  
+  .form-a25a-code {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-top: 12px;
+  }
+  
+  @media (max-width: 768px) {
+    .form-a25a-header-grid {
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    
+    .form-a25a-parties-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-a25a-party-boxes {
+      grid-template-columns: 1fr;
+    }
+    
+    .form-a25a-signature-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+  }
+</style>
+
+<div class="form-a25a-view">
+  <!-- Top Bar -->
+  <div class="form-a25a-topbar">
+    <div class="form-a25a-topbar-left">
+      <h2>Divorce Order A-25A</h2>
+      <p>Court File No. {{ order.court_file_number|default:'—' }}</p>
+    </div>
+    <div class="form-a25a-actions">
+      <a href="{% url 'divorce_order_onepage_list' %}" class="btn btn-outline-secondary">← List</a>
+      <a href="{% url 'divorce_order_a25a_page' order.pk %}" class="btn btn-outline-primary">Edit</a>
+      <a href="{% url 'divorce_order_a25a_print_view' order.pk %}" class="btn btn-outline-dark">Preview</a>
+      <a href="{% url 'divorce_order_a25a_print' order.pk %}" class="btn btn-dark">Print</a>
+    </div>
+  </div>
+
+  <!-- Header Section (SEAL, Court Info, Form Title) -->
+  <div class="form-a25a-card">
+    <div class="form-a25a-card-body">
+      <div class="form-a25a-header-grid">
+        <div class="form-a25a-seal">SEAL</div>
+        
+        <div class="form-a25a-court-info">
+          <div class="form-a25a-court-field">
+            <label>Province</label>
+            <div class="line">ONTARIO</div>
+          </div>
+          <div class="form-a25a-court-field">
+            <label>Name of Court</label>
+            <div class="line">{{ order.court_name|default:'' }}</div>
+          </div>
+          <div class="form-a25a-court-field">
+            <label>at Court office address</label>
+            <div class="line">{{ order.court_office_address|default:'' }}</div>
+          </div>
+        </div>
+        
+        <div>
+          <div class="form-a25a-court-field">
+            <label>Court file number</label>
+            <div class="line">{{ order.court_file_number|default:'' }}</div>
+          </div>
+          <div class="form-a25a-form-title">
+            Form A-25A:<br>Divorce<br>Order
+          </div>
+        </div>
+      </div>
+      
+      <hr style="border: none; border-top: 1px solid #cbd5e1; margin: 24px 0;">
+      
+      <!-- Judge and Date Info -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <div class="form-a25a-field-row">
+          <label>Judge (print or type name)</label>
+          <div class="line">{{ order.judge_name|default:'' }}</div>
+        </div>
+        <div class="form-a25a-field-row">
+          <label>Date of order</label>
+          <div class="line">{{ order.date_of_order|date:'F j, Y'|default:'' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Parties Section -->
+  <div class="form-a25a-card">
+    <div class="form-a25a-card-header">
+      <h3>Parties & Lawyers</h3>
+    </div>
+    <div class="form-a25a-card-body">
+      <div class="form-a25a-parties-grid">
+        <!-- Applicant -->
+        <div class="form-a25a-party-section">
+          <h4>Applicant(s)</h4>
+          <div class="form-a25a-party-boxes">
+            <div class="form-a25a-party-box">
+              <div class="form-a25a-party-box-head">
+                Full legal name &amp; address for service — street &amp; number, municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+              <div class="form-a25a-party-box-body">
+                {{ order.applicant_name|default:'' }}<br>
+                {{ order.applicant_address|default:'' }}
+              </div>
+            </div>
+            <div class="form-a25a-party-box">
+              <div class="form-a25a-party-box-head">
+                Lawyer's name &amp; address — street &amp; number, municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+              <div class="form-a25a-party-box-body">
+                {{ order.applicant_lawyer_name|default:'' }}<br>
+                {{ order.applicant_lawyer_address|default:'' }}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Respondent -->
+        <div class="form-a25a-party-section">
+          <h4>Respondent(s)</h4>
+          <div class="form-a25a-party-boxes">
+            <div class="form-a25a-party-box">
+              <div class="form-a25a-party-box-head">
+                Full legal name &amp; address for service — street &amp; number, municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+              <div class="form-a25a-party-box-body">
+                {{ order.respondent_name|default:'' }}<br>
+                {{ order.respondent_address|default:'' }}
+              </div>
+            </div>
+            <div class="form-a25a-party-box">
+              <div class="form-a25a-party-box-head">
+                Lawyer's name &amp; address — street &amp; number, municipality, postal code, telephone &amp; fax numbers and e-mail address (if any).
+              </div>
+              <div class="form-a25a-party-box-body">
+                {{ order.respondent_lawyer_name|default:'' }}<br>
+                {{ order.respondent_lawyer_address|default:'' }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application & Evidence Section -->
+  <div class="form-a25a-card">
+    <div class="form-a25a-card-header">
+      <h3>Application Details</h3>
+    </div>
+    <div class="form-a25a-card-body">
+      <div class="form-a25a-field-row">
+        <label>The court considered an application of (name)</label>
+        <div class="line">{{ order.application_of_name|default:'' }}</div>
+      </div>
+      
+      <div class="form-a25a-field-row">
+        <label>on (date)</label>
+        <div class="line">{{ order.date_of_order|date:'F j, Y'|default:'' }}</div>
+      </div>
+      
+      <div class="form-a25a-field-row">
+        <label>The following persons were in court (Give names of parties and lawyers in court. This paragraph may be struck out if the divorce is uncontested.)</label>
+        <div class="line">{{ order.persons_in_court|default:'' }}</div>
+      </div>
+      
+      <div class="form-a25a-field-row">
+        <label>The court received evidence and considered submissions on behalf of (name or names)</label>
+        <div class="line">{{ order.evidence_submissions|default:'' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Section -->
+  <div class="form-a25a-card">
+    <div class="form-a25a-card-header">
+      <h3>THIS COURT ORDERS THAT:</h3>
+    </div>
+    <div class="form-a25a-card-body">
+      <div class="form-a25a-field-row">
+        <label>(full legal names of spouses)</label>
+        <div class="line">{{ order.applicant_name|default:'' }}{% if order.respondent_name %} and {{ order.respondent_name }}{% endif %}</div>
+      </div>
+      
+      <div class="form-a25a-field-row">
+        <label>who were married at (place)</label>
+        <div class="line">{{ order.marriage_place|default:'' }}</div>
+      </div>
+      
+      <div class="form-a25a-field-row">
+        <label>on (date)</label>
+        <div class="line">{{ order.marriage_date|date:'F j, Y'|default:'' }}</div>
+      </div>
+      
+      <div class="form-a25a-field-row">
+        <div style="padding: 8px; background: #f0f4f8; border-radius: 4px; font-size: 0.9rem;">
+          be divorced and that the divorce take effect <strong>{{ order.divorce_effective_days|default:'31' }}</strong> days after the date of this order.
+        </div>
+      </div>
+      
+      <div class="form-a25a-relief-section">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">(Add further paragraphs where the court orders other relief.)</label>
+        <div class="form-a25a-relief-box">{{ order.other_relief_details|default:'' }}</div>
+      </div>
+      
+      <div class="form-a25a-note">Put a line through any blank space left on this page.</div>
+    </div>
+  </div>
+
+  <!-- Signature Section -->
+  <div class="form-a25a-card">
+    <div class="form-a25a-card-body">
+      <div class="form-a25a-signature-grid">
+        <div class="form-a25a-signature-col">
+          <div class="form-a25a-signature-line">{{ order.date_of_signature|date:'F j, Y'|default:'' }}</div>
+          <div class="form-a25a-signature-label">Date of signature</div>
+        </div>
+        <div class="form-a25a-signature-col">
+          <div class="form-a25a-signature-line">{{ order.judge_or_clerk_signature|default:'' }}</div>
+          <div class="form-a25a-signature-label">Signature of judge or clerk of the court</div>
+        </div>
+      </div>
+      
+      <div class="form-a25a-footer">
+        <strong>NOTE:</strong> Neither spouse is free to remarry until this order takes effect, at which time you can get a Certificate of Divorce from the court office.
+      </div>
+      
+      <div class="form-a25a-code">FLR-A-25A-E (2009/08)</div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

@@ -53,6 +53,17 @@
   </div>
 </div>
 
+<div style="display:flex;gap:16px;margin-bottom:16px;">
+  <div style="flex:1;">
+    <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Respondent email</div>
+    <div class="readonly-value">{{ page1_data.respondent_email|default:"—" }}</div>
+  </div>
+  <div style="flex:1;">
+    <div style="font-weight:700;font-size:12px;margin-bottom:4px;">Respondent lawyer email</div>
+    <div class="readonly-value">{{ page1_data.respondent_lawyer_email|default:"—" }}</div>
+  </div>
+</div>
+
 <!-- Schedule A: Additional Sources of Income -->
 <div class="section-title">Schedule A: Additional Sources of Income</div>
 
@@ -182,9 +193,25 @@
   <strong>*</strong> Some of these expenses can be claimed in a parent's income tax return in relation to a tax credit or deduction (for example childcare costs). These credits or deductions must be shown in the above chart.
 </div>
 
+
 <div class="checkbox-row">
-  <input type="checkbox" name="sched_b_income_checkbox" id="sched_b_income_checkbox" {% if page_data.sched_b_income_checkbox %}checked{% endif %}>
-  <label for="sched_b_income_checkbox">I earn $ <input type="number" name="sched_b_income" step="0.01" value="{{ page_data.sched_b_income|default:'' }}" style="width:120px;"> per year which should be used to determine my share of the above expenses.</label>
+  <!-- <input type="checkbox" name="sched_b_income_checkbox" id="sched_b_income_checkbox" {% if page_data.sched_b_income_checkbox %}checked{% endif %}> -->
+ <label style="display:flex;align-items:center;gap:8px;">
+  <input type="checkbox"
+         name="schedule_b_i_earn_checked"
+         value="on"
+         {% if page_data.schedule_b_i_earn_checked %}checked{% endif %}>
+
+  I earn $
+
+  <input type="number"
+         name="schedule_b_i_earn_amount"
+         step="0.01"
+         value="{{ page_data.schedule_b_i_earn_amount|default:'' }}"
+         style="width:120px;">
+
+  per year which should be used to determine my share of the above expenses.
+</label>
 </div>
 
 <div class="info-card" style="background:#f0fdf4;border-color:#86efac;">

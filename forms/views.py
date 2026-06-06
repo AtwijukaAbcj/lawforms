@@ -27,85 +27,15 @@ from django.utils import timezone
 from functools import lru_cache
 from pathlib import Path
 from collections import OrderedDict
-from .models import AffidavitOfService, CaseFile, DivorceOrder
+from .models import AffidavitOfService, CaseFile, DivorceOrder, DivorceOrderA25A
 from .forms import (
     AffidavitOfServiceForm,
     AffidavitServicePage1Form,
     AffidavitServicePage2Form,
     AffidavitServicePage3Form,
     DivorceOrderForm,
+    DivorceOrderA25AForm,
 )
-import re
-def _calculate_form131_totals(pages):
-    """Calculate all totals for Form 13.1 print view."""
-    def safe_float(val):
-        try:
-            return float(val) if val not in (None, "") else 0.0
-        except (ValueError, TypeError):
-            return 0.0
-    # ...existing code for _calculate_form131_totals...
-    # (Copy the full function body from your file above)
-    # ...
-    return pages
-
-def _calculate_form131_missing_totals(pages):
-    """
-    Fill totals/subtotals that the existing _calculate_form131_totals()
-    does not currently calculate:
-      - page 2 income totals
-      - page 3 subtotals
-      - page 4 subtotals + total monthly/yearly expenses
-      - page 10 Schedule A and Schedule B totals
-    """
-    # ...existing code for _calculate_form131_missing_totals...
-    # (Copy the full function body from your file above)
-    # ...
-    return pages
-
-@login_required
-def financial_statement_131_print(request, pk):
-    """Print view for Form 13.1 - matches official form layout."""
-    from .models import Form131FinancialStatement
-
-    form = get_object_or_404(Form131FinancialStatement, pk=pk)
-    merged_data = get_all_form131_data(form)
-
-    pages = form.draft or {}
-    page1 = _get_form131_page1_data(form, persist=True)
-    pages["page1"] = page1
-
-    # Existing totals logic (pages 5-9 in your current code)
-    pages = _calculate_form131_totals(pages)
-
-    # NEW: fill the missing totals/subtotals for pages 2, 3, 4, and 10
-    pages = _calculate_form131_missing_totals(pages)
-
-    # Log the print event for billing
-    print_event = PrintEvent.log_print(
-        user=request.user,
-        form_type='financial_statement_131',
-        form_id=pk,
-        form_identifier=page1.get('court_file_number') or form.court_file_number or f'Form 13.1 #{pk}'
-    )
-    
-    # Audit log for print
-    log_audit(request, 'export', 'financial_statement_131', pk, 
-              f"Form 13.1 #{pk}", f"Printed - Price: ${print_event.price_charged}")
-    
-    # Send email notification for print
-    send_form_printed_notification('financial_statement_131', form, request.user, print_event.price_charged)
-
-    return render(request, "forms/financial_statement_131_print.html", {
-        "form": form,
-        "pages": pages,
-        "pages_json": json.dumps(pages),
-        "court_file_number": page1.get("court_file_number") or form.court_file_number or "",
-        "applicant_name": page1.get("applicant_name") or form.applicant_name or "",
-        "respondent_name": page1.get("respondent_name") or form.respondent_name or "",
-        **merged_data,
-    })
-
-
 from .models import (
     # Base single-page models
     NetFamilyPropertyStatement,
@@ -143,6 +73,371 @@ from .models import (
     CaseFile,
 )
 
+import re
+from decimal import Decimal, ROUND_HALF_UP
+
+
+def _money(value):
+    try:
+        return Decimal(str(value or 0)).quantize(
+            Decimal("0.01"),
+            rounding=ROUND_HALF_UP
+        )
+    except Exception:
+        return Decimal("0.00")
+
+
+def _num(data, key):
+    if not isinstance(data, dict):
+        return Decimal("0.00")
+    return _money(data.get(key))
+
+
+def _sum_keys(data, keys):
+    total = Decimal("0.00")
+
+    if not isinstance(data, dict):
+        return total
+
+    for key in keys:
+        total += _num(data, key)
+
+    return _money(total)
+
+
+def _calculate_form131_totals(pages):
+    """
+    Calculate Form 13.1 totals for Page 9.
+    Item 22 = value of all property owned on valuation date.
+    Item 25 = total deductions.
+    Item 26 = excluded property.
+    """
+
+    pages = pages or {}
+
+    page5 = pages.get("page5", {}) or {}
+    page6 = pages.get("page6", {}) or {}
+    page7 = pages.get("page7", {}) or {}
+    page8 = pages.get("page8", {}) or {}
+    page9 = pages.get("page9", {}) or {}
+
+    # ITEM 22: Value of all property owned on valuation date
+    item22 = Decimal("0.00")
+
+    item22 += _sum_keys(page5, [
+        "land_total",
+        "real_estate_total",
+        "general_household_items_total",
+        "household_items_total",
+        "bank_accounts_total",
+        "savings_total",
+        "rrsp_total",
+        "vehicles_total",
+        "pension_total",
+        "life_insurance_total",
+        "business_interests_total",
+        "money_owed_total",
+        "other_property_total",
+        "total_value_all_property",
+        "total_assets",
+        "item22_total",
+    ])
+
+    item22 += _sum_keys(page6, [
+        "land_total",
+        "real_estate_total",
+        "vehicles_total",
+        "bank_accounts_total",
+        "business_interests_total",
+        "money_owed_total",
+        "other_property_total",
+        "total_value_all_property",
+        "total_assets",
+        "item22_total",
+    ])
+
+    item22 += _sum_keys(page7, [
+        "land_total",
+        "real_estate_total",
+        "vehicles_total",
+        "bank_accounts_total",
+        "business_interests_total",
+        "money_owed_total",
+        "other_property_total",
+        "total_value_all_property",
+        "total_assets",
+        "item22_total",
+    ])
+
+    item22 = _money(item22)
+
+    # ITEM 25: Total deductions
+    item25 = Decimal("0.00")
+
+    item25 += _sum_keys(page7, [
+        "total_debts",
+        "total_liabilities",
+        "total_deductions",
+        "deductions_total",
+        "item25_total",
+    ])
+
+    item25 += _sum_keys(page8, [
+        "total_debts",
+        "total_liabilities",
+        "total_deductions",
+        "total_value_deductions",
+        "deductions_total",
+        "item25_total",
+    ])
+
+    item25 = _money(item25)
+
+    # ITEM 26: Excluded property
+    item26 = Decimal("0.00")
+
+    item26 += _sum_keys(page7, [
+        "total_excluded_property",
+        "excluded_property_total",
+        "item26_total",
+    ])
+
+    item26 += _sum_keys(page8, [
+        "total_excluded_property",
+        "excluded_property_total",
+        "item26_total",
+    ])
+
+    item26 = _money(item26)
+
+    balance1 = _money(item22 - item25)
+    balance2 = _money(balance1 - item26)
+
+    page9["nfp_item22"] = str(item22)
+    page9["nfp_item25"] = str(item25)
+    page9["nfp_item26"] = str(item26)
+    page9["nfp_balance1"] = str(balance1)
+    page9["nfp_balance2"] = str(balance2)
+    page9["net_family_property"] = str(balance2)
+
+    pages["page9"] = page9
+
+    return pages
+
+
+def _calculate_form131_missing_totals(pages):
+    """
+    Fill totals/subtotals that the existing _calculate_form131_totals()
+    does not currently calculate:
+      - page 2 income totals
+      - page 3 subtotals
+      - page 4 subtotals + total monthly/yearly expenses
+      - page 10 Schedule A and Schedule B totals
+    """
+    # ...existing code for _calculate_form131_missing_totals...
+    # (Copy the full function body from your file above)
+    # ...
+    return pages
+
+@login_required
+def financial_statement_131_print(request, pk):
+    import json
+    from .models import Form131FinancialStatement
+
+    form = get_object_or_404(Form131FinancialStatement, pk=pk)
+    merged_data = get_all_form131_data(form)
+
+    pages = form.draft or {}
+
+    page1 = _get_form131_page1_data(form, persist=True)
+    pages["page1"] = page1
+
+    pages = _calculate_form131_totals(pages)
+    pages = _calculate_form131_missing_totals(pages)
+
+    page4 = form.get_page_data(4) or pages.get("page4", {}) or {}
+
+    def truthy(value):
+        return str(value).strip().lower() in [
+            "true", "on", "1", "yes", "checked"
+        ]
+
+    def get_first(*keys):
+        for key in keys:
+            value = page4.get(key)
+            if value not in [None, "", False]:
+                return value
+        return ""
+
+    # Page 4 Part 3 - exact values from saved data
+    page4["live_alone"] = truthy(get_first(
+        "live_alone",
+        "lives_alone"
+    ))
+
+    page4["living_with_someone"] = truthy(get_first(
+        "living_with_someone",
+        "living_with_spouse",
+        "living_with_partner"
+    ))
+
+    page4["living_with_name"] = get_first(
+        "living_with_name",
+        "spouse_name",
+        "partner_name"
+    )
+
+    page4["lives_with_other_adults"] = truthy(get_first(
+        "lives_with_other_adults",
+        "living_with_others",
+        "has_other_adults"
+    )) or bool(get_first(
+        "other_adults_names",
+        "other_adults"
+    ))
+
+    page4["other_adults_names"] = get_first(
+        "other_adults_names",
+        "other_adults"
+    )
+
+    page4["has_children_in_home"] = truthy(get_first(
+        "has_children_in_home",
+        "has_children_home",
+        "has_children",
+        "children_in_home",
+        "has_children_living_home"
+    )) or bool(get_first(
+        "number_of_children_in_home",
+        "num_children_home",
+        "num_children",
+        "children_count",
+        "child_count",
+        "children_home_count",
+        "number_children_home"
+    ))
+
+    page4["number_of_children_in_home"] = get_first(
+        "number_of_children_in_home",
+        "num_children_home",
+        "num_children",
+        "children_count",
+        "child_count",
+        "children_home_count",
+        "number_children_home"
+    )
+
+    page4["spouse_works"] = truthy(get_first(
+        "spouse_works",
+        "partner_works"
+    )) or bool(get_first(
+        "spouse_work_place",
+        "spouse_workplace",
+        "partner_workplace",
+        "partner_work_place"
+    ))
+
+    page4["spouse_work_place"] = get_first(
+        "spouse_work_place",
+        "spouse_workplace",
+        "partner_workplace",
+        "partner_work_place"
+    )
+
+    page4["spouse_does_not_work"] = truthy(get_first(
+        "spouse_does_not_work",
+        "spouse_not_work",
+        "partner_not_work"
+    ))
+
+    page4["spouse_earns_income"] = truthy(get_first(
+        "spouse_earns_income",
+        "spouse_earns",
+        "partner_earns"
+    )) or bool(get_first(
+        "spouse_income_amount",
+        "spouse_income",
+        "partner_income",
+        "spouse_earnings",
+        "partner_earnings",
+        "partner_earn_amount",
+        "partner_earns_amount",
+        "spouse_earn_amount",
+        "spouse_earns_amount"
+    ))
+
+    page4["spouse_income_amount"] = get_first(
+        "spouse_income_amount",
+        "spouse_income",
+        "partner_income",
+        "spouse_earnings",
+        "partner_earnings",
+        "partner_earn_amount",
+        "partner_earns_amount",
+        "spouse_earn_amount",
+        "spouse_earns_amount"
+    )
+
+    page4["spouse_income_period"] = get_first(
+        "spouse_income_period",
+        "partner_income_period",
+        "spouse_earnings_period",
+        "partner_earnings_period",
+        "partner_earn_period",
+        "spouse_earn_period"
+    )
+
+    page4["spouse_no_income"] = truthy(get_first(
+        "spouse_no_income",
+        "partner_no_income"
+    ))
+
+    page4["household_contribution_amount"] = get_first(
+        "household_contribution_amount",
+        "household_contribution",
+        "contribution_amount"
+    )
+
+    page4["household_contribution_period"] = get_first(
+        "household_contribution_period",
+        "contribution_period"
+    )
+
+    pages["page4"] = page4
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type="financial_statement_131",
+        form_id=pk,
+        form_identifier=page1.get("court_file_number") or form.court_file_number or f"Form 13.1 #{pk}",
+    )
+
+    log_audit(
+        request,
+        "export",
+        "financial_statement_131",
+        pk,
+        f"Form 13.1 #{pk}",
+        f"Printed - Price: ${print_event.price_charged}",
+    )
+
+    send_form_printed_notification(
+        "financial_statement_131",
+        form,
+        request.user,
+        print_event.price_charged,
+    )
+
+    return render(request, "forms/financial_statement_131_print.html", {
+        "form": form,
+        "pages": pages,
+        "pages_json": json.dumps(pages, default=str),
+        "court_file_number": page1.get("court_file_number") or form.court_file_number or "",
+        "applicant_name": page1.get("applicant_name") or form.applicant_name or "",
+        "respondent_name": page1.get("respondent_name") or form.respondent_name or "",
+        **merged_data,
+    })
+
 def _user_has_permission_or_owner(user, module_code, permission_type, instance=None):
     """Return True if user is superuser, owner of associated CaseFile, or has role permission."""
     if user.is_superuser:
@@ -172,44 +467,90 @@ def case_list(request):
     cases = CaseFile.objects.filter(owner=request.user).order_by('-updated_at')
     return render(request, 'forms/case_list.html', {'cases': cases})
 
-
 @login_required
-def case_create(request):
-    """Create a new CaseFile for the current user."""
-    if request.method == 'POST':
-        data = request.POST
-        case = CaseFile.objects.create(
-            owner=request.user,
-            court_file_number=data.get('court_file_number') or '',
-            court_name=data.get('court_name') or '',
-            court_office_address=data.get('court_office_address') or '',
+def case_create(request, pk=None):
+    """
+    Create or Edit a CaseFile.
+    """
 
-            applicant_name=data.get('applicant_name') or '',
-            applicant_address=data.get('applicant_address') or '',
-            applicant_phone=data.get('applicant_phone') or '',
-            applicant_email=data.get('applicant_email') or '',
+    case = None
 
-            applicant_lawyer_name=data.get('applicant_lawyer_name') or '',
-            applicant_lawyer_address=data.get('applicant_lawyer_address') or '',
-            applicant_lawyer_phone=data.get('applicant_lawyer_phone') or '',
-            applicant_lawyer_email=data.get('applicant_lawyer_email') or '',
-
-            respondent_name=data.get('respondent_name') or '',
-            respondent_address=data.get('respondent_address') or '',
-            respondent_phone=data.get('respondent_phone') or '',
-            respondent_email=data.get('respondent_email') or '',
-
-            respondent_lawyer_name=data.get('respondent_lawyer_name') or '',
-            respondent_lawyer_address=data.get('respondent_lawyer_address') or '',
-            respondent_lawyer_phone=data.get('respondent_lawyer_phone') or '',
-            respondent_lawyer_email=data.get('respondent_lawyer_email') or '',
-            valuation_date=data.get('valuation_date') or None,
+    if pk:
+        case = get_object_or_404(
+            CaseFile,
+            pk=pk,
+            owner=request.user
         )
-        log_audit(request, 'create', 'casefile', case.pk, f'Case {case.court_file_number or case.id}', 'Created case')
+
+    if request.method == "POST":
+
+        data = request.POST
+
+        if case:
+            # EDIT EXISTING
+            case.court_file_number = data.get('court_file_number', '')
+            case.court_name = data.get('court_name', '')
+            case.court_office_address = data.get('court_office_address', '')
+
+            case.applicant_name = data.get('applicant_name', '')
+            case.applicant_address = data.get('applicant_address', '')
+            case.applicant_phone = data.get('applicant_phone', '')
+            case.applicant_email = data.get('applicant_email', '')
+
+            case.applicant_lawyer_name = data.get('applicant_lawyer_name', '')
+            case.applicant_lawyer_address = data.get('applicant_lawyer_address', '')
+            case.applicant_lawyer_phone = data.get('applicant_lawyer_phone', '')
+            case.applicant_lawyer_email = data.get('applicant_lawyer_email', '')
+
+            case.respondent_name = data.get('respondent_name', '')
+            case.respondent_address = data.get('respondent_address', '')
+            case.respondent_phone = data.get('respondent_phone', '')
+            case.respondent_email = data.get('respondent_email', '')
+
+            case.respondent_lawyer_name = data.get('respondent_lawyer_name', '')
+            case.respondent_lawyer_address = data.get('respondent_lawyer_address', '')
+            case.respondent_lawyer_phone = data.get('respondent_lawyer_phone', '')
+            case.respondent_lawyer_email = data.get('respondent_lawyer_email', '')
+
+            case.valuation_date = data.get('valuation_date') or None
+
+            case.save()
+
+        else:
+            # CREATE NEW
+            case = CaseFile.objects.create(
+                owner=request.user,
+                court_file_number=data.get('court_file_number', ''),
+                court_name=data.get('court_name', ''),
+                court_office_address=data.get('court_office_address', ''),
+                applicant_name=data.get('applicant_name', ''),
+                applicant_address=data.get('applicant_address', ''),
+                applicant_phone=data.get('applicant_phone', ''),
+                applicant_email=data.get('applicant_email', ''),
+                applicant_lawyer_name=data.get('applicant_lawyer_name', ''),
+                applicant_lawyer_address=data.get('applicant_lawyer_address', ''),
+                applicant_lawyer_phone=data.get('applicant_lawyer_phone', ''),
+                applicant_lawyer_email=data.get('applicant_lawyer_email', ''),
+                respondent_name=data.get('respondent_name', ''),
+                respondent_address=data.get('respondent_address', ''),
+                respondent_phone=data.get('respondent_phone', ''),
+                respondent_email=data.get('respondent_email', ''),
+                respondent_lawyer_name=data.get('respondent_lawyer_name', ''),
+                respondent_lawyer_address=data.get('respondent_lawyer_address', ''),
+                respondent_lawyer_phone=data.get('respondent_lawyer_phone', ''),
+                respondent_lawyer_email=data.get('respondent_lawyer_email', ''),
+                valuation_date=data.get('valuation_date') or None,
+            )
+
         return redirect('case_detail', pk=case.pk)
 
-    return render(request, 'forms/case_create.html')
-
+    return render(
+        request,
+        'forms/case_create.html',
+        {
+            'case': case
+        }
+    )
 
 @login_required
 def case_detail(request, pk):
@@ -713,6 +1054,23 @@ def _resolve_form131_court_file_number(statement, posted_value):
     return existing
 
 
+def _resolve_application_court_file_number(instance, posted_value=None):
+    """Resolve the court file number from POST, existing instance, or associated CaseFile."""
+    manual_value = (posted_value or "").strip()
+    if manual_value:
+        return manual_value
+
+    existing = (getattr(instance, "court_file_number", "") or "").strip()
+    if existing:
+        return existing
+
+    case_file = getattr(instance, "case_file", None)
+    if case_file:
+        return (getattr(case_file, "court_file_number", "") or "").strip()
+
+    return ""
+
+
 CASE_FIELD_TARGETS = {
     "court_file_number": ["court_file_number"],
     "court_name": ["court_name"],
@@ -1195,74 +1553,82 @@ def financial_statement_131_page8(request, pk):
 def financial_statement_131_page9(request, pk):
     """Form 13.1 page 9."""
     from .models import Form131FinancialStatement
+
     form = get_object_or_404(Form131FinancialStatement, pk=pk)
-    page_data = form.get_page_data(9)
+
+    pages = _calculate_form131_totals(form.draft or {})
+    page_data = pages.get("page9", {}) or {}
+
+    # Save calculated Page 9 values back into draft
+    form.draft = pages
+    form.save()
+
     if request.method == "POST":
-        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        data = {
+            k: v
+            for k, v in request.POST.items()
+            if k != "csrfmiddlewaretoken"
+        }
+
+        # Force calculated values, not manual/browser values
+        data["nfp_item22"] = page_data.get("nfp_item22", "0.00")
+        data["nfp_item25"] = page_data.get("nfp_item25", "0.00")
+        data["nfp_item26"] = page_data.get("nfp_item26", "0.00")
+        data["nfp_balance1"] = page_data.get("nfp_balance1", "0.00")
+        data["nfp_balance2"] = page_data.get("nfp_balance2", "0.00")
+        data["net_family_property"] = page_data.get("net_family_property", "0.00")
+
         form.save_page_data(9, data)
+
         if "prev" in request.POST:
             return redirect("financial_statement_131_page8", pk=pk)
+
         return redirect("financial_statement_131_page10", pk=pk)
-    return render(request, "forms/financial_statement_131_page9.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+
+    return render(request, "forms/financial_statement_131_page9.html", {
+        "pk": pk,
+        "form": form,
+        "page_data": page_data,
+        "page1_data": form.get_page_data(1),
+    })
 
 @csrf_exempt
 @login_required
 def financial_statement_131_page10(request, pk):
-    """Form 13.1 page 10 - Schedule A & B (Final page)."""
+    """Form 13.1 page 10 - Schedule A & B."""
     from .models import Form131FinancialStatement
+
     form = get_object_or_404(Form131FinancialStatement, pk=pk)
-    page_data = form.get_page_data(10)
+    page_data = form.get_page_data(10) or {}
+
     if request.method == "POST":
-        data = {k: v for k, v in request.POST.items() if k != 'csrfmiddlewaretoken'}
+        data = {
+            k: v
+            for k, v in request.POST.items()
+            if k != "csrfmiddlewaretoken"
+        }
+
+        data["schedule_b_i_earn_checked"] = (
+            "on" if "schedule_b_i_earn_checked" in request.POST else ""
+        )
+
+        data["schedule_b_i_earn_amount"] = request.POST.get(
+            "schedule_b_i_earn_amount",
+            ""
+        )
+
         form.save_page_data(10, data)
+
         if "prev" in request.POST:
             return redirect("financial_statement_131_page9", pk=pk)
+
         return redirect("financial_statement_131_list")
-    return render(request, "forms/financial_statement_131_page10.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
-@csrf_exempt
-@login_required
-def financial_statement_131_print(request, pk):
-    """Print view for Form 13.1 - matches official form layout."""
-    import json
-    from .models import Form131FinancialStatement
-
-    form = get_object_or_404(Form131FinancialStatement, pk=pk)
-    merged_data = get_all_form131_data(form)
-
-    pages = form.draft or {}
-    page1 = _get_form131_page1_data(form, persist=True)
-    pages["page1"] = page1
-
-    # Existing totals logic (pages 5-9 in your current code)
-    pages = _calculate_form131_totals(pages)
-
-    # NEW: fill the missing totals/subtotals for pages 2, 3, 4, and 10
-    pages = _calculate_form131_missing_totals(pages)
-
-    # Log the print event for billing
-    print_event = PrintEvent.log_print(
-        user=request.user,
-        form_type='financial_statement_131',
-        form_id=pk,
-        form_identifier=page1.get('court_file_number') or form.court_file_number or f'Form 13.1 #{pk}'
-    )
-    
-    # Audit log for print
-    log_audit(request, 'export', 'financial_statement_131', pk, 
-              f"Form 13.1 #{pk}", f"Printed - Price: ${print_event.price_charged}")
-    
-    # Send email notification for print
-    send_form_printed_notification('financial_statement_131', form, request.user, print_event.price_charged)
-
-    return render(request, "forms/financial_statement_131_print.html", {
+    return render(request, "forms/financial_statement_131_page10.html", {
+        "pk": pk,
         "form": form,
-        "pages": pages,
-        "pages_json": json.dumps(pages),
-        "court_file_number": page1.get("court_file_number") or form.court_file_number or "",
-        "applicant_name": page1.get("applicant_name") or form.applicant_name or "",
-        "respondent_name": page1.get("respondent_name") or form.respondent_name or "",
-        **merged_data,
+        "page_data": page_data,
+        "page1_data": form.get_page_data(1),
     })
 
 @login_required
@@ -3344,112 +3710,259 @@ def comparison_nfp_page5(request, pk):
     """Comparison NFP Page 5 - Final totals and equalization."""
     comparison = get_object_or_404(ComparisonNetFamilyProperty, pk=pk)
     form13c, _ = Form13CComparison.objects.get_or_create(parent=comparison)
-    
+
     try:
         final_totals = form13c.final_totals
-    except:
+    except Form13CFinalTotals.DoesNotExist:
         final_totals = None
 
-    # Calculate totals from previous pages
     from django.db.models import Sum
-    
+    from decimal import Decimal, ROUND_HALF_UP
+
+    MONEY = Decimal("0.01")
+
+    def money(value):
+        value = Decimal(str(value or 0))
+        return value.quantize(MONEY, rounding=ROUND_HALF_UP)
+
     def sum_field(qs, field):
-        agg = qs.aggregate(total=Sum(field))['total']
-        return float(agg or 0)
+        agg = qs.aggregate(total=Sum(field))["total"]
+        return money(agg)
 
     cols = [
-        'applicant_position_applicant',
-        'applicant_position_respondent',
-        'respondent_position_applicant',
-        'respondent_position_respondent',
+        "applicant_position_applicant",
+        "applicant_position_respondent",
+        "respondent_position_applicant",
+        "respondent_position_respondent",
     ]
-    suffixes = ['_app_pos_applicant', '_app_pos_respondent', '_resp_pos_applicant', '_resp_pos_respondent']
+
+    suffixes = [
+        "_app_pos_applicant",
+        "_app_pos_respondent",
+        "_resp_pos_applicant",
+        "_resp_pos_respondent",
+    ]
 
     totals = {
-        'total1': [0,0,0,0],
-        'total2': [0,0,0,0],
-        'total3': [0,0,0,0],
-        'total4': [0,0,0,0],
-        'total5': [0,0,0,0],
-        'total6': [0,0,0,0],
+        "total1": [Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), Decimal("0.00")],
+        "total2": [Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), Decimal("0.00")],
+        "total3": [Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), Decimal("0.00")],
+        "total4": [Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), Decimal("0.00")],
+        "total5": [Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), Decimal("0.00")],
+        "total6": [Decimal("0.00"), Decimal("0.00"), Decimal("0.00"), Decimal("0.00")],
     }
 
     for i, col in enumerate(cols):
-        totals['total2'][i] = sum_field(Form13CDebtLiability.objects.filter(form13c=form13c), col)
-        totals['total3'][i] = sum_field(Form13CMarriageProperty.objects.filter(form13c=form13c, is_debt=False), col)
-        totals['total4'][i] = sum_field(Form13CExcludedProperty.objects.filter(form13c=form13c), col)
-        
-        comp_household = sum_field(ComparisonNetFamilyPropertyHouseholdItem.objects.filter(parent=comparison), col)
-        comp_bank = sum_field(ComparisonNetFamilyPropertyBankAccount.objects.filter(parent=comparison), col)
-        comp_insurance = sum_field(ComparisonNetFamilyPropertyInsurance.objects.filter(parent=comparison), col)
-        comp_business = sum_field(ComparisonNetFamilyPropertyBusiness.objects.filter(parent=comparison), col)
-
-        totals['total1'][i] = (
-            comp_household + comp_bank + comp_insurance + comp_business
-            + sum_field(Form13CAsset.objects.filter(form13c=form13c), col)
-            + sum_field(Form13CMoneyOwed.objects.filter(form13c=form13c), col)
-            + sum_field(Form13COtherProperty.objects.filter(form13c=form13c), col)
+        totals["total2"][i] = sum_field(
+            Form13CDebtLiability.objects.filter(form13c=form13c),
+            col
         )
-        
-        totals['total5'][i] = totals['total2'][i] + totals['total3'][i] + totals['total4'][i]
-        totals['total6'][i] = totals['total1'][i] - totals['total5'][i]
 
-    # Build initial data dict for the form
+        totals["total3"][i] = sum_field(
+            Form13CMarriageProperty.objects.filter(
+                form13c=form13c,
+                is_debt=False
+            ),
+            col
+        )
+
+        totals["total4"][i] = sum_field(
+            Form13CExcludedProperty.objects.filter(form13c=form13c),
+            col
+        )
+
+        comp_household = sum_field(
+            ComparisonNetFamilyPropertyHouseholdItem.objects.filter(parent=comparison),
+            col
+        )
+
+        comp_bank = sum_field(
+            ComparisonNetFamilyPropertyBankAccount.objects.filter(parent=comparison),
+            col
+        )
+
+        comp_insurance = sum_field(
+            ComparisonNetFamilyPropertyInsurance.objects.filter(parent=comparison),
+            col
+        )
+
+        comp_business = sum_field(
+            ComparisonNetFamilyPropertyBusiness.objects.filter(parent=comparison),
+            col
+        )
+
+        form13c_assets = sum_field(
+            Form13CAsset.objects.filter(form13c=form13c),
+            col
+        )
+
+        form13c_money_owed = sum_field(
+            Form13CMoneyOwed.objects.filter(form13c=form13c),
+            col
+        )
+
+        form13c_other_property = sum_field(
+            Form13COtherProperty.objects.filter(form13c=form13c),
+            col
+        )
+
+        totals["total1"][i] = money(
+            comp_household
+            + comp_bank
+            + comp_insurance
+            + comp_business
+            + form13c_assets
+            + form13c_money_owed
+            + form13c_other_property
+        )
+
+        totals["total5"][i] = money(
+            totals["total2"][i]
+            + totals["total3"][i]
+            + totals["total4"][i]
+        )
+
+        totals["total6"][i] = money(
+            totals["total1"][i]
+            - totals["total5"][i]
+        )
+
     initial_data = {}
-    for key in ['total1', 'total2', 'total3', 'total4', 'total5', 'total6']:
+
+    for key in ["total1", "total2", "total3", "total4", "total5", "total6"]:
         for i, suffix in enumerate(suffixes):
             initial_data[key + suffix] = totals[key][i]
-    # total5b is same as total5
+
     for i, suffix in enumerate(suffixes):
-        initial_data['total5b' + suffix] = totals['total5'][i]
+        initial_data["total5b" + suffix] = totals["total5"][i]
 
-    # Calculate equalization payments
-    # Applicant's Position: columns 0 (applicant) and 1 (respondent)
-    t6_app_app = totals['total6'][0]
-    t6_app_resp = totals['total6'][1]
+    t6_app_app = totals["total6"][0]
+    t6_app_resp = totals["total6"][1]
+
     if t6_app_app > t6_app_resp:
-        initial_data['eq_app_pos_applicant_pays'] = (t6_app_app - t6_app_resp) / 2
-        initial_data['eq_app_pos_respondent_pays'] = 0
+        initial_data["eq_app_pos_applicant_pays"] = money(
+            (t6_app_app - t6_app_resp) / Decimal("2")
+        )
+        initial_data["eq_app_pos_respondent_pays"] = Decimal("0.00")
     else:
-        initial_data['eq_app_pos_applicant_pays'] = 0
-        initial_data['eq_app_pos_respondent_pays'] = (t6_app_resp - t6_app_app) / 2
+        initial_data["eq_app_pos_applicant_pays"] = Decimal("0.00")
+        initial_data["eq_app_pos_respondent_pays"] = money(
+            (t6_app_resp - t6_app_app) / Decimal("2")
+        )
 
-    # Respondent's Position: columns 2 (applicant) and 3 (respondent)
-    t6_resp_app = totals['total6'][2]
-    t6_resp_resp = totals['total6'][3]
+    t6_resp_app = totals["total6"][2]
+    t6_resp_resp = totals["total6"][3]
+
     if t6_resp_app > t6_resp_resp:
-        initial_data['eq_resp_pos_applicant_pays'] = (t6_resp_app - t6_resp_resp) / 2
-        initial_data['eq_resp_pos_respondent_pays'] = 0
+        initial_data["eq_resp_pos_applicant_pays"] = money(
+            (t6_resp_app - t6_resp_resp) / Decimal("2")
+        )
+        initial_data["eq_resp_pos_respondent_pays"] = Decimal("0.00")
     else:
-        initial_data['eq_resp_pos_applicant_pays'] = 0
-        initial_data['eq_resp_pos_respondent_pays'] = (t6_resp_resp - t6_resp_app) / 2
+        initial_data["eq_resp_pos_applicant_pays"] = Decimal("0.00")
+        initial_data["eq_resp_pos_respondent_pays"] = money(
+            (t6_resp_resp - t6_resp_app) / Decimal("2")
+        )
+
+    numeric_fields = [
+        "total1_app_pos_applicant",
+        "total1_app_pos_respondent",
+        "total1_resp_pos_applicant",
+        "total1_resp_pos_respondent",
+        "total2_app_pos_applicant",
+        "total2_app_pos_respondent",
+        "total2_resp_pos_applicant",
+        "total2_resp_pos_respondent",
+        "total3_app_pos_applicant",
+        "total3_app_pos_respondent",
+        "total3_resp_pos_applicant",
+        "total3_resp_pos_respondent",
+        "total4_app_pos_applicant",
+        "total4_app_pos_respondent",
+        "total4_resp_pos_applicant",
+        "total4_resp_pos_respondent",
+        "total5_app_pos_applicant",
+        "total5_app_pos_respondent",
+        "total5_resp_pos_applicant",
+        "total5_resp_pos_respondent",
+        "total5b_app_pos_applicant",
+        "total5b_app_pos_respondent",
+        "total5b_resp_pos_applicant",
+        "total5b_resp_pos_respondent",
+        "total6_app_pos_applicant",
+        "total6_app_pos_respondent",
+        "total6_resp_pos_applicant",
+        "total6_resp_pos_respondent",
+        "eq_app_pos_applicant_pays",
+        "eq_app_pos_respondent_pays",
+        "eq_resp_pos_applicant_pays",
+        "eq_resp_pos_respondent_pays",
+    ]
 
     if request.method == "POST":
-        form = Form13CFinalTotalsForm(request.POST, instance=final_totals)
+        post_data = request.POST.copy()
+
+        for field in numeric_fields:
+            value = post_data.get(field)
+
+            if value not in [None, ""]:
+                post_data[field] = str(money(value))
+
+        form = Form13CFinalTotalsForm(post_data, instance=final_totals)
+
         if form.is_valid():
             ft = form.save(commit=False)
             ft.form13c = form13c
+
+            # overwrite old saved values with the latest calculated values
+            for field, value in initial_data.items():
+                setattr(ft, field, value)
+
             ft.save()
-            
-            if "save_draft" in request.POST:
-                return redirect("comparison_nfp_page5", pk=pk)
+
+
             if "prev" in request.POST:
                 return redirect("comparison_nfp_page4", pk=pk)
-            return redirect("comparison_nfp_list")
-    else:
-        # Use initial data to pre-fill computed totals
-        form = Form13CFinalTotalsForm(instance=final_totals, initial=initial_data)
 
-    totals_json = json.dumps(totals)
+            if "save_draft" in request.POST:
+                messages.success(request, "Draft saved successfully.")
+                return redirect("comparison_nfp_page5", pk=pk)
+
+            if "finish" in request.POST:
+                messages.success(request, "Comparison NFP saved successfully.")
+                return redirect("comparison_nfp_list")
+
+            messages.success(request, "Comparison NFP saved successfully.")
+            return redirect("comparison_nfp_list")
+
+        print(form.errors)
+
+    else:
+        form = Form13CFinalTotalsForm(
+            instance=final_totals,
+            initial=initial_data
+        )
+
+    for field_name in form.fields:
+        if field_name != "court_file_number":
+            form.fields[field_name].widget.attrs.update({
+                "step": "0.01",
+                "inputmode": "decimal",
+            })
+
+    totals_json = json.dumps({
+        key: [str(money(v)) for v in values]
+        for key, values in totals.items()
+    })
 
     return render(request, "forms/comparison_nfp_page5.html", {
         "form": form,
         "pk": pk,
         "comparison": comparison,
-        "totals_json": totals_json
+        "totals_json": totals_json,
     })
 
-
+    
 @login_required
 @require_http_methods(["GET", "POST"])
 def comparison_nfp_draft(request, pk):
@@ -3468,150 +3981,18 @@ def comparison_nfp_draft(request, pk):
     # Return empty draft - client should use localStorage
     return JsonResponse({"draft": None})
 
-
-@login_required
-def comparison_nfp_print(request, pk):
-    """Official printable format for Comparison NFP."""
-    comparison = get_object_or_404(ComparisonNetFamilyProperty, pk=pk)
-    form13c = getattr(comparison, 'form13c', None)
-    
-    household_items = list(comparison.household_items.all())
-    bank_accounts = list(comparison.bank_accounts.all())
-    insurances = list(comparison.insurances.all())
-    businesses = list(comparison.businesses.all())
-    
-    assets = []
-    money_owed = []
-    other_property = []
-    debts = []
-    marriage_property = []
-    marriage_debts = []
-    excluded_property = []
-    
-    if form13c:
-        assets = list(form13c.assets.all())
-        money_owed = list(form13c.money_owed.all())
-        other_property = list(form13c.other_properties.all())
-        debts = list(form13c.debts_liabilities.all())
-        marriage_property = list(form13c.marriage_properties.filter(is_debt=False))
-        marriage_debts = list(form13c.marriage_properties.filter(is_debt=True))
-        excluded_property = list(form13c.excluded_properties.all())
-        try:
-            final_totals = form13c.final_totals
-        except:
-            final_totals = None
-    
-    def sum_items(items, field):
-        total = 0
-        for item in items:
-            val = getattr(item, field, None)
-            if val:
-                total += float(val)
-        return total
-    
-    cols = ['applicant_position_applicant', 'applicant_position_respondent', 
-            'respondent_position_applicant', 'respondent_position_respondent']
-    
-    total_a = [sum_items(assets, c) for c in cols]
-    total_b = [sum_items(household_items, c) for c in cols]
-    total_c = [sum_items(bank_accounts, c) for c in cols]
-    total_d = [sum_items(insurances, c) for c in cols]
-    total_e = [sum_items(businesses, c) for c in cols]
-    total_f = [sum_items(money_owed, c) for c in cols]
-    total_g = [sum_items(other_property, c) for c in cols]
-    
-    total_1 = [total_a[i] + total_b[i] + total_c[i] + total_d[i] + total_e[i] + total_f[i] + total_g[i] for i in range(4)]
-    total_2 = [sum_items(debts, c) for c in cols]
-    
-    total_marriage_property = [sum_items(marriage_property, c) for c in cols]
-    total_marriage_debts = [sum_items(marriage_debts, c) for c in cols]
-    total_3 = [total_marriage_property[i] - total_marriage_debts[i] for i in range(4)]
-    
-    total_4 = [sum_items(excluded_property, c) for c in cols]
-    total_5 = [total_2[i] + total_3[i] + total_4[i] for i in range(4)]
-    total_6 = [total_1[i] - total_5[i] for i in range(4)]
-    
-    equalization = {
-        'app_pays_resp_app': '',
-        'resp_pays_app_app': '',
-        'app_pays_resp_resp': '',
-        'resp_pays_app_resp': '',
-    }
-    
-    nfp_app_app = total_6[0]
-    nfp_resp_app = total_6[1]
-    if nfp_app_app > nfp_resp_app:
-        equalization['app_pays_resp_app'] = (nfp_app_app - nfp_resp_app) / 2
-    elif nfp_resp_app > nfp_app_app:
-        equalization['resp_pays_app_app'] = (nfp_resp_app - nfp_app_app) / 2
-    
-    nfp_app_resp = total_6[2]
-    nfp_resp_resp = total_6[3]
-    if nfp_app_resp > nfp_resp_resp:
-        equalization['app_pays_resp_resp'] = (nfp_app_resp - nfp_resp_resp) / 2
-    elif nfp_resp_resp > nfp_app_resp:
-        equalization['resp_pays_app_resp'] = (nfp_resp_resp - nfp_app_resp) / 2
-
-    # Log the print event for billing
-    print_event = PrintEvent.log_print(
-        user=request.user,
-        form_type='comparison_nfp',
-        form_id=pk,
-        form_identifier=comparison.court_file_number or f'Form 13C #{pk}'
-    )
-    
-    # Audit log for print
-    log_audit(request, 'export', 'comparison_nfp', pk, 
-              f"Form 13C #{pk}", f"Printed - Price: ${print_event.price_charged}")
-    
-    # Send email notification
-    send_form_printed_notification('comparison_nfp', comparison, request.user, print_event.price_charged)
-
-    return render(request, 'forms/comparison_nfp_print.html', {
-        'comparison': comparison,
-        'pk': pk,
-        'assets': assets,
-        'household_items': household_items,
-        'bank_accounts': bank_accounts,
-        'insurance_policies': insurances,
-        'business_interests': businesses,
-        'money_owed': money_owed,
-        'other_property': other_property,
-        'debts': debts,
-        'marriage_property': marriage_property,
-        'marriage_debts': marriage_debts,
-        'excluded_property': excluded_property,
-        'total_a': total_a,
-        'total_b': total_b,
-        'total_c': total_c,
-        'total_d': total_d,
-        'total_e': total_e,
-        'total_f': total_f,
-        'total_g': total_g,
-        'total_1': total_1,
-        'total_2': total_2,
-        'total_3': total_3,
-        'total_4': total_4,
-        'total_5': total_5,
-        'total_6': total_6,
-        'total_marriage_property': total_marriage_property,
-        'total_marriage_debts': total_marriage_debts,
-        'equalization': equalization,
-    })
-
-
 @login_required
 def comparison_nfp_full_view(request, pk):
     """Full view of a Comparison NFP form."""
     comparison = get_object_or_404(ComparisonNetFamilyProperty, pk=pk)
-    form13c = getattr(comparison, 'form13c', None)
-    
+    form13c = getattr(comparison, "form13c", None)
+
     land_assets = []
     household_items = list(comparison.household_items.all())
     bank_accounts = list(comparison.bank_accounts.all())
     insurances = list(comparison.insurances.all())
     businesses = list(comparison.businesses.all())
-    
+
     money_owed_list = []
     other_properties = []
     debts_liabilities = []
@@ -3619,7 +4000,7 @@ def comparison_nfp_full_view(request, pk):
     marriage_debts = []
     excluded_properties = []
     final_totals = None
-    
+
     if form13c:
         land_assets = list(form13c.assets.all())
         money_owed_list = list(form13c.money_owed.all())
@@ -3628,91 +4009,294 @@ def comparison_nfp_full_view(request, pk):
         marriage_properties = list(form13c.marriage_properties.filter(is_debt=False))
         marriage_debts = list(form13c.marriage_properties.filter(is_debt=True))
         excluded_properties = list(form13c.excluded_properties.all())
+
         try:
             final_totals = form13c.final_totals
-        except:
+        except Form13CFinalTotals.DoesNotExist:
             final_totals = None
-    
+
     def sum_field(items, field):
         total = 0
         for item in items:
-            val = getattr(item, field, None)
-            if val:
-                total += float(val)
+            value = getattr(item, field, None)
+            if value not in [None, ""]:
+                total += float(value)
         return total
-    
-    cols = ['applicant_position_applicant', 'applicant_position_respondent', 
-            'respondent_position_applicant', 'respondent_position_respondent']
-    
-    totals = {
-        'land': [sum_field(land_assets, c) for c in cols],
-        'household': [sum_field(household_items, c) for c in cols],
-        'bank': [sum_field(bank_accounts, c) for c in cols],
-        'insurance': [sum_field(insurances, c) for c in cols],
-        'business': [sum_field(businesses, c) for c in cols],
-        'money_owed': [sum_field(money_owed_list, c) for c in cols],
-        'other': [sum_field(other_properties, c) for c in cols],
-        'debts': [sum_field(debts_liabilities, c) for c in cols],
-        'marriage_property': [sum_field(marriage_properties, c) for c in cols],
-        'marriage_debt': [sum_field(marriage_debts, c) for c in cols],
-        'excluded': [sum_field(excluded_properties, c) for c in cols],
-    }
-    
-    totals['total1'] = [
-        totals['land'][i] + totals['household'][i] + totals['bank'][i] + 
-        totals['insurance'][i] + totals['business'][i] + totals['money_owed'][i] + 
-        totals['other'][i]
-        for i in range(4)
+
+    cols = [
+        "applicant_position_applicant",
+        "applicant_position_respondent",
+        "respondent_position_applicant",
+        "respondent_position_respondent",
     ]
-    totals['total2'] = totals['debts']
-    totals['total3'] = [totals['marriage_property'][i] - totals['marriage_debt'][i] for i in range(4)]
-    totals['total4'] = totals['excluded']
-    totals['total5'] = [totals['total2'][i] + totals['total3'][i] + totals['total4'][i] for i in range(4)]
-    totals['total6'] = [totals['total1'][i] - totals['total5'][i] for i in range(4)]
-    
-    # Calculate equalization payments
-    equalization = {
-        'app_pays_resp_app': 0,
-        'resp_pays_app_app': 0,
-        'app_pays_resp_resp': 0,
-        'resp_pays_app_resp': 0,
+
+    totals = {
+        "land": [sum_field(land_assets, c) for c in cols],
+        "household": [sum_field(household_items, c) for c in cols],
+        "bank": [sum_field(bank_accounts, c) for c in cols],
+        "insurance": [sum_field(insurances, c) for c in cols],
+        "business": [sum_field(businesses, c) for c in cols],
+        "money_owed": [sum_field(money_owed_list, c) for c in cols],
+        "other": [sum_field(other_properties, c) for c in cols],
+        "debts": [sum_field(debts_liabilities, c) for c in cols],
+        "marriage_property": [sum_field(marriage_properties, c) for c in cols],
+        "marriage_debt": [sum_field(marriage_debts, c) for c in cols],
+        "excluded": [sum_field(excluded_properties, c) for c in cols],
+
+        "total1": [0, 0, 0, 0],
+        "total2": [0, 0, 0, 0],
+        "total3": [0, 0, 0, 0],
+        "total4": [0, 0, 0, 0],
+        "total5": [0, 0, 0, 0],
+        "total6": [0, 0, 0, 0],
     }
-    
-    nfp_app_app = totals['total6'][0]
-    nfp_resp_app = totals['total6'][1]
-    if nfp_app_app > nfp_resp_app:
-        equalization['app_pays_resp_app'] = (nfp_app_app - nfp_resp_app) / 2
-    elif nfp_resp_app > nfp_app_app:
-        equalization['resp_pays_app_app'] = (nfp_resp_app - nfp_app_app) / 2
-    
-    nfp_app_resp = totals['total6'][2]
-    nfp_resp_resp = totals['total6'][3]
-    if nfp_app_resp > nfp_resp_resp:
-        equalization['app_pays_resp_resp'] = (nfp_app_resp - nfp_resp_resp) / 2
-    elif nfp_resp_resp > nfp_app_resp:
-        equalization['resp_pays_app_resp'] = (nfp_resp_resp - nfp_app_resp) / 2
+
+    # Use saved Page 5 values as the source of truth
+    if final_totals:
+        totals["total1"] = [
+            final_totals.total1_app_pos_applicant,
+            final_totals.total1_app_pos_respondent,
+            final_totals.total1_resp_pos_applicant,
+            final_totals.total1_resp_pos_respondent,
+        ]
+
+        totals["total2"] = [
+            final_totals.total2_app_pos_applicant,
+            final_totals.total2_app_pos_respondent,
+            final_totals.total2_resp_pos_applicant,
+            final_totals.total2_resp_pos_respondent,
+        ]
+
+        totals["total3"] = [
+            final_totals.total3_app_pos_applicant,
+            final_totals.total3_app_pos_respondent,
+            final_totals.total3_resp_pos_applicant,
+            final_totals.total3_resp_pos_respondent,
+        ]
+
+        totals["total4"] = [
+            final_totals.total4_app_pos_applicant,
+            final_totals.total4_app_pos_respondent,
+            final_totals.total4_resp_pos_applicant,
+            final_totals.total4_resp_pos_respondent,
+        ]
+
+        totals["total5"] = [
+            final_totals.total5_app_pos_applicant,
+            final_totals.total5_app_pos_respondent,
+            final_totals.total5_resp_pos_applicant,
+            final_totals.total5_resp_pos_respondent,
+        ]
+
+        totals["total6"] = [
+            final_totals.total6_app_pos_applicant,
+            final_totals.total6_app_pos_respondent,
+            final_totals.total6_resp_pos_applicant,
+            final_totals.total6_resp_pos_respondent,
+        ]
+
+        equalization = {
+            "app_pays_resp_app": final_totals.eq_app_pos_applicant_pays,
+            "resp_pays_app_app": final_totals.eq_app_pos_respondent_pays,
+            "app_pays_resp_resp": final_totals.eq_resp_pos_applicant_pays,
+            "resp_pays_app_resp": final_totals.eq_resp_pos_respondent_pays,
+        }
+
+    else:
+        equalization = {
+            "app_pays_resp_app": 0,
+            "resp_pays_app_app": 0,
+            "app_pays_resp_resp": 0,
+            "resp_pays_app_resp": 0,
+        }
 
     return render(request, "forms/comparison_nfp_full_view.html", {
         "comparison": comparison,
         "form13c": form13c,
+
         "land_assets": land_assets,
         "household_items": household_items,
         "bank_accounts": bank_accounts,
         "insurances": insurances,
         "businesses": businesses,
+
         "money_owed": money_owed_list,
         "other_properties": other_properties,
         "debts_liabilities": debts_liabilities,
         "marriage_properties": marriage_properties,
         "marriage_debts": marriage_debts,
         "excluded_properties": excluded_properties,
+
         "final_totals": final_totals,
         "totals": totals,
         "equalization": equalization,
         "pk": pk,
     })
 
+@login_required
+def comparison_nfp_print(request, pk):
+    """Official printable format for Comparison NFP."""
+    comparison = get_object_or_404(ComparisonNetFamilyProperty, pk=pk)
+    form13c = getattr(comparison, "form13c", None)
 
+    household_items = list(comparison.household_items.all())
+    bank_accounts = list(comparison.bank_accounts.all())
+    insurances = list(comparison.insurances.all())
+    businesses = list(comparison.businesses.all())
+
+    assets = []
+    money_owed = []
+    other_property = []
+    debts = []
+    marriage_property = []
+    marriage_debts = []
+    excluded_property = []
+    final_totals = None
+
+    if form13c:
+        assets = list(form13c.assets.all())
+        money_owed = list(form13c.money_owed.all())
+        other_property = list(form13c.other_properties.all())
+        debts = list(form13c.debts_liabilities.all())
+        marriage_property = list(form13c.marriage_properties.filter(is_debt=False))
+        marriage_debts = list(form13c.marriage_properties.filter(is_debt=True))
+        excluded_property = list(form13c.excluded_properties.all())
+
+        try:
+            final_totals = form13c.final_totals
+        except Form13CFinalTotals.DoesNotExist:
+            final_totals = None
+
+    total_a = [0, 0, 0, 0]
+    total_b = [0, 0, 0, 0]
+    total_c = [0, 0, 0, 0]
+    total_d = [0, 0, 0, 0]
+    total_e = [0, 0, 0, 0]
+    total_f = [0, 0, 0, 0]
+    total_g = [0, 0, 0, 0]
+
+    total_1 = [0, 0, 0, 0]
+    total_2 = [0, 0, 0, 0]
+    total_3 = [0, 0, 0, 0]
+    total_4 = [0, 0, 0, 0]
+    total_5 = [0, 0, 0, 0]
+    total_6 = [0, 0, 0, 0]
+
+    total_marriage_property = [0, 0, 0, 0]
+    total_marriage_debts = [0, 0, 0, 0]
+
+    equalization = {
+        "app_pays_resp_app": "",
+        "resp_pays_app_app": "",
+        "app_pays_resp_resp": "",
+        "resp_pays_app_resp": "",
+    }
+
+    if final_totals:
+        total_1 = [
+            final_totals.total1_app_pos_applicant,
+            final_totals.total1_app_pos_respondent,
+            final_totals.total1_resp_pos_applicant,
+            final_totals.total1_resp_pos_respondent,
+        ]
+
+        total_2 = [
+            final_totals.total2_app_pos_applicant,
+            final_totals.total2_app_pos_respondent,
+            final_totals.total2_resp_pos_applicant,
+            final_totals.total2_resp_pos_respondent,
+        ]
+
+        total_3 = [
+            final_totals.total3_app_pos_applicant,
+            final_totals.total3_app_pos_respondent,
+            final_totals.total3_resp_pos_applicant,
+            final_totals.total3_resp_pos_respondent,
+        ]
+
+        total_4 = [
+            final_totals.total4_app_pos_applicant,
+            final_totals.total4_app_pos_respondent,
+            final_totals.total4_resp_pos_applicant,
+            final_totals.total4_resp_pos_respondent,
+        ]
+
+        total_5 = [
+            final_totals.total5_app_pos_applicant,
+            final_totals.total5_app_pos_respondent,
+            final_totals.total5_resp_pos_applicant,
+            final_totals.total5_resp_pos_respondent,
+        ]
+
+        total_6 = [
+            final_totals.total6_app_pos_applicant,
+            final_totals.total6_app_pos_respondent,
+            final_totals.total6_resp_pos_applicant,
+            final_totals.total6_resp_pos_respondent,
+        ]
+
+        equalization = {
+            "app_pays_resp_app": final_totals.eq_app_pos_applicant_pays,
+            "resp_pays_app_app": final_totals.eq_app_pos_respondent_pays,
+            "app_pays_resp_resp": final_totals.eq_resp_pos_applicant_pays,
+            "resp_pays_app_resp": final_totals.eq_resp_pos_respondent_pays,
+        }
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type="comparison_nfp",
+        form_id=pk,
+        form_identifier=comparison.court_file_number or f"Form 13C #{pk}"
+    )
+
+    log_audit(
+        request,
+        "export",
+        "comparison_nfp",
+        pk,
+        f"Form 13C #{pk}",
+        f"Printed - Price: ${print_event.price_charged}"
+    )
+
+    send_form_printed_notification(
+        "comparison_nfp",
+        comparison,
+        request.user,
+        print_event.price_charged
+    )
+
+    return render(request, "forms/comparison_nfp_print.html", {
+        "comparison": comparison,
+        "pk": pk,
+        "assets": assets,
+        "household_items": household_items,
+        "bank_accounts": bank_accounts,
+        "insurance_policies": insurances,
+        "business_interests": businesses,
+        "money_owed": money_owed,
+        "other_property": other_property,
+        "debts": debts,
+        "marriage_property": marriage_property,
+        "marriage_debts": marriage_debts,
+        "excluded_property": excluded_property,
+        "total_a": total_a,
+        "total_b": total_b,
+        "total_c": total_c,
+        "total_d": total_d,
+        "total_e": total_e,
+        "total_f": total_f,
+        "total_g": total_g,
+        "total_1": total_1,
+        "total_2": total_2,
+        "total_3": total_3,
+        "total_4": total_4,
+        "total_5": total_5,
+        "total_6": total_6,
+        "total_marriage_property": total_marriage_property,
+        "total_marriage_debts": total_marriage_debts,
+        "equalization": equalization,
+        "final_totals": final_totals,
+    })
 # ============================================================
 # BILLING & PRINT TRACKING
 # ============================================================
@@ -3978,41 +4562,210 @@ def admin_billing_report(request):
 # ============================================================
 # FINANCIAL STATEMENT (FORM 13.1) - View Page (for /view/<int:pk>/)
 # ============================================================
+def normalize_form131_page4_for_print(pages):
+    # Normalize Page 4 / Part 3 data for print
+# Form 13.1 stores these values inside draft["page4"], not direct model fields.
+
+# -------------------------------------------------
+# Normalize Page 4 / Part 3 values for print
+# IMPORTANT: Form 13.1 stores these inside draft["page4"]
+# -------------------------------------------------
+
+# -------------------------------------------------
+# Normalize Page 4 / Part 3 values for print
+# IMPORTANT: Form131FinancialStatement stores these in draft["page4"]
+# -------------------------------------------------
+
+    page4 = pages.get("page4", {}) or {}
+
+    page4["live_alone"] = (
+        page4.get("live_alone")
+        or page4.get("lives_alone")
+        or False
+    )
+
+    page4["living_with_someone"] = (
+        page4.get("living_with_someone")
+        or page4.get("living_with_spouse")
+        or page4.get("living_with_partner")
+        or False
+    )
+
+    page4["living_with_name"] = (
+        page4.get("living_with_name")
+        or page4.get("spouse_name")
+        or page4.get("partner_name")
+        or ""
+    )
+
+    page4["lives_with_other_adults"] = (
+        page4.get("lives_with_other_adults")
+        or page4.get("has_other_adults")
+        or bool(page4.get("other_adults_names"))
+        or bool(page4.get("other_adults"))
+    )
+
+    page4["other_adults_names"] = (
+        page4.get("other_adults_names")
+        or page4.get("other_adults")
+        or ""
+    )
+
+    page4["has_children_in_home"] = (
+        page4.get("has_children_in_home")
+        or page4.get("has_children")
+        or page4.get("children_in_home")
+        or False
+    )
+
+    page4["number_of_children_in_home"] = (
+        page4.get("number_of_children_in_home")
+        or page4.get("num_children")
+        or page4.get("children_count")
+        or ""
+    )
+
+    page4["spouse_works"] = (
+        page4.get("spouse_works")
+        or page4.get("partner_works")
+        or False
+    )
+
+    page4["spouse_work_place"] = (
+        page4.get("spouse_work_place")
+        or page4.get("spouse_workplace")
+        or page4.get("partner_workplace")
+        or ""
+    )
+
+    page4["spouse_does_not_work"] = (
+        page4.get("spouse_does_not_work")
+        or page4.get("spouse_not_work")
+        or page4.get("partner_not_work")
+        or False
+    )
+
+    page4["spouse_earns_income"] = (
+        page4.get("spouse_earns_income")
+        or page4.get("spouse_earns")
+        or page4.get("partner_earns")
+        or False
+    )
+
+    page4["spouse_income_amount"] = (
+        page4.get("spouse_income_amount")
+        or page4.get("spouse_income")
+        or page4.get("partner_income")
+        or ""
+    )
+
+    page4["spouse_income_period"] = (
+        page4.get("spouse_income_period")
+        or page4.get("partner_income_period")
+        or ""
+    )
+
+    page4["spouse_no_income"] = (
+        page4.get("spouse_no_income")
+        or page4.get("partner_no_income")
+        or False
+    )
+
+    page4["household_contribution_amount"] = (
+        page4.get("household_contribution_amount")
+        or page4.get("household_contribution")
+        or ""
+    )
+
+    page4["household_contribution_period"] = (
+        page4.get("household_contribution_period")
+        or page4.get("contribution_period")
+        or ""
+    )
+
+    pages["page4"] = page4
+    return pages
 
 
 @login_required
 def financial_statement_131_view(request, pk):
-    """View page for Form 13.1 Financial Statement (read-only)."""
+    """Read-only view for Form 13.1 Financial Statement."""
     from .models import Form131FinancialStatement
+
     statement = get_object_or_404(Form131FinancialStatement, pk=pk)
-    pages = {}
+
+    pages = statement.draft or {}
+
+    # Always make sure all page keys exist.
     for page_num in range(1, 11):
-        pages[f"page{page_num}"] = statement.get_page_data(page_num)
+        pages.setdefault(f"page{page_num}", statement.get_page_data(page_num) or {})
+
+    # Always use proper Page 1 fallback data.
     page1 = _get_form131_page1_data(statement, persist=True)
     pages["page1"] = page1
+
+    # Apply same calculations used by print.
+    pages = _calculate_form131_totals(pages)
+    pages = _calculate_form131_missing_totals(pages)
+
+    # Make sure Page 10 exists.
+    page10 = pages.get("page10", {}) or {}
+
+    # Normalize the "I earn" fields for the view.
+    page10["schedule_b_i_earn_checked"] = (
+        page10.get("schedule_b_i_earn_checked")
+        or page10.get("i_earn_checked")
+        or page10.get("i_earn")
+        or page10.get("earn_checked")
+        or ""
+    )
+
+    page10["schedule_b_i_earn_amount"] = (
+        page10.get("schedule_b_i_earn_amount")
+        or page10.get("i_earn_amount")
+        or page10.get("earn_amount")
+        or page10.get("my_income_for_share")
+        or ""
+    )
+
+    pages["page10"] = page10
+
+    # Save calculated/normalized values back to draft so view and print stay aligned.
+    statement.draft = pages
+    statement.save(update_fields=["draft", "updated_at"])
+
     template_meta_by_page = _get_form131_template_meta()
+
     ordered_pages = []
+
     for page_num in range(1, 11):
-        page_data = pages.get(f"page{page_num}", {})
+        page_key = f"page{page_num}"
+        page_data = pages.get(page_key, {}) or {}
+
         block_html = _get_form131_page_block_html(page_num)
         page_html = _apply_page_data_to_block(block_html, page_data) if block_html else ""
+
         page_meta = template_meta_by_page.get(page_num, {})
-        ordered_pages.append(_build_form131_page_display_data(
-            page_num,
-            page_data,
-            page_meta.get("fields", []),
-            page_html,
-            page_meta.get("header", ""),
-            page_meta.get("subheader", ""),
-        ))
+
+        ordered_pages.append(
+            _build_form131_page_display_data(
+                page_num,
+                page_data,
+                page_meta.get("fields", []),
+                page_html=page_html,
+                page_header=page_meta.get("header", ""),
+                page_subheader=page_meta.get("subheader", ""),
+            )
+        )
+
     return render(request, "forms/financial_statement_131_view.html", {
         "statement": statement,
+        "form": statement,
         "pages": pages,
         "ordered_pages": ordered_pages,
         "court_file_number": page1.get("court_file_number") or statement.court_file_number or "",
         "applicant_name": page1.get("applicant_name") or statement.applicant_name or "",
         "respondent_name": page1.get("respondent_name") or statement.respondent_name or "",
-        "pk": pk,
     })
 
 @login_required
@@ -4879,6 +5632,165 @@ def divorce_order_list(request):
             "orders": orders,
         }
     )
+
+
+@login_required
+def divorce_order_onepage_list(request):
+    """List view for A-25A Divorce Orders.
+
+    This is a separate form model and rendering path from the standard
+    Form 25A Divorce Order.
+    """
+    orders = DivorceOrderA25A.objects.all().order_by("-updated_at")
+
+    perms = user_permissions(request).get(
+        "user_permissions",
+        {}
+    ).get(
+        "divorce_order",
+        {}
+    )
+
+    for order in orders:
+        order.can_view = request.user.is_superuser or perms.get("view", False)
+        order.can_edit = request.user.is_superuser or perms.get("edit", False)
+        order.can_print = request.user.is_superuser or perms.get("print", False)
+        order.can_delete = request.user.is_superuser or perms.get("delete", False)
+
+    return render(request, "forms/divorce_order_onepage_list.html", {"orders": orders})
+
+
+@login_required
+def divorce_order_a25a_create(request):
+    case = None
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+
+    if case_id:
+        case = CaseFile.objects.filter(
+            pk=case_id,
+            owner=request.user
+        ).first()
+
+    initial = _build_divorce_order_case_initial(case) if case else {}
+
+    if request.method == "POST":
+        form = DivorceOrderA25AForm(request.POST)
+
+        if form.is_valid():
+            order = form.save(commit=False)
+
+            if case:
+                order.case_file = case
+
+            order.save()
+
+            send_form_created_notification(
+                "divorce_order_a25a",
+                order,
+                request.user
+            )
+
+            return redirect("divorce_order_a25a_view", pk=order.pk)
+
+    else:
+        form = DivorceOrderA25AForm(initial=initial)
+
+    case_list = CaseFile.objects.filter(
+        owner=request.user
+    ).order_by("-updated_at")
+
+    return render(request, "forms/divorce_order_a25a_create.html", {
+        "form": form,
+        "case_list": case_list,
+        "selected_case": case,
+    })
+
+
+@login_required
+def divorce_order_a25a_page(request, pk=None):
+    order = get_object_or_404(DivorceOrderA25A, pk=pk)
+    case = order.case_file
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+
+    if case_id:
+        case = CaseFile.objects.filter(
+            pk=case_id,
+            owner=request.user
+        ).first()
+
+    initial = _build_divorce_order_case_initial(case) if case else {}
+
+    if request.method == "POST":
+        form = DivorceOrderA25AForm(request.POST, instance=order)
+
+        if form.is_valid():
+            order = form.save(commit=False)
+
+            if case:
+                order.case_file = case
+
+            order.save()
+            return redirect('divorce_order_a25a_view', pk=order.pk)
+
+    else:
+        form = DivorceOrderA25AForm(instance=order, initial=initial)
+
+    case_list = CaseFile.objects.filter(
+        owner=request.user
+    ).order_by("-updated_at")
+
+    return render(request, 'forms/divorce_order_a25a_page.html', {
+        'form': form,
+        'order': order,
+        'case_list': case_list,
+        'selected_case': case,
+    })
+
+
+@login_required
+def divorce_order_a25a_view(request, pk):
+    order = get_object_or_404(DivorceOrderA25A, pk=pk)
+    return render(request, 'forms/divorce_order_a25a_view.html', {'order': order})
+
+
+@login_required
+def divorce_order_a25a_print(request, pk):
+    order = get_object_or_404(DivorceOrderA25A, pk=pk)
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type='divorce_order_a25a',
+        form_id=pk,
+        form_identifier=order.court_file_number or f'Divorce Order A-25A #{pk}'
+    )
+
+    log_audit(request, 'export', 'divorce_order_a25a', pk, f'Divorce Order A-25A #{pk}', f'Printed - Price: ${print_event.price_charged}')
+    send_form_printed_notification('divorce_order_a25a', order, request.user, print_event.price_charged)
+
+    return render(request, 'forms/divorce_order_a25a_print.html', {'order': order})
+
+
+@login_required
+def divorce_order_a25a_print_view(request, pk):
+    order = get_object_or_404(DivorceOrderA25A, pk=pk)
+    return render(request, 'forms/divorce_order_a25a_print_view.html', {'order': order})
+
+
+@login_required
+def divorce_order_a25a_delete(request, pk):
+    order = get_object_or_404(DivorceOrderA25A, pk=pk)
+    if request.method == 'POST':
+        order.delete()
+        messages.success(request, "Divorce Order A-25A deleted successfully.")
+        return redirect('divorce_order_onepage_list')
+
+    return render(request, 'confirm_delete.html', {
+        'object': order,
+        'object_label': 'Divorce Order A-25A',
+        'cancel_url': 'divorce_order_onepage_list',
+    })
+
+
 def _build_divorce_order_case_initial(case):
     if not case:
         return {}
@@ -5006,6 +5918,28 @@ def divorce_order_print_view(request, pk):
 
 
 @login_required
+def divorce_order_print_onepage(request, pk):
+    """Render a one-page print-friendly version of the divorce order.
+
+    This logs a print event and sends the same notifications as the
+    multi-page print view but uses the single-page template.
+    """
+    order = get_object_or_404(DivorceOrder, pk=pk)
+
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type='divorce_order_onepage',
+        form_id=pk,
+        form_identifier=order.court_file_number or f'Divorce Order #{pk}'
+    )
+
+    log_audit(request, 'export', 'divorce_order', pk, f'Divorce Order (onepage) #{pk}', f'Printed - Price: ${print_event.price_charged}')
+    send_form_printed_notification('divorce_order', order, request.user, print_event.price_charged)
+
+    return render(request, 'forms/divorce_order_onepage.html', {'order': order})
+
+
+@login_required
 def divorce_order_delete(request, pk):
     order = get_object_or_404(DivorceOrder, pk=pk)
 
@@ -5124,6 +6058,8 @@ def application_divorce_8a_page1(request, pk):
                 _apply_case_fields_to_instance(application, case, overwrite=False)
     elif application.case_file:
         case = application.case_file
+        if not application.court_file_number:
+            application.court_file_number = application.case_file.court_file_number or ""
 
     if request.method == "POST":
         form = ApplicationDivorce8APage1Form(request.POST, instance=application)
@@ -5159,10 +6095,9 @@ def application_divorce_8a_page2(request, pk):
             initial = _build_case_initial(case)
             # Apply case fields to the instance for display (don't save)
             _apply_case_fields_to_instance(application, case, overwrite=False)
-            # Apply case fields to the instance for display (don't save)
-            _apply_case_fields_to_instance(application, case, overwrite=False)
-            # Apply case fields to the instance for display (don't save)
-            _apply_case_fields_to_instance(application, case, overwrite=False)
+
+    if not application.court_file_number and application.case_file:
+        application.court_file_number = application.case_file.court_file_number or ""
 
     if request.method == "POST":
         form = ApplicationDivorce8APage2Form(
@@ -5176,6 +6111,10 @@ def application_divorce_8a_page2(request, pk):
                 if case:
                     form.instance.case_file = case
                     _apply_case_fields_to_instance(form.instance, case, overwrite=False)
+            form.instance.court_file_number = _resolve_application_court_file_number(
+                application,
+                request.POST.get("court_file_number")
+            )
             form.save()
             return redirect("application_divorce_8a_page3", pk=application.pk)
 
@@ -5204,6 +6143,9 @@ def application_divorce_8a_page3(request, pk):
         if case:
             initial = _build_case_initial(case)
 
+    if not application.court_file_number and application.case_file:
+        application.court_file_number = application.case_file.court_file_number or ""
+
     if request.method == "POST":
         form = ApplicationDivorce8APage3Form(request.POST, instance=application)
         if form.is_valid():
@@ -5212,6 +6154,10 @@ def application_divorce_8a_page3(request, pk):
                 if case:
                     form.instance.case_file = case
                     _apply_case_fields_to_instance(form.instance, case, overwrite=False)
+            form.instance.court_file_number = _resolve_application_court_file_number(
+                application,
+                request.POST.get("court_file_number")
+            )
             form.save()
             return redirect("application_divorce_8a_page4", pk=application.pk)
     else:
@@ -5230,51 +6176,117 @@ def application_divorce_8a_page3(request, pk):
 def application_divorce_8a_page4(request, pk):
     application = get_object_or_404(ApplicationDivorce8A, pk=pk)
 
-    case = None
-    case_id = request.GET.get('case_id') or request.POST.get('case_id')
-    initial = {}
-    if case_id and not application.case_file:
-        case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
-        if case:
-            initial = _build_case_initial(case)
+    checkbox_fields = [
+        # All checkbox/boolean fields used on Page 4 & related facts
+        "claim_divorce",
+        "claim_spousal_support",
+        "claim_child_support_table",
+        "claim_child_support_other",
+        "claim_decision_making",
+        "claim_parenting_time",
+
+        # Family Law specific child support
+        "claim_support_child_table_family_law",
+        "claim_support_child_other_family_law",
+
+        "claim_restraining_order",
+        "claim_indexing_spousal_support",
+        "claim_declaration_parentage",
+        "claim_guardianship_child_property",
+
+        # Property
+        "claim_property_equalization",
+        "claim_exclusive_possession_home",
+        "claim_exclusive_possession_contents",
+        "claim_freezing_assets",
+        "claim_sale_family_property",
+
+        # Other claims
+        "claim_costs",
+        "claim_annulment",
+        "claim_prejudgment_interest",
+        "claim_other",
+
+        # Simple divorce frame
+        "simple_claim_divorce",
+        "simple_claim_costs",
+
+        # Divorce facts
+        "divorce_ground_separation",
+        "not_lived_together_since",
+        "lived_together_attempt_reconcile",
+        "divorce_ground_adultery",
+        # divorce_ground_cruelty is handled on page 5, not page 4
+    ]
+
+    if not application.court_file_number and application.case_file:
+        application.court_file_number = application.case_file.court_file_number or ""
 
     if request.method == "POST":
         form = ApplicationDivorce8APage4Form(request.POST, instance=application)
-        if form.is_valid():
-            if case_id and not application.case_file:
-                case = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
-                if case:
-                    form.instance.case_file = case
-                    _apply_case_fields_to_instance(form.instance, case, overwrite=False)
-            form.save()
-            return redirect("application_divorce_8a_page5", pk=application.pk)
-    else:
-        form = ApplicationDivorce8APage4Form(instance=application, initial=initial)
 
-    case_list = CaseFile.objects.filter(owner=request.user) if not application.case_file else None
+        if form.is_valid():
+            obj = form.save(commit=False)
+
+            # Keep court file number from Page 1 if Page 4 field is empty
+            obj.court_file_number = _resolve_application_court_file_number(
+                application,
+                request.POST.get("court_file_number")
+            )
+
+            # Manually save all checkboxes
+            for field in checkbox_fields:
+                if hasattr(obj, field):
+                    setattr(obj, field, field in request.POST)
+
+            obj.save()
+
+            return redirect("application_divorce_8a_page5", pk=obj.pk)
+
+    else:
+        form = ApplicationDivorce8APage4Form(instance=application)
+
     return render(request, "forms/application_divorce_8a_page4.html", {
         "form": form,
         "application": application,
-        "case_list": case_list,
-        "selected_case": case,
+        "selected_case": application.case_file,
     })
-
-
 @login_required
 def application_divorce_8a_page5(request, pk):
     application = get_object_or_404(ApplicationDivorce8A, pk=pk)
+    missing_certificate = bool(request.GET.get("missing_certificate"))
 
     if request.method == "POST":
         form = ApplicationDivorce8APage5Form(request.POST, instance=application)
         if form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+
+            # Preserve court file number
+            obj.court_file_number = _resolve_application_court_file_number(
+                application,
+                request.POST.get("court_file_number")
+            )
+
+            # Ensure cruelty fields save even if template rendering varied
+            obj.divorce_ground_cruelty = "divorce_ground_cruelty" in request.POST
+            obj.cruelty_spouse_name = request.POST.get("cruelty_spouse_name") or obj.cruelty_spouse_name
+            obj.cruelty_victim_name = request.POST.get("cruelty_victim_name") or obj.cruelty_victim_name
+            obj.cruelty_details = request.POST.get("cruelty_details") or obj.cruelty_details
+
+            # Applicant certificate
+            obj.applicant_certificate_confirmed = "applicant_certificate_confirmed" in request.POST
+
+            obj.save()
             return redirect("application_divorce_8a_page6", pk=application.pk)
     else:
+        if not application.court_file_number and application.case_file:
+            application.court_file_number = application.case_file.court_file_number or ""
         form = ApplicationDivorce8APage5Form(instance=application)
 
     return render(request, "forms/application_divorce_8a_page5.html", {
         "form": form,
         "application": application,
+        "missing_certificate": missing_certificate,
     })
 
 
@@ -5285,9 +6297,27 @@ def application_divorce_8a_page6(request, pk):
     if request.method == "POST":
         form = ApplicationDivorce8APage6Form(request.POST, request.FILES, instance=application)
         if form.is_valid():
+            # Preserve court file number
+            form.instance.court_file_number = _resolve_application_court_file_number(
+                application,
+                request.POST.get("court_file_number")
+            )
+
+            # Require applicant certificate (Page 5) before final submission
+            if not application.applicant_certificate_confirmed and not form.instance.applicant_certificate_confirmed:
+                messages.error(request, "You must confirm the applicant's certificate on Page 5 before submitting the form.")
+                # Redirect back to page 5 and show inline warning
+                return HttpResponseRedirect(reverse("application_divorce_8a_page5", kwargs={"pk": application.pk}) + "?missing_certificate=1")
+
             form.save()
+            # mark completed
+            application.is_completed = True
+            application.save()
+            messages.success(request, "Form 8A submitted successfully.")
             return redirect("application_divorce_8a_view", pk=application.pk)
     else:
+        if not application.court_file_number and application.case_file:
+            application.court_file_number = application.case_file.court_file_number or ""
         form = ApplicationDivorce8APage6Form(instance=application)
 
     return render(request, "forms/application_divorce_8a_page6.html", {

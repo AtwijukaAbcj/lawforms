@@ -37,6 +37,7 @@ from .models import (
     ApplicationDivorce8A,
     CertificateOfDivorce,
     DivorceOrder,
+    DivorceOrderA25A,
 )
 # from .models import AffidavitService
 
@@ -94,8 +95,41 @@ class CertificateOfDivorceForm(BaseModelForm):
 
 
 class DivorceOrderForm(BaseModelForm):
+    persons_in_court = forms.CharField(
+        required=False,
+        max_length=280,
+        widget=forms.Textarea(attrs={"rows": 3, "maxlength": "280"}),
+    )
+    evidence_submissions = forms.CharField(
+        required=False,
+        max_length=280,
+        widget=forms.Textarea(attrs={"rows": 3, "maxlength": "280"}),
+    )
+
     class Meta:
         model = DivorceOrder
+        exclude = ["case_file"]
+        widgets = {
+            "marriage_date": forms.DateInput(attrs={"type": "date"}),
+            "date_of_order": forms.DateInput(attrs={"type": "date"}),
+            "date_of_signature": forms.DateInput(attrs={"type": "date"}),
+        }
+
+
+class DivorceOrderA25AForm(BaseModelForm):
+    persons_in_court = forms.CharField(
+        required=False,
+        max_length=280,
+        widget=forms.Textarea(attrs={"rows": 3, "maxlength": "280"}),
+    )
+    evidence_submissions = forms.CharField(
+        required=False,
+        max_length=280,
+        widget=forms.Textarea(attrs={"rows": 3, "maxlength": "280"}),
+    )
+
+    class Meta:
+        model = DivorceOrderA25A
         exclude = ["case_file"]
         widgets = {
             "marriage_date": forms.DateInput(attrs={"type": "date"}),
@@ -292,11 +326,26 @@ class Form13CExcludedPropertyForm(BaseModelForm):
 # ----------------------------
 # Form 13C Final Totals (last page)
 # ----------------------------
-class Form13CFinalTotalsForm(BaseModelForm):
+class Form13CFinalTotalsForm(forms.ModelForm):
     class Meta:
         model = Form13CFinalTotals
-        exclude = ["form13c"]  # ✅ FIXED
+        fields = "__all__"
+        exclude = ["form13c"]
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        for field_name, field in self.fields.items():
+            field.widget.attrs.update({
+                "step": "any",
+                "inputmode": "decimal",
+            })
+
+            if hasattr(field, "decimal_places"):
+                field.decimal_places = 15
+
+            if hasattr(field, "max_digits"):
+                field.max_digits = 30
 # =====================================================
 # FORM 6B - AFFIDAVIT OF SERVICE FORMS
 # =====================================================
@@ -372,7 +421,7 @@ class AffidavitServicePage1Form(BaseModelForm):
             "applicant_lawyer_details": forms.Textarea(attrs={"rows": 3}),
             "respondent_lawyer_details": forms.Textarea(attrs={"rows": 3}),
         }
-        
+
 class AffidavitServicePage2Form(BaseModelForm):
     class Meta:
         model = AffidavitOfService
@@ -603,6 +652,7 @@ class ApplicationDivorce8APage4Form(BaseModelForm):
         ]
         widgets = {
             "separation_date": forms.DateInput(attrs={"type": "date"}),
+            "notice_of_calculation_details": forms.DateInput(attrs={"type": "date"}),
         }
 
 
