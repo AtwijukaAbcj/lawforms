@@ -149,7 +149,16 @@ def financial_statement_page1_new(request):
             return redirect("financial_statement_page2", pk=statement.pk)
     else:
         form = FinancialStatementForm()
-    return render(request, "forms/financial_statement_page1.html", {"form": form, "statement": None})
+    
+    page_data = {
+        "court_name": "", "court_file_number": "", "court_office_address": "",
+        "applicant_name": "", "applicant_address": "", "applicant_phone": "", "applicant_fax": "", "applicant_email": "",
+        "applicant_lawyer_name": "", "applicant_lawyer_address": "", "applicant_lawyer_phone": "", "applicant_lawyer_fax": "", "applicant_lawyer_email": "",
+        "respondent_name": "", "respondent_address": "", "respondent_phone": "", "respondent_fax": "", "respondent_email": "",
+        "respondent_lawyer_name": "", "respondent_lawyer_address": "", "respondent_lawyer_phone": "", "respondent_lawyer_fax": "", "respondent_lawyer_email": "",
+    }
+    
+    return render(request, "forms/financial_statement_page1.html", {"form": form, "statement": None, "page_data": page_data})
 
 
 @login_required
@@ -160,27 +169,122 @@ def financial_statement_page1(request, pk=None):
     if request.method == "POST":
         form = FinancialStatementForm(request.POST, instance=statement)
         if form.is_valid():
-            statement = form.save()
+            # Don't call form.save() - it would overwrite other pages' fields
+            # Instead, manually save page 1 fields only
             _save_page1_fields(statement, request.POST)
             return redirect("financial_statement_page2", pk=statement.pk)
     else:
         form = FinancialStatementForm(instance=statement)
     
-    return render(request, "forms/financial_statement_page1.html", {"form": form, "statement": statement})
+    page_data = {
+        "court_name": statement.court_name or "",
+        "court_file_number": statement.court_file_number or "",
+        "court_office_address": statement.court_office_address or "",
+        "applicant_name": statement.applicant_name or "",
+        "applicant_address": statement.applicant_address or "",
+        "applicant_phone": statement.applicant_phone or "",
+        "applicant_fax": statement.applicant_fax or "",
+        "applicant_email": statement.applicant_email or "",
+        "applicant_lawyer_name": statement.applicant_lawyer_name or "",
+        "applicant_lawyer_address": statement.applicant_lawyer_address or "",
+        "applicant_lawyer_phone": statement.applicant_lawyer_phone or "",
+        "applicant_lawyer_fax": statement.applicant_lawyer_fax or "",
+        "applicant_lawyer_email": statement.applicant_lawyer_email or "",
+        "respondent_name": statement.respondent_name or "",
+        "respondent_address": statement.respondent_address or "",
+        "respondent_phone": statement.respondent_phone or "",
+        "respondent_fax": statement.respondent_fax or "",
+        "respondent_email": statement.respondent_email or "",
+        "respondent_lawyer_name": statement.respondent_lawyer_name or "",
+        "respondent_lawyer_address": statement.respondent_lawyer_address or "",
+        "respondent_lawyer_phone": statement.respondent_lawyer_phone or "",
+        "respondent_lawyer_fax": statement.respondent_lawyer_fax or "",
+        "respondent_lawyer_email": statement.respondent_lawyer_email or "",
+    }
+    
+    return render(request, "forms/financial_statement_page1.html", {"form": form, "statement": statement, "page_data": page_data})
 
 
 def _save_page1_fields(statement, post_data):
-    """Helper to save page 1 specific fields."""
-    statement.my_name = post_data.get('my_name', '')
-    statement.my_location = post_data.get('my_location', '')
+    """Helper to save page 1 specific fields - only updates page 1 fields."""
+    # Page 1 basic info (all optional, don't truncate existing values)
+    if 'my_name' in post_data:
+        statement.my_name = post_data.get('my_name', '')
+    if 'my_location' in post_data:
+        statement.my_location = post_data.get('my_location', '')
+    
+    # Employment status checkboxes
     statement.is_employed = 'is_employed' in post_data
-    statement.employer_name_address = post_data.get('employer_name_address', '')
     statement.is_self_employed = 'is_self_employed' in post_data
-    statement.business_name_address = post_data.get('business_name_address', '')
     statement.is_unemployed = 'is_unemployed' in post_data
-    unemployed_since = post_data.get('unemployed_since', '')
+    
+    # Employment details (only update if provided)
+    if 'employer_name_address' in post_data:
+        statement.employer_name_address = post_data.get('employer_name_address', '')
+    if 'business_name_address' in post_data:
+        statement.business_name_address = post_data.get('business_name_address', '')
+    
+    # Date fields (only update if provided)
+    unemployed_since = post_data.get('unemployed_since')
     if unemployed_since:
         statement.unemployed_since = unemployed_since
+    
+    # Sworn affidavit field (only update if provided)
+    if 'sworn_affidavit' in post_data:
+        statement.sworn_affidavit = post_data.get('sworn_affidavit', '')
+    
+    # Court and party information - only update if in form submission
+    if 'court_name' in post_data:
+        statement.court_name = post_data.get('court_name', '')
+    if 'court_file_number' in post_data:
+        statement.court_file_number = post_data.get('court_file_number', '')
+    if 'court_office_address' in post_data:
+        statement.court_office_address = post_data.get('court_office_address', '')
+    
+    if 'applicant_name' in post_data:
+        statement.applicant_name = post_data.get('applicant_name', '')
+    if 'applicant_address' in post_data:
+        statement.applicant_address = post_data.get('applicant_address', '')
+    if 'applicant_phone' in post_data:
+        statement.applicant_phone = post_data.get('applicant_phone', '')
+    if 'applicant_fax' in post_data:
+        statement.applicant_fax = post_data.get('applicant_fax', '')
+    if 'applicant_email' in post_data:
+        statement.applicant_email = post_data.get('applicant_email', '')
+    
+    if 'applicant_lawyer_name' in post_data:
+        statement.applicant_lawyer_name = post_data.get('applicant_lawyer_name', '')
+    if 'applicant_lawyer_address' in post_data:
+        statement.applicant_lawyer_address = post_data.get('applicant_lawyer_address', '')
+    if 'applicant_lawyer_phone' in post_data:
+        statement.applicant_lawyer_phone = post_data.get('applicant_lawyer_phone', '')
+    if 'applicant_lawyer_fax' in post_data:
+        statement.applicant_lawyer_fax = post_data.get('applicant_lawyer_fax', '')
+    if 'applicant_lawyer_email' in post_data:
+        statement.applicant_lawyer_email = post_data.get('applicant_lawyer_email', '')
+    
+    if 'respondent_name' in post_data:
+        statement.respondent_name = post_data.get('respondent_name', '')
+    if 'respondent_address' in post_data:
+        statement.respondent_address = post_data.get('respondent_address', '')
+    if 'respondent_phone' in post_data:
+        statement.respondent_phone = post_data.get('respondent_phone', '')
+    if 'respondent_fax' in post_data:
+        statement.respondent_fax = post_data.get('respondent_fax', '')
+    if 'respondent_email' in post_data:
+        statement.respondent_email = post_data.get('respondent_email', '')
+    
+    if 'respondent_lawyer_name' in post_data:
+        statement.respondent_lawyer_name = post_data.get('respondent_lawyer_name', '')
+    if 'respondent_lawyer_address' in post_data:
+        statement.respondent_lawyer_address = post_data.get('respondent_lawyer_address', '')
+    if 'respondent_lawyer_phone' in post_data:
+        statement.respondent_lawyer_phone = post_data.get('respondent_lawyer_phone', '')
+    if 'respondent_lawyer_fax' in post_data:
+        statement.respondent_lawyer_fax = post_data.get('respondent_lawyer_fax', '')
+    if 'respondent_lawyer_email' in post_data:
+        statement.respondent_lawyer_email = post_data.get('respondent_lawyer_email', '')
+    
     statement.save()
 
 
@@ -530,6 +634,7 @@ def financial_statement_page6(request, pk):
         sworn_date = request.POST.get('sworn_date', '')
         if sworn_date:
             statement.sworn_date = sworn_date
+        statement.signature = request.POST.get('signature', '')
         statement.commissioner_signature = request.POST.get('commissioner_signature', '')
         
         statement.save()

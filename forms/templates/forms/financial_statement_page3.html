@@ -418,30 +418,30 @@
 
                 <tbody id="benefits-table-body">
                   <tr class="benefit-row">
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_1" value="{{ statement.benefit_item_1|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_1" value="{{ statement.benefit_details_1|default:'' }}"></td>
-                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_1" value="{{ statement.benefit_value_1|floatformat:2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_1" value="{{ page_data.benefit_item_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_1" value="{{ page_data.benefit_details_1|default:'' }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_1" value="{{ page_data.benefit_value_1|default:'' }}"></td>
                     <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
                   </tr>
 
                   <tr class="benefit-row">
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_2" value="{{ statement.benefit_item_2|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_2" value="{{ statement.benefit_details_2|default:'' }}"></td>
-                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_2" value="{{ statement.benefit_value_2|floatformat:2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_2" value="{{ page_data.benefit_item_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_2" value="{{ page_data.benefit_details_2|default:'' }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_2" value="{{ page_data.benefit_value_2|default:'' }}"></td>
                     <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
                   </tr>
 
                   <tr class="benefit-row">
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_3" value="{{ statement.benefit_item_3|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_3" value="{{ statement.benefit_details_3|default:'' }}"></td>
-                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_3" value="{{ statement.benefit_value_3|floatformat:2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_3" value="{{ page_data.benefit_item_3|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_3" value="{{ page_data.benefit_details_3|default:'' }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_3" value="{{ page_data.benefit_value_3|default:'' }}"></td>
                     <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
                   </tr>
 
                   <tr class="benefit-row">
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_4" value="{{ statement.benefit_item_4|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_4" value="{{ statement.benefit_details_4|default:'' }}"></td>
-                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_4" value="{{ statement.benefit_value_4|floatformat:2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_item_4" value="{{ page_data.benefit_item_4|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="benefit_details_4" value="{{ page_data.benefit_details_4|default:'' }}"></td>
+                    <td class="money-cell"><input class="form-control ui-input sm money-input" type="number" step="0.01" name="benefit_value_4" value="{{ page_data.benefit_value_4|default:'' }}"></td>
                     <td><button type="button" class="btn-delete-row" onclick="deleteBenefitRow(this)" title="Delete row">&times;</button></td>
                   </tr>
                 </tbody>
@@ -519,14 +519,6 @@
             document.getElementById('add-benefit-row').addEventListener('click', function(){
               addBenefitRow('', '', '');
             });
-
-            {% for benefit in extra_benefits %}
-            addBenefitRow(
-              '{{ benefit.item|default:""|escapejs }}',
-              '{{ benefit.details|default:""|escapejs }}',
-              '{{ benefit.value|floatformat:2|default:""|escapejs }}'
-            );
-            {% endfor %}
           })();
           </script>
 
@@ -557,12 +549,12 @@
                       <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>CPP contributions</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="cpp_contributions" value="{{ statement.cpp_contributions|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>EI premiums</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="ei_premiums" value="{{ statement.ei_premiums|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Income taxes</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="income_taxes" value="{{ statement.income_taxes|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Employee pension contributions</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="employee_pension_contributions" value="{{ statement.employee_pension_contributions|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Union dues</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="union_dues" value="{{ statement.union_dues|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="automatic_deductions_subtotal" value="{{ statement.automatic_deductions_subtotal|floatformat:2|default:'' }}"></td></tr>
+                      <tr><td>CPP contributions</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="cpp_contributions" value="{{ page_data.cpp_contributions|default:'' }}"></td></tr>
+                      <tr><td>EI premiums</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="ei_premiums" value="{{ page_data.ei_premiums|default:'' }}"></td></tr>
+                      <tr><td>Income taxes</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="income_taxes" value="{{ page_data.income_taxes|default:'' }}"></td></tr>
+                      <tr><td>Employee pension contributions</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="employee_pension_contributions" value="{{ page_data.employee_pension_contributions|default:'' }}"></td></tr>
+                      <tr><td>Union dues</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="union_dues" value="{{ page_data.union_dues|default:'' }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="automatic_deductions_subtotal" value="{{ page_data.automatic_deductions_subtotal|default:'' }}"></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -580,12 +572,12 @@
                       <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Rent or mortgage</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="rent_or_mortgage" value="{{ statement.rent_or_mortgage|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Property taxes</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="property_taxes" value="{{ statement.property_taxes|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Property insurance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="property_insurance" value="{{ statement.property_insurance|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Condominium fees</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="condo_fees" value="{{ statement.condo_fees|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Repairs and maintenance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="repairs_maintenance" value="{{ statement.repairs_maintenance|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="housing_subtotal" value="{{ statement.housing_subtotal|floatformat:2|default:'' }}"></td></tr>
+                      <tr><td>Rent or mortgage</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="rent_or_mortgage" value="{{ page_data.rent_or_mortgage|default:'' }}"></td></tr>
+                      <tr><td>Property taxes</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="property_taxes" value="{{ page_data.property_taxes|default:'' }}"></td></tr>
+                      <tr><td>Property insurance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="property_insurance" value="{{ page_data.property_insurance|default:'' }}"></td></tr>
+                      <tr><td>Condominium fees</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="condo_fees" value="{{ page_data.condo_fees|default:'' }}"></td></tr>
+                      <tr><td>Repairs and maintenance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="repairs_maintenance" value="{{ page_data.repairs_maintenance|default:'' }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="housing_subtotal" value="{{ page_data.housing_subtotal|default:'' }}"></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -603,9 +595,9 @@
                       <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Water</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="water" value="{{ statement.water|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Heat</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="heat" value="{{ statement.heat|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Electricity</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="electricity" value="{{ statement.electricity|floatformat:2|default:'' }}"></td></tr>
+                      <tr><td>Water</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="water" value="{{ page_data.water|default:'' }}"></td></tr>
+                      <tr><td>Heat</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="heat" value="{{ page_data.heat|default:'' }}"></td></tr>
+                      <tr><td>Electricity</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="electricity" value="{{ page_data.electricity|default:'' }}"></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -625,13 +617,13 @@
                       <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Public transit, taxis</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="public_transit_taxis" value="{{ statement.public_transit_taxis|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Gas and oil</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="gas_oil" value="{{ statement.gas_oil|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Car insurance and license</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_insurance_license" value="{{ statement.car_insurance_license|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Repairs and maintenance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_repairs_maintenance" value="{{ statement.car_repairs_maintenance|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Parking</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="parking" value="{{ statement.parking|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Car loan or lease payments</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_loan_lease_payments" value="{{ statement.car_loan_lease_payments|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="transportation_subtotal" value="{{ statement.transportation_subtotal|floatformat:2|default:'' }}"></td></tr>
+                      <tr><td>Public transit, taxis</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="public_transit_taxis" value="{{ page_data.public_transit_taxis|default:'' }}"></td></tr>
+                      <tr><td>Gas and oil</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="gas_oil" value="{{ page_data.gas_oil|default:'' }}"></td></tr>
+                      <tr><td>Car insurance and license</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_insurance_license" value="{{ page_data.car_insurance_license|default:'' }}"></td></tr>
+                      <tr><td>Repairs and maintenance</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_repairs_maintenance" value="{{ page_data.car_repairs_maintenance|default:'' }}"></td></tr>
+                      <tr><td>Parking</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="parking" value="{{ page_data.parking|default:'' }}"></td></tr>
+                      <tr><td>Car loan or lease payments</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="car_loan_lease_payments" value="{{ page_data.car_loan_lease_payments|default:'' }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="transportation_subtotal" value="{{ page_data.transportation_subtotal|default:'' }}"></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -649,11 +641,11 @@
                       <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Health insurance premiums</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="health_insurance_premiums" value="{{ statement.health_insurance_premiums|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Dental expenses</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="dental_expenses" value="{{ statement.dental_expenses|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Medicine and drugs</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="medicine_drugs" value="{{ statement.medicine_drugs|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Eye care</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="eye_care" value="{{ statement.eye_care|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="health_subtotal" value="{{ statement.health_subtotal|floatformat:2|default:'' }}"></td></tr>
+                      <tr><td>Health insurance premiums</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="health_insurance_premiums" value="{{ page_data.health_insurance_premiums|default:'' }}"></td></tr>
+                      <tr><td>Dental expenses</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="dental_expenses" value="{{ page_data.dental_expenses|default:'' }}"></td></tr>
+                      <tr><td>Medicine and drugs</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="medicine_drugs" value="{{ page_data.medicine_drugs|default:'' }}"></td></tr>
+                      <tr><td>Eye care</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="eye_care" value="{{ page_data.eye_care|default:'' }}"></td></tr>
+                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="health_subtotal" value="{{ page_data.health_subtotal|default:'' }}"></td></tr>
                     </tbody>
                   </table>
                 </div>
@@ -671,9 +663,9 @@
                       <tr><th>Expense</th><th style="width:200px;">Monthly amount</th></tr>
                     </thead>
                     <tbody>
-                      <tr><td>Clothing</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="clothing" value="{{ statement.clothing|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Hair care and beauty</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="hair_care_beauty" value="{{ statement.hair_care_beauty|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Alcohol and tobacco</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="alcohol_tobacco" value="{{ statement.alcohol_tobacco|floatformat:2|default:'' }}"></td></tr>
+                      <tr><td>Clothing</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="clothing" value="{{ page_data.clothing|default:'' }}"></td></tr>
+                      <tr><td>Hair care and beauty</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="hair_care_beauty" value="{{ page_data.hair_care_beauty|default:'' }}"></td></tr>
+                      <tr><td>Alcohol and tobacco</td><td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="alcohol_tobacco" value="{{ page_data.alcohol_tobacco|default:'' }}"></td></tr>
                     </tbody>
                   </table>
                 </div>

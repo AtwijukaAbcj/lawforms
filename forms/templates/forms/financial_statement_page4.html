@@ -261,24 +261,24 @@
   .kpi strong{ font-weight: 950; }
   .kpi span{ color: var(--muted); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
 
-  .btn-delete-row {
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 50%;
-    width: 28px;
-    height: 28px;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    line-height: 1;
-    padding: 0;
-    transition: all 0.15s ease;
+  .btn-delete-row{
+    background:#ef4444;
+    color:white;
+    border:none;
+    border-radius:50%;
+    width:28px;
+    height:28px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    line-height:1;
+    padding:0;
+    transition:all .15s ease;
   }
 
-  .btn-delete-row:hover {
-    background: #dc2626;
-    transform: scale(1.1);
+  .btn-delete-row:hover{
+    background:#dc2626;
+    transform:scale(1.1);
   }
 </style>
 
@@ -331,13 +331,68 @@
               <div class="table-wrap">
                 <div class="table-responsive">
                   <table class="table modern-table">
-                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>Expense</th>
+                        <th style="width:220px;">Monthly amount</th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      <tr><td>Telephone</td><td><input class="form-control ui-input sm money-input calc-field utilities-field" type="number" step="0.01" name="telephone" value="{{ statement.telephone|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Cell phone</td><td><input class="form-control ui-input sm money-input calc-field utilities-field" type="number" step="0.01" name="cell_phone" value="{{ statement.cell_phone|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Cable</td><td><input class="form-control ui-input sm money-input calc-field utilities-field" type="number" step="0.01" name="cable" value="{{ statement.cable|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Internet</td><td><input class="form-control ui-input sm money-input calc-field utilities-field" type="number" step="0.01" name="internet" value="{{ statement.internet|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input total-field" type="number" step="0.01" name="utilities_subtotal" value="{{ statement.utilities_subtotal|floatformat:2|default:'' }}" readonly></td></tr>
+                      <tr>
+                        <td>Telephone</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field utilities-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="telephone"
+                                 value="{{ page_data.telephone|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Cell phone</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field utilities-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="cell_phone"
+                                 value="{{ page_data.cell_phone|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Cable</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field utilities-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="cable"
+                                 value="{{ page_data.cable|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Internet</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field utilities-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="internet"
+                                 value="{{ page_data.internet|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input total-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="utilities_subtotal"
+                                 value="{{ page_data.utilities_subtotal|default:'' }}"
+                                 readonly>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -356,14 +411,79 @@
               <div class="table-wrap">
                 <div class="table-responsive">
                   <table class="table modern-table">
-                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>Expense</th>
+                        <th style="width:220px;">Monthly amount</th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      <tr><td>Groceries</td><td><input class="form-control ui-input sm money-input calc-field household-field" type="number" step="0.01" name="groceries" value="{{ statement.groceries|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Household supplies</td><td><input class="form-control ui-input sm money-input calc-field household-field" type="number" step="0.01" name="household_supplies" value="{{ statement.household_supplies|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Meals outside the home</td><td><input class="form-control ui-input sm money-input calc-field household-field" type="number" step="0.01" name="meals_outside" value="{{ statement.meals_outside|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Pet care</td><td><input class="form-control ui-input sm money-input calc-field household-field" type="number" step="0.01" name="pet_care" value="{{ statement.pet_care|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Laundry and dry cleaning</td><td><input class="form-control ui-input sm money-input calc-field household-field" type="number" step="0.01" name="laundry_dry_cleaning" value="{{ statement.laundry_dry_cleaning|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input total-field" type="number" step="0.01" name="household_subtotal" value="{{ statement.household_subtotal|floatformat:2|default:'' }}" readonly></td></tr>
+                      <tr>
+                        <td>Groceries</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field household-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="groceries"
+                                 value="{{ page_data.groceries|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Household supplies</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field household-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="household_supplies"
+                                 value="{{ page_data.household_supplies|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Meals outside the home</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field household-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="meals_outside"
+                                 value="{{ page_data.meals_outside|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Pet care</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field household-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="pet_care"
+                                 value="{{ page_data.pet_care|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Laundry and dry cleaning</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field household-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="laundry_dry_cleaning"
+                                 value="{{ page_data.laundry_dry_cleaning|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input total-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="household_subtotal"
+                                 value="{{ page_data.household_subtotal|default:'' }}"
+                                 readonly>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -382,11 +502,46 @@
               <div class="table-wrap">
                 <div class="table-responsive">
                   <table class="table modern-table">
-                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>Expense</th>
+                        <th style="width:220px;">Monthly amount</th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      <tr><td>Daycare expense</td><td><input class="form-control ui-input sm money-input calc-field childcare-field" type="number" step="0.01" name="daycare_expense" value="{{ statement.daycare_expense|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Babysitting costs</td><td><input class="form-control ui-input sm money-input calc-field childcare-field" type="number" step="0.01" name="babysitting_costs" value="{{ statement.babysitting_costs|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input total-field" type="number" step="0.01" name="childcare_subtotal" value="{{ statement.childcare_subtotal|floatformat:2|default:'' }}" readonly></td></tr>
+                      <tr>
+                        <td>Daycare expense</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field childcare-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="daycare_expense"
+                                 value="{{ page_data.daycare_expense|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Babysitting costs</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field childcare-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="babysitting_costs"
+                                 value="{{ page_data.babysitting_costs|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input total-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="childcare_subtotal"
+                                 value="{{ page_data.childcare_subtotal|default:'' }}"
+                                 readonly>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -405,12 +560,57 @@
               <div class="table-wrap">
                 <div class="table-responsive">
                   <table class="table modern-table">
-                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>Expense</th>
+                        <th style="width:220px;">Monthly amount</th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      <tr><td>Education <em class="text-muted">(specify)</em></td><td><input class="form-control ui-input sm money-input calc-field personal-field" type="number" step="0.01" name="education" value="{{ statement.education|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Entertainment / recreation (including children)</td><td><input class="form-control ui-input sm money-input calc-field personal-field" type="number" step="0.01" name="entertainment" value="{{ statement.entertainment|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Gifts</td><td><input class="form-control ui-input sm money-input calc-field personal-field" type="number" step="0.01" name="gifts" value="{{ statement.gifts|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input total-field" type="number" step="0.01" name="personal_subtotal" value="{{ statement.personal_subtotal|floatformat:2|default:'' }}" readonly></td></tr>
+                      <tr>
+                        <td>Education <em class="text-muted">(specify)</em></td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field personal-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="education"
+                                 value="{{ page_data.education|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Entertainment / recreation (including children)</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field personal-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="entertainment"
+                                 value="{{ page_data.entertainment|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td>Gifts</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field personal-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="gifts"
+                                 value="{{ page_data.gifts|default:'' }}">
+                        </td>
+                      </tr>
+
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input total-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="personal_subtotal"
+                                 value="{{ page_data.personal_subtotal|default:'' }}"
+                                 readonly>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -429,25 +629,88 @@
               <div class="table-wrap">
                 <div class="table-responsive">
                   <table class="table modern-table">
-                    <thead><tr><th>Expense</th><th style="width:220px;">Monthly amount</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>Expense</th>
+                        <th style="width:220px;">Monthly amount</th>
+                      </tr>
+                    </thead>
                     <tbody>
-                      <tr><td>Life insurance premiums</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="life_insurance_premiums" value="{{ statement.life_insurance_premiums|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>RRSP/RESP withdrawals</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="rrsp_resp_withdrawals" value="{{ statement.rrsp_resp_withdrawals|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Vacations</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="vacations" value="{{ statement.vacations|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>School fees and supplies</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="school_fees_supplies" value="{{ statement.school_fees_supplies|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Clothing for children</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="clothing_for_children" value="{{ statement.clothing_for_children|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Children's activities</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="children_activities" value="{{ statement.children_activities|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Summer camp expenses</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="summer_camp_expenses" value="{{ statement.summer_camp_expenses|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Debt payments</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="debt_payments" value="{{ statement.debt_payments|floatformat:2|default:'' }}"></td></tr>
-                      <tr><td>Support paid for other children</td><td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="support_paid_for_other_children" value="{{ statement.support_paid_for_other_children|floatformat:2|default:'' }}"></td></tr>
+                      <tr>
+                        <td>Life insurance premiums</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="life_insurance_premiums" value="{{ page_data.life_insurance_premiums|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>RRSP/RESP withdrawals</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="rrsp_resp_withdrawals" value="{{ page_data.rrsp_resp_withdrawals|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>Vacations</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="vacations" value="{{ page_data.vacations|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>School fees and supplies</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="school_fees_supplies" value="{{ page_data.school_fees_supplies|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>Clothing for children</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="clothing_for_children" value="{{ page_data.clothing_for_children|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>Children's activities</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="children_activities" value="{{ page_data.children_activities|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>Summer camp expenses</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="summer_camp_expenses" value="{{ page_data.summer_camp_expenses|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>Debt payments</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="debt_payments" value="{{ page_data.debt_payments|default:'' }}"></td>
+                      </tr>
+
+                      <tr>
+                        <td>Support paid for other children</td>
+                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="support_paid_for_other_children" value="{{ page_data.support_paid_for_other_children|default:'' }}"></td>
+                      </tr>
+
                       <tr>
                         <td>
                           Other expenses <em class="text-muted">(specify)</em><br>
-                          <input class="form-control ui-input sm" type="text" name="other_expenses_specify" value="{{ statement.other_expenses_specify|default:'' }}" placeholder="Describe other expenses" style="width:100%; margin-top:4px;">
+                          <input class="form-control ui-input sm"
+                                 type="text"
+                                 name="other_expenses_specify"
+                                 value="{{ page_data.other_expenses_specify|default:'' }}"
+                                 placeholder="Describe other expenses"
+                                 style="width:100%; margin-top:4px;">
                         </td>
-                        <td><input class="form-control ui-input sm money-input calc-field other-field" type="number" step="0.01" name="other_expenses_amount" value="{{ statement.other_expenses_amount|floatformat:2|default:'' }}"></td>
+                        <td>
+                          <input class="form-control ui-input sm money-input calc-field other-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="other_expenses_amount"
+                                 value="{{ page_data.other_expenses_amount|default:'' }}">
+                        </td>
                       </tr>
-                      <tr><td style="font-weight:950;">Subtotal</td><td><input class="form-control ui-input sm money-input total-field" type="number" step="0.01" name="other_expenses_subtotal" value="{{ statement.other_expenses_subtotal|floatformat:2|default:'' }}" readonly></td></tr>
+
+                      <tr>
+                        <td style="font-weight:950;">Subtotal</td>
+                        <td>
+                          <input class="form-control ui-input sm money-input total-field"
+                                 type="number"
+                                 step="0.01"
+                                 name="other_expenses_subtotal"
+                                 value="{{ page_data.other_expenses_subtotal|default:'' }}"
+                                 readonly>
+                        </td>
+                      </tr>
                     </tbody>
                   </table>
                 </div>
@@ -459,8 +722,23 @@
                   <strong>Monthly / Yearly</strong>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;">
-                  <input class="form-control ui-input sm money-input total-field" style="width: 220px;" type="number" step="0.01" name="total_monthly_expenses" value="{{ statement.total_monthly_expenses|floatformat:2|default:'' }}" placeholder="Total monthly expenses" readonly>
-                  <input class="form-control ui-input sm money-input total-field" style="width: 220px;" type="number" step="0.01" name="total_yearly_expenses" value="{{ statement.total_yearly_expenses|floatformat:2|default:'' }}" placeholder="Total yearly expenses" readonly>
+                  <input class="form-control ui-input sm money-input total-field"
+                         style="width:220px;"
+                         type="number"
+                         step="0.01"
+                         name="total_monthly_expenses"
+                         value="{{ page_data.total_monthly_expenses|default:'' }}"
+                         placeholder="Total monthly expenses"
+                         readonly>
+
+                  <input class="form-control ui-input sm money-input total-field"
+                         style="width:220px;"
+                         type="number"
+                         step="0.01"
+                         name="total_yearly_expenses"
+                         value="{{ page_data.total_yearly_expenses|default:'' }}"
+                         placeholder="Total yearly expenses"
+                         readonly>
                 </div>
               </div>
             </div>
@@ -492,21 +770,60 @@
                 <tbody id="assets-table-body">
                   <tr class="real-estate-row">
                     <td rowspan="3" id="real-estate-type-cell" style="font-weight:950;vertical-align:middle;">Real Estate</td>
-                    <td><input class="form-control ui-input sm" type="text" name="real_estate_details_1" value="{{ real_estate_details_1|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm money-input asset-field" type="number" step="0.01" name="real_estate_value_1" value="{{ real_estate_value_1|floatformat:2|default:'' }}"></td>
-                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button></td>
+                    <td>
+                      <input class="form-control ui-input sm"
+                             type="text"
+                             name="real_estate_details_1"
+                             value="{{ page_data.real_estate_details_1|default:'' }}">
+                    </td>
+                    <td>
+                      <input class="form-control ui-input sm money-input asset-field"
+                             type="number"
+                             step="0.01"
+                             name="real_estate_value_1"
+                             value="{{ page_data.real_estate_value_1|default:'' }}">
+                    </td>
+                    <td>
+                      <button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button>
+                    </td>
                   </tr>
 
                   <tr class="real-estate-row">
-                    <td><input class="form-control ui-input sm" type="text" name="real_estate_details_2" value="{{ real_estate_details_2|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm money-input asset-field" type="number" step="0.01" name="real_estate_value_2" value="{{ real_estate_value_2|floatformat:2|default:'' }}"></td>
-                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button></td>
+                    <td>
+                      <input class="form-control ui-input sm"
+                             type="text"
+                             name="real_estate_details_2"
+                             value="{{ page_data.real_estate_details_2|default:'' }}">
+                    </td>
+                    <td>
+                      <input class="form-control ui-input sm money-input asset-field"
+                             type="number"
+                             step="0.01"
+                             name="real_estate_value_2"
+                             value="{{ page_data.real_estate_value_2|default:'' }}">
+                    </td>
+                    <td>
+                      <button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button>
+                    </td>
                   </tr>
 
                   <tr class="real-estate-row">
-                    <td><input class="form-control ui-input sm" type="text" name="real_estate_details_3" value="{{ real_estate_details_3|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm money-input asset-field" type="number" step="0.01" name="real_estate_value_3" value="{{ real_estate_value_3|floatformat:2|default:'' }}"></td>
-                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button></td>
+                    <td>
+                      <input class="form-control ui-input sm"
+                             type="text"
+                             name="real_estate_details_3"
+                             value="{{ page_data.real_estate_details_3|default:'' }}">
+                    </td>
+                    <td>
+                      <input class="form-control ui-input sm money-input asset-field"
+                             type="number"
+                             step="0.01"
+                             name="real_estate_value_3"
+                             value="{{ page_data.real_estate_value_3|default:'' }}">
+                    </td>
+                    <td>
+                      <button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'real-estate')" title="Delete row">&times;</button>
+                    </td>
                   </tr>
 
                   <tr>
@@ -517,21 +834,60 @@
 
                   <tr class="vehicle-row">
                     <td rowspan="3" id="vehicle-type-cell" style="font-weight:950;vertical-align:middle;">Cars, boats, vehicles</td>
-                    <td><input class="form-control ui-input sm" type="text" name="vehicle_details_1" value="{{ vehicle_details_1|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm money-input asset-field" type="number" step="0.01" name="vehicle_value_1" value="{{ vehicle_value_1|floatformat:2|default:'' }}"></td>
-                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button></td>
+                    <td>
+                      <input class="form-control ui-input sm"
+                             type="text"
+                             name="vehicle_details_1"
+                             value="{{ page_data.vehicle_details_1|default:'' }}">
+                    </td>
+                    <td>
+                      <input class="form-control ui-input sm money-input asset-field"
+                             type="number"
+                             step="0.01"
+                             name="vehicle_value_1"
+                             value="{{ page_data.vehicle_value_1|default:'' }}">
+                    </td>
+                    <td>
+                      <button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button>
+                    </td>
                   </tr>
 
                   <tr class="vehicle-row">
-                    <td><input class="form-control ui-input sm" type="text" name="vehicle_details_2" value="{{ vehicle_details_2|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm money-input asset-field" type="number" step="0.01" name="vehicle_value_2" value="{{ vehicle_value_2|floatformat:2|default:'' }}"></td>
-                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button></td>
+                    <td>
+                      <input class="form-control ui-input sm"
+                             type="text"
+                             name="vehicle_details_2"
+                             value="{{ page_data.vehicle_details_2|default:'' }}">
+                    </td>
+                    <td>
+                      <input class="form-control ui-input sm money-input asset-field"
+                             type="number"
+                             step="0.01"
+                             name="vehicle_value_2"
+                             value="{{ page_data.vehicle_value_2|default:'' }}">
+                    </td>
+                    <td>
+                      <button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button>
+                    </td>
                   </tr>
 
                   <tr class="vehicle-row">
-                    <td><input class="form-control ui-input sm" type="text" name="vehicle_details_3" value="{{ vehicle_details_3|default:'' }}"></td>
-                    <td><input class="form-control ui-input sm money-input asset-field" type="number" step="0.01" name="vehicle_value_3" value="{{ vehicle_value_3|floatformat:2|default:'' }}"></td>
-                    <td><button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button></td>
+                    <td>
+                      <input class="form-control ui-input sm"
+                             type="text"
+                             name="vehicle_details_3"
+                             value="{{ page_data.vehicle_details_3|default:'' }}">
+                    </td>
+                    <td>
+                      <input class="form-control ui-input sm money-input asset-field"
+                             type="number"
+                             step="0.01"
+                             name="vehicle_value_3"
+                             value="{{ page_data.vehicle_value_3|default:'' }}">
+                    </td>
+                    <td>
+                      <button type="button" class="btn-delete-row" onclick="deleteAssetRow(this, 'vehicle')" title="Delete row">&times;</button>
+                    </td>
                   </tr>
 
                   <tr>

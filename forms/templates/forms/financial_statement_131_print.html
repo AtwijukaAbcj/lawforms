@@ -362,7 +362,7 @@ th { font-weight: bold; background: #fff; }
     </span>
   </div>
 
-  <div class="part-title">PART 1: INCOME</div>
+  <div class="part-title" style="text-align:center;">PART 1: INCOME</div>
 
   <!-- Item 2 -->
 <div class="item">
@@ -491,7 +491,7 @@ th { font-weight: bold; background: #fff; }
     <tr><td>{{ pages.page3.benefit_4_item|default:"" }}</td><td>{{ pages.page3.benefit_4_details|default:"" }}</td><td class="amount-col">{{ pages.page3.benefit_4_value|default:"" }}</td></tr>
   </table>
 
-  <div class="part-title">PART 2: EXPENSES</div>
+  <div class="part-title" style="text-align:center;">PART 2: EXPENSES</div>
 
   <div class="expense-cols">
     <div class="expense-col">
@@ -608,7 +608,7 @@ th { font-weight: bold; background: #fff; }
     </div>
   </div>
 
-  <table style="width:60%;margin-left:auto;">
+  <table style="width:60%;margin-left:auto;border:3px double #000;">
     <tr class="total-row"><td>Total Amount of Monthly Expenses</td><td class="amount-col">{{ pages.page4.total_monthly_expenses|default:"" }}</td></tr>
     <tr class="total-row"><td>Total Amount of Yearly Expenses</td><td class="amount-col">{{ pages.page4.total_yearly_expenses|default:"" }}</td></tr>
   </table>
@@ -617,7 +617,7 @@ th { font-weight: bold; background: #fff; }
 
 
   
-<div class="part-title">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
+<div class="part-title" style="text-align:center;">PART 3: OTHER INCOME EARNERS IN THE HOME</div>
 
 <p style="font-size:9pt;font-style:italic;margin-bottom:10px;">
   Complete this part only if you are making or responding to a claim for undue hardship or spousal support.
@@ -735,7 +735,7 @@ th { font-weight: bold; background: #fff; }
     </div>
   </div>
 
-  <div class="part-title">PART 4: ASSETS IN AND OUT OF ONTARIO</div>
+  <div class="part-title" style="text-align:center;">PART 4: ASSETS IN AND OUT OF ONTARIO</div>
   <p style="font-size:9pt;font-style:italic;margin-bottom:8px;"><em>If any sections of Parts 4 to 9 do not apply, do not leave blank, print "NONE" in the section.</em></p>
 
   <p style="margin:8px 0;">The date of marriage is: <span class="fill-line">{{ pages.page5.date_of_marriage|default:"" }}</span> <em>(give date)</em></p>
@@ -964,10 +964,10 @@ th { font-weight: bold; background: #fff; }
     </tr>
   </table>
 
-  <div class="sub-title">PART 4(e): BUSINESS INTERESTS</div>
+  <div class="sub-title" sytle="center">PART 4(e): BUSINESS INTERESTS</div>
   <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show any interest in an unincorporated business owned on the dates in each of the columns below. An interest in an incorporated business may be shown in Part 4(c) under "securities".</p>
 
-  <table>
+  <table style="border:3px double #000;">
     <tr>
       <th rowspan="2">Name of Firm or Company</th>
       <th rowspan="2">Interest</th>
@@ -1055,7 +1055,7 @@ th { font-weight: bold; background: #fff; }
   <div class="sub-title">PART 4(g): OTHER PROPERTY</div>
   <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show other property or assets owned on the dates in each of the columns below. Include property of any kind not listed above.</p>
 
-  <table>
+  <table style="border:3px double #000;">
     <tr>
       <th rowspan="2">Category</th>
       <th rowspan="2">Details</th>
@@ -1106,7 +1106,7 @@ th { font-weight: bold; background: #fff; }
   <p style="font-size:9pt;margin:8px 0;">Add items [15] to [21] of the column "on valuation date."</p>
   <p style="font-size:11pt;font-weight:bold;margin:8px 0;">Total = $ <span class="val">{{ pages.page7.grand_total_valuation|default:"" }}</span></p>
 
-  <div class="part-title">PART 5: DEBTS AND OTHER LIABILITIES</div>
+  <div class="part-title" style="text-align:center;" style="text-align:center;">PART 5: DEBTS AND OTHER LIABILITIES</div>
   <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show your debts and other liabilities on the dates in each of the columns below.</p>
 
   <table>
@@ -1168,10 +1168,10 @@ th { font-weight: bold; background: #fff; }
     </div>
   </div>
 
-  <div class="part-title">PART 6: PROPERTY, DEBTS AND OTHER LIABILITIES ON DATE OF MARRIAGE</div>
+  <div class="part-title" style="text-align:center;">PART 6: PROPERTY, DEBTS AND OTHER LIABILITIES ON DATE OF MARRIAGE</div>
   <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show by category the value of your property, debts and other liabilities, calculated as of the date of your marriage. (In this part, do not include the value of a matrimonial home or debts or other liabilities directly related to its purchase or significant improvement, if you and your spouse ordinarily occupied this property as your family residence at the time of separation.)</p>
 
-  <table>
+  <table style="border:3px double #000;">
     <tr>
       <th rowspan="2" colspan="2">Category and details</th>
       <th colspan="2" class="col-header">Value on date of marriage</th>
@@ -1237,10 +1237,10 @@ th { font-weight: bold; background: #fff; }
     </tr>
   </table>
 
-  <div class="part-title">PART 7: EXCLUDED PROPERTY</div>
+  <div class="part-title" style="text-align:center;">PART 7: EXCLUDED PROPERTY</div>
   <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show by category the value of property owned on the valuation date that is excluded from the definition of "net family property" (such as gifts or inheritances received after marriage).</p>
 
-  <table>
+  <table style="border:3px double #000;">
     <tr>
       <th style="width:20%;">Category</th>
       <th>Details</th>
@@ -1291,10 +1291,10 @@ th { font-weight: bold; background: #fff; }
     </div>
   </div>
 
-  <div class="part-title">PART 8: DISPOSED-OF PROPERTY</div>
+  <div class="part-title" style="text-align:center;">PART 8: DISPOSED-OF PROPERTY</div>
   <p style="font-size:8pt;font-style:italic;margin-bottom:8px;">Show by category the value of all property that you disposed of during the two years immediately preceding the making of this statement, or during the marriage, whichever period is shorter.</p>
 
-  <table>
+  <table style="border:3px double #000;">
     <tr>
       <th style="width:20%;">Category</th>
       <th>Details</th>
@@ -1333,7 +1333,7 @@ th { font-weight: bold; background: #fff; }
 
   <div class="part-title">PART 9: CALCULATION OF NET FAMILY PROPERTY</div>
 
-  <table style="width:100%;">
+  <table style="width:100%;border:3px double #000;">
     <tr>
       <th style="width:70%;"></th>
       <th class="col-header" style="width:15%;">Deductions</th>
@@ -1356,7 +1356,7 @@ th { font-weight: bold; background: #fff; }
     </tr>
     <tr class="total-row">
       <td style="text-align:right;"><strong>28. NET FAMILY PROPERTY</strong></td>
-      <td class="amount-col"></td>
+      <td class=""></td>
       <td class="amount-col"><span class="val">{{ pages.page9.net_family_property|default:"" }}</span></td>
     </tr>
   </table>
@@ -1464,15 +1464,41 @@ th { font-weight: bold; background: #fff; }
       <td>Any other income <em>(specify source)</em></td>
       <td class="amount-col">{{ pages.page10.sched_a_7|default:"" }}</td>
     </tr>
-    <tr class="total-row">
-      <td colspan="2" style="text-align:right;"><strong>Subtotal:</strong></td>
-      <td class="amount-col">{{ pages.page10.sched_a_subtotal|default:"" }}</td>
-    </tr>
+</table>
+
+</table>
+
+<table style="
+    width:55%;
+    margin-left:auto;
+    margin-top:6px;
+    border-collapse:collapse;
+    border:3px double #000;
+">
+  <tr>
+    <td style="
+        width:68%;
+        text-align:center;
+        font-weight:bold;
+        border:3px double #000;
+        padding:4px;
+    ">
+      Subtotal
+    </td>
+    <td class="amount-col" style="
+        width:40%;
+        border:3px double #000;
+        padding:4px;
+    ">
+      {{ pages.page10.sched_a_subtotal|default:"" }}
+    </td>
+  </tr>
+</table>
   </table>
 
   <div class="part-title" style="text-align:center;">Schedule B: Special or Extraordinary Expenses for the Child(ren)</div>
 
-  <table>
+  <table id="schedule-b-table">
     <tr>
       <th style="width:25%;">Child's Name</th>
       <th>Expense</th>
@@ -1482,74 +1508,143 @@ th { font-weight: bold; background: #fff; }
     <tr>
       <td>1. {{ pages.page10.sched_b_1_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_1_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_1_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_1_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_1_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>2. {{ pages.page10.sched_b_2_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_2_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_2_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_2_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_2_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>3. {{ pages.page10.sched_b_3_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_3_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_3_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_3_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_3_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>4. {{ pages.page10.sched_b_4_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_4_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_4_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_4_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_4_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>5. {{ pages.page10.sched_b_5_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_5_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_5_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_5_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_5_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>6. {{ pages.page10.sched_b_6_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_6_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_6_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_6_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_6_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>7. {{ pages.page10.sched_b_7_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_7_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_7_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_7_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_7_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>8. {{ pages.page10.sched_b_8_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_8_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_8_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_8_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_8_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>9. {{ pages.page10.sched_b_9_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_9_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_9_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_9_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_9_credit|default:"" }}</td>
     </tr>
     <tr>
       <td>10. {{ pages.page10.sched_b_10_child|default:"" }}</td>
       <td>{{ pages.page10.sched_b_10_expense|default:"" }}</td>
-      <td class="amount-col">{{ pages.page10.sched_b_10_amount|default:"" }}</td>
+      <td class="amount-col sched-b-amount">{{ pages.page10.sched_b_10_amount|default:"" }}</td>
       <td class="amount-col">{{ pages.page10.sched_b_10_credit|default:"" }}</td>
     </tr>
-    <tr class="total-row">
-      <td colspan="2" style="text-align:right;"><strong>Total Net Annual Amount</strong></td>
-      <td class="amount-col">{{ pages.page10.sched_b_total_annual|default:"" }}</td>
-      <td></td>
-    </tr>
-    <tr class="total-row">
-      <td colspan="2" style="text-align:right;"><strong>Total Net Monthly Amount</strong></td>
-      <td class="amount-col">{{ pages.page10.sched_b_total_monthly|default:"" }}</td>
-      <td></td>
     </tr>
   </table>
+  </table>
+
+<table style="
+    width:55%;
+    margin-left:auto;
+    margin-top:6px;
+    border-collapse:collapse;
+    border:3px double #000;
+">
+  <tr class="total-row">
+    <td style="
+        width:68%;
+        text-align:center;
+        font-weight:bold;
+        border:3px double #000;
+        padding:4px;
+    ">
+      Total Net Annual Amount
+    </td>
+    <td class="amount-col" id="sched-b-total-annual" style="
+        width:40%;
+        border:3px double #000;
+        padding:4px;
+    ">
+      {{ pages.page10.sched_b_total_annual|default:"" }}
+    </td>
+  </tr>
+
+  <tr class="total-row">
+    <td style="
+        width:68%;
+        text-align:center;
+        font-weight:bold;
+        border:3px double #000;
+        padding:4px;
+    ">
+      Total Net Monthly Amount
+    </td>
+    <td class="amount-col" id="sched-b-total-monthly" style="
+        width:40%;
+        border:3px double #000;
+        padding:4px;
+    ">
+      {{ pages.page10.sched_b_total_monthly|default:"" }}
+    </td>
+  </tr>
+</table>
+  <script>
+    function cleanScheduleBMoney(value) {
+      if (!value) return 0;
+      value = String(value).replace(/[$,]/g, "").trim();
+      var number = parseFloat(value);
+      return isNaN(number) ? 0 : number;
+    }
+
+    function formatScheduleBMoney(value) {
+      return value.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      var totalAnnual = 0;
+
+      document.querySelectorAll(".sched-b-amount").forEach(function (cell) {
+        totalAnnual += cleanScheduleBMoney(cell.textContent);
+      });
+
+      var totalMonthly = totalAnnual / 12;
+
+      var annualCell = document.getElementById("sched-b-total-annual");
+      var monthlyCell = document.getElementById("sched-b-total-monthly");
+
+      if (annualCell) annualCell.textContent = formatScheduleBMoney(totalAnnual);
+      if (monthlyCell) monthlyCell.textContent = formatScheduleBMoney(totalMonthly);
+    });
+  </script>
 
   <p style="font-size:8pt;margin-top:10px;">* Some of these expenses can be claimed in a parent's income tax return in relation to a tax credit or deduction (for example childcare costs). These credits or deductions must be shown in the above chart.</p>
 

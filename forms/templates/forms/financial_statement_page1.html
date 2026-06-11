@@ -343,6 +343,21 @@
           </div>
         </div>
 
+        <!-- SWORN / AFFIRMED Section - Single Field -->
+        <div class="row g-3 mt-1">
+          <div class="col-12">
+            <div class="panel">
+              <div class="panel-head">
+                <h3 class="panel-title">Sworn / Affirmed</h3>
+                <div class="panel-pill">Affidavit</div>
+              </div>
+
+              <label class="ui-label" for="id_sworn_affidavit">Sworn / Affirmed</label>
+              <input class="form-control ui-input" type="text" name="sworn_affidavit" id="id_sworn_affidavit" value="{{ statement.sworn_affidavit|default:'' }}">
+            </div>
+          </div>
+        </div>
+
         <div class="row g-3 mt-1">
 
           <div class="col-lg-6">
@@ -503,93 +518,84 @@
 
 
 
-        <div class="panel">
+<!-- PART 1 — INCOME -->
+<div class="panel">
 
-          <div class="form-num-row">
-            <div class="form-num">1.</div>
+  <div class="row mb-3">
+    <div class="col-md-6">
+      <label class="fw-bold">My name is</label>
+      <input type="text"
+             name="my_name"
+             class="form-control ui-input"
+             value="{{ page_data.my_name|default:'' }}">
+    </div>
 
-            <div class="form-num-body">
-              <div class="row g-2">
-                <div class="col-md-6">
-                  <label class="ui-label" for="id_my_name">My name is</label>
-                  <input type="text" class="form-control ui-input" id="id_my_name" name="my_name" value="{{ statement.my_name|default:'' }}">
-                </div>
-                <div class="col-md-6">
-                  <label class="ui-label" for="id_my_location">I live in</label>
-                  <input type="text" class="form-control ui-input" id="id_my_location" name="my_location" value="{{ statement.my_location|default:'' }}">
-                </div>
-              </div>
-            </div>
-          </div>
-              <div class="section-label">
-                <span>Part 1 — Income</span>
-              </div>
+    <div class="col-md-6">
+      <label class="fw-bold">I live in</label>
+      <input type="text"
+             name="my_location"
+             class="form-control ui-input"
+             value="{{ page_data.my_location|default:'' }}">
+    </div>
+  </div>
 
-          <div class="form-num-row">
-            <div class="form-num">2.</div>
+  <hr>
 
-            <div class="form-num-body">
-              <div class="ui-label mb-2">
-                I am currently <span class="ui-help" style="display:inline;">(check all that apply)</span>
-              </div>
+  <div class="text-center mb-4">
+    <span class="badge bg-light text-dark border px-3 py-2">
+      Part 1 — Income
+    </span>
+  </div>
 
-              <div class="checklist">
+  <div class="mb-3">
+    <label class="fw-bold">I am currently <span class="text-muted">(check all that apply)</span></label>
+  </div>
 
-                <label class="check-item" for="id_is_employed">
-                  <input class="form-check-input employment-check"
-                         type="checkbox"
-                         id="id_is_employed"
-                         name="is_employed"
-                         data-target="employer_name_address"
-                         {% if statement.is_employed %}checked{% endif %}>
-                  <div class="text">Employed</div>
-                </label>
+  <div class="mb-3">
+    <label class="d-flex align-items-center gap-2 border rounded p-3">
+      <input type="checkbox"
+             name="is_employed"
+             {% if page_data.is_employed %}checked{% endif %}>
+      <strong>Employed</strong>
+    </label>
 
-                <input type="text"
-                       class="form-control ui-input employment-detail"
-                       id="id_employer_name_address"
-                       name="employer_name_address"
-                       placeholder="Name and address of employer"
-                       value="{{ statement.employer_name_address|default:'' }}">
+    <input type="text"
+           name="employer_name_address"
+           class="form-control ui-input mt-2"
+           placeholder="Name and address of employer"
+           value="{{ page_data.employer_name_address|default:'' }}">
+  </div>
 
-                <label class="check-item" for="id_is_self_employed">
-                  <input class="form-check-input employment-check"
-                         type="checkbox"
-                         id="id_is_self_employed"
-                         name="is_self_employed"
-                         data-target="business_name_address"
-                         {% if statement.is_self_employed %}checked{% endif %}>
-                  <div class="text">Self-employed</div>
-                </label>
+  <div class="mb-3">
+    <label class="d-flex align-items-center gap-2 border rounded p-3">
+      <input type="checkbox"
+             name="is_self_employed"
+             {% if page_data.is_self_employed %}checked{% endif %}>
+      <strong>Self-employed</strong>
+    </label>
 
-                <input type="text"
-                       class="form-control ui-input employment-detail"
-                       id="id_business_name_address"
-                       name="business_name_address"
-                       placeholder="Name and address of business"
-                       value="{{ statement.business_name_address|default:'' }}">
+    <input type="text"
+           name="business_name_address"
+           class="form-control ui-input mt-2"
+           placeholder="Name and address of business"
+           value="{{ page_data.business_name_address|default:'' }}">
+  </div>
 
-                <label class="check-item" for="id_is_unemployed">
-                  <input class="form-check-input employment-check"
-                         type="checkbox"
-                         id="id_is_unemployed"
-                         name="is_unemployed"
-                         data-target="unemployed_since"
-                         {% if statement.is_unemployed %}checked{% endif %}>
-                  <div class="text">Unemployed since</div>
-                </label>
+  <div class="mb-3">
+    <label class="d-flex align-items-center gap-2 border rounded p-3">
+      <input type="checkbox"
+             name="is_unemployed"
+             {% if page_data.is_unemployed %}checked{% endif %}>
+      <strong>Unemployed since</strong>
+    </label>
 
-                <input type="date"
-                       class="form-control ui-input employment-detail"
-                       id="id_unemployed_since"
-                       name="unemployed_since"
-                       value="{{ statement.unemployed_since|date:'Y-m-d'|default:'' }}">
+    <input type="date"
+           name="unemployed_since"
+           class="form-control ui-input mt-2"
+           value="{{ page_data.unemployed_since|default:'' }}">
+  </div>
 
-              </div>
-            </div>
-          </div>
-
-        </div>
+</div>
 
         <div class="actions">
           <a href="{% url 'financial_statement_list' %}" class="btn-modern">

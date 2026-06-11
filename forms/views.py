@@ -17,6 +17,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 # Delete PrintEvent (admin/staff only)
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
+from datetime import date, datetime
+from decimal import Decimal
 
 # ...existing code...
 
@@ -103,6 +105,52 @@ def _sum_keys(data, keys):
         total += _num(data, key)
 
     return _money(total)
+
+
+def _normalize_financial_statement_debts(debts):
+    if debts is None:
+        return {}
+    if isinstance(debts, dict):
+        return debts
+    if not isinstance(debts, list):
+        return {}
+
+    normalized = {}
+    mortgage_index = 1
+    credit_card_index = 1
+    other_index = 1
+
+    for item in debts:
+        if not isinstance(item, dict):
+            continue
+
+        type_value = str(item.get('type', '')).strip().lower()
+        creditor = item.get('creditor', '') or item.get('name_address_of_creditor', '')
+        amount = item.get('full_amount', '') or item.get('amount', '')
+        monthly = item.get('monthly_payment', '') or item.get('monthly', '')
+        payment = item.get('payments_being_made', item.get('payment', ''))
+
+        if 'mortgage' in type_value:
+            prefix = f'mortgage_{mortgage_index}'
+            mortgage_index += 1
+        elif 'credit card' in type_value or 'visa' in type_value or 'mastercard' in type_value or 'amex' in type_value:
+            prefix = f'credit_card_{credit_card_index}'
+            credit_card_index += 1
+        elif 'unpaid' in type_value or 'support' in type_value:
+            prefix = 'unpaid_support'
+        else:
+            prefix = f'other_debt_{other_index}'
+            other_index += 1
+
+        normalized[f'{prefix}_creditor'] = creditor or ''
+        normalized[f'{prefix}_amount'] = amount or ''
+        normalized[f'{prefix}_monthly'] = monthly or ''
+        if isinstance(payment, bool):
+            normalized[f'{prefix}_payment'] = 'yes' if payment else ''
+        else:
+            normalized[f'{prefix}_payment'] = payment or ''
+
+    return normalized
 
 
 def _calculate_form131_totals(pages):
@@ -903,9 +951,6 @@ def dashboard(request):
     )
 
 
-# ============================================================
-# FINANCIAL STATEMENT (FORM 13) - 8 PAGES
-# ============================================================
 
 # ============================================================
 # FINANCIAL STATEMENT (FORM 13.1) - Property & Support Claims (Page 1)
@@ -1031,6 +1076,7 @@ def financial_statement_131_page1(request, pk):
     return render(request, "forms/financial_statement_131_page1.html", {
         "pk": pk,
         "form": form,
+        "statement": form,
         "page_data": page_data,
     })
 def get_all_form131_data(form):
@@ -1426,16 +1472,19 @@ def _get_form131_page1_data(statement, persist=False):
     merged = dict(page1)
     changed = False
 
-    fallbacks = {
-        "court_file_number": statement.court_file_number or "",
-        "applicant_name": statement.applicant_name or "",
-        "respondent_name": statement.respondent_name or "",
-    }
+    # Only use fields that exist on Form131FinancialStatement model
+    fallback_fields = [
+        "court_file_number",
+        "applicant_name",
+        "respondent_name",
+    ]
 
-    for key, value in fallbacks.items():
-        if not merged.get(key) and value:
-            merged[key] = value
-            changed = True
+    for field_name in fallback_fields:
+        if not merged.get(field_name):
+            value = getattr(statement, field_name, None)
+            if value:
+                merged[field_name] = value
+                changed = True
 
     if persist and changed:
         statement.save_page_data(1, merged)
@@ -1456,7 +1505,7 @@ def financial_statement_131_page2(request, pk):
         if "prev" in request.POST:
             return redirect("financial_statement_131_page1", pk=pk)
         return redirect("financial_statement_131_page3", pk=pk)
-    return render(request, "forms/financial_statement_131_page2.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+    return render(request, "forms/financial_statement_131_page2.html", {"pk": pk, "form": form, "statement": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
 @csrf_exempt
 @login_required
@@ -1471,7 +1520,7 @@ def financial_statement_131_page3(request, pk):
         if "prev" in request.POST:
             return redirect("financial_statement_131_page2", pk=pk)
         return redirect("financial_statement_131_page4", pk=pk)
-    return render(request, "forms/financial_statement_131_page3.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+    return render(request, "forms/financial_statement_131_page3.html", {"pk": pk, "form": form, "statement": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
 @csrf_exempt
 @login_required
@@ -1486,7 +1535,7 @@ def financial_statement_131_page4(request, pk):
         if "prev" in request.POST:
             return redirect("financial_statement_131_page3", pk=pk)
         return redirect("financial_statement_131_page5", pk=pk)
-    return render(request, "forms/financial_statement_131_page4.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+    return render(request, "forms/financial_statement_131_page4.html", {"pk": pk, "form": form, "statement": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
 @csrf_exempt
 @login_required
@@ -1501,7 +1550,7 @@ def financial_statement_131_page5(request, pk):
         if "prev" in request.POST:
             return redirect("financial_statement_131_page4", pk=pk)
         return redirect("financial_statement_131_page6", pk=pk)
-    return render(request, "forms/financial_statement_131_page5.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+    return render(request, "forms/financial_statement_131_page5.html", {"pk": pk, "form": form, "statement": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
 @csrf_exempt
 @login_required
@@ -1516,7 +1565,7 @@ def financial_statement_131_page6(request, pk):
         if "prev" in request.POST:
             return redirect("financial_statement_131_page5", pk=pk)
         return redirect("financial_statement_131_page7", pk=pk)
-    return render(request, "forms/financial_statement_131_page6.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+    return render(request, "forms/financial_statement_131_page6.html", {"pk": pk, "form": form, "statement": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
 @csrf_exempt
 @login_required
@@ -1531,7 +1580,7 @@ def financial_statement_131_page7(request, pk):
         if "prev" in request.POST:
             return redirect("financial_statement_131_page6", pk=pk)
         return redirect("financial_statement_131_page8", pk=pk)
-    return render(request, "forms/financial_statement_131_page7.html", {"pk": pk, "form": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
+    return render(request, "forms/financial_statement_131_page7.html", {"pk": pk, "form": form, "statement": form, "page_data": page_data, "page1_data": form.get_page_data(1)})
 
 @csrf_exempt
 @login_required
@@ -1679,162 +1728,236 @@ def financial_statement_page1_redirect(request):
     """Redirect old URL to dashboard."""
     return HttpResponseRedirect('/forms/dashboard/')
 
-
 @login_required
 def financial_statement_page1_new(request):
-    """Create a new Financial Statement."""
-    # Support prefill from CaseFile via ?case_id=
-    case = None
-    case_id = request.GET.get('case_id') or request.POST.get('case_id')
-    if case_id:
-        try:
-            case = CaseFile.objects.get(pk=case_id, owner=request.user)
-        except CaseFile.DoesNotExist:
-            case = None
+    """
+    Create a new Financial Statement Form 13.
+    Saves Page 1 into FinancialStatement.draft["page1"].
+    Does not call old _save_page1_fields().
+    """
 
-    # require create permission
-    if not _user_has_permission_or_owner(request.user, 'financial_statement', 'create'):
+    case = None
+    case_id = request.GET.get("case_id") or request.POST.get("case_id")
+
+    if case_id:
+        case = CaseFile.objects.filter(
+            pk=case_id,
+            owner=request.user
+        ).first()
+
+    if not _user_has_permission_or_owner(request.user, "financial_statement", "create"):
         messages.error(request, "You don't have permission to create Financial Statements.")
-        return redirect('financial_statement_list')
+        return redirect("financial_statement_list")
+
+    checkbox_fields = [
+        "is_employed",
+        "is_self_employed",
+        "is_unemployed",
+    ]
 
     if request.method == "POST":
-        form = FinancialStatementForm(request.POST)
-        if form.is_valid():
-            statement = form.save()
-            if case:
-                changed = False
-                if not getattr(statement, 'case_file', None):
-                    statement.case_file = case
-                    changed = True
-                if _apply_case_fields_to_instance(statement, case, overwrite=False):
-                    changed = True
-                if changed:
-                    statement.save()
-            # Save additional page 1 fields
-            _save_page1_fields(statement, request.POST)
-            
-            # Send email notification for new form
-            send_form_created_notification('financial_statement', statement, request.user)
-            
-            # Audit log for creation
-            log_audit(request, 'create', 'financial_statement', statement.pk, 
-                      f"Form 13 #{statement.pk}", 
-                      f"Created - Applicant: {getattr(statement, 'applicant_name', 'N/A') or 'N/A'}")
-            
-            return redirect("financial_statement_page2", pk=statement.pk)
-    else:
-        # Prefill form if creating and case provided
+        statement = FinancialStatement.objects.create()
+
         if case:
-            form = FinancialStatementForm(initial=_build_case_initial(case))
-        else:
-            form = FinancialStatementForm()
-    case_list = CaseFile.objects.filter(owner=request.user).order_by("-updated_at")
+            statement.case_file = case
+
+        data = clean_form13_post(request, checkbox_fields)
+
+        if case:
+            case_data = _build_case_initial(case)
+
+            for key, value in case_data.items():
+                if not data.get(key):
+                    data[key] = value
+
+        statement.save_page_data(1, data)
+
+        statement.court_file_number = data.get("court_file_number") or statement.court_file_number
+        statement.court_name = data.get("court_name") or statement.court_name
+        statement.court_office_address = data.get("court_office_address") or statement.court_office_address
+        statement.applicant_name = data.get("applicant_name") or statement.applicant_name
+        statement.respondent_name = data.get("respondent_name") or statement.respondent_name
+        statement.save()
+
+        send_form_created_notification(
+            "financial_statement",
+            statement,
+            request.user
+        )
+
+        log_audit(
+            request,
+            "create",
+            "financial_statement",
+            statement.pk,
+            f"Form 13 #{statement.pk}",
+            f"Created - Applicant: {statement.applicant_name or 'N/A'}"
+        )
+
+        return redirect("financial_statement_page2", pk=statement.pk)
 
     page_data = {}
+
     if case:
         page_data = _build_case_initial(case)
 
+    case_list = CaseFile.objects.filter(
+        owner=request.user
+    ).order_by("-updated_at")
+
     return render(request, "forms/financial_statement_page1.html", {
-        "form": form,
         "statement": None,
         "page_data": page_data,
         "case_list": case_list,
         "selected_case": case,
     })
 
+
+# ============================================================
+# SAFE EDIT HELPERS — DO NOT DELETE SAVED DATA ON EDIT
+# ============================================================
+
+def update_if_present(obj, post_data, field, parser=None):
+    if field in post_data:
+        value = post_data.get(field)
+
+        if parser:
+            value = parser(value)
+
+        setattr(obj, field, value)
+
+
+def update_checkbox(obj, post_data, field):
+    setattr(obj, field, field in post_data)
+
+
+def _ajax_or_redirect(request, redirect_url):
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"ok": True})
+    return redirect(redirect_url)
+
+
+def _json_rows_from_post(request, prefix, fields, max_rows=20):
+    rows = []
+
+    for i in range(1, max_rows + 1):
+        row = {}
+        has_data = False
+        row_was_posted = False
+
+        for form_field, json_key in fields.items():
+            key = f"{prefix}_{form_field}_{i}"
+
+            if key in request.POST:
+                row_was_posted = True
+                value = request.POST.get(key, "")
+                row[json_key] = value
+
+                if value not in ("", None):
+                    has_data = True
+
+        if row_was_posted and has_data:
+            rows.append(row)
+
+    return rows
+
+
+def save_json_if_rows_posted(obj, request, model_field, prefix, fields, max_rows=20):
+    any_key_posted = False
+
+    for i in range(1, max_rows + 1):
+        for form_field in fields.keys():
+            if f"{prefix}_{form_field}_{i}" in request.POST:
+                any_key_posted = True
+                break
+
+        if any_key_posted:
+            break
+
+    if any_key_posted:
+        rows = _json_rows_from_post(request, prefix, fields, max_rows=max_rows)
+        setattr(obj, model_field, rows)
+
+
+def unpack_json_rows(context, json_data, prefix, fields, max_rows=20):
+    if not json_data:
+        return context
+
+    for i, row in enumerate(json_data[:max_rows], 1):
+        for form_field, json_key in fields.items():
+            context[f"{prefix}_{form_field}_{i}"] = row.get(json_key, "")
+
+    return context
+
+def make_json_safe(value):
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+
+    if isinstance(value, Decimal):
+        return str(value)
+
+    if value is None:
+        return ""
+
+    return value
+
+
+def clean_form13_post(request, checkbox_fields=None):
+    data = request.POST.dict()
+
+    data.pop("csrfmiddlewaretoken", None)
+    data.pop("prev", None)
+    data.pop("next", None)
+
+    checkbox_fields = checkbox_fields or []
+
+    for field in checkbox_fields:
+        data[field] = field in request.POST
+
+    safe_data = {}
+
+    for key, value in data.items():
+        safe_data[key] = make_json_safe(value)
+
+    return safe_data
+
+
 @login_required
-def financial_statement_page1(request, pk=None):
-    """Edit an existing Financial Statement page 1."""
-    statement = get_object_or_404(FinancialStatement, pk=pk) if pk else None
-    # require edit permission or owner
-    if pk and not _user_has_permission_or_owner(request.user, 'financial_statement', 'edit', instance=statement):
-        messages.error(request, "You don't have permission to edit this Financial Statement.")
-        return redirect('financial_statement_view', pk=pk)
+def financial_statement_page1(request, pk):
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
+    checkbox_fields = [
+        "is_employed",
+        "is_self_employed",
+        "is_unemployed",
+    ]
 
     if request.method == "POST":
-        form = FinancialStatementForm(request.POST, instance=statement)
-        if form.is_valid():
-            statement = form.save()
-            _save_page1_fields(statement, request.POST)
-            return redirect("financial_statement_page2", pk=statement.pk)
-    else:
-        form = FinancialStatementForm(instance=statement)
-    
-    # BUILD PAGE_DATA FOR BOTH GET AND POST REQUESTS
-    # This ensures data is always available, even if POST validation fails
-    page_data = {
-        "court_name": statement.court_name or "",
-        "court_file_number": statement.court_file_number or "",
-        "court_office_address": statement.court_office_address or "",
+        data = clean_form13_post(request, checkbox_fields)
+        statement.save_page_data(1, data)
 
-        "applicant_name": statement.applicant_name or "",
-        "applicant_address": statement.applicant_address or "",
-        "applicant_phone": statement.applicant_phone or "",
-        "applicant_fax": statement.applicant_fax or "",
-        "applicant_email": statement.applicant_email or "",
+        statement.court_file_number = data.get("court_file_number") or statement.court_file_number
+        statement.court_name = data.get("court_name") or statement.court_name
+        statement.court_office_address = data.get("court_office_address") or statement.court_office_address
+        statement.applicant_name = data.get("applicant_name") or statement.applicant_name
+        statement.respondent_name = data.get("respondent_name") or statement.respondent_name
+        statement.save()
 
-        "applicant_lawyer_name": statement.applicant_lawyer_name or "",
-        "applicant_lawyer_address": statement.applicant_lawyer_address or "",
-        "applicant_lawyer_phone": statement.applicant_lawyer_phone or "",
-        "applicant_lawyer_fax": statement.applicant_lawyer_fax or "",
-        "applicant_lawyer_email": statement.applicant_lawyer_email or "",
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 1 saved"})
 
-        "respondent_name": statement.respondent_name or "",
-        "respondent_address": statement.respondent_address or "",
-        "respondent_phone": statement.respondent_phone or "",
-        "respondent_fax": statement.respondent_fax or "",
-        "respondent_email": statement.respondent_email or "",
-
-        "respondent_lawyer_name": statement.respondent_lawyer_name or "",
-        "respondent_lawyer_address": statement.respondent_lawyer_address or "",
-        "respondent_lawyer_phone": statement.respondent_lawyer_phone or "",
-        "respondent_lawyer_fax": statement.respondent_lawyer_fax or "",
-        "respondent_lawyer_email": statement.respondent_lawyer_email or "",
-    }
+        return redirect("financial_statement_page2", pk=statement.pk)
 
     return render(request, "forms/financial_statement_page1.html", {
-        "form": form,
         "statement": statement,
-        "page_data": page_data,
+        "page_data": statement.get_page_data(1),
+        "pk": statement.pk,
     })
-
-
-def _save_page1_fields(statement, post_data):
-    """Helper to save page 1 specific fields."""
-    statement.my_name = post_data.get('my_name', '')
-    statement.my_location = post_data.get('my_location', '')
-    statement.is_employed = 'is_employed' in post_data
-    statement.employer_name_address = post_data.get('employer_name_address', '')
-    statement.is_self_employed = 'is_self_employed' in post_data
-    statement.business_name_address = post_data.get('business_name_address', '')
-    statement.is_unemployed = 'is_unemployed' in post_data
-    unemployed_since = post_data.get('unemployed_since', '')
-    if unemployed_since:
-        statement.unemployed_since = unemployed_since
-    statement.save()
 
 
 @login_required
 def financial_statement_page2(request, pk):
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-
-    decimal_fields = [
-        "last_year_gross_income",
-        "income_employment",
-        "income_commissions",
-        "income_self_employment_before_expenses",
-        "income_self_employment",
-        "income_ei",
-        "income_workers_comp",
-        "income_social_assistance",
-        "income_investment",
-        "income_pension",
-        "income_spousal_support",
-        "income_tax_benefits",
-        "income_other",
-        "income_total_monthly",
-        "income_total_annual",
-    ]
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
 
     checkbox_fields = [
         "pay_cheque_stub",
@@ -1848,15 +1971,11 @@ def financial_statement_page2(request, pk):
     ]
 
     if request.method == "POST":
-        for field in checkbox_fields:
-            setattr(statement, field, field in request.POST)
+        data = clean_form13_post(request, checkbox_fields)
+        statement.save_page_data(2, data)
 
-        for field in decimal_fields:
-            setattr(statement, field, parse_decimal(request.POST.get(field)))
-
-        statement.indian_status_docs = request.POST.get("indian_status_docs", "")
-
-        statement.save()
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 2 saved"})
 
         if "prev" in request.POST:
             return redirect("financial_statement_page1", pk=statement.pk)
@@ -1865,570 +1984,160 @@ def financial_statement_page2(request, pk):
 
     return render(request, "forms/financial_statement_page2.html", {
         "statement": statement,
+        "page_data": statement.get_page_data(2),
         "pk": statement.pk,
     })
 
+
 @login_required
 def financial_statement_page3(request, pk):
-    """Financial Statement Page 3 - Other Benefits and Expenses."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
     if request.method == "POST":
-        # Save Other Benefits (items 1-4)
-        statement.benefit_item_1 = request.POST.get('benefit_item_1', '')
-        statement.benefit_details_1 = request.POST.get('benefit_details_1', '')
-        statement.benefit_value_1 = parse_decimal(request.POST.get('benefit_value_1'))
-        statement.benefit_item_2 = request.POST.get('benefit_item_2', '')
-        statement.benefit_details_2 = request.POST.get('benefit_details_2', '')
-        statement.benefit_value_2 = parse_decimal(request.POST.get('benefit_value_2'))
-        statement.benefit_item_3 = request.POST.get('benefit_item_3', '')
-        statement.benefit_details_3 = request.POST.get('benefit_details_3', '')
-        statement.benefit_value_3 = parse_decimal(request.POST.get('benefit_value_3'))
-        statement.benefit_item_4 = request.POST.get('benefit_item_4', '')
-        statement.benefit_details_4 = request.POST.get('benefit_details_4', '')
-        statement.benefit_value_4 = parse_decimal(request.POST.get('benefit_value_4'))
-        
-        # Save additional benefit rows (5+) to draft
-        extra_benefits = []
-        i = 5
-        while True:
-            item = request.POST.get(f'benefit_item_{i}', '')
-            details = request.POST.get(f'benefit_details_{i}', '')
-            value = request.POST.get(f'benefit_value_{i}', '')
-            if not item and not details and not value:
-                break
-            extra_benefits.append({'item': item, 'details': details, 'value': value})
-            i += 1
-        
-        # Update draft with extra benefits
-        draft_data = statement.draft or {}
-        draft_data['extra_benefits'] = extra_benefits
-        statement.draft = draft_data
-        
-        # Save Automatic Deductions
-        statement.cpp_contributions = parse_decimal(request.POST.get('cpp_contributions'))
-        statement.ei_premiums = parse_decimal(request.POST.get('ei_premiums'))
-        statement.income_taxes = parse_decimal(request.POST.get('income_taxes'))
-        statement.employee_pension_contributions = parse_decimal(request.POST.get('employee_pension_contributions'))
-        statement.union_dues = parse_decimal(request.POST.get('union_dues'))
-        statement.automatic_deductions_subtotal = parse_decimal(request.POST.get('automatic_deductions_subtotal'))
-        
-        # Save Housing
-        statement.rent_or_mortgage = parse_decimal(request.POST.get('rent_or_mortgage'))
-        statement.property_taxes = parse_decimal(request.POST.get('property_taxes'))
-        statement.property_insurance = parse_decimal(request.POST.get('property_insurance'))
-        statement.condo_fees = parse_decimal(request.POST.get('condo_fees'))
-        statement.repairs_maintenance = parse_decimal(request.POST.get('repairs_maintenance'))
-        statement.housing_subtotal = parse_decimal(request.POST.get('housing_subtotal'))
-        
-        # Save Utilities
-        statement.water = parse_decimal(request.POST.get('water'))
-        statement.heat = parse_decimal(request.POST.get('heat'))
-        statement.electricity = parse_decimal(request.POST.get('electricity'))
-        
-        # Save Transportation
-        statement.public_transit_taxis = parse_decimal(request.POST.get('public_transit_taxis'))
-        statement.gas_oil = parse_decimal(request.POST.get('gas_oil'))
-        statement.car_insurance_license = parse_decimal(request.POST.get('car_insurance_license'))
-        statement.car_repairs_maintenance = parse_decimal(request.POST.get('car_repairs_maintenance'))
-        statement.parking = parse_decimal(request.POST.get('parking'))
-        statement.car_loan_lease_payments = parse_decimal(request.POST.get('car_loan_lease_payments'))
-        statement.transportation_subtotal = parse_decimal(request.POST.get('transportation_subtotal'))
-        
-        # Save Health
-        statement.health_insurance_premiums = parse_decimal(request.POST.get('health_insurance_premiums'))
-        statement.dental_expenses = parse_decimal(request.POST.get('dental_expenses'))
-        statement.medicine_drugs = parse_decimal(request.POST.get('medicine_drugs'))
-        statement.eye_care = parse_decimal(request.POST.get('eye_care'))
-        statement.health_subtotal = parse_decimal(request.POST.get('health_subtotal'))
-        
-        # Save Personal
-        statement.clothing = parse_decimal(request.POST.get('clothing'))
-        statement.hair_care_beauty = parse_decimal(request.POST.get('hair_care_beauty'))
-        statement.alcohol_tobacco = parse_decimal(request.POST.get('alcohol_tobacco'))
-        
-        statement.save()
-        
+        data = clean_form13_post(request)
+        statement.save_page_data(3, data)
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 3 saved"})
+
         if "prev" in request.POST:
             return redirect("financial_statement_page2", pk=statement.pk)
+
         return redirect("financial_statement_page4", pk=statement.pk)
-    
-    # Unpack extra benefits from draft for template
-    context = {"statement": statement}
-    extra_benefits = []
-    if statement.draft and 'extra_benefits' in statement.draft:
-        extra_benefits = statement.draft['extra_benefits']
-    context['extra_benefits'] = extra_benefits
-    
-    return render(request, "forms/financial_statement_page3.html", context)
+
+    return render(request, "forms/financial_statement_page3.html", {
+        "statement": statement,
+        "page_data": statement.get_page_data(3),
+        "pk": statement.pk,
+    })
 
 
 @login_required
 def financial_statement_page4(request, pk):
-    """Financial Statement Page 4 - More Expenses and Assets."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    
-    if request.method == "POST":
-        # Save more Utilities
-        statement.telephone = parse_decimal(request.POST.get('telephone'))
-        statement.cell_phone = parse_decimal(request.POST.get('cell_phone'))
-        statement.cable = parse_decimal(request.POST.get('cable'))
-        statement.internet = parse_decimal(request.POST.get('internet'))
-        statement.utilities_subtotal = parse_decimal(request.POST.get('utilities_subtotal'))
-        
-        # Save more Personal
-        statement.education = parse_decimal(request.POST.get('education'))
-        statement.entertainment = parse_decimal(request.POST.get('entertainment'))
-        statement.gifts = parse_decimal(request.POST.get('gifts'))
-        statement.personal_subtotal = parse_decimal(request.POST.get('personal_subtotal'))
-        
-        # Save Household Expenses
-        statement.groceries = parse_decimal(request.POST.get('groceries'))
-        statement.household_supplies = parse_decimal(request.POST.get('household_supplies'))
-        statement.meals_outside = parse_decimal(request.POST.get('meals_outside'))
-        statement.pet_care = parse_decimal(request.POST.get('pet_care'))
-        statement.laundry_dry_cleaning = parse_decimal(request.POST.get('laundry_dry_cleaning'))
-        statement.household_subtotal = parse_decimal(request.POST.get('household_subtotal'))
-        
-        # Save Childcare Costs
-        statement.daycare_expense = parse_decimal(request.POST.get('daycare_expense'))
-        statement.babysitting_costs = parse_decimal(request.POST.get('babysitting_costs'))
-        statement.childcare_subtotal = parse_decimal(request.POST.get('childcare_subtotal'))
-        
-        # Save Other expenses
-        statement.life_insurance_premiums = parse_decimal(request.POST.get('life_insurance_premiums'))
-        statement.rrsp_resp_withdrawals = parse_decimal(request.POST.get('rrsp_resp_withdrawals'))
-        statement.vacations = parse_decimal(request.POST.get('vacations'))
-        statement.school_fees_supplies = parse_decimal(request.POST.get('school_fees_supplies'))
-        statement.clothing_for_children = parse_decimal(request.POST.get('clothing_for_children'))
-        statement.children_activities = parse_decimal(request.POST.get('children_activities'))
-        statement.summer_camp_expenses = parse_decimal(request.POST.get('summer_camp_expenses'))
-        statement.debt_payments = parse_decimal(request.POST.get('debt_payments'))
-        statement.support_paid_for_other_children = parse_decimal(request.POST.get('support_paid_for_other_children'))
-        statement.other_expenses_specify = request.POST.get('other_expenses_specify', '')
-        statement.other_expenses_amount = parse_decimal(request.POST.get('other_expenses_amount'))
-        statement.other_expenses_subtotal = parse_decimal(request.POST.get('other_expenses_subtotal'))
-        
-        # Save Total expenses
-        statement.total_monthly_expenses = parse_decimal(request.POST.get('total_monthly_expenses'))
-        statement.total_yearly_expenses = parse_decimal(request.POST.get('total_yearly_expenses'))
-        
-        # Save Real Estate as JSON (all dynamic rows)
-        real_estate = []
-        i = 1
-        while True:
-            details = request.POST.get(f'real_estate_details_{i}', '')
-            value = request.POST.get(f'real_estate_value_{i}', '')
-            if not details and not value:
-                break
-            if details or value:
-                real_estate.append({'details': details, 'value': value})
-            i += 1
-        statement.real_estate = real_estate if real_estate else None
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
 
-        # Save Vehicles as JSON (all dynamic rows)
-        vehicles = []
-        i = 1
-        while True:
-            details = request.POST.get(f'vehicle_details_{i}', '')
-            value = request.POST.get(f'vehicle_value_{i}', '')
-            if not details and not value:
-                break
-            if details or value:
-                vehicles.append({'details': details, 'value': value})
-            i += 1
-        statement.vehicles = vehicles if vehicles else None
-        statement.save()
-        
+    if request.method == "POST":
+        data = clean_form13_post(request)
+        statement.save_page_data(4, data)
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 4 saved"})
+
         if "prev" in request.POST:
             return redirect("financial_statement_page3", pk=statement.pk)
+
         return redirect("financial_statement_page5", pk=statement.pk)
-    
-    # Unpack JSON fields for template
-    context = {"statement": statement}
-    
-    # Unpack real_estate
-    if statement.real_estate:
-        for i, item in enumerate(statement.real_estate[:10], 1):
-            context[f'real_estate_details_{i}'] = item.get('details', '')
-            context[f'real_estate_value_{i}'] = item.get('value', '')
-    
-    # Unpack vehicles
-    if statement.vehicles:
-        for i, item in enumerate(statement.vehicles[:10], 1):
-            context[f'vehicle_details_{i}'] = item.get('details', '')
-            context[f'vehicle_value_{i}'] = item.get('value', '')
-    
-    return render(request, "forms/financial_statement_page4.html", context)
+
+    return render(request, "forms/financial_statement_page4.html", {
+        "statement": statement,
+        "page_data": statement.get_page_data(4),
+        "pk": statement.pk,
+    })
 
 
 @login_required
 def financial_statement_page5(request, pk):
-    """Financial Statement Page 5 - Assets continued."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
     if request.method == "POST":
-        # Save Other Possessions as JSON
-        other_possessions = []
-        for i in range(1, 4):
-            address = request.POST.get(f'possession_address_{i}', '')
-            value = request.POST.get(f'possession_value_{i}', '')
-            if address or value:
-                other_possessions.append({'address_where_located': address, 'value': value})
-        statement.other_possessions = other_possessions if other_possessions else None
-        
-        # Save Investments as JSON
-        investments = []
-        for i in range(1, 4):
-            details = request.POST.get(f'investment_details_{i}', '')
-            value = request.POST.get(f'investment_value_{i}', '')
-            if details or value:
-                investments.append({'type_issuer_due_date_shares': details, 'value': value})
-        statement.investments = investments if investments else None
-        
-        # Save Bank Accounts as JSON
-        bank_accounts = []
-        for i in range(1, 4):
-            institution = request.POST.get(f'bank_institution_{i}', '')
-            account_number = request.POST.get(f'bank_account_number_{i}', '')
-            value = request.POST.get(f'bank_value_{i}', '')
-            if institution or account_number or value:
-                bank_accounts.append({
-                    'name_address_institution': institution,
-                    'account_number': account_number,
-                    'value': value
-                })
-        statement.bank_accounts = bank_accounts if bank_accounts else None
-        
-        # Save Savings Plans as JSON
-        savings_plans = []
-        for i in range(1, 4):
-            type_issuer = request.POST.get(f'savings_type_{i}', '')
-            account_number = request.POST.get(f'savings_account_{i}', '')
-            value = request.POST.get(f'savings_value_{i}', '')
-            if type_issuer or account_number or value:
-                savings_plans.append({
-                    'type_issuer': type_issuer,
-                    'account_number': account_number,
-                    'value': value
-                })
-        statement.savings_plans = savings_plans if savings_plans else None
-        
-        # Save Life Insurance as JSON
-        life_insurance = []
-        for i in range(1, 4):
-            details = request.POST.get(f'insurance_details_{i}', '')
-            cash_value = request.POST.get(f'insurance_cash_value_{i}', '')
-            if details or cash_value:
-                life_insurance.append({
-                    'type_beneficiary_face_amount': details,
-                    'cash_surrender_value': cash_value
-                })
-        statement.life_insurance = life_insurance if life_insurance else None
-        
-        # Save Interest in Business as JSON
-        interest_in_business = []
-        for i in range(1, 4):
-            name_address = request.POST.get(f'business_name_address_{i}', '')
-            value = request.POST.get(f'business_value_{i}', '')
-            if name_address or value:
-                interest_in_business.append({
-                    'name_address_of_business': name_address,
-                    'value': value
-                })
-        statement.interest_in_business = interest_in_business if interest_in_business else None
-        
-        # Save Money Owed to You as JSON
-        money_owed_to_you = []
-        for i in range(1, 4):
-            debtor = request.POST.get(f'money_owed_debtor_{i}', '')
-            value = request.POST.get(f'money_owed_value_{i}', '')
-            if debtor or value:
-                money_owed_to_you.append({
-                    'name_address_of_debtors': debtor,
-                    'value': value
-                })
-        statement.money_owed_to_you = money_owed_to_you if money_owed_to_you else None
-        
-        # Save Other Assets as JSON
-        other_assets = []
-        for i in range(1, 4):
-            description = request.POST.get(f'other_asset_description_{i}', '')
-            value = request.POST.get(f'other_asset_value_{i}', '')
-            if description or value:
-                other_assets.append({
-                    'description': description,
-                    'value': value
-                })
-        statement.other_assets = other_assets if other_assets else None
-        
-        # Save Total Value of All Property
-        statement.total_value_all_property = parse_decimal(request.POST.get('total_value_all_property'))
-        
-        statement.save()
-        
+        data = clean_form13_post(request)
+        statement.save_page_data(5, data)
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 5 saved"})
+
         if "prev" in request.POST:
             return redirect("financial_statement_page4", pk=statement.pk)
+
         return redirect("financial_statement_page6", pk=statement.pk)
-    
-    # Unpack JSON fields for template
-    context = {"statement": statement}
-    
-    # Unpack other_possessions
-    if statement.other_possessions:
-        for i, item in enumerate(statement.other_possessions[:3], 1):
-            context[f'possession_address_{i}'] = item.get('address_where_located', '')
-            context[f'possession_value_{i}'] = item.get('value', '')
-    
-    # Unpack investments
-    if statement.investments:
-        for i, item in enumerate(statement.investments[:3], 1):
-            context[f'investment_details_{i}'] = item.get('type_issuer_due_date_shares', '')
-            context[f'investment_value_{i}'] = item.get('value', '')
-    
-    # Unpack bank_accounts
-    if statement.bank_accounts:
-        for i, item in enumerate(statement.bank_accounts[:3], 1):
-            context[f'bank_institution_{i}'] = item.get('name_address_institution', '')
-            context[f'bank_account_number_{i}'] = item.get('account_number', '')
-            context[f'bank_value_{i}'] = item.get('value', '')
-    
-    # Unpack savings_plans
-    if statement.savings_plans:
-        for i, item in enumerate(statement.savings_plans[:3], 1):
-            context[f'savings_type_{i}'] = item.get('type_issuer', '')
-            context[f'savings_account_{i}'] = item.get('account_number', '')
-            context[f'savings_value_{i}'] = item.get('value', '')
-    
-    # Unpack life_insurance
-    if statement.life_insurance:
-        for i, item in enumerate(statement.life_insurance[:3], 1):
-            context[f'insurance_details_{i}'] = item.get('type_beneficiary_face_amount', '')
-            context[f'insurance_cash_value_{i}'] = item.get('cash_surrender_value', '')
-    
-    # Unpack interest_in_business
-    if statement.interest_in_business:
-        for i, item in enumerate(statement.interest_in_business[:3], 1):
-            context[f'business_name_address_{i}'] = item.get('name_address_of_business', '')
-            context[f'business_value_{i}'] = item.get('value', '')
-    
-    # Unpack money_owed_to_you
-    if statement.money_owed_to_you:
-        for i, item in enumerate(statement.money_owed_to_you[:3], 1):
-            context[f'money_owed_debtor_{i}'] = item.get('name_address_of_debtors', '')
-            context[f'money_owed_value_{i}'] = item.get('value', '')
-    
-    # Unpack other_assets
-    if statement.other_assets:
-        for i, item in enumerate(statement.other_assets[:3], 1):
-            context[f'other_asset_description_{i}'] = item.get('description', '')
-            context[f'other_asset_value_{i}'] = item.get('value', '')
-    
-    return render(request, "forms/financial_statement_page5.html", context)
+
+    return render(request, "forms/financial_statement_page5.html", {
+        "statement": statement,
+        "page_data": statement.get_page_data(5),
+        "pk": statement.pk,
+    })
 
 
 @login_required
 def financial_statement_page6(request, pk):
-    """Financial Statement Page 6 - Debts and Summary."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
     if request.method == "POST":
-        # Save Debts as JSON - using actual template field names
-        debts_data = {}
-        
-        # Mortgages 1-4
-        for i in range(1, 5):
-            debts_data[f'mortgage_creditor_{i}'] = request.POST.get(f'mortgage_creditor_{i}', '')
-            debts_data[f'mortgage_amount_{i}'] = request.POST.get(f'mortgage_amount_{i}', '')
-            debts_data[f'mortgage_monthly_{i}'] = request.POST.get(f'mortgage_monthly_{i}', '')
-            debts_data[f'mortgage_payment_{i}'] = request.POST.get(f'mortgage_payment_{i}', '')
-        
-        # Credit cards 1-2
-        for i in range(1, 3):
-            debts_data[f'credit_card_creditor_{i}'] = request.POST.get(f'credit_card_creditor_{i}', '')
-            debts_data[f'credit_card_amount_{i}'] = request.POST.get(f'credit_card_amount_{i}', '')
-            debts_data[f'credit_card_monthly_{i}'] = request.POST.get(f'credit_card_monthly_{i}', '')
-            debts_data[f'credit_card_payment_{i}'] = request.POST.get(f'credit_card_payment_{i}', '')
-        
-        # Unpaid support
-        debts_data['unpaid_support_creditor'] = request.POST.get('unpaid_support_creditor', '')
-        debts_data['unpaid_support_amount'] = request.POST.get('unpaid_support_amount', '')
-        debts_data['unpaid_support_monthly'] = request.POST.get('unpaid_support_monthly', '')
-        debts_data['unpaid_support_payment'] = request.POST.get('unpaid_support_payment', '')
-        
-        # Other debts (dynamic rows)
-        other_debt_rows = []
-        i = 1
-        while True:
-            creditor = request.POST.get(f'other_debt_creditor_{i}', None)
-            amount = request.POST.get(f'other_debt_amount_{i}', None)
-            monthly = request.POST.get(f'other_debt_monthly_{i}', None)
-            payment = request.POST.get(f'other_debt_payment_{i}', None)
-            if creditor is None and amount is None and monthly is None and payment is None:
-                break
-            debts_data[f'other_debt_creditor_{i}'] = creditor or ''
-            debts_data[f'other_debt_amount_{i}'] = amount or ''
-            debts_data[f'other_debt_monthly_{i}'] = monthly or ''
-            debts_data[f'other_debt_payment_{i}'] = payment or ''
-            i += 1
-        
-        statement.debts = debts_data
-        
-        # Save Total Debts Outstanding
-        statement.total_debts_outstanding = parse_decimal(request.POST.get('total_debts_outstanding'))
-        
-        # Save Summary (Part 5)
-        statement.total_assets = parse_decimal(request.POST.get('total_assets'))
-        statement.total_debts = parse_decimal(request.POST.get('subtract_total_debts'))
-        statement.net_worth = parse_decimal(request.POST.get('net_worth'))
-        
-        # Save Signature section
-        statement.sworn_municipality = request.POST.get('municipality', '')
-        statement.sworn_province_country = request.POST.get('province', '')
-        sworn_date = request.POST.get('date', '')
-        if sworn_date:
-            statement.sworn_date = sworn_date
-        statement.commissioner_signature = request.POST.get('commissioner', '')
-        
-        statement.save()
-        
+        data = clean_form13_post(request)
+        statement.save_page_data(6, data)
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 6 saved"})
+
         if "prev" in request.POST:
             return redirect("financial_statement_page5", pk=statement.pk)
+
         return redirect("financial_statement_page7", pk=statement.pk)
-    
-    # Unpack debts JSON for template
-    context = {"statement": statement}
-    if statement.debts:
-        context.update(statement.debts)
-    
-    return render(request, "forms/financial_statement_page6.html", context)
+
+    return render(request, "forms/financial_statement_page6.html", {
+        "statement": statement,
+        "page_data": statement.get_page_data(6),
+        "pk": statement.pk,
+    })
 
 
 @login_required
 def financial_statement_page7(request, pk):
-    """Financial Statement Page 7 - Schedule A and Schedule B."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
+    checkbox_fields = [
+        "lives_alone",
+        "living_with_someone",
+        "lives_with_other_adults",
+        "has_children_in_home",
+        "spouse_works",
+        "spouse_does_not_work",
+        "spouse_earns_income",
+        "spouse_no_income",
+        "household_contribution",
+    ]
+
     if request.method == "POST":
-        # Save Schedule A - Additional Sources of Income
-        statement.schedule_a_partnership_income = parse_decimal(request.POST.get('schedule_a_partnership_income'))
-        statement.schedule_a_rental_income_gross = parse_decimal(request.POST.get('schedule_a_rental_income_gross'))
-        statement.schedule_a_rental_income_net = parse_decimal(request.POST.get('schedule_a_rental_income_net'))
-        statement.schedule_a_dividends = parse_decimal(request.POST.get('schedule_a_dividends'))
-        statement.schedule_a_capital_gains = parse_decimal(request.POST.get('schedule_a_capital_gains'))
-        statement.schedule_a_capital_losses = parse_decimal(request.POST.get('schedule_a_capital_losses'))
-        statement.schedule_a_rrsp_withdrawals = parse_decimal(request.POST.get('schedule_a_rrsp_withdrawals'))
-        statement.schedule_a_rrif_annuity = parse_decimal(request.POST.get('schedule_a_rrif_annuity'))
-        statement.schedule_a_other_income_source = request.POST.get('schedule_a_other_income_source', '')
-        statement.schedule_a_other_income_amount = parse_decimal(request.POST.get('schedule_a_other_income_amount'))
-        statement.schedule_a_subtotal = parse_decimal(request.POST.get('schedule_a_subtotal'))
-        
-        # Save Schedule B - Other Income Earners in the Home
-        statement.lives_alone = 'lives_alone' in request.POST
-        statement.living_with_someone = 'living_with_someone' in request.POST
-        statement.living_with_name = request.POST.get('living_with_name', '')
-        statement.lives_with_other_adults = 'lives_with_other_adults' in request.POST
-        statement.other_adults_names = request.POST.get('other_adults_names', '')
-        statement.has_children_in_home = 'has_children_in_home' in request.POST
-        num_children = request.POST.get('number_of_children_in_home', '')
-        statement.number_of_children_in_home = int(num_children) if num_children.isdigit() else None
-        
-        statement.spouse_works = 'spouse_works' in request.POST
-        statement.spouse_work_place = request.POST.get('spouse_work_place', '')
-        statement.spouse_does_not_work = 'spouse_does_not_work' in request.POST
-        
-        statement.spouse_earns_income = 'spouse_earns_income' in request.POST
-        statement.spouse_income_amount = parse_decimal(request.POST.get('spouse_income_amount'))
-        statement.spouse_income_period = request.POST.get('spouse_income_period', '')
-        statement.spouse_no_income = 'spouse_no_income' in request.POST
-        
-        statement.household_contribution = 'household_contribution' in request.POST
-        statement.household_contribution_amount = parse_decimal(request.POST.get('household_contribution_amount'))
-        statement.household_contribution_period = request.POST.get('household_contribution_period', '')
-        
-        statement.save()
-        
+        data = clean_form13_post(request, checkbox_fields)
+        statement.save_page_data(7, data)
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 7 saved"})
+
         if "prev" in request.POST:
             return redirect("financial_statement_page6", pk=statement.pk)
+
         return redirect("financial_statement_page8", pk=statement.pk)
-    
-    return render(request, "forms/financial_statement_page7.html", {"statement": statement})
+
+    return render(request, "forms/financial_statement_page7.html", {
+        "statement": statement,
+        "page_data": statement.get_page_data(7),
+        "pk": statement.pk,
+    })
 
 
 @login_required
 def financial_statement_page8(request, pk):
-    """Financial Statement Page 8 - Schedule C (Special/Extraordinary Expenses)."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
     if request.method == "POST":
-        # Save Schedule C - Expenses for Children (dynamic rows)
-        schedule_c_expenses = []
-        consecutive_empty = 0
-        max_rows = 50
-        
-        for i in range(1, max_rows + 1):
-            child_name = request.POST.get(f'schedule_c_child_name_{i}', '')
-            expense = request.POST.get(f'schedule_c_expense_{i}', '')
-            amount = request.POST.get(f'schedule_c_amount_{i}', '')
-            tax_credits = request.POST.get(f'schedule_c_tax_credits_{i}', '')
-            
-            # Check if this row has any data
-            if child_name or expense or amount or tax_credits:
-                # Row has data - save it and reset empty counter
-                schedule_c_expenses.append({
-                    'child_name': child_name,
-                    'expense': expense,
-                    'amount_per_year': amount,
-                    'tax_credits': tax_credits
-                })
-                consecutive_empty = 0
-            else:
-                # Empty row - increment counter
-                consecutive_empty += 1
-                # Stop if we've seen 5 consecutive empty rows (allows gaps in data)
-                if consecutive_empty >= 5:
-                    break
-        
-        statement.schedule_c_expenses = schedule_c_expenses if schedule_c_expenses else None
-        
-        statement.schedule_c_total_annual = parse_decimal(request.POST.get('schedule_c_total_annual'))
-        statement.schedule_c_total_monthly = parse_decimal(request.POST.get('schedule_c_total_monthly'))
-        statement.schedule_c_my_income_for_share = parse_decimal(request.POST.get('schedule_c_my_income_for_share'))
-        
-        statement.save()
-        
+        data = clean_form13_post(request)
+        statement.save_page_data(8, data)
+
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({"success": True, "message": "Page 8 saved"})
+
         if "prev" in request.POST:
             return redirect("financial_statement_page7", pk=statement.pk)
+
         return redirect("financial_statement_list")
-    
-    # Expand JSON data for template display
-    schedule_c_rows = []
-    expenses = statement.schedule_c_expenses or []
-    # Show at least 2 rows, or more if data exists
-    min_rows = max(2, len(expenses))
-    for i in range(min_rows):
-        if i < len(expenses):
-            row = expenses[i]
-            schedule_c_rows.append({
-                'child_name': row.get('child_name', ''),
-                'expense': row.get('expense', ''),
-                'amount': row.get('amount_per_year', ''),
-                'tax_credits': row.get('tax_credits', '')
-            })
-        else:
-            schedule_c_rows.append({'child_name': '', 'expense': '', 'amount': '', 'tax_credits': ''})
-    
-    # Pass extra rows for JS to load dynamically (rows beyond 2)
-    extra_schedule_c_rows = schedule_c_rows[2:] if len(schedule_c_rows) > 2 else []
-    schedule_c_rows = schedule_c_rows[:2]  # Only show first 2 in initial HTML
-    
+
     return render(request, "forms/financial_statement_page8.html", {
         "statement": statement,
-        "schedule_c_rows": schedule_c_rows,
-        "extra_schedule_c_rows": extra_schedule_c_rows
+        "page_data": statement.get_page_data(8),
+        "pk": statement.pk,
     })
-
-
+    
 @login_required
 def financial_statement_view(request, pk):
     """Full view of a Financial Statement."""
@@ -2453,7 +2162,7 @@ def financial_statement_view(request, pk):
     }
     
     # Build debt lists from flat dictionary structure
-    debts_data = statement.debts or {}
+    debts_data = _normalize_financial_statement_debts(statement.debts)
     
     # Mortgages/Loans (4 rows)
     mortgages_loans = []
@@ -2565,7 +2274,7 @@ def financial_statement_print(request, pk):
     }
     
     # Build debt lists from flat dictionary structure
-    debts_data = statement.debts or {}
+    debts_data = _normalize_financial_statement_debts(statement.debts)
     
     # Mortgages/Loans (4 rows)
     mortgages_loans = []
@@ -5379,43 +5088,6 @@ def certificate_of_divorce_delete(request, pk):
             "cancel_url": "certificate_of_divorce_list",
         }
     )
-
-@login_required
-def certificate_of_divorce_create(request):
-    case_file = None
-    case_id = request.GET.get("case_id") or request.POST.get("case_id")
-    if case_id:
-        case_file = CaseFile.objects.filter(pk=case_id, owner=request.user).first()
-
-    initial = {}
-    if case_file:
-        initial = {
-            "case_file": case_file,
-            "court_name": case_file.court_name,
-            "court_file_number": case_file.court_file_number,
-            "court_office_address": case_file.court_office_address,
-            "applicant_name": case_file.applicant_name,
-            "respondent_name": case_file.respondent_name,
-        }
-
-    if request.method == "POST":
-        form = CertificateOfDivorceForm(request.POST)
-        if form.is_valid():
-            if case_file:
-                form.instance.case_file = case_file
-            cert = form.save()
-            send_form_created_notification('certificate_of_divorce', cert, request.user)
-            return redirect('certificate_of_divorce_view', pk=cert.pk)
-    else:
-        form = CertificateOfDivorceForm(initial=initial)
-
-    case_list = CaseFile.objects.filter(owner=request.user)
-    return render(request, 'forms/certificate_of_divorce_create.html', {
-        'form': form,
-        'case_list': case_list,
-        'selected_case': case_file,
-    })
-
 
 def _build_certificate_case_initial(case):
     if not case:

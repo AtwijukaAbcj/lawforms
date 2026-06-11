@@ -655,9 +655,9 @@
         </tr>
       </thead>
       <tbody>
-        {% for debt in other_debts %}
+        {% for debt in all_debts %}
         <tr>
-          <td>Other debts</td>
+          <td>{{ debt.category|default:"Other Debts" }}</td>
           <td>{{ debt.creditor|default:"—" }}</td>
           <td class="text-right">${{ debt.full_amount|floatformat:2|default:"—" }}</td>
           <td class="text-right">${{ debt.monthly_payment|floatformat:2|default:"—" }}</td>

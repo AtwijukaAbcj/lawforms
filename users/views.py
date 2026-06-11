@@ -319,6 +319,57 @@ def divorce_order_list(request):
     })
 
 @login_required
+def financial_statement_131_print(request, pk):
+    form = get_object_or_404(FinancialStatement131, pk=pk)
+
+    pages = {
+        "page1": getattr(form, "page1", None),
+        "page2": getattr(form, "page2", None),
+        "page3": getattr(form, "page3", None),
+        "page4": getattr(form, "page4", None),
+        "page5": getattr(form, "page5", None),
+        "page6": getattr(form, "page6", None),
+        "page7": getattr(form, "page7", None),
+        "page8": getattr(form, "page8", None),
+        "page9": getattr(form, "page9", None),
+        "page10": getattr(form, "page10", None),
+    }
+
+    def clean_money(value):
+        try:
+            if value in [None, ""]:
+                return 0
+            return float(str(value).replace("$", "").replace(",", "").strip())
+        except Exception:
+            return 0
+
+    page10 = pages.get("page10")
+
+    if page10:
+        total_annual = sum([
+            clean_money(page10.sched_b_1_amount),
+            clean_money(page10.sched_b_2_amount),
+            clean_money(page10.sched_b_3_amount),
+            clean_money(page10.sched_b_4_amount),
+            clean_money(page10.sched_b_5_amount),
+            clean_money(page10.sched_b_6_amount),
+            clean_money(page10.sched_b_7_amount),
+            clean_money(page10.sched_b_8_amount),
+            clean_money(page10.sched_b_9_amount),
+            clean_money(page10.sched_b_10_amount),
+        ])
+
+        page10.sched_b_total_annual = total_annual
+        page10.sched_b_total_monthly = round(total_annual / 12, 2)
+
+    return render(request, "forms/financial_statement_131_print.html", {
+        "form": form,
+        "pages": pages,
+        "court_file_number": getattr(form, "court_file_number", ""),
+    })
+
+    
+@login_required
 @user_passes_test(is_admin)
 def role_edit(request, pk):
     role = get_object_or_404(Role, pk=pk)

@@ -4,7 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from decimal import Decimal
 
-
+from datetime import date, datetime
 # ============================================================
 # SOFT DELETE MIXIN - For Recycle Bin Functionality
 # ============================================================
@@ -394,10 +394,12 @@ class FinancialStatement(SoftDeleteMixin, models.Model):
     total_debts = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     net_worth = models.DecimalField(max_digits=30, decimal_places=3, blank=True, null=True)
     
-    # Signature section (Page 6)
+    # Signature section (Page 1 and Page 6)
+    sworn_affidavit = models.CharField(max_length=255, blank=True, null=True)
     sworn_municipality = models.CharField(max_length=255, blank=True, null=True)
     sworn_province_country = models.CharField(max_length=255, blank=True, null=True)
     sworn_date = models.DateField(blank=True, null=True)
+    signature = models.CharField(max_length=255, blank=True, null=True)
     commissioner_signature = models.CharField(max_length=255, blank=True, null=True)
 
     # Schedule A - Additional Sources of Income (Page 7)
@@ -452,8 +454,65 @@ class FinancialStatement(SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return f"Financial Statement: {self.court_file_number or self.id}"
+    def _json_safe_value(self, value):
+        if isinstance(value, (date, datetime)):
+            return value.isoformat()
+
+        if isinstance(value, Decimal):
+            return str(value)
+
+        if value is None:
+            return ""
+
+        if isinstance(value, dict):
+            return {
+                str(k): self._json_safe_value(v)
+                for k, v in value.items()
+            }
+
+        if isinstance(value, list):
+            return [
+                self._json_safe_value(v)
+                for v in value
+            ]
+
+        return value
 
 
+    def save_page_data(self, page_number, data):
+        if not self.draft:
+            self.draft = {}
+
+        page_key = f"page{page_number}"
+        existing_page_data = self.draft.get(page_key, {}) or {}
+
+        clean_data = {}
+
+        for key, value in data.items():
+            if key in ["csrfmiddlewaretoken", "prev"]:
+                continue
+
+            clean_data[key] = self._json_safe_value(value)
+
+        existing_page_data.update(clean_data)
+        self.draft[page_key] = existing_page_data
+
+        page1 = self.draft.get("page1", {})
+
+        self.court_file_number = page1.get("court_file_number") or self.court_file_number
+        self.court_name = page1.get("court_name") or self.court_name
+        self.court_office_address = page1.get("court_office_address") or self.court_office_address
+        self.applicant_name = page1.get("applicant_name") or self.applicant_name
+        self.respondent_name = page1.get("respondent_name") or self.respondent_name
+
+        self.save()
+
+
+    def get_page_data(self, page_number):
+        if not self.draft:
+            return {}
+
+        return self.draft.get(f"page{page_number}", {})
 # ============================================================
 # 3) FORM 13B (Multi-page Root + Child Tables + Totals)
 # ============================================================

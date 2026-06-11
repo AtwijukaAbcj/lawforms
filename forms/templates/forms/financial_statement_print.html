@@ -417,8 +417,13 @@
       </div>
       <div class="form-title-box">
         Form 13: Financial<br>
-        Statement (Support Claims)<br>
-        sworn/affirmed
+        Statement (Support Claims)
+        <br>
+        Sworn / Affirmed:
+      </div>
+      <div style="margin-top:4px; padding-top:4px; font-size:8px; line-height:1.2;">
+        <div style="border-bottom:1px solid #000; min-height:12px;">{{ pages.page1.sworn_affidavit|default:statement.sworn_affidavit|default:"" }}</div>
+        <div style="font-size:7px; text-align:center; margin-top:2px;"></div>
       </div>
     </div>
   </div>
@@ -1157,26 +1162,6 @@
       <li>more than 30 days old by the time the motion is heard, or</li>
       <li>more than 40 days old by the start of the trial or the start of the trial sitting, whichever comes first.</li>
     </ul>
-  </div>
-
-  <div class="sworn-section">
-    <p>Sworn/Affirmed before me at <span class="underline-field" style="min-width:200px;">{{ statement.sworn_municipality|default:"" }}</span></p>
-    <p style="text-align:center; font-size:8px; font-style:italic;">municipality</p>
-    <p>in <span class="underline-field" style="min-width:300px;">{{ statement.sworn_province_country|default:"" }}</span></p>
-    <p style="text-align:center; font-size:8px; font-style:italic;">province, state or country</p>
-
-    <div style="display:flex; justify-content:space-between; margin-top:20px;">
-      <div style="width:45%;">
-        <p>on <span class="underline-field" style="min-width:100px;">{{ statement.sworn_date|default:"" }}</span></p>
-        <p style="font-size:8px; font-style:italic; text-align:center;">date</p>
-        <div class="line"></div>
-        <p style="font-size:8px; font-style:italic; text-align:center;">Commissioner for taking affidavits<br>(Type or print name below if signature is illegible.)</p>
-      </div>
-      <div style="width:45%;">
-        <div class="line" style="margin-top:30px;"></div>
-        <p style="font-size:8px; font-style:italic; text-align:center;">Signature<br>(This form is to be signed in front of a lawyer, justice of the peace, notary public or commissioner for taking affidavits.)</p>
-      </div>
-    </div>
   </div>
 
   <div class="page-footer">

@@ -323,8 +323,10 @@
                 } catch(e) {}
                 // Fallback: use server-side value if available
                 if (!assetVal) {
-                  {% if statement.total_value_all_property %}
-                  assetVal = parseNum('{{ statement.total_value_all_property }}');
+                  {% if page5_data.total_value_all_property %}
+                  assetVal = parseNum('{{ page5_data.total_value_all_property }}');
+                  {% elif page_data.total_assets %}
+                  assetVal = parseNum('{{ page_data.total_assets }}');
                   {% endif %}
                 }
                 if (assetVal) {
@@ -336,7 +338,7 @@
           function updateTotals() {
             // Sum all debt amounts (fields containing _amount_)
             var debtSum = 0;
-            document.querySelectorAll('input[name*="_amount_"').forEach(function(inp){
+            document.querySelectorAll('input[name*="_amount_"]').forEach(function(inp){
               debtSum += parseNum(inp.value);
             });
             var totalDebts = document.getElementById('total_debts_outstanding');
@@ -451,64 +453,64 @@
                   <!-- Mortgages 1-4 (static fields) -->
                   <tr>
                     <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
-                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_1" value="{{ mortgage_creditor_1 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_1" value="{{ mortgage_amount_1 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_1" value="{{ mortgage_monthly_1 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_1" value="{{ page_data.mortgage_creditor_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_1" value="{{ page_data.mortgage_amount_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_1" value="{{ page_data.mortgage_monthly_1|default:'' }}"></td>
                     <td class="text-center">
                       <div class="radio-wrap">
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_1" value="yes" {% if mortgage_payment_1 == 'yes' %}checked{% endif %}> Yes
+                          <input type="radio" name="mortgage_payment_1" value="yes" {% if page_data.mortgage_payment_1 == 'yes' %}checked{% endif %}> Yes
                         </label>
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_1" value="no" {% if mortgage_payment_1 == 'no' %}checked{% endif %}> No
+                          <input type="radio" name="mortgage_payment_1" value="no" {% if page_data.mortgage_payment_1 == 'no' %}checked{% endif %}> No
                         </label>
                       </div>
                     </td>
                   </tr>
                   <tr>
                     <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
-                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_2" value="{{ mortgage_creditor_2 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_2" value="{{ mortgage_amount_2 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_2" value="{{ mortgage_monthly_2 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_2" value="{{ page_data.mortgage_creditor_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_2" value="{{ page_data.mortgage_amount_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_2" value="{{ page_data.mortgage_monthly_2|default:'' }}"></td>
                     <td class="text-center">
                       <div class="radio-wrap">
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_2" value="yes" {% if mortgage_payment_2 == 'yes' %}checked{% endif %}> Yes
+                          <input type="radio" name="mortgage_payment_2" value="yes" {% if page_data.mortgage_payment_2 == 'yes' %}checked{% endif %}> Yes
                         </label>
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_2" value="no" {% if mortgage_payment_2 == 'no' %}checked{% endif %}> No
+                          <input type="radio" name="mortgage_payment_2" value="no" {% if page_data.mortgage_payment_2 == 'no' %}checked{% endif %}> No
                         </label>
                       </div>
                     </td>
                   </tr>
                   <tr>
                     <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
-                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_3" value="{{ mortgage_creditor_3 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_3" value="{{ mortgage_amount_3 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_3" value="{{ mortgage_monthly_3 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_3" value="{{ page_data.mortgage_creditor_3|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_3" value="{{ page_data.mortgage_amount_3|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_3" value="{{ page_data.mortgage_monthly_3|default:'' }}"></td>
                     <td class="text-center">
                       <div class="radio-wrap">
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_3" value="yes" {% if mortgage_payment_3 == 'yes' %}checked{% endif %}> Yes
+                          <input type="radio" name="mortgage_payment_3" value="yes" {% if page_data.mortgage_payment_3 == 'yes' %}checked{% endif %}> Yes
                         </label>
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_3" value="no" {% if mortgage_payment_3 == 'no' %}checked{% endif %}> No
+                          <input type="radio" name="mortgage_payment_3" value="no" {% if page_data.mortgage_payment_3 == 'no' %}checked{% endif %}> No
                         </label>
                       </div>
                     </td>
                   </tr>
                   <tr>
                     <td>Mortgages, lines of credit or other loans from a bank, trust or finance company</td>
-                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_4" value="{{ mortgage_creditor_4 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_4" value="{{ mortgage_amount_4 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_4" value="{{ mortgage_monthly_4 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="mortgage_creditor_4" value="{{ page_data.mortgage_creditor_4|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_amount_4" value="{{ page_data.mortgage_amount_4|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="mortgage_monthly_4" value="{{ page_data.mortgage_monthly_4|default:'' }}"></td>
                     <td class="text-center">
                       <div class="radio-wrap">
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_4" value="yes" {% if mortgage_payment_4 == 'yes' %}checked{% endif %}> Yes
+                          <input type="radio" name="mortgage_payment_4" value="yes" {% if page_data.mortgage_payment_4 == 'yes' %}checked{% endif %}> Yes
                         </label>
                         <label class="radio-pill">
-                          <input type="radio" name="mortgage_payment_4" value="no" {% if mortgage_payment_4 == 'no' %}checked{% endif %}> No
+                          <input type="radio" name="mortgage_payment_4" value="no" {% if page_data.mortgage_payment_4 == 'no' %}checked{% endif %}> No
                         </label>
                       </div>
                     </td>
@@ -517,32 +519,32 @@
                   <!-- Credit cards 1-2 (static fields) -->
                   <tr>
                     <td>Outstanding credit card balances</td>
-                    <td><input class="form-control ui-input sm" type="text" name="credit_card_creditor_1" value="{{ credit_card_creditor_1 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_amount_1" value="{{ credit_card_amount_1 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_monthly_1" value="{{ credit_card_monthly_1 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="credit_card_creditor_1" value="{{ page_data.credit_card_creditor_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_amount_1" value="{{ page_data.credit_card_amount_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_monthly_1" value="{{ page_data.credit_card_monthly_1|default:'' }}"></td>
                     <td class="text-center">
                       <div class="radio-wrap">
                         <label class="radio-pill">
-                          <input type="radio" name="credit_card_payment_1" value="yes" {% if credit_card_payment_1 == 'yes' %}checked{% endif %}> Yes
+                          <input type="radio" name="credit_card_payment_1" value="yes" {% if page_data.credit_card_payment_1 == 'yes' %}checked{% endif %}> Yes
                         </label>
                         <label class="radio-pill">
-                          <input type="radio" name="credit_card_payment_1" value="no" {% if credit_card_payment_1 == 'no' %}checked{% endif %}> No
+                          <input type="radio" name="credit_card_payment_1" value="no" {% if page_data.credit_card_payment_1 == 'no' %}checked{% endif %}> No
                         </label>
                       </div>
                     </td>
                   </tr>
                   <tr>
                     <td>Outstanding credit card balances</td>
-                    <td><input class="form-control ui-input sm" type="text" name="credit_card_creditor_2" value="{{ credit_card_creditor_2 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_amount_2" value="{{ credit_card_amount_2 }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_monthly_2" value="{{ credit_card_monthly_2 }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="credit_card_creditor_2" value="{{ page_data.credit_card_creditor_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_amount_2" value="{{ page_data.credit_card_amount_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="credit_card_monthly_2" value="{{ page_data.credit_card_monthly_2|default:'' }}"></td>
                     <td class="text-center">
                       <div class="radio-wrap">
                         <label class="radio-pill">
-                          <input type="radio" name="credit_card_payment_2" value="yes" {% if credit_card_payment_2 == 'yes' %}checked{% endif %}> Yes
+                          <input type="radio" name="credit_card_payment_2" value="yes" {% if page_data.credit_card_payment_2 == 'yes' %}checked{% endif %}> Yes
                         </label>
                         <label class="radio-pill">
-                          <input type="radio" name="credit_card_payment_2" value="no" {% if credit_card_payment_2 == 'no' %}checked{% endif %}> No
+                          <input type="radio" name="credit_card_payment_2" value="no" {% if page_data.credit_card_payment_2 == 'no' %}checked{% endif %}> No
                         </label>
                       </div>
                     </td>
@@ -551,17 +553,17 @@
                   <!-- Unpaid support -->
                   <tr>
                     <td>Unpaid support amounts</td>
-                    <td><input class="form-control ui-input sm" type="text" name="unpaid_support_creditor" value="{{ unpaid_support_creditor }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="unpaid_support_amount" value="{{ unpaid_support_amount }}"></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="unpaid_support_monthly" value="{{ unpaid_support_monthly }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="unpaid_support_creditor" value="{{ page_data.unpaid_support_creditor|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="unpaid_support_amount" value="{{ page_data.unpaid_support_amount|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="unpaid_support_monthly" value="{{ page_data.unpaid_support_monthly|default:'' }}"></td>
                     <td class="text-center">
                       <div class="radio-wrap">
                         <label class="radio-pill">
-                          <input type="radio" name="unpaid_support_payment" value="yes" {% if unpaid_support_payment == 'yes' %}checked{% endif %}>
+                          <input type="radio" name="unpaid_support_payment" value="yes" {% if page_data.unpaid_support_payment == 'yes' %}checked{% endif %}>
                           Yes
                         </label>
                         <label class="radio-pill">
-                          <input type="radio" name="unpaid_support_payment" value="no" {% if unpaid_support_payment == 'no' %}checked{% endif %}>
+                          <input type="radio" name="unpaid_support_payment" value="no" {% if page_data.unpaid_support_payment == 'no' %}checked{% endif %}>
                           No
                         </label>
                       </div>
@@ -657,7 +659,7 @@ function renumberOtherDebtRows() {
             <div style="min-width:260px; width:min(420px, 100%);">
               <input class="form-control ui-input money-input" type="number" step="0.01"
                      name="total_debts_outstanding" id="total_debts_outstanding"
-                     value="{{ statement.total_debts_outstanding }}" placeholder="0.00">
+                     value="{{ page_data.total_debts_outstanding|default:'' }}" placeholder="0.00">
             </div>
           </div>
         </div>
@@ -684,15 +686,15 @@ function renumberOtherDebtRows() {
                 <tbody>
                   <tr>
                     <td><strong>Total assets</strong></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="total_assets" value="{{ statement.total_assets }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="total_assets" value="{{ page_data.total_assets|default:'' }}"></td>
                   </tr>
                   <tr>
                     <td><strong>Subtract total debts</strong></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="subtract_total_debts" value="{{ statement.subtract_total_debts }}"></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="subtract_total_debts" value="{{ page_data.subtract_total_debts|default:'' }}"></td>
                   </tr>
                   <tr>
                     <td><strong>Net worth</strong></td>
-                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="net_worth" value="{{ statement.net_worth }}" readonly></td>
+                    <td><input class="form-control ui-input sm money-input" type="number" step="0.01" name="net_worth" value="{{ page_data.net_worth|default:'' }}" readonly></td>
                   </tr>
                 </tbody>
               </table>
@@ -724,36 +726,36 @@ function renumberOtherDebtRows() {
           <div class="grid-3">
             <div>
               <label class="panel-sub" style="margin:0 0 6px;">Municipality</label>
-              <input class="form-control ui-input" type="text" name="municipality" id="municipality" value="{{ statement.sworn_municipality }}">
+              <input class="form-control ui-input" type="text" name="municipality" id="municipality" value="{{ page_data.municipality|default:'' }}">
             </div>
             <div>
               <label class="panel-sub" style="margin:0 0 6px;">Province / state / country</label>
-              <input class="form-control ui-input" type="text" name="province" id="province" value="{{ statement.sworn_province_country }}">
+              <input class="form-control ui-input" type="text" name="province" id="province" value="{{ page_data.province|default:'' }}">
             </div>
             <div>
               <label class="panel-sub" style="margin:0 0 6px;">Date</label>
-              <input class="form-control ui-input" type="date" name="date" id="date" value="{{ statement.sworn_date|date:'Y-m-d' }}">
+              <input class="form-control ui-input" type="date" name="date" id="date" value="{{ page_data.date|default:'' }}">
             </div>
 
             <div style="grid-column: 1 / -1;">
               <label class="panel-sub" style="margin:0 0 6px;">
                 Commissioner for taking affidavits (Type or print name below if signature is legible)
               </label>
-              <input class="form-control ui-input" type="text" name="commissioner" id="commissioner" value="{{ statement.commissioner_signature }}">
+              <input class="form-control ui-input" type="text" name="commissioner" id="commissioner" value="{{ page_data.commissioner|default:'' }}">
             </div>
 
             <div style="grid-column: 1 / -1;">
               <label class="panel-sub" style="margin:0 0 6px;">
                 Signature (Sign in front of a lawyer, justice of the peace, notary public, or commissioner for taking affidavits)
               </label>
-              <input class="form-control ui-input" type="text" name="signature" id="signature" value="{{ statement.signature }}">
+              <input class="form-control ui-input" type="text" name="signature" id="signature" value="{{ page_data.signature|default:'' }}">
             </div>
           </div>
         </div>
 
         <!-- ACTIONS -->
         <div class="actions">
-          {% if statement.pk %}
+          {% if statement.pk|default:statement.pk %}
             <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
           {% endif %}
           <button type="submit" class="btn-modern btn-primary-modern">Next &rarr;</button>
@@ -766,3 +768,4 @@ function renumberOtherDebtRows() {
 </div>
 
 {% endblock %}
+

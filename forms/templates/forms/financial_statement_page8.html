@@ -307,8 +307,14 @@
             });
             var totalAnnual = document.getElementsByName('schedule_c_total_annual')[0];
             var totalMonthly = document.getElementsByName('schedule_c_total_monthly')[0];
-            if (totalAnnual) totalAnnual.value = sum.toFixed(2);
-            if (totalMonthly) totalMonthly.value = (sum / 12).toFixed(2);
+            var hasAmount = false;
+            document.querySelectorAll('.schedule-c-amount').forEach(function(inp) {
+              if (String(inp.value || '').trim() !== '') hasAmount = true;
+            });
+            if (hasAmount) {
+              if (totalAnnual) totalAnnual.value = sum.toFixed(2);
+              if (totalMonthly) totalMonthly.value = (sum / 12).toFixed(2);
+            }
           }
 
           // --- AUTOSAVE LOGIC ---
@@ -426,15 +432,29 @@
                   </tr>
                 </thead>
                 <tbody id="schedule-c-tbody">
-                  {% for row in schedule_c_rows %}
                   <tr class="schedule-c-row">
-                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_child_name_{{ forloop.counter }}" value="{{ row.child_name }}"></td>
-                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_expense_{{ forloop.counter }}" value="{{ row.expense }}"></td>
-                    <td><input class="form-control ui-input sm money-input schedule-c-amount" type="number" step="0.01" name="schedule_c_amount_{{ forloop.counter }}" value="{{ row.amount }}"></td>
-                    <td><input class="form-control ui-input sm money-input schedule-c-tax" type="number" step="0.01" name="schedule_c_tax_credits_{{ forloop.counter }}" value="{{ row.tax_credits }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_child_name_1" value="{{ page_data.schedule_c_child_name_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_expense_1" value="{{ page_data.schedule_c_expense_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-amount" type="number" step="0.01" name="schedule_c_amount_1" value="{{ page_data.schedule_c_amount_1|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-tax" type="number" step="0.01" name="schedule_c_tax_credits_1" value="{{ page_data.schedule_c_tax_credits_1|default:'' }}"></td>
                     <td><button type="button" class="btn-delete-row" onclick="deleteScheduleCRow(this)" title="Delete row">&times;</button></td>
                   </tr>
-                  {% endfor %}
+
+                  <tr class="schedule-c-row">
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_child_name_2" value="{{ page_data.schedule_c_child_name_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_expense_2" value="{{ page_data.schedule_c_expense_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-amount" type="number" step="0.01" name="schedule_c_amount_2" value="{{ page_data.schedule_c_amount_2|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-tax" type="number" step="0.01" name="schedule_c_tax_credits_2" value="{{ page_data.schedule_c_tax_credits_2|default:'' }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteScheduleCRow(this)" title="Delete row">&times;</button></td>
+                  </tr>
+
+                  <tr class="schedule-c-row">
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_child_name_3" value="{{ page_data.schedule_c_child_name_3|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm" type="text" name="schedule_c_expense_3" value="{{ page_data.schedule_c_expense_3|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-amount" type="number" step="0.01" name="schedule_c_amount_3" value="{{ page_data.schedule_c_amount_3|default:'' }}"></td>
+                    <td><input class="form-control ui-input sm money-input schedule-c-tax" type="number" step="0.01" name="schedule_c_tax_credits_3" value="{{ page_data.schedule_c_tax_credits_3|default:'' }}"></td>
+                    <td><button type="button" class="btn-delete-row" onclick="deleteScheduleCRow(this)" title="Delete row">&times;</button></td>
+                  </tr>
                 </tbody>
               </table>
             </div>
@@ -475,7 +495,7 @@
           }
           
           (function(){
-            var scheduleCRowCount = {{ schedule_c_rows|length }};
+            var scheduleCRowCount = document.querySelectorAll(".schedule-c-row").length;
             
             function addScheduleCRow(childName, expense, amount, taxCredits) {
               scheduleCRowCount++;
@@ -494,11 +514,6 @@
             document.getElementById('add-schedule-c-row').addEventListener('click', function(){
               addScheduleCRow('', '', '', '');
             });
-            
-            // Load extra rows from server (rows beyond initial 2)
-            {% for row in extra_schedule_c_rows %}
-            addScheduleCRow('{{ row.child_name|escapejs }}', '{{ row.expense|escapejs }}', '{{ row.amount|escapejs }}', '{{ row.tax_credits|escapejs }}');
-            {% endfor %}
           })();
           </script>
 
@@ -510,7 +525,7 @@
                      type="number" step="0.01"
                      name="schedule_c_total_annual"
                      id="total_net_annual_amount"
-                     value="{{ statement.schedule_c_total_annual|default:'' }}"
+                     value="{{ page_data.schedule_c_total_annual|default:'' }}"
                      placeholder="0.00">
             </div>
             <div>
@@ -519,7 +534,7 @@
                      type="number" step="0.01"
                      name="schedule_c_total_monthly"
                      id="total_net_monthly_amount"
-                     value="{{ statement.schedule_c_total_monthly|default:'' }}"
+                     value="{{ page_data.schedule_c_total_monthly|default:'' }}"
                      placeholder="0.00">
             </div>
             <div>
@@ -533,7 +548,7 @@
                            style="max-width: 180px; display:inline-block; margin: 6px 0 0;"
                            type="number" step="0.01"
                            name="schedule_c_my_income_for_share"
-                           value="{{ statement.schedule_c_my_income_for_share|default:'' }}"
+                           value="{{ page_data.schedule_c_my_income_for_share|default:'' }}"
                            placeholder="0.00">
                     per year.
                   </div>
@@ -572,7 +587,7 @@
 
         <!-- Actions -->
         <div class="actions">
-          {% if statement.pk %}
+          {% if statement.pk|default:statement.pk %}
             <button type="submit" name="prev" class="btn-modern btn-secondary-modern">&larr; Previous</button>
           {% endif %}
           <button type="submit" class="btn-modern btn-primary-modern">Submit &amp; Finish</button>
@@ -584,3 +599,4 @@
 </div>
 
 {% endblock %}
+

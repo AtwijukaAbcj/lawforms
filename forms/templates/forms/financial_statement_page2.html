@@ -94,7 +94,13 @@
   }
 
   .ui-label{ font-weight:800; color:var(--text); font-size:13px; margin-bottom:6px; }
-  .ui-help{ color:var(--muted); font-size:12px; margin-top:6px; font-weight:600; }
+
+  .ui-help{
+    color:var(--muted);
+    font-size:12px;
+    margin-top:6px;
+    font-weight:600;
+  }
 
   .ui-input,
   .money-input{
@@ -266,7 +272,6 @@
     </div>
 
     <div class="page-body">
-
       <form method="post">
         {% csrf_token %}
 
@@ -282,42 +287,40 @@
           </div>
 
           <div class="pill-grid">
-
             <label class="pill-check">
-              <input type="checkbox" name="pay_cheque_stub" {% if statement.pay_cheque_stub %}checked{% endif %}>
+              <input type="checkbox" name="pay_cheque_stub" {% if page_data.pay_cheque_stub %}checked{% endif %}>
               Pay cheque stub
             </label>
 
             <label class="pill-check">
-              <input type="checkbox" name="social_assistance_stub" {% if statement.social_assistance_stub %}checked{% endif %}>
+              <input type="checkbox" name="social_assistance_stub" {% if page_data.social_assistance_stub %}checked{% endif %}>
               Social assistance stub
             </label>
 
             <label class="pill-check">
-              <input type="checkbox" name="pension_stub" {% if statement.pension_stub %}checked{% endif %}>
+              <input type="checkbox" name="pension_stub" {% if page_data.pension_stub %}checked{% endif %}>
               Pension stub
             </label>
 
             <label class="pill-check">
-              <input type="checkbox" name="workers_comp_stub" {% if statement.workers_comp_stub %}checked{% endif %}>
+              <input type="checkbox" name="workers_comp_stub" {% if page_data.workers_comp_stub %}checked{% endif %}>
               Workers' compensation stub
             </label>
 
             <label class="pill-check">
-              <input type="checkbox" name="ei_stub" {% if statement.ei_stub %}checked{% endif %}>
+              <input type="checkbox" name="ei_stub" {% if page_data.ei_stub %}checked{% endif %}>
               Employment insurance stub + Record of Employment
             </label>
 
             <label class="pill-check">
-              <input type="checkbox" name="statement_of_income" {% if statement.statement_of_income %}checked{% endif %}>
+              <input type="checkbox" name="statement_of_income" {% if page_data.statement_of_income %}checked{% endif %}>
               Statement of income/expenses
             </label>
 
             <label class="pill-check">
-              <input type="checkbox" name="other_income_proof" {% if statement.other_income_proof %}checked{% endif %}>
+              <input type="checkbox" name="other_income_proof" {% if page_data.other_income_proof %}checked{% endif %}>
               Other proof
             </label>
-
           </div>
         </div>
 
@@ -328,10 +331,11 @@
           </div>
 
           <label class="ui-label">Last year, my gross income from all sources was ($)</label>
+
           <input type="text"
                  class="form-control ui-input money-calc"
                  name="last_year_gross_income"
-                 value="{{ statement.last_year_gross_income|floatformat:2|default:'' }}"
+                 value="{{ page_data.last_year_gross_income|default:'' }}"
                  placeholder="Enter gross income before deductions">
         </div>
 
@@ -359,7 +363,7 @@
               <input type="checkbox"
                      name="indian_status"
                      id="indian_status"
-                     {% if statement.indian_status %}checked{% endif %}>
+                     {% if page_data.indian_status %}checked{% endif %}>
               <span>
                 I am an Indian within the meaning of the Indian Act (Canada) and have chosen not to file income tax returns for the past three years.
               </span>
@@ -369,7 +373,7 @@
                    class="form-control ui-input mt-2"
                    name="indian_status_docs"
                    id="indian_status_docs"
-                   value="{{ statement.indian_status_docs|default:'' }}"
+                   value="{{ page_data.indian_status_docs|default:'' }}"
                    placeholder="List documents provided">
           </div>
         </div>
@@ -387,7 +391,6 @@
 
           <div class="table-wrap">
             <div class="table-responsive">
-
               <table class="table modern-table" id="income-table">
                 <thead>
                   <tr>
@@ -399,12 +402,20 @@
                 <tbody id="income-table-body">
                   <tr>
                     <td class="row-title">1. Employment income before deductions</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_employment" value="{{ statement.income_employment|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_employment"
+                             value="{{ page_data.income_employment|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">2. Commissions, tips and bonuses</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_commissions" value="{{ statement.income_commissions|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_commissions"
+                             value="{{ page_data.income_commissions|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
@@ -412,73 +423,116 @@
                       3. Self-employment income
                       <span class="text-muted">
                         before expenses:
-                        <input type="text" class="form-control money-input inline-mini" name="income_self_employment_before_expenses" value="{{ statement.income_self_employment_before_expenses|floatformat:2|default:'' }}">
+                        <input type="text" class="form-control money-input inline-mini"
+                               name="income_self_employment_before_expenses"
+                               value="{{ page_data.income_self_employment_before_expenses|default:'' }}">
                       </span>
                     </td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_self_employment" value="{{ statement.income_self_employment|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_self_employment"
+                             value="{{ page_data.income_self_employment|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">4. Employment Insurance benefits</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_ei" value="{{ statement.income_ei|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_ei"
+                             value="{{ page_data.income_ei|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">5. Workers' compensation benefits</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_workers_comp" value="{{ statement.income_workers_comp|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_workers_comp"
+                             value="{{ page_data.income_workers_comp|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">6. Social assistance income</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_social_assistance" value="{{ statement.income_social_assistance|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_social_assistance"
+                             value="{{ page_data.income_social_assistance|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">7. Interest and investment income</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_investment" value="{{ statement.income_investment|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_investment"
+                             value="{{ page_data.income_investment|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">8. Pension income including CPP and OAS</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_pension" value="{{ statement.income_pension|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_pension"
+                             value="{{ page_data.income_pension|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">9. Spousal support received</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_spousal_support" value="{{ statement.income_spousal_support|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_spousal_support"
+                             value="{{ page_data.income_spousal_support|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">10. Child Tax Benefits or Tax Rebates</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_tax_benefits" value="{{ statement.income_tax_benefits|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_tax_benefits"
+                             value="{{ page_data.income_tax_benefits|default:'' }}">
+                    </td>
                   </tr>
 
                   <tr>
                     <td class="row-title">11. Other sources of income</td>
-                    <td><input type="text" class="form-control money-input income-field" name="income_other" value="{{ statement.income_other|floatformat:2|default:'' }}"></td>
+                    <td>
+                      <input type="text" class="form-control money-input income-field"
+                             name="income_other"
+                             value="{{ page_data.income_other|default:'' }}">
+                    </td>
                   </tr>
                 </tbody>
 
                 <tfoot>
                   <tr class="totals">
                     <td class="row-title">12. Total monthly income from all sources</td>
-                    <td><input type="text" class="form-control money-input" name="income_total_monthly" id="income_total_monthly" value="{{ statement.income_total_monthly|floatformat:2|default:'' }}" readonly></td>
+                    <td>
+                      <input type="text" class="form-control money-input"
+                             name="income_total_monthly"
+                             id="income_total_monthly"
+                             value="{{ page_data.income_total_monthly|default:'' }}"
+                             readonly>
+                    </td>
                   </tr>
 
                   <tr class="totals">
                     <td class="row-title">13. Total annual income</td>
-                    <td><input type="text" class="form-control money-input" name="income_total_annual" id="income_total_annual" value="{{ statement.income_total_annual|floatformat:2|default:'' }}" readonly></td>
+                    <td>
+                      <input type="text" class="form-control money-input"
+                             name="income_total_annual"
+                             id="income_total_annual"
+                             value="{{ page_data.income_total_annual|default:'' }}"
+                             readonly>
+                    </td>
                   </tr>
                 </tfoot>
               </table>
-
             </div>
-          </div>
-
-          <div class="mt-3">
-            <button type="button" class="btn-modern" id="add-income-row">
-              + Add Row
-            </button>
           </div>
 
           <div class="ui-help">
@@ -503,7 +557,6 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
   function parseMoney(value) {
     if (!value) return 0;
     const cleaned = String(value).replace(/[^\d.-]/g, "");
@@ -563,36 +616,6 @@ document.addEventListener("DOMContentLoaded", function () {
     checkbox.addEventListener("change", updateActiveState);
     updateActiveState();
   });
-
-  const addRowBtn = document.getElementById("add-income-row");
-  const tbody = document.getElementById("income-table-body");
-
-  if (addRowBtn && tbody) {
-    addRowBtn.addEventListener("click", function () {
-      const rowCount = tbody.querySelectorAll("tr").length + 1;
-
-      const row = document.createElement("tr");
-
-      row.innerHTML = `
-        <td>
-          <input type="text"
-                 class="form-control ui-input"
-                 name="income_custom_label_${rowCount}"
-                 placeholder="Other income source">
-        </td>
-        <td>
-          <input type="text"
-                 class="form-control money-input income-field"
-                 name="income_custom_${rowCount}"
-                 placeholder="0.00">
-        </td>
-      `;
-
-      tbody.appendChild(row);
-
-      row.querySelector(".income-field").addEventListener("input", updateTotals);
-    });
-  }
 
   const form = document.querySelector("form");
 
