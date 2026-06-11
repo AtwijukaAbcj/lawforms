@@ -1,76 +1,441 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="form-view-wrap">
+<style>
+  .view-wrap{max-width:1180px;margin:24px auto 60px;padding:0 14px;}
+  .view-topbar{
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    padding:16px;
+    display:flex;
+    justify-content:space-between;
+    gap:14px;
+    flex-wrap:wrap;
+    box-shadow:0 10px 30px rgba(2,6,23,.06);
+    margin-bottom:16px;
+  }
+  .view-badge{
+    display:inline-block;
+    font-size:12px;
+    font-weight:800;
+    color:#475569;
+    background:#f8fafc;
+    border:1px solid #e2e8f0;
+    border-radius:999px;
+    padding:5px 10px;
+    margin-bottom:6px;
+  }
+  .view-title{margin:0;font-size:20px;font-weight:900;color:#0f172a;}
+  .view-sub{margin:5px 0 0;color:#64748b;font-weight:700;font-size:13px;}
 
-  <div class="form-view-topbar">
-    <div class="form-view-topbar-left">
-      <span class="form-view-badge">Ontario Family Law Rules</span>
-      <h1 class="form-view-title">Form 13 — Financial Statement</h1>
-      <p class="form-view-file">Court File No. {{ statement.court_file_number|default:"—" }}</p>
+  .view-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .view-btn{
+    border:none;
+    border-radius:8px;
+    padding:9px 13px;
+    text-decoration:none!important;
+    font-size:13px;
+    font-weight:800;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    color:#fff!important;
+  }
+  .btn-list{background:#475569;}
+  .btn-view{background:#0f766e;}
+  .btn-edit{background:#2563eb;}
+  .btn-print{background:#7c3aed;}
+  .btn-delete{background:#dc2626;}
+
+  .view-card{
+    background:#fff;
+    border:1px solid #e2e8f0;
+    border-radius:14px;
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(2,6,23,.05);
+    margin-bottom:16px;
+  }
+  .view-card-head{
+    padding:13px 16px;
+    background:#f8fafc;
+    border-bottom:1px solid #e2e8f0;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+  }
+  .view-card-title{margin:0;font-size:15px;font-weight:900;color:#0f172a;}
+  .page-mark{
+    font-size:12px;
+    font-weight:900;
+    color:#334155;
+    background:#fff;
+    border:1px solid #cbd5e1;
+    border-radius:999px;
+    padding:5px 10px;
+  }
+  .view-card-body{padding:14px;}
+
+  .view-table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    margin-bottom:12px;
+  }
+  .view-table th{
+    background:#f1f5f9;
+    color:#0f172a;
+    font-weight:900;
+    text-align:left;
+    border:1px solid #cbd5e1;
+    padding:8px;
+  }
+  .view-table td{
+    border:1px solid #cbd5e1;
+    padding:8px;
+    vertical-align:top;
+    color:#0f172a;
+  }
+  .view-table .label{width:28%;font-weight:800;background:#fafafa;}
+  .money{text-align:right;font-variant-numeric:tabular-nums;}
+  .muted{color:#64748b;}
+</style>
+
+<div class="view-wrap">
+
+  <div class="view-topbar">
+    <div>
+      <span class="view-badge">Ontario Family Law Rules</span>
+      <h1 class="view-title">Form 13 — Financial Statement</h1>
+      <p class="view-sub">Court File No. {{ page1.court_file_number|default:statement.court_file_number|default:"—" }}</p>
     </div>
-    <div class="form-view-actions">
-      <a href="{% url 'financial_statement_list' %}" class="form-view-btn-back">← List</a>
-      {% comment %}Compute permission flags and include shared action buttons{% endcomment %}
-      {% if request.user.is_superuser or user_permissions.financial_statement.view %}
-        {% with can_view=True %}{% else %}{% with can_view=False %}{% endif %}
-        {% if request.user.is_superuser or user_permissions.financial_statement.edit %}
-          {% with can_edit=True %}{% else %}{% with can_edit=False %}{% endif %}
-          {% if request.user.is_superuser or user_permissions.financial_statement.print %}
-            {% with can_print=True %}{% else %}{% with can_print=False %}{% endif %}
-            {% if request.user.is_superuser or user_permissions.financial_statement.delete %}
-              {% with can_delete=True %}{% else %}{% with can_delete=False %}{% endif %}
 
-              {% include 'partials/action_buttons.html' with object_id=statement.id view_name='financial_statement_view' edit_name='financial_statement_page1_edit' print_name='financial_statement_print' delete_name='financial_statement_delete' can_view=can_view can_edit=can_edit can_print=can_print can_delete=can_delete object_label='Financial Statement' %}
-
-            {% endwith %}{% endwith %}{% endwith %}{% endwith %}
+    <div class="view-actions">
+      <a href="{% url 'financial_statement_list' %}" class="view-btn btn-list">← List</a>
+      <a href="{% url 'financial_statement_view' statement.id %}" class="view-btn btn-view">View</a>
+      <a href="{% url 'financial_statement_page1' statement.id %}" class="view-btn btn-edit">Edit</a>
+      <a href="{% url 'financial_statement_print' statement.id %}" class="view-btn btn-print">Print</a>
+      <a href="{% url 'financial_statement_delete' statement.id %}" class="view-btn btn-delete">Delete</a>
     </div>
   </div>
 
-  <div class="form-view-card">
-    <div class="form-view-card-head">
-      <div class="form-view-card-icon">📄</div>
-      <h2 class="form-view-card-title">Header & Parties</h2>
+  <!-- PAGE 1 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Header, Parties & Income Status</h2>
+      <span class="page-mark">Page 1</span>
     </div>
-    <div class="form-view-card-body">
-      <div class="ontario-header">ONTARIO</div>
-      <div style="margin-bottom:12px;">
-        <h3 style="margin:0 0 6px; font-size:18px; font-weight:800;">Form 13: Financial Statement</h3>
-        <div style="color:var(--text-secondary); font-weight:600;">(Support Claims) under the Family Law Act</div>
-      </div>
+    <div class="view-card-body">
 
-      <div class="form-view-grid" style="margin-bottom:14px;">
-        <div class="form-view-field">
-          <span class="form-view-label">Court Information</span>
-          <div class="form-view-value">{{ statement.court_name|default:"—" }}<br>{{ statement.court_office_address|default:"—" }}</div>
-        </div>
-      </div>
+      <table class="view-table">
+        <tr><th colspan="4">Court Information</th></tr>
+        <tr>
+          <td class="label">Name of Court</td>
+          <td>{{ page1.court_name|default:statement.court_name|default:"—" }}</td>
+          <td class="label">Court File Number</td>
+          <td>{{ page1.court_file_number|default:statement.court_file_number|default:"—" }}</td>
+        </tr>
+        <tr>
+          <td class="label">Court Office Address</td>
+          <td colspan="3">{{ page1.court_office_address|default:statement.court_office_address|default:"—" }}</td>
+        </tr>
+        <tr>
+          <td class="label">Sworn / Affirmed</td>
+          <td>{{ page1.sworn_affidavit|default:"—" }}</td>
+          <td class="label">Filed By</td>
+          <td>{{ page1.prepared_by|title|default:"—" }}</td>
+        </tr>
+      </table>
 
-      <div class="form-view-grid" style="margin-bottom:8px;">
-        <div class="form-view-field">
-          <span class="form-view-label">Applicant</span>
-          <div class="form-view-value">{{ statement.applicant_name|default:"—" }}<br>{{ statement.applicant_address|default:"—" }}</div>
-        </div>
-        <div class="form-view-field">
-          <span class="form-view-label">Applicant's Lawyer</span>
-          <div class="form-view-value">{{ statement.applicant_lawyer_name|default:"—" }}<br>{{ statement.applicant_lawyer_address|default:"—" }}</div>
-        </div>
-      </div>
+      <table class="view-table">
+        <tr><th colspan="4">Parties</th></tr>
+        <tr>
+          <td class="label">Applicant</td>
+          <td>
+            {{ page1.applicant_name|default:statement.applicant_name|default:"—" }}<br>
+            {{ page1.applicant_address|default:"—" }}<br>
+            Phone: {{ page1.applicant_phone|default:"—" }}<br>
+            Fax: {{ page1.applicant_fax|default:"—" }}<br>
+            Email: {{ page1.applicant_email|default:"—" }}
+          </td>
+          <td class="label">Applicant Lawyer</td>
+          <td>
+            {{ page1.applicant_lawyer_name|default:"—" }}<br>
+            {{ page1.applicant_lawyer_address|default:"—" }}<br>
+            Phone: {{ page1.applicant_lawyer_phone|default:"—" }}<br>
+            Fax: {{ page1.applicant_lawyer_fax|default:"—" }}<br>
+            Email: {{ page1.applicant_lawyer_email|default:"—" }}
+          </td>
+        </tr>
+        <tr>
+          <td class="label">Respondent</td>
+          <td>
+            {{ page1.respondent_name|default:statement.respondent_name|default:"—" }}<br>
+            {{ page1.respondent_address|default:"—" }}<br>
+            Phone: {{ page1.respondent_phone|default:"—" }}<br>
+            Fax: {{ page1.respondent_fax|default:"—" }}<br>
+            Email: {{ page1.respondent_email|default:"—" }}
+          </td>
+          <td class="label">Respondent Lawyer</td>
+          <td>
+            {{ page1.respondent_lawyer_name|default:"—" }}<br>
+            {{ page1.respondent_lawyer_address|default:"—" }}<br>
+            Phone: {{ page1.respondent_lawyer_phone|default:"—" }}<br>
+            Fax: {{ page1.respondent_lawyer_fax|default:"—" }}<br>
+            Email: {{ page1.respondent_lawyer_email|default:"—" }}
+          </td>
+        </tr>
+      </table>
 
-      <div class="form-view-grid">
-        <div class="form-view-field">
-          <span class="form-view-label">Respondent</span>
-          <div class="form-view-value">{{ statement.respondent_name|default:"—" }}<br>{{ statement.respondent_address|default:"—" }}</div>
-        </div>
-        <div class="form-view-field">
-          <span class="form-view-label">Respondent's Lawyer</span>
-          <div class="form-view-value">{{ statement.respondent_lawyer_name|default:"—" }}<br>{{ statement.respondent_lawyer_address|default:"—" }}</div>
-        </div>
-      </div>
+      <table class="view-table">
+        <tr><th colspan="4">Part 1: Income Status</th></tr>
+        <tr>
+          <td class="label">My Name Is</td>
+          <td>{{ page1.my_name|default:"—" }}</td>
+          <td class="label">I Live In</td>
+          <td>{{ page1.my_location|default:"—" }}</td>
+        </tr>
+        <tr>
+          <td class="label">Employment Status</td>
+          <td>
+            {% if page1.is_employed %}✓ Employed<br>{% endif %}
+            {% if page1.is_self_employed %}✓ Self-employed<br>{% endif %}
+            {% if page1.is_unemployed %}✓ Unemployed{% endif %}
+            {% if not page1.is_employed and not page1.is_self_employed and not page1.is_unemployed %}—{% endif %}
+          </td>
+          <td class="label">Details</td>
+          <td>
+            Employer: {{ page1.employer_name_address|default:"—" }}<br>
+            Business: {{ page1.business_name_address|default:"—" }}<br>
+            Unemployed since: {{ page1.unemployed_since|default:"—" }}
+          </td>
+        </tr>
+      </table>
 
-      <div style="margin-top:12px;">
-        <div class="form-view-note">This is a simplified view of the Financial Statement (Form 13). The full form contains detailed pages for income, expenses, assets, debts and totals — use Edit to view all pages.</div>
-      </div>
+    </div>
+  </div>
+
+  <!-- PAGE 2 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Income Proof & Income Sources</h2>
+      <span class="page-mark">Page 2</span>
+    </div>
+    <div class="view-card-body">
+
+      <table class="view-table">
+        <tr><th colspan="4">Income Documents</th></tr>
+        <tr>
+          <td class="label">Attached Proof</td>
+          <td colspan="3">
+            {% if page2.pay_cheque_stub %}✓ Pay cheque stub<br>{% endif %}
+            {% if page2.social_assistance_stub %}✓ Social assistance stub<br>{% endif %}
+            {% if page2.pension_stub %}✓ Pension stub<br>{% endif %}
+            {% if page2.workers_comp_stub %}✓ Workers' compensation stub<br>{% endif %}
+            {% if page2.ei_stub %}✓ Employment Insurance stub / ROE<br>{% endif %}
+            {% if page2.statement_of_income %}✓ Statement of income and expenses<br>{% endif %}
+            {% if page2.other_income_proof %}✓ Other proof<br>{% endif %}
+            {% if not page2.pay_cheque_stub and not page2.social_assistance_stub and not page2.pension_stub and not page2.workers_comp_stub and not page2.ei_stub and not page2.statement_of_income and not page2.other_income_proof %}—{% endif %}
+          </td>
+        </tr>
+        <tr>
+          <td class="label">Last Year Gross Income</td>
+          <td class="money">${{ page2.last_year_gross_income|default:"0.00" }}</td>
+          <td class="label">Indian Status Docs</td>
+          <td>{{ page2.indian_status_docs|default:"—" }}</td>
+        </tr>
+      </table>
+
+      <table class="view-table">
+        <tr>
+          <th>Income Source</th>
+          <th>Amount / Month</th>
+          <th>Income Source</th>
+          <th>Amount / Month</th>
+        </tr>
+        <tr><td>Employment income</td><td class="money">${{ page2.income_employment|default:"0.00" }}</td><td>Commissions, tips, bonuses</td><td class="money">${{ page2.income_commissions|default:"0.00" }}</td></tr>
+        <tr><td>Self-employment before expenses</td><td class="money">${{ page2.income_self_employment_before_expenses|default:"0.00" }}</td><td>Self-employment income</td><td class="money">${{ page2.income_self_employment|default:"0.00" }}</td></tr>
+        <tr><td>EI benefits</td><td class="money">${{ page2.income_ei|default:"0.00" }}</td><td>Workers' compensation</td><td class="money">${{ page2.income_workers_comp|default:"0.00" }}</td></tr>
+        <tr><td>Social assistance</td><td class="money">${{ page2.income_social_assistance|default:"0.00" }}</td><td>Investment income</td><td class="money">${{ page2.income_investment|default:"0.00" }}</td></tr>
+        <tr><td>Pension income</td><td class="money">${{ page2.income_pension|default:"0.00" }}</td><td>Spousal support</td><td class="money">${{ page2.income_spousal_support|default:"0.00" }}</td></tr>
+        <tr><td>Tax benefits / rebates</td><td class="money">${{ page2.income_tax_benefits|default:"0.00" }}</td><td>Other income</td><td class="money">${{ page2.income_other|default:"0.00" }}</td></tr>
+        <tr>
+          <th>Total Monthly Income</th>
+          <th class="money">${{ page2.income_total_monthly|default:"0.00" }}</th>
+          <th>Total Annual Income</th>
+          <th class="money">${{ page2.income_total_annual|default:"0.00" }}</th>
+        </tr>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- PAGE 3 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Other Benefits & Expenses</h2>
+      <span class="page-mark">Page 3</span>
+    </div>
+    <div class="view-card-body">
+
+      <table class="view-table">
+        <tr><th>Item</th><th>Details</th><th>Yearly Market Value</th></tr>
+        <tr><td>{{ page3.benefit_item_1|default:"—" }}</td><td>{{ page3.benefit_details_1|default:"—" }}</td><td class="money">${{ page3.benefit_value_1|default:"0.00" }}</td></tr>
+        <tr><td>{{ page3.benefit_item_2|default:"—" }}</td><td>{{ page3.benefit_details_2|default:"—" }}</td><td class="money">${{ page3.benefit_value_2|default:"0.00" }}</td></tr>
+        <tr><td>{{ page3.benefit_item_3|default:"—" }}</td><td>{{ page3.benefit_details_3|default:"—" }}</td><td class="money">${{ page3.benefit_value_3|default:"0.00" }}</td></tr>
+        <tr><td>{{ page3.benefit_item_4|default:"—" }}</td><td>{{ page3.benefit_details_4|default:"—" }}</td><td class="money">${{ page3.benefit_value_4|default:"0.00" }}</td></tr>
+      </table>
+
+      <table class="view-table">
+        <tr><th>Expense</th><th>Monthly Amount</th><th>Expense</th><th>Monthly Amount</th></tr>
+        <tr><td>CPP contributions</td><td class="money">${{ page3.cpp_contributions|default:"0.00" }}</td><td>EI premiums</td><td class="money">${{ page3.ei_premiums|default:"0.00" }}</td></tr>
+        <tr><td>Income taxes</td><td class="money">${{ page3.income_taxes|default:"0.00" }}</td><td>Employee pension</td><td class="money">${{ page3.employee_pension_contributions|default:"0.00" }}</td></tr>
+        <tr><td>Union dues</td><td class="money">${{ page3.union_dues|default:"0.00" }}</td><th>Automatic deductions subtotal</th><th class="money">${{ page3.automatic_deductions_subtotal|default:"0.00" }}</th></tr>
+        <tr><td>Rent or mortgage</td><td class="money">${{ page3.rent_or_mortgage|default:"0.00" }}</td><td>Property taxes</td><td class="money">${{ page3.property_taxes|default:"0.00" }}</td></tr>
+        <tr><td>Property insurance</td><td class="money">${{ page3.property_insurance|default:"0.00" }}</td><td>Condo fees</td><td class="money">${{ page3.condo_fees|default:"0.00" }}</td></tr>
+        <tr><td>Repairs and maintenance</td><td class="money">${{ page3.repairs_maintenance|default:"0.00" }}</td><th>Housing subtotal</th><th class="money">${{ page3.housing_subtotal|default:"0.00" }}</th></tr>
+        <tr><td>Water</td><td class="money">${{ page3.water|default:"0.00" }}</td><td>Heat</td><td class="money">${{ page3.heat|default:"0.00" }}</td></tr>
+        <tr><td>Electricity</td><td class="money">${{ page3.electricity|default:"0.00" }}</td><th>Transportation subtotal</th><th class="money">${{ page3.transportation_subtotal|default:"0.00" }}</th></tr>
+        <tr><td>Health subtotal</td><td class="money">${{ page3.health_subtotal|default:"0.00" }}</td><td>Clothing</td><td class="money">${{ page3.clothing|default:"0.00" }}</td></tr>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- PAGE 4 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Expenses Continued & Assets</h2>
+      <span class="page-mark">Page 4</span>
+    </div>
+    <div class="view-card-body">
+
+      <table class="view-table">
+        <tr><th>Expense</th><th>Monthly Amount</th><th>Expense</th><th>Monthly Amount</th></tr>
+        <tr><td>Telephone</td><td class="money">${{ page4.telephone|default:"0.00" }}</td><td>Cell phone</td><td class="money">${{ page4.cell_phone|default:"0.00" }}</td></tr>
+        <tr><td>Cable</td><td class="money">${{ page4.cable|default:"0.00" }}</td><td>Internet</td><td class="money">${{ page4.internet|default:"0.00" }}</td></tr>
+        <tr><th>Utilities subtotal</th><th class="money">${{ page4.utilities_subtotal|default:"0.00" }}</th><td>Groceries</td><td class="money">${{ page4.groceries|default:"0.00" }}</td></tr>
+        <tr><td>Household supplies</td><td class="money">${{ page4.household_supplies|default:"0.00" }}</td><td>Meals outside</td><td class="money">${{ page4.meals_outside|default:"0.00" }}</td></tr>
+        <tr><td>Pet care</td><td class="money">${{ page4.pet_care|default:"0.00" }}</td><td>Laundry</td><td class="money">${{ page4.laundry_dry_cleaning|default:"0.00" }}</td></tr>
+        <tr><th>Household subtotal</th><th class="money">${{ page4.household_subtotal|default:"0.00" }}</th><th>Total monthly expenses</th><th class="money">${{ page4.total_monthly_expenses|default:"0.00" }}</th></tr>
+        <tr><th>Total yearly expenses</th><th class="money">${{ page4.total_yearly_expenses|default:"0.00" }}</th><td colspan="2"></td></tr>
+      </table>
+
+      <table class="view-table">
+        <tr><th>Type</th><th>Details</th><th>Value or Amount</th></tr>
+        <tr><td>Real Estate 1</td><td>{{ page4.real_estate_details_1|default:"—" }}</td><td class="money">${{ page4.real_estate_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Real Estate 2</td><td>{{ page4.real_estate_details_2|default:"—" }}</td><td class="money">${{ page4.real_estate_value_2|default:"0.00" }}</td></tr>
+        <tr><td>Real Estate 3</td><td>{{ page4.real_estate_details_3|default:"—" }}</td><td class="money">${{ page4.real_estate_value_3|default:"0.00" }}</td></tr>
+        <tr><td>Vehicle 1</td><td>{{ page4.vehicle_details_1|default:"—" }}</td><td class="money">${{ page4.vehicle_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Vehicle 2</td><td>{{ page4.vehicle_details_2|default:"—" }}</td><td class="money">${{ page4.vehicle_value_2|default:"0.00" }}</td></tr>
+        <tr><td>Vehicle 3</td><td>{{ page4.vehicle_details_3|default:"—" }}</td><td class="money">${{ page4.vehicle_value_3|default:"0.00" }}</td></tr>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- PAGE 5 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Property, Accounts & Other Assets</h2>
+      <span class="page-mark">Page 5</span>
+    </div>
+    <div class="view-card-body">
+
+      <table class="view-table">
+        <tr><th>Asset Type</th><th>Details</th><th>Account / Extra</th><th>Value</th></tr>
+        <tr><td>Other possession 1</td><td>{{ page5.possession_address_1|default:"—" }}</td><td></td><td class="money">${{ page5.possession_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Investment 1</td><td>{{ page5.investment_details_1|default:"—" }}</td><td></td><td class="money">${{ page5.investment_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Bank account 1</td><td>{{ page5.bank_institution_1|default:"—" }}</td><td>{{ page5.bank_account_number_1|default:"—" }}</td><td class="money">${{ page5.bank_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Savings 1</td><td>{{ page5.savings_type_1|default:"—" }}</td><td>{{ page5.savings_account_1|default:"—" }}</td><td class="money">${{ page5.savings_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Life insurance 1</td><td>{{ page5.insurance_details_1|default:"—" }}</td><td></td><td class="money">${{ page5.insurance_cash_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Business 1</td><td>{{ page5.business_name_address_1|default:"—" }}</td><td></td><td class="money">${{ page5.business_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Money owed 1</td><td>{{ page5.money_owed_debtor_1|default:"—" }}</td><td></td><td class="money">${{ page5.money_owed_value_1|default:"0.00" }}</td></tr>
+        <tr><td>Other asset 1</td><td>{{ page5.other_asset_description_1|default:"—" }}</td><td></td><td class="money">${{ page5.other_asset_value_1|default:"0.00" }}</td></tr>
+        <tr><th colspan="3">Total Value of All Property</th><th class="money">${{ page5.total_value_all_property|default:"0.00" }}</th></tr>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- PAGE 6 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Debts, Summary & Signature</h2>
+      <span class="page-mark">Page 6</span>
+    </div>
+    <div class="view-card-body">
+
+      <table class="view-table">
+        <tr><th>Debt Type</th><th>Creditor</th><th>Full Amount Owing</th><th>Monthly Payment</th></tr>
+        <tr><td>Mortgage / Loan 1</td><td>{{ page6.mortgage_creditor_1|default:"—" }}</td><td class="money">${{ page6.mortgage_amount_1|default:"0.00" }}</td><td class="money">${{ page6.mortgage_monthly_1|default:"0.00" }}</td></tr>
+        <tr><td>Mortgage / Loan 2</td><td>{{ page6.mortgage_creditor_2|default:"—" }}</td><td class="money">${{ page6.mortgage_amount_2|default:"0.00" }}</td><td class="money">${{ page6.mortgage_monthly_2|default:"0.00" }}</td></tr>
+        <tr><td>Credit card 1</td><td>{{ page6.credit_card_creditor_1|default:"—" }}</td><td class="money">${{ page6.credit_card_amount_1|default:"0.00" }}</td><td class="money">${{ page6.credit_card_monthly_1|default:"0.00" }}</td></tr>
+        <tr><td>Credit card 2</td><td>{{ page6.credit_card_creditor_2|default:"—" }}</td><td class="money">${{ page6.credit_card_amount_2|default:"0.00" }}</td><td class="money">${{ page6.credit_card_monthly_2|default:"0.00" }}</td></tr>
+        <tr><td>Unpaid support</td><td>{{ page6.unpaid_support_creditor|default:"—" }}</td><td class="money">${{ page6.unpaid_support_amount|default:"0.00" }}</td><td class="money">${{ page6.unpaid_support_monthly|default:"0.00" }}</td></tr>
+        <tr><th colspan="3">Total Debts Outstanding</th><th class="money">${{ page6.total_debts_outstanding|default:"0.00" }}</th></tr>
+      </table>
+
+      <table class="view-table">
+        <tr><th>Total Assets</th><th>Subtract Total Debts</th><th>Net Worth</th></tr>
+        <tr>
+          <td class="money">${{ page6.total_assets|default:"0.00" }}</td>
+          <td class="money">${{ page6.subtract_total_debts|default:"0.00" }}</td>
+          <td class="money">${{ page6.net_worth|default:"0.00" }}</td>
+        </tr>
+        <tr><td colspan="3">Sworn at {{ page6.municipality|default:"—" }}, {{ page6.province|default:"—" }} on {{ page6.date|default:"—" }}. Commissioner: {{ page6.commissioner|default:"—" }}. Signature: {{ page6.signature|default:"—" }}</td></tr>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- PAGE 7 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Schedule A & Schedule B</h2>
+      <span class="page-mark">Page 7</span>
+    </div>
+    <div class="view-card-body">
+
+      <table class="view-table">
+        <tr><th>Income Source</th><th>Annual Amount</th></tr>
+        <tr><td>Net partnership income</td><td class="money">${{ page7.schedule_a_partnership_income|default:"0.00" }}</td></tr>
+        <tr><td>Net rental income</td><td class="money">${{ page7.schedule_a_rental_income_net|default:"0.00" }}</td></tr>
+        <tr><td>Dividends</td><td class="money">${{ page7.schedule_a_dividends|default:"0.00" }}</td></tr>
+        <tr><td>Net capital gains</td><td class="money">${{ page7.schedule_a_net_capital_gains|default:"0.00" }}</td></tr>
+        <tr><th>Subtotal</th><th class="money">${{ page7.schedule_a_subtotal|default:"0.00" }}</th></tr>
+      </table>
+
+      <table class="view-table">
+        <tr><th colspan="2">Schedule B — Other Income Earners in the Home</th></tr>
+        <tr><td class="label">Living situation</td><td>{% if page7.lives_alone %}✓ Lives alone<br>{% endif %}{% if page7.living_with_someone %}✓ Living with {{ page7.living_with_name|default:"—" }}<br>{% endif %}{% if page7.lives_with_other_adults %}✓ Other adults: {{ page7.other_adults_names|default:"—" }}{% endif %}</td></tr>
+        <tr><td class="label">Children in home</td><td>{{ page7.number_of_children_in_home|default:"—" }}</td></tr>
+        <tr><td class="label">Spouse / partner work</td><td>{{ page7.spouse_work_place|default:"—" }}</td></tr>
+        <tr><td class="label">Spouse / partner income</td><td>${{ page7.spouse_income_amount|default:"0.00" }} per {{ page7.spouse_income_period|default:"—" }}</td></tr>
+        <tr><td class="label">Household contribution</td><td>${{ page7.household_contribution_amount|default:"0.00" }} per {{ page7.household_contribution_period|default:"—" }}</td></tr>
+      </table>
+
+    </div>
+  </div>
+
+  <!-- PAGE 8 -->
+  <div class="view-card">
+    <div class="view-card-head">
+      <h2 class="view-card-title">Schedule C — Special or Extraordinary Expenses</h2>
+      <span class="page-mark">Page 8</span>
+    </div>
+    <div class="view-card-body">
+
+      <table class="view-table">
+        <tr><th>Total Net Annual Amount</th><th>Total Net Monthly Amount</th><th>Income for Share</th></tr>
+        <tr>
+          <td class="money">${{ page8.schedule_c_total_annual|default:"0.00" }}</td>
+          <td class="money">${{ page8.schedule_c_total_monthly|default:"0.00" }}</td>
+          <td class="money">${{ page8.schedule_c_my_income_for_share|default:"0.00" }}</td>
+        </tr>
+      </table>
+
     </div>
   </div>
 

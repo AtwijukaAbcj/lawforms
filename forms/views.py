@@ -2137,242 +2137,188 @@ def financial_statement_page8(request, pk):
         "page_data": statement.get_page_data(8),
         "pk": statement.pk,
     })
-    
+
 @login_required
 def financial_statement_view(request, pk):
-    """Full view of a Financial Statement."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    
-    # Extract JSON fields for template access (same as print view)
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
+    draft = statement.draft or {}
+
     context = {
         "statement": statement,
-        "pk": pk,
-        # Process JSON fields to ensure they're iterable lists
-        "real_estate": statement.real_estate or [],
-        "vehicles": statement.vehicles or [],
-        "other_possessions": statement.other_possessions or [],
-        "investments": statement.investments or [],
-        "bank_accounts": statement.bank_accounts or [],
-        "savings_plans": statement.savings_plans or [],
-        "life_insurance": statement.life_insurance or [],
-        "interest_in_business": statement.interest_in_business or [],
-        "money_owed_to_you": statement.money_owed_to_you or [],
-        "other_assets": statement.other_assets or [],
-        "schedule_c_expenses": statement.schedule_c_expenses or [],
+
+        "page1": draft.get("page1", {}),
+        "page2": draft.get("page2", {}),
+        "page3": draft.get("page3", {}),
+        "page4": draft.get("page4", {}),
+        "page5": draft.get("page5", {}),
+        "page6": draft.get("page6", {}),
+        "page7": draft.get("page7", {}),
+        "page8": draft.get("page8", {}),
     }
-    
-    # Build debt lists from flat dictionary structure
-    debts_data = _normalize_financial_statement_debts(statement.debts)
-    
-    # Mortgages/Loans (4 rows)
-    mortgages_loans = []
-    for i in range(1, 5):
-        creditor = debts_data.get(f'mortgage_creditor_{i}', '')
-        full_amount = debts_data.get(f'mortgage_amount_{i}', '')
-        monthly = debts_data.get(f'mortgage_monthly_{i}', '')
-        payment = debts_data.get(f'mortgage_payment_{i}', '')
-        if creditor or full_amount or monthly:
-            mortgages_loans.append({
-                'creditor': creditor,
-                'full_amount': full_amount,
-                'monthly_payment': monthly,
-                'payments_made': payment == 'yes',
-            })
-    context['mortgages_loans'] = mortgages_loans
-    
-    # Credit Cards (2 rows)
-    credit_cards = []
-    for i in range(1, 3):
-        creditor = debts_data.get(f'credit_card_creditor_{i}', '')
-        full_amount = debts_data.get(f'credit_card_amount_{i}', '')
-        monthly = debts_data.get(f'credit_card_monthly_{i}', '')
-        payment = debts_data.get(f'credit_card_payment_{i}', '')
-        if creditor or full_amount or monthly:
-            credit_cards.append({
-                'creditor': creditor,
-                'full_amount': full_amount,
-                'monthly_payment': monthly,
-                'payments_made': payment == 'yes',
-            })
-    context['credit_cards'] = credit_cards
-    
-    # Unpaid Support (1 row)
-    unpaid_support = []
-    creditor = debts_data.get('unpaid_support_creditor', '')
-    full_amount = debts_data.get('unpaid_support_amount', '')
-    monthly = debts_data.get('unpaid_support_monthly', '')
-    payment = debts_data.get('unpaid_support_payment', '')
-    if creditor or full_amount or monthly:
-        unpaid_support.append({
-            'creditor': creditor,
-            'full_amount': full_amount,
-            'monthly_payment': monthly,
-            'payments_made': payment == 'yes',
-        })
-    context['unpaid_support'] = unpaid_support
-    
-    # Other Debts (dynamic rows)
-    other_debts = []
-    i = 1
-    while True:
-        creditor = debts_data.get(f'other_debt_creditor_{i}', None)
-        full_amount = debts_data.get(f'other_debt_amount_{i}', None)
-        monthly = debts_data.get(f'other_debt_monthly_{i}', None)
-        payment = debts_data.get(f'other_debt_payment_{i}', None)
-        if creditor is None and full_amount is None and monthly is None and payment is None:
-            break
-        if creditor or full_amount or monthly:
-            other_debts.append({
-                'creditor': creditor,
-                'full_amount': full_amount,
-                'monthly_payment': monthly,
-                'payments_made': payment == 'yes',
-            })
-        i += 1
-    context['other_debts'] = other_debts
-    
-    # Calculate total monthly debt payments
-    total_monthly_payments = 0
-    for debt_list in [mortgages_loans, credit_cards, unpaid_support, other_debts]:
-        for debt in debt_list:
-            try:
-                monthly_val = debt.get('monthly_payment')
-                if monthly_val:
-                    total_monthly_payments += float(monthly_val)
-            except (ValueError, TypeError):
-                pass
-    context['total_monthly_debt_payments'] = total_monthly_payments
-    
-    return render(request, "forms/financial_statement_full_view.html", context)
 
-
+    return render(
+        request,
+        "forms/financial_statement_view.html",
+        context
+    )
 @login_required
 def financial_statement_print(request, pk):
-    """Official printable version of Financial Statement."""
-    statement = get_object_or_404(FinancialStatement, pk=pk)
-    # require print permission or owner
-    if not _user_has_permission_or_owner(request.user, 'financial_statement', 'print', instance=statement):
-        messages.error(request, "You don't have permission to print this Financial Statement.")
-        return redirect('financial_statement_view', pk=pk)
-    
-    # Ensure JSON fields are properly formatted as lists
-    context = {
-        "statement": statement,
-        "pk": pk,
-        # Process JSON fields to ensure they're iterable lists
-        "real_estate": statement.real_estate or [],
-        "vehicles": statement.vehicles or [],
-        "other_possessions": statement.other_possessions or [],
-        "investments": statement.investments or [],
-        "bank_accounts": statement.bank_accounts or [],
-        "savings_plans": statement.savings_plans or [],
-        "life_insurance": statement.life_insurance or [],
-        "interest_in_business": statement.interest_in_business or [],
-        "money_owed_to_you": statement.money_owed_to_you or [],
-        "other_assets": statement.other_assets or [],
-        "schedule_c_expenses": statement.schedule_c_expenses or [],
+    statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
+
+    draft = statement.draft or {}
+
+    page1 = draft.get("page1", {})
+    page2 = draft.get("page2", {})
+    page3 = draft.get("page3", {})
+    page4 = draft.get("page4", {})
+    page5 = draft.get("page5", {})
+    page6 = draft.get("page6", {})
+    page7 = draft.get("page7", {})
+    page8 = draft.get("page8", {})
+
+    pages = {
+        "page1": page1,
+        "page2": page2,
+        "page3": page3,
+        "page4": page4,
+        "page5": page5,
+        "page6": page6,
+        "page7": page7,
+        "page8": page8,
     }
-    
-    # Build debt lists from flat dictionary structure
-    debts_data = _normalize_financial_statement_debts(statement.debts)
-    
-    # Mortgages/Loans (4 rows)
-    mortgages_loans = []
-    for i in range(1, 5):
-        creditor = debts_data.get(f'mortgage_creditor_{i}', '')
-        full_amount = debts_data.get(f'mortgage_amount_{i}', '')
-        monthly = debts_data.get(f'mortgage_monthly_{i}', '')
-        payment = debts_data.get(f'mortgage_payment_{i}', '')
-        if creditor or full_amount or monthly:
-            mortgages_loans.append({
-                'creditor': creditor,
-                'full_amount': full_amount,
-                'monthly_payment': monthly,
-                'payments_made': payment == 'yes',
-            })
-    context['mortgages_loans'] = mortgages_loans
-    
-    # Credit Cards (2 rows)
-    credit_cards = []
-    for i in range(1, 3):
-        creditor = debts_data.get(f'credit_card_creditor_{i}', '')
-        full_amount = debts_data.get(f'credit_card_amount_{i}', '')
-        monthly = debts_data.get(f'credit_card_monthly_{i}', '')
-        payment = debts_data.get(f'credit_card_payment_{i}', '')
-        if creditor or full_amount or monthly:
-            credit_cards.append({
-                'creditor': creditor,
-                'full_amount': full_amount,
-                'monthly_payment': monthly,
-                'payments_made': payment == 'yes',
-            })
-    context['credit_cards'] = credit_cards
-    
-    # Unpaid Support (1 row)
-    unpaid_support = []
-    creditor = debts_data.get('unpaid_support_creditor', '')
-    full_amount = debts_data.get('unpaid_support_amount', '')
-    monthly = debts_data.get('unpaid_support_monthly', '')
-    payment = debts_data.get('unpaid_support_payment', '')
-    if creditor or full_amount or monthly:
-        unpaid_support.append({
-            'creditor': creditor,
-            'full_amount': full_amount,
-            'monthly_payment': monthly,
-            'payments_made': payment == 'yes',
+
+    def money(value):
+        try:
+            return float(value or 0)
+        except (TypeError, ValueError):
+            return 0
+
+    real_estate = [
+        {"details": page4.get("real_estate_details_1", ""), "value": money(page4.get("real_estate_value_1"))},
+        {"details": page4.get("real_estate_details_2", ""), "value": money(page4.get("real_estate_value_2"))},
+        {"details": page4.get("real_estate_details_3", ""), "value": money(page4.get("real_estate_value_3"))},
+    ]
+
+    vehicles = [
+        {"details": page4.get("vehicle_details_1", ""), "value": money(page4.get("vehicle_value_1"))},
+        {"details": page4.get("vehicle_details_2", ""), "value": money(page4.get("vehicle_value_2"))},
+        {"details": page4.get("vehicle_details_3", ""), "value": money(page4.get("vehicle_value_3"))},
+    ]
+
+    other_possessions = [
+        {"address_where_located": page5.get("possession_address_1", ""), "value": money(page5.get("possession_value_1"))},
+        {"address_where_located": page5.get("possession_address_2", ""), "value": money(page5.get("possession_value_2"))},
+        {"address_where_located": page5.get("possession_address_3", ""), "value": money(page5.get("possession_value_3"))},
+    ]
+
+    investments = [
+        {"type_issuer_due_date_shares": page5.get("investment_details_1", ""), "value": money(page5.get("investment_value_1"))},
+        {"type_issuer_due_date_shares": page5.get("investment_details_2", ""), "value": money(page5.get("investment_value_2"))},
+        {"type_issuer_due_date_shares": page5.get("investment_details_3", ""), "value": money(page5.get("investment_value_3"))},
+    ]
+
+    bank_accounts = [
+        {"name_address_institution": page5.get("bank_institution_1", ""), "account_number": page5.get("bank_account_number_1", ""), "value": money(page5.get("bank_value_1"))},
+        {"name_address_institution": page5.get("bank_institution_2", ""), "account_number": page5.get("bank_account_number_2", ""), "value": money(page5.get("bank_value_2"))},
+        {"name_address_institution": page5.get("bank_institution_3", ""), "account_number": page5.get("bank_account_number_3", ""), "value": money(page5.get("bank_value_3"))},
+    ]
+
+    savings_plans = [
+        {"type_issuer": page5.get("savings_type_1", ""), "account_number": page5.get("savings_account_1", ""), "value": money(page5.get("savings_value_1"))},
+        {"type_issuer": page5.get("savings_type_2", ""), "account_number": page5.get("savings_account_2", ""), "value": money(page5.get("savings_value_2"))},
+        {"type_issuer": page5.get("savings_type_3", ""), "account_number": page5.get("savings_account_3", ""), "value": money(page5.get("savings_value_3"))},
+    ]
+
+    life_insurance = [
+        {"type_beneficiary_face_amount": page5.get("insurance_details_1", ""), "cash_surrender_value": money(page5.get("insurance_cash_value_1"))},
+        {"type_beneficiary_face_amount": page5.get("insurance_details_2", ""), "cash_surrender_value": money(page5.get("insurance_cash_value_2"))},
+        {"type_beneficiary_face_amount": page5.get("insurance_details_3", ""), "cash_surrender_value": money(page5.get("insurance_cash_value_3"))},
+    ]
+
+    interest_in_business = [
+        {"name_address_of_business": page5.get("business_name_address_1", ""), "value": money(page5.get("business_value_1"))},
+        {"name_address_of_business": page5.get("business_name_address_2", ""), "value": money(page5.get("business_value_2"))},
+        {"name_address_of_business": page5.get("business_name_address_3", ""), "value": money(page5.get("business_value_3"))},
+    ]
+
+    money_owed_to_you = [
+        {"name_address_of_debtors": page5.get("money_owed_debtor_1", ""), "value": money(page5.get("money_owed_value_1"))},
+        {"name_address_of_debtors": page5.get("money_owed_debtor_2", ""), "value": money(page5.get("money_owed_value_2"))},
+        {"name_address_of_debtors": page5.get("money_owed_debtor_3", ""), "value": money(page5.get("money_owed_value_3"))},
+    ]
+
+    other_assets = [
+        {"description": page5.get("other_asset_description_1", ""), "value": money(page5.get("other_asset_value_1"))},
+        {"description": page5.get("other_asset_description_2", ""), "value": money(page5.get("other_asset_value_2"))},
+        {"description": page5.get("other_asset_description_3", ""), "value": money(page5.get("other_asset_value_3"))},
+    ]
+
+    mortgages_loans = [
+        {"creditor": page6.get("mortgage_creditor_1", ""), "full_amount": money(page6.get("mortgage_amount_1")), "monthly_payment": money(page6.get("mortgage_monthly_1")), "payments_made": page6.get("mortgage_payment_1") == "yes"},
+        {"creditor": page6.get("mortgage_creditor_2", ""), "full_amount": money(page6.get("mortgage_amount_2")), "monthly_payment": money(page6.get("mortgage_monthly_2")), "payments_made": page6.get("mortgage_payment_2") == "yes"},
+        {"creditor": page6.get("mortgage_creditor_3", ""), "full_amount": money(page6.get("mortgage_amount_3")), "monthly_payment": money(page6.get("mortgage_monthly_3")), "payments_made": page6.get("mortgage_payment_3") == "yes"},
+        {"creditor": page6.get("mortgage_creditor_4", ""), "full_amount": money(page6.get("mortgage_amount_4")), "monthly_payment": money(page6.get("mortgage_monthly_4")), "payments_made": page6.get("mortgage_payment_4") == "yes"},
+    ]
+
+    credit_cards = [
+        {"creditor": page6.get("credit_card_creditor_1", ""), "full_amount": money(page6.get("credit_card_amount_1")), "monthly_payment": money(page6.get("credit_card_monthly_1")), "payments_made": page6.get("credit_card_payment_1") == "yes"},
+        {"creditor": page6.get("credit_card_creditor_2", ""), "full_amount": money(page6.get("credit_card_amount_2")), "monthly_payment": money(page6.get("credit_card_monthly_2")), "payments_made": page6.get("credit_card_payment_2") == "yes"},
+    ]
+
+    unpaid_support = [
+        {"creditor": page6.get("unpaid_support_creditor", ""), "full_amount": money(page6.get("unpaid_support_amount")), "monthly_payment": money(page6.get("unpaid_support_monthly")), "payments_made": page6.get("unpaid_support_payment") == "yes"},
+    ]
+
+    schedule_c_expenses = []
+    for i in range(1, 11):
+        schedule_c_expenses.append({
+            "child_name": page8.get(f"schedule_c_child_name_{i}", ""),
+            "expense": page8.get(f"schedule_c_expense_{i}", ""),
+            "amount_per_year": money(page8.get(f"schedule_c_amount_year_{i}")),
+            "tax_credits": money(page8.get(f"schedule_c_tax_credit_{i}")),
         })
-    context['unpaid_support'] = unpaid_support
-    
-    # Other Debts (dynamic rows)
-    other_debts = []
-    i = 1
-    while True:
-        creditor = debts_data.get(f'other_debt_creditor_{i}', None)
-        full_amount = debts_data.get(f'other_debt_amount_{i}', None)
-        monthly = debts_data.get(f'other_debt_monthly_{i}', None)
-        payment = debts_data.get(f'other_debt_payment_{i}', None)
-        if creditor is None and full_amount is None and monthly is None and payment is None:
-            break
-        if creditor or full_amount or monthly:
-            other_debts.append({
-                'creditor': creditor,
-                'full_amount': full_amount,
-                'monthly_payment': monthly,
-                'payments_made': payment == 'yes',
-            })
-        i += 1
-    context['other_debts'] = other_debts
-    
-    # Calculate total monthly debt payments
-    total_monthly_payments = 0
-    for debt_list in [mortgages_loans, credit_cards, unpaid_support, other_debts]:
-        for debt in debt_list:
-            try:
-                monthly_val = debt.get('monthly_payment')
-                if monthly_val:
-                    total_monthly_payments += float(monthly_val)
-            except (ValueError, TypeError):
-                pass
-    context['total_monthly_debt_payments'] = total_monthly_payments
-    
-    # Log the print event for billing
-    print_event = PrintEvent.log_print(
-        user=request.user,
-        form_type='financial_statement',
-        form_id=pk,
-        form_identifier=statement.court_file_number or f'Form 13 #{pk}'
-    )
-    
-    # Audit log for print
-    log_audit(request, 'export', 'financial_statement', pk, 
-              f"Form 13 #{pk}", f"Printed - Price: ${print_event.price_charged}")
-    
-    # Send email notification for print
-    send_form_printed_notification('financial_statement', statement, request.user, print_event.price_charged)
-    
-    return render(request, "forms/financial_statement_print.html", context)
 
+    return render(request, "forms/financial_statement_print.html", {
+        "statement": statement,
+        "pk": statement.pk,
+        "pages": pages,
+        "page1": page1,
+        "page2": page2,
+        "page3": page3,
+        "page4": page4,
+        "page5": page5,
+        "page6": page6,
+        "page7": page7,
+        "page8": page8,
 
+        "real_estate": real_estate,
+        "vehicles": vehicles,
+        "other_possessions": other_possessions,
+        "investments": investments,
+        "bank_accounts": bank_accounts,
+        "savings_plans": savings_plans,
+        "life_insurance": life_insurance,
+        "interest_in_business": interest_in_business,
+        "money_owed_to_you": money_owed_to_you,
+        "other_assets": other_assets,
+
+        "mortgages_loans": mortgages_loans,
+        "credit_cards": credit_cards,
+        "unpaid_support": unpaid_support,
+        "other_debts": [],
+
+        "schedule_c_expenses": schedule_c_expenses,
+        "total_monthly_debt_payments": (
+            money(page6.get("mortgage_monthly_1")) +
+            money(page6.get("mortgage_monthly_2")) +
+            money(page6.get("mortgage_monthly_3")) +
+            money(page6.get("mortgage_monthly_4")) +
+            money(page6.get("credit_card_monthly_1")) +
+            money(page6.get("credit_card_monthly_2")) +
+            money(page6.get("unpaid_support_monthly"))
+        ),
+    })
 # ============================================================
 # NET FAMILY PROPERTY 13B - 3 PAGES
 # ============================================================

@@ -143,6 +143,11 @@
     margin-bottom:8px;
   }
 
+  .choice-wrap input{
+    width:18px;
+    height:18px;
+  }
+
   .info-card{
     border:1px solid rgba(var(--indigo),.22);
     background:rgba(var(--indigo),.06);
@@ -163,92 +168,6 @@
     font-size:13px;
     line-height:1.45;
     font-weight:600;
-  }
-
-  .section-label{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    margin:18px 0 12px;
-  }
-
-  .section-label:before,
-  .section-label:after{
-    content:"";
-    height:1px;
-    background:var(--line);
-    flex:1;
-  }
-
-  .section-label span{
-    padding:8px 12px;
-    border-radius:8px;
-    border:1px solid var(--line);
-    background:#fff;
-    font-weight:900;
-    font-size:13px;
-  }
-
-  .form-num-row{
-    display:flex;
-    gap:14px;
-    padding:16px 0;
-    border-bottom:1px solid #f1f5f9;
-  }
-
-  .form-num-row:last-child{ border-bottom:none; }
-
-  .form-num{
-    width:26px;
-    min-width:26px;
-    font-weight:800;
-    font-size:13px;
-    color:#0f172a;
-    padding-top:3px;
-  }
-
-  .form-num-body{
-    flex:1;
-    min-width:0;
-  }
-
-  .checklist{
-    display:grid;
-    gap:10px;
-    margin-top:10px;
-  }
-
-  .check-item{
-    display:flex;
-    gap:10px;
-    align-items:flex-start;
-    padding:12px;
-    border:1px solid var(--line);
-    border-radius:8px;
-    background:#fff;
-    cursor:pointer;
-  }
-
-  .check-item input{
-    width:18px;
-    height:18px;
-    margin-top:2px;
-  }
-
-  .check-item .text{
-    font-weight:700;
-    color:var(--text);
-    font-size:13px;
-  }
-
-  .employment-detail{
-    margin-bottom:10px;
-  }
-
-  .employment-detail.disabled{
-    opacity:.55;
-    pointer-events:none;
   }
 
   .actions{
@@ -329,21 +248,20 @@
         <div class="row g-3">
           <div class="col-lg-8">
             <label class="ui-label" for="id_court_name">Name of Court</label>
-            <input type="text" name="court_name" class="form-control ui-input" id="id_court_name" value="{{ page_data.court_name }}">
+            <input type="text" name="court_name" class="form-control ui-input" id="id_court_name" value="{{ page_data.court_name|default:'' }}">
           </div>
 
           <div class="col-lg-4">
             <label class="ui-label" for="id_court_file_number">Court File Number</label>
-            <input type="text" name="court_file_number" class="form-control ui-input" id="id_court_file_number" value="{{ page_data.court_file_number }}">
+            <input type="text" name="court_file_number" class="form-control ui-input" id="id_court_file_number" value="{{ page_data.court_file_number|default:'' }}">
           </div>
 
           <div class="col-12">
             <label class="ui-label" for="id_court_office_address">Court office address</label>
-            <input type="text" name="court_office_address" class="form-control ui-input" id="id_court_office_address" value="{{ page_data.court_office_address }}">
+            <input type="text" name="court_office_address" class="form-control ui-input" id="id_court_office_address" value="{{ page_data.court_office_address|default:'' }}">
           </div>
         </div>
 
-        <!-- SWORN / AFFIRMED Section - Single Field -->
         <div class="row g-3 mt-1">
           <div class="col-12">
             <div class="panel">
@@ -353,7 +271,7 @@
               </div>
 
               <label class="ui-label" for="id_sworn_affidavit">Sworn / Affirmed</label>
-              <input class="form-control ui-input" type="text" name="sworn_affidavit" id="id_sworn_affidavit" value="{{ statement.sworn_affidavit|default:'' }}">
+              <input class="form-control ui-input" type="text" name="sworn_affidavit" id="id_sworn_affidavit" value="{{ page_data.sworn_affidavit|default:'' }}">
             </div>
           </div>
         </div>
@@ -368,26 +286,26 @@
               </div>
 
               <label class="ui-label" for="id_applicant_name">Full legal name</label>
-              <input type="text" name="applicant_name" class="form-control ui-input" id="id_applicant_name" value="{{ page_data.applicant_name }}">
+              <input type="text" name="applicant_name" class="form-control ui-input" id="id_applicant_name" value="{{ page_data.applicant_name|default:'' }}">
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_address">Address for service</label>
-                <input type="text" name="applicant_address" class="form-control ui-input" id="id_applicant_address" value="{{ page_data.applicant_address }}">
+                <input type="text" name="applicant_address" class="form-control ui-input" id="id_applicant_address" value="{{ page_data.applicant_address|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_phone">Phone</label>
-                <input type="text" name="applicant_phone" class="form-control ui-input" id="id_applicant_phone" value="{{ page_data.applicant_phone }}">
+                <input type="text" name="applicant_phone" class="form-control ui-input" id="id_applicant_phone" value="{{ page_data.applicant_phone|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_fax">Fax</label>
-                <input type="text" name="applicant_fax" class="form-control ui-input" id="id_applicant_fax" value="{{ page_data.applicant_fax }}">
+                <input type="text" name="applicant_fax" class="form-control ui-input" id="id_applicant_fax" value="{{ page_data.applicant_fax|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_email">Email</label>
-                <input type="email" name="applicant_email" class="form-control ui-input" id="id_applicant_email" value="{{ page_data.applicant_email }}">
+                <input type="email" name="applicant_email" class="form-control ui-input" id="id_applicant_email" value="{{ page_data.applicant_email|default:'' }}">
               </div>
             </div>
           </div>
@@ -400,26 +318,26 @@
               </div>
 
               <label class="ui-label" for="id_applicant_lawyer_name">Lawyer name</label>
-              <input type="text" name="applicant_lawyer_name" class="form-control ui-input" id="id_applicant_lawyer_name" value="{{ page_data.applicant_lawyer_name }}">
+              <input type="text" name="applicant_lawyer_name" class="form-control ui-input" id="id_applicant_lawyer_name" value="{{ page_data.applicant_lawyer_name|default:'' }}">
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_address">Lawyer address</label>
-                <input type="text" name="applicant_lawyer_address" class="form-control ui-input" id="id_applicant_lawyer_address" value="{{ page_data.applicant_lawyer_address }}">
+                <input type="text" name="applicant_lawyer_address" class="form-control ui-input" id="id_applicant_lawyer_address" value="{{ page_data.applicant_lawyer_address|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_phone">Lawyer phone</label>
-                <input type="text" name="applicant_lawyer_phone" class="form-control ui-input" id="id_applicant_lawyer_phone" value="{{ page_data.applicant_lawyer_phone }}">
+                <input type="text" name="applicant_lawyer_phone" class="form-control ui-input" id="id_applicant_lawyer_phone" value="{{ page_data.applicant_lawyer_phone|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_fax">Lawyer fax</label>
-                <input type="text" name="applicant_lawyer_fax" class="form-control ui-input" id="id_applicant_lawyer_fax" value="{{ page_data.applicant_lawyer_fax }}">
+                <input type="text" name="applicant_lawyer_fax" class="form-control ui-input" id="id_applicant_lawyer_fax" value="{{ page_data.applicant_lawyer_fax|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_applicant_lawyer_email">Lawyer email</label>
-                <input type="email" name="applicant_lawyer_email" class="form-control ui-input" id="id_applicant_lawyer_email" value="{{ page_data.applicant_lawyer_email }}">
+                <input type="email" name="applicant_lawyer_email" class="form-control ui-input" id="id_applicant_lawyer_email" value="{{ page_data.applicant_lawyer_email|default:'' }}">
               </div>
             </div>
           </div>
@@ -432,26 +350,26 @@
               </div>
 
               <label class="ui-label" for="id_respondent_name">Full legal name</label>
-              <input type="text" name="respondent_name" class="form-control ui-input" id="id_respondent_name" value="{{ page_data.respondent_name }}">
+              <input type="text" name="respondent_name" class="form-control ui-input" id="id_respondent_name" value="{{ page_data.respondent_name|default:'' }}">
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_address">Address for service</label>
-                <input type="text" name="respondent_address" class="form-control ui-input" id="id_respondent_address" value="{{ page_data.respondent_address }}">
+                <input type="text" name="respondent_address" class="form-control ui-input" id="id_respondent_address" value="{{ page_data.respondent_address|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_phone">Phone</label>
-                <input type="text" name="respondent_phone" class="form-control ui-input" id="id_respondent_phone" value="{{ page_data.respondent_phone }}">
+                <input type="text" name="respondent_phone" class="form-control ui-input" id="id_respondent_phone" value="{{ page_data.respondent_phone|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_fax">Fax</label>
-                <input type="text" name="respondent_fax" class="form-control ui-input" id="id_respondent_fax" value="{{ page_data.respondent_fax }}">
+                <input type="text" name="respondent_fax" class="form-control ui-input" id="id_respondent_fax" value="{{ page_data.respondent_fax|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_email">Email</label>
-                <input type="email" name="respondent_email" class="form-control ui-input" id="id_respondent_email" value="{{ page_data.respondent_email }}">
+                <input type="email" name="respondent_email" class="form-control ui-input" id="id_respondent_email" value="{{ page_data.respondent_email|default:'' }}">
               </div>
             </div>
           </div>
@@ -464,26 +382,26 @@
               </div>
 
               <label class="ui-label" for="id_respondent_lawyer_name">Lawyer name</label>
-              <input type="text" name="respondent_lawyer_name" class="form-control ui-input" id="id_respondent_lawyer_name" value="{{ page_data.respondent_lawyer_name }}">
+              <input type="text" name="respondent_lawyer_name" class="form-control ui-input" id="id_respondent_lawyer_name" value="{{ page_data.respondent_lawyer_name|default:'' }}">
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_address">Lawyer address</label>
-                <input type="text" name="respondent_lawyer_address" class="form-control ui-input" id="id_respondent_lawyer_address" value="{{ page_data.respondent_lawyer_address }}">
+                <input type="text" name="respondent_lawyer_address" class="form-control ui-input" id="id_respondent_lawyer_address" value="{{ page_data.respondent_lawyer_address|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_phone">Lawyer phone</label>
-                <input type="text" name="respondent_lawyer_phone" class="form-control ui-input" id="id_respondent_lawyer_phone" value="{{ page_data.respondent_lawyer_phone }}">
+                <input type="text" name="respondent_lawyer_phone" class="form-control ui-input" id="id_respondent_lawyer_phone" value="{{ page_data.respondent_lawyer_phone|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_fax">Lawyer fax</label>
-                <input type="text" name="respondent_lawyer_fax" class="form-control ui-input" id="id_respondent_lawyer_fax" value="{{ page_data.respondent_lawyer_fax }}">
+                <input type="text" name="respondent_lawyer_fax" class="form-control ui-input" id="id_respondent_lawyer_fax" value="{{ page_data.respondent_lawyer_fax|default:'' }}">
               </div>
 
               <div class="mt-2">
                 <label class="ui-label" for="id_respondent_lawyer_email">Lawyer email</label>
-                <input type="email" name="respondent_lawyer_email" class="form-control ui-input" id="id_respondent_lawyer_email" value="{{ page_data.respondent_lawyer_email }}">
+                <input type="email" name="respondent_lawyer_email" class="form-control ui-input" id="id_respondent_lawyer_email" value="{{ page_data.respondent_lawyer_email|default:'' }}">
               </div>
             </div>
           </div>
@@ -498,7 +416,21 @@
             </div>
 
             <div class="choice-wrap">
-              {{ form.prepared_by }}
+              <label>
+                <input type="radio"
+                       name="prepared_by"
+                       value="applicant"
+                       {% if page_data.prepared_by == 'applicant' %}checked{% endif %}>
+                Applicant
+              </label>
+
+              <label>
+                <input type="radio"
+                       name="prepared_by"
+                       value="respondent"
+                       {% if page_data.prepared_by == 'respondent' %}checked{% endif %}>
+                Respondent
+              </label>
             </div>
 
             <div class="ui-help">
@@ -516,86 +448,91 @@
           </p>
         </div>
 
+        <div class="panel mt-3">
 
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="fw-bold">My name is</label>
+              <input type="text"
+                     name="my_name"
+                     class="form-control ui-input"
+                     value="{{ page_data.my_name|default:'' }}">
+            </div>
 
-<!-- PART 1 — INCOME -->
-<div class="panel">
+            <div class="col-md-6">
+              <label class="fw-bold">I live in</label>
+              <input type="text"
+                     name="my_location"
+                     class="form-control ui-input"
+                     value="{{ page_data.my_location|default:'' }}">
+            </div>
+          </div>
 
-  <div class="row mb-3">
-    <div class="col-md-6">
-      <label class="fw-bold">My name is</label>
-      <input type="text"
-             name="my_name"
-             class="form-control ui-input"
-             value="{{ page_data.my_name|default:'' }}">
-    </div>
+          <hr>
 
-    <div class="col-md-6">
-      <label class="fw-bold">I live in</label>
-      <input type="text"
-             name="my_location"
-             class="form-control ui-input"
-             value="{{ page_data.my_location|default:'' }}">
-    </div>
-  </div>
+          <div class="text-center mb-4">
+            <span class="badge bg-light text-dark border px-3 py-2">
+              Part 1 — Income
+            </span>
+          </div>
 
-  <hr>
+          <div class="mb-3">
+            <label class="fw-bold">
+              I am currently <span class="text-muted">(check all that apply)</span>
+            </label>
+          </div>
 
-  <div class="text-center mb-4">
-    <span class="badge bg-light text-dark border px-3 py-2">
-      Part 1 — Income
-    </span>
-  </div>
+          <div class="mb-3">
+            <label class="d-flex align-items-center gap-2 border rounded p-3">
+              <input type="checkbox"
+                     name="is_employed"
+                     class="employment-check"
+                     data-target="employer_name_address"
+                     {% if page_data.is_employed %}checked{% endif %}>
+              <strong>Employed</strong>
+            </label>
 
-  <div class="mb-3">
-    <label class="fw-bold">I am currently <span class="text-muted">(check all that apply)</span></label>
-  </div>
+            <input type="text"
+                   name="employer_name_address"
+                   class="form-control ui-input mt-2"
+                   placeholder="Name and address of employer"
+                   value="{{ page_data.employer_name_address|default:'' }}">
+          </div>
 
-  <div class="mb-3">
-    <label class="d-flex align-items-center gap-2 border rounded p-3">
-      <input type="checkbox"
-             name="is_employed"
-             {% if page_data.is_employed %}checked{% endif %}>
-      <strong>Employed</strong>
-    </label>
+          <div class="mb-3">
+            <label class="d-flex align-items-center gap-2 border rounded p-3">
+              <input type="checkbox"
+                     name="is_self_employed"
+                     class="employment-check"
+                     data-target="business_name_address"
+                     {% if page_data.is_self_employed %}checked{% endif %}>
+              <strong>Self-employed</strong>
+            </label>
 
-    <input type="text"
-           name="employer_name_address"
-           class="form-control ui-input mt-2"
-           placeholder="Name and address of employer"
-           value="{{ page_data.employer_name_address|default:'' }}">
-  </div>
+            <input type="text"
+                   name="business_name_address"
+                   class="form-control ui-input mt-2"
+                   placeholder="Name and address of business"
+                   value="{{ page_data.business_name_address|default:'' }}">
+          </div>
 
-  <div class="mb-3">
-    <label class="d-flex align-items-center gap-2 border rounded p-3">
-      <input type="checkbox"
-             name="is_self_employed"
-             {% if page_data.is_self_employed %}checked{% endif %}>
-      <strong>Self-employed</strong>
-    </label>
+          <div class="mb-3">
+            <label class="d-flex align-items-center gap-2 border rounded p-3">
+              <input type="checkbox"
+                     name="is_unemployed"
+                     class="employment-check"
+                     data-target="unemployed_since"
+                     {% if page_data.is_unemployed %}checked{% endif %}>
+              <strong>Unemployed since</strong>
+            </label>
 
-    <input type="text"
-           name="business_name_address"
-           class="form-control ui-input mt-2"
-           placeholder="Name and address of business"
-           value="{{ page_data.business_name_address|default:'' }}">
-  </div>
+            <input type="date"
+                   name="unemployed_since"
+                   class="form-control ui-input mt-2"
+                   value="{{ page_data.unemployed_since|default:'' }}">
+          </div>
 
-  <div class="mb-3">
-    <label class="d-flex align-items-center gap-2 border rounded p-3">
-      <input type="checkbox"
-             name="is_unemployed"
-             {% if page_data.is_unemployed %}checked{% endif %}>
-      <strong>Unemployed since</strong>
-    </label>
-
-    <input type="date"
-           name="unemployed_since"
-           class="form-control ui-input mt-2"
-           value="{{ page_data.unemployed_since|default:'' }}">
-  </div>
-
-</div>
+        </div>
 
         <div class="actions">
           <a href="{% url 'financial_statement_list' %}" class="btn-modern">
