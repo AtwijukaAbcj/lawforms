@@ -119,7 +119,9 @@
     <div class="topbar-actions">
       <a href="{% url 'comparison_nfp_list' %}" class="btn btn-ghost">← List</a>
       <a href="{% url 'comparison_nfp_page1_edit' pk %}" class="btn btn-outline">Edit</a>
-      <button class="btn btn-primary" onclick="window.print()">🖨 Print</button>
+      <a href="{% url 'comparison_nfp_print' comparison.id %}" class="btn view-btn btn-print" target="_blank">
+  🖨 Print
+</a> 
     </div>
   </div>
 
