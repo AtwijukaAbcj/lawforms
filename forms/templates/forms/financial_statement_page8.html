@@ -540,6 +540,9 @@
             <div>
               <label class="panel-sub" style="margin:0 0 6px;">Share (if applicable)</label>
               <div class="inline-check" style="margin:0;">
+              <input type="checkbox"
+                    name="schedule_c_income_share_checked"
+                    {% if page_data.schedule_c_income_share_checked %}checked{% endif %}>
                 <div style="width:100%;">
                   <label>Use my annual income to determine my share</label>
                   <div class="sub">

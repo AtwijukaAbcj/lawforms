@@ -1078,13 +1078,44 @@
     <tr><td><strong>Total Net Annual Amount</strong></td><td class="money">${{ pages.page8.schedule_c_total_annual|default:"" }}</td></tr>
     <tr><td><strong>Total Net Monthly Amount</strong></td><td class="money">${{ pages.page8.schedule_c_total_monthly|default:"" }}</td></tr>
   </table>
+<br>
+  <p style="font-weight: bold;">* Some of these expenses can be claimed in a parent’s income tax return in relation to a tax credit or
+deduction (for example childcare costs). These credits or deductions must be shown in the above chart.</p>
 
-  <p style="font-size:9px; margin-top:15px;">
-    I earn $
-    <span class="underline-field" style="min-width:80px;">{{ pages.page8.schedule_c_my_income_for_share|default:"" }}</span>
-    per year which should be used to determine my share of the above expenses.
-  </p>
 
+<p style="font-size:9px; margin-top:15px;">
+  <span style="
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border:1px solid #000;
+      text-align:center;
+      line-height:9px;
+      font-size:8px;
+      margin-right:4px;
+      vertical-align:middle;
+  ">
+    {% if pages.page8.schedule_c_income_share_checked %}✓{% endif %}
+  </span>
+
+  I earn $
+  <span class="underline-field" style="min-width:80px;">
+    {{ pages.page8.schedule_c_my_income_for_share|default:"" }}
+  </span>
+  per year which should be used to determine my share of the above expenses.
+</p>
+
+  <p style="font-weight: bold;">NOTE:</p>
+
+<p>Pursuant to the Child Support Guidelines, a court can order that the parents of a child share the costs of the
+following expenses for the child: </p> 
+<ul>
+  <li>Necessary childcare expenses;</li>
+  <li>Medical insurance premiums and certain health-related expenses for the child that cost more than $100 annually;</li>
+  <li> Extraordinary expenses for the child’s education;</li>
+  <li>Post-secondary school expenses; and,</li>
+  <li>Extraordinary expenses for extracurricular activities.</li> 
+</ul>
   <div class="page-footer">
     <span>FLR 13 (May 1, 2021)</span>
     <span>Page 8 of 8</span>

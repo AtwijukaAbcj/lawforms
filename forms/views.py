@@ -2120,8 +2120,12 @@ def financial_statement_page7(request, pk):
 def financial_statement_page8(request, pk):
     statement = get_object_or_404(FinancialStatement.all_objects, pk=pk)
 
+    checkbox_fields = [
+        "schedule_c_income_share_checked",
+    ]
+
     if request.method == "POST":
-        data = clean_form13_post(request)
+        data = clean_form13_post(request, checkbox_fields)
         statement.save_page_data(8, data)
 
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
