@@ -5407,7 +5407,7 @@ def divorce_order_a25a_delete(request, pk):
         messages.success(request, "Divorce Order A-25A deleted successfully.")
         return redirect('divorce_order_onepage_list')
 
-    return render(request, 'confirm_delete.html', {
+    return render(request, 'forms/confirm_delete.html', {
         'object': order,
         'object_label': 'Divorce Order A-25A',
         'cancel_url': 'divorce_order_onepage_list',
