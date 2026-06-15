@@ -111,40 +111,44 @@
     border-bottom: 1px solid #000;
     min-height: 18px;
     margin-bottom: 2px;
-    font-size: 10px;
+    font-size: 12px;
   }
 
   .court-label {
-    font-size: 8px;
+    font-size: 12px;
     font-style: italic;
     text-align: center;
     margin-bottom: 8px;
   }
 
   .form-title-box {
-    border: 1px solid #000;
+    /* border: 1px solid #000; */
     padding: 6px 10px;
     text-align: right;
     font-weight: bold;
-    font-size: 10px;
+    font-size: 12px;
     line-height: 1.4;
   }
 
   .court-file-box {
-    border: 1px solid #000;
-    padding: 4px 8px;
-    margin-bottom: 6px;
-    font-size: 9px;
+      border: 1px solid #000;
+      padding: 4px 8px;
+      font-size: 12px;
+      width: 200px;
+
+      margin-left: auto;   /* push to right */
+      margin-top: 8px;     /* move down a bit */
+      margin-bottom: 6px;
   }
 
-  .court-file-box .label { font-size: 8px; }
+  .court-file-box .label { font-size: 12px; }
 
   .party-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
     margin: 12px 0;
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .party-box { border: 1px solid #000; }
@@ -178,7 +182,7 @@
   }
 
   .filed-by {
-    font-size: 9px;
+    font-size: 12px;
     margin: 10px 0;
   }
 
@@ -208,7 +212,7 @@
   }
 
   .instructions {
-    font-size: 9px;
+    font-size: 12px;
     line-height: 1.4;
     margin: 10px 0;
     text-align: justify;
@@ -222,7 +226,7 @@
 
   .numbered-item {
     margin: 8px 0;
-    font-size: 9px;
+    font-size: 12px;
     display: flex;
   }
 
@@ -280,14 +284,14 @@
 
   .expense-section h4 {
     font-weight: bold;
-    font-size: 10px;
+    font-size: 12px;
     margin: 8px 0 4px;
   }
 
   .expense-table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 9px;
+    font-size: 12px;
   }
 
   .expense-table td {
@@ -493,11 +497,12 @@
 
   <div class="filed-by">
     <strong>This form is filed by:</strong><br>
+
     <span class="checkbox {% if pages.page1.prepared_by == 'applicant' %}checked{% endif %}"></span> applicant
     &nbsp;&nbsp;
     <span class="checkbox {% if pages.page1.prepared_by == 'respondent' %}checked{% endif %}"></span> respondent
   </div>
-
+<hr>
   <div class="instructions">
     <div class="instructions-title">INSTRUCTIONS</div>
     <p>You must complete this form if you are making or responding to a claim for child or spousal support or a claim to change support, unless your only claim for support is a claim for child support in the table amount under the <em>Child Support Guidelines</em>.</p>
@@ -540,9 +545,9 @@
       <em>(name and address of business)</em><br>
 
       <span class="checkbox {% if pages.page1.is_unemployed %}checked{% endif %}"></span>
-      unemployed since
+      unemployed since <em>(date when last employed)</em>
       <span class="underline-field" style="min-width:100px;">{{ pages.page1.unemployed_since|default:"" }}</span>
-      <em>(date when last employed)</em>
+      
     </span>
   </div>
 
@@ -613,8 +618,8 @@
       <tr><td>9.</td><td>Spousal support received</td><td class="money">${{ pages.page2.income_spousal_support|default:"" }}</td></tr>
       <tr><td>10.</td><td>Child Tax Benefits or Tax Rebates</td><td class="money">${{ pages.page2.income_tax_benefits|default:"" }}</td></tr>
       <tr><td>11.</td><td>Other sources of income</td><td class="money">${{ pages.page2.income_other|default:"" }}</td></tr>
-      <tr class="subtotal"><td>12.</td><td><strong>Total monthly income from all sources:</strong></td><td class="money"><strong>${{ pages.page2.income_total_monthly|default:"" }}</strong></td></tr>
-      <tr class="subtotal"><td>13.</td><td><strong>Total monthly income X 12 = Total annual income:</strong></td><td class="money"><strong>${{ pages.page2.income_total_annual|default:"" }}</strong></td></tr>
+      <tr class="subtotal" style="border-style: solid; border-width: 4px;"><td>12.</td><td><strong>Total monthly income from all sources:</strong></td><td class="money"><strong>${{ pages.page2.income_total_monthly|default:"" }}</strong></td></tr>
+      <tr class="subtotal" style="border-style: solid; border-width: 4px;"><td>13.</td><td><strong>Total monthly income X 12 = Total annual income:</strong></td><td class="money"><strong>${{ pages.page2.income_total_annual|default:"" }}</strong></td></tr>
     </tbody>
   </table>
 
@@ -785,7 +790,7 @@
     </div>
   </div>
 
-  <table class="summary-table" style="margin-top:20px;">
+  <table class="summary-table" style="margin-top:20px; border-style: double; border-width: 4px; border-color: #000;">
     <tr><td>Total Amount of Monthly Expenses</td><td class="money">${{ pages.page4.total_monthly_expenses|default:"" }}</td></tr>
     <tr><td>Total Amount of Yearly Expenses</td><td class="money">${{ pages.page4.total_yearly_expenses|default:"" }}</td></tr>
   </table>
@@ -897,8 +902,8 @@
     </tbody>
   </table>
 
-  <table class="summary-table" style="margin-top:15px;">
-    <tr><td><strong>Total Value of All Property</strong></td><td class="money">${{ pages.page5.total_value_all_property|default:"" }}</td></tr>
+  <table class="summary-table" style="margin-top:15px; border-style: solid; border-width: 4px; border-color: #000;">
+    <tr><td style="width:65%;"><strong>Total Value of All Property</strong></td><td class="money" style="width:15%;">${{ pages.page5.total_value_all_property|default:"" }}</td></tr>
   </table>
 
   <div class="page-footer">
@@ -975,25 +980,107 @@
 
   <div class="section-title">PART 5: SUMMARY OF ASSETS AND LIABILITIES</div>
 
-  <table class="summary-table" style="width:40%;">
+<table class="summary-table" style="
+    width:50%;
+    margin:15px auto 0 auto;
+    border-style:double;
+    border-width:4px;
+    border-color:#000;
+">
     <tr><td>Total Assets</td><td class="money">${{ pages.page6.total_assets|default:"" }}</td></tr>
     <tr><td>Subtract Total Debts</td><td class="money">${{ pages.page6.subtract_total_debts|default:"" }}</td></tr>
     <tr><td><strong>Net Worth</strong></td><td class="money">${{ pages.page6.net_worth|default:"" }}</td></tr>
   </table>
 
-  <div style="font-size:9px; margin-top:16px;">
-    Sworn/Affirmed before me at
-    <span class="underline-field">{{ pages.page6.municipality|default:"" }}</span>
-    in
-    <span class="underline-field">{{ pages.page6.province|default:"" }}</span>
-    on
-    <span class="underline-field">{{ pages.page6.date|default:"" }}</span>
-    <br><br>
-    Commissioner:
-    <span class="underline-field">{{ pages.page6.commissioner|default:"" }}</span>
-    Signature:
-    <span class="underline-field">{{ pages.page6.signature|default:"" }}</span>
+<table style="width:100%; border-collapse:collapse; margin-top:15px; font-size:9px;">
+  <tr>
+    <td style="width:62%; border-top:3px solid #000; padding-top:8px; vertical-align:top;">
+
+      <div style="margin-bottom:10px;">
+        Sworn/Affirmed before me at
+        <span style="display:inline-block; border-bottom:1px solid #000; width:230px; text-align:center;">
+          {{ pages.page6.municipality|default:"" }}
+        </span>
+      </div>
+
+      <div style="font-style:italic; text-align:center; margin-top:-8px; margin-bottom:8px;">
+        municipality
+      </div>
+
+      <div style="margin-bottom:10px;">
+        in
+        <span style="display:inline-block; border-bottom:1px solid #000; width:370px; text-align:center;">
+          {{ pages.page6.province|default:"" }}
+        </span>
+      </div>
+
+      <div style="font-style:italic; text-align:center; margin-top:-8px; margin-bottom:8px;">
+        province, state or country
+      </div>
+
+      <div>
+        on
+        <span style="display:inline-block; border-bottom:1px solid #000; width:130px; text-align:center;">
+          {{ pages.page6.date|default:"" }}
+        </span>
+
+        <span style="display:inline-block; border-bottom:1px solid #000; width:230px; margin-left:10px; text-align:center;">
+          {{ pages.page6.commissioner|default:"" }}
+        </span>
+      </div>
+
+      <div style="font-style:italic; text-align:center; margin-top:2px;">
+        <span style="display:inline-block; width:130px;">date</span>
+        <span style="display:inline-block; width:230px;">
+          Commissioner for taking affidavits<br>
+          (Type or print name below if signature is illegible.)
+        </span>
+      </div>
+
+    </td>
+<div style="font-size:9px; margin-top:12px; line-height:1.3;">
+  <div style="font-style:italic;">
+    <strong>NOTE:</strong> This financial statement must be updated before any court event if it is:
   </div>
+
+  <div style="margin-left:15px; font-style:italic;">
+    • more than 30 days old by the time of the case conference,<br>
+    • more than 30 days old by the time the motion is heard, or<br>
+    • more than 40 days old by the start of the trial or the start of the trial sitting, whichever comes first.
+  </div>
+
+  <div style="margin-top:8px; font-style:italic;">
+    You may update this financial statement by either completing and filing:
+  </div>
+
+  <div style="margin-left:15px; font-style:italic;">
+    • a new financial statement with updated information, or<br>
+    • an affidavit in Form 14A setting out the details of any minor changes or confirming that the information contained in this statement remains correct.
+  </div>
+</div>
+    <td style="width:38%; border-top:3px solid #000; border-left:3px solid #000; padding:8px 12px; vertical-align:bottom;">
+
+      <div style="
+          border-bottom:1px solid #000;
+          height:55px;
+          margin-bottom:6px;
+      ">
+        {{ pages.page6.signature|default:"" }}
+      </div>
+
+      <div style="text-align:center; font-style:italic;">
+        Signature
+      </div>
+
+      <div style="text-align:center; font-style:italic; margin-top:4px;">
+        (This form is to be signed in front of a<br>
+        lawyer, justice of the peace, notary public<br>
+        or commissioner for taking affidavits.)
+      </div>
+
+    </td>
+  </tr>
+</table>
 
   <div class="page-footer">
     <span>FLR 13 (May 1, 2021)</span>
@@ -1020,22 +1107,155 @@
       <tr><td>5.</td><td>RRSP withdrawals</td><td class="money">${{ pages.page7.schedule_a_rrsp_withdrawals|default:"" }}</td></tr>
       <tr><td>6.</td><td>RRIF or annuity income</td><td class="money">${{ pages.page7.schedule_a_rrif_annuity|default:"" }}</td></tr>
       <tr><td>7.</td><td>Other income: {{ pages.page7.schedule_a_other_income_source|default:"" }}</td><td class="money">${{ pages.page7.schedule_a_other_income_amount|default:"" }}</td></tr>
-      <tr class="subtotal"><td colspan="2"><strong>Subtotal</strong></td><td class="money"><strong>${{ pages.page7.schedule_a_subtotal|default:"" }}</strong></td></tr>
+      </table>
+
+<table style="
+    width:52%;
+    margin-left:auto;
+    margin-top:6px;
+    border-collapse:collapse;
+    border-style:double;">
+  <tr>
+    <td style="
+        width:65%;
+        border:2px solid #000;
+        text-align:center;
+        font-weight:bold;
+        padding:4px;">
+      Subtotal:
+    </td>
+
+    <td style="
+        width:45%;
+        border:2px solid #000;
+        padding:4px;
+        text-align:left;
+        font-weight:bold;
+    ">
+      $ {{ pages.page7.schedule_a_subtotal|default:"" }}
+    </td>
+  </tr>
+</table>
     </tbody>
   </table>
 
-  <div class="schedule-title" style="margin-top:30px;">Schedule B</div>
-  <div class="schedule-subtitle">Other Income Earners in the Home</div>
+<div class="schedule-title" style="margin-top:30px;">Schedule B</div>
+<div class="schedule-subtitle">Other Income Earners in the Home</div>
 
-  <div style="font-size:9px; line-height:1.8;">
-    <p><strong>1.</strong> <span class="checkbox {% if pages.page7.lives_alone %}checked{% endif %}"></span> I live alone.</p>
-    <p><strong>2.</strong> <span class="checkbox {% if pages.page7.living_with_someone %}checked{% endif %}"></span> I am living with <span class="underline-field">{{ pages.page7.living_with_name|default:"" }}</span></p>
-    <p><strong>3.</strong> <span class="checkbox {% if pages.page7.lives_with_other_adults %}checked{% endif %}"></span> I/we live with: <span class="underline-field">{{ pages.page7.other_adults_names|default:"" }}</span></p>
-    <p><strong>4.</strong> <span class="checkbox {% if pages.page7.has_children_in_home %}checked{% endif %}"></span> We have <span class="underline-field">{{ pages.page7.number_of_children_in_home|default:"" }}</span> child(ren) in the home.</p>
-    <p><strong>5.</strong> Spouse/partner works at <span class="underline-field">{{ pages.page7.spouse_work_place|default:"" }}</span></p>
-    <p><strong>6.</strong> Spouse/partner earns $ <span class="underline-field">{{ pages.page7.spouse_income_amount|default:"" }}</span> per <span class="underline-field">{{ pages.page7.spouse_income_period|default:"" }}</span></p>
-    <p><strong>7.</strong> Household contribution $ <span class="underline-field">{{ pages.page7.household_contribution_amount|default:"" }}</span> per <span class="underline-field">{{ pages.page7.household_contribution_period|default:"" }}</span></p>
-  </div>
+<p style="font-size:8px; font-style:italic; text-align:center; margin-bottom:10px;">
+  Complete this part only if you are making or responding to a claim for undue hardship or spousal support.
+  Check and complete all sections that apply to your circumstances.
+</p>
+
+<table style="width:100%; border-collapse:collapse; font-size:9px;">
+  <tr>
+    <td style="width:40px; font-weight:bold; vertical-align:top;">1.</td>
+    <td>
+      <span class="checkbox {% if pages.page7.lives_alone %}checked{% endif %}"></span>
+      I live alone.
+    </td>
+  </tr>
+
+  <tr>
+    <td style="font-weight:bold; vertical-align:top;">2.</td>
+    <td>
+      <span class="checkbox {% if pages.page7.living_with_someone %}checked{% endif %}"></span>
+      I am living with
+      <span style="font-size:8px; font-style:italic;">
+        (full legal name of person you are married to or cohabiting with)
+      </span>
+      <span class="underline-field" style="min-width:300px;">
+        {{ pages.page7.living_with_name|default:"" }}
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="font-weight:bold; vertical-align:top;">3.</td>
+    <td>
+      <span class="checkbox {% if pages.page7.lives_with_other_adults %}checked{% endif %}"></span>
+      I/we live with the following other adult(s):
+      <span class="underline-field" style="min-width:420px;">
+        {{ pages.page7.other_adults_names|default:"" }}
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="font-weight:bold; vertical-align:top;">4.</td>
+    <td>
+      <span class="checkbox {% if pages.page7.has_children_in_home %}checked{% endif %}"></span>
+      I/we have
+      <span class="underline-field" style="min-width:40px;">
+        {{ pages.page7.number_of_children_in_home|default:"" }}
+      </span>
+      <span style="font-size:8px; font-style:italic;">(give number)</span>
+      child(ren) who live(s) in the home.
+    </td>
+  </tr>
+
+  <tr>
+    <td style="font-weight:bold; vertical-align:top;">5.</td>
+    <td>
+      My spouse/partner
+      <span class="checkbox {% if pages.page7.spouse_works %}checked{% endif %}"></span>
+      works at
+      <span style="font-size:8px; font-style:italic;">
+        (place of work or business)
+      </span>
+      <span class="underline-field" style="min-width:220px;">
+        {{ pages.page7.spouse_work_place|default:"" }}
+      </span>
+      .
+      <br>
+
+      <span style="margin-left:78px;">
+        <span class="checkbox {% if pages.page7.spouse_not_working %}checked{% endif %}"></span>
+        does not work outside the home.
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="font-weight:bold; vertical-align:top;">6.</td>
+    <td>
+      My spouse/partner
+
+      <span class="checkbox {% if pages.page7.spouse_has_income %}checked{% endif %}"></span>
+      earns
+      <span class="underline-field" style="min-width:120px;">
+        {{ pages.page7.spouse_income_amount|default:"" }}
+      </span>
+      per
+      <span class="underline-field" style="min-width:120px;">
+        {{ pages.page7.spouse_income_period|default:"" }}
+      </span>
+      .
+      <br>
+
+      <span style="margin-left:78px;">
+        <span class="checkbox {% if pages.page7.spouse_no_income %}checked{% endif %}"></span>
+        does not earn any income.
+      </span>
+    </td>
+  </tr>
+
+  <tr>
+    <td style="font-weight:bold; vertical-align:top;">7.</td>
+    <td>
+      <span class="checkbox {% if pages.page7.household_contribution_amount %}checked{% endif %}"></span>
+      My spouse/partner or other adult residing in the home contributes about $
+      <span class="underline-field" style="min-width:100px;">
+        {{ pages.page7.household_contribution_amount|default:"" }}
+      </span>
+      per
+      <span class="underline-field" style="min-width:120px;">
+        {{ pages.page7.household_contribution_period|default:"" }}
+      </span>
+      towards the household expenses.
+    </td>
+  </tr>
+</table>
 
   <div class="page-footer">
     <span>FLR 13 (May 1, 2021)</span>
@@ -1074,9 +1294,9 @@
     </tbody>
   </table>
 
-  <table class="summary-table" style="margin-top:15px;">
-    <tr><td><strong>Total Net Annual Amount</strong></td><td class="money">${{ pages.page8.schedule_c_total_annual|default:"" }}</td></tr>
-    <tr><td><strong>Total Net Monthly Amount</strong></td><td class="money">${{ pages.page8.schedule_c_total_monthly|default:"" }}</td></tr>
+  <table class="summary-table" style="margin-top:15px; border-style: double;">
+    <tr><td style="width:65%;"><strong>Total Net Annual Amount</strong></td><td class="money">${{ pages.page8.schedule_c_total_annual|default:"" }}</td></tr>
+    <tr><td style="width:45%;"><strong>Total Net Monthly Amount</strong></td><td class="money">${{ pages.page8.schedule_c_total_monthly|default:"" }}</td></tr>
   </table>
 <br>
   <p style="font-weight: bold;">* Some of these expenses can be claimed in a parent’s income tax return in relation to a tax credit or
