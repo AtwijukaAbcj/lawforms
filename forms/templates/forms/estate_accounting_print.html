@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+{% block title %}Estate Accounting - {{ accounting.deceased_name }}{% endblock %}
+{% block header %}Estate Accounting{% endblock %}
+{% block subheader %}Estate account for {{ accounting.deceased_name }}{% endblock %}
+{% block content %}
+<style>
+  .ea-print-wrap{max-width:1100px;margin:18px auto 48px;padding:0 14px;color:#111827}
+  .ea-actions{display:flex;justify-content:flex-end;gap:8px;margin-bottom:14px}
+  .ea-button{display:inline-flex;align-items:center;padding:8px 13px;border:0;border-radius:6px;background:#1e293b;color:#fff;text-decoration:none;font-weight:600;cursor:pointer}
+  .ea-button:hover{background:#334155;color:white;text-decoration:none}
+  .ea-panel{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:18px;margin-bottom:16px}
+  .ea-title{margin:0 0 8px;font-size:22px}
+  .ea-meta{display:grid;grid-template-columns:repeat(3,minmax(160px,1fr));gap:10px;font-size:13px}
+  .ea-meta strong{display:block;color:#475569;font-size:11px;text-transform:uppercase;margin-bottom:3px}
+  .ea-section{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:16px;margin-bottom:16px;break-inside:avoid}
+  .ea-section h2{font-size:17px;margin:0 0 12px}
+  .ea-table-wrap{overflow-x:auto}
+  .ea-table{width:100%;border-collapse:collapse;font-family:Georgia,"Times New Roman",serif;font-size:13px}
+  .ea-table th,.ea-table td{border:1px solid #111;padding:6px 7px;text-align:left;vertical-align:top}
+  .ea-table th{font-weight:700;text-align:center}
+  .ea-table tfoot td{font-weight:700}
+  .ea-number{text-align:right!important;white-space:nowrap}
+  .ea-summary{width:min(560px,100%);border-collapse:collapse;font-family:Georgia,"Times New Roman",serif}
+  .ea-summary td{border:1px solid #111;padding:7px}
+  .ea-summary .ea-number{width:120px}
+  .ea-total{font-weight:700}
+  .ea-note{font-size:12px;color:#475569;margin:12px 0 0}
+  @media(max-width:700px){.ea-meta{grid-template-columns:1fr}}
+  @media print{
+    .sidebar,.topbar,.ea-actions,.footer,.messages{display:none!important}
+    .main-content,.content-wrapper{margin:0!important;padding:0!important}
+    .ea-print-wrap{max-width:none;margin:0;padding:0}
+    .ea-panel,.ea-section{border:0;border-radius:0;padding:6px 0;margin-bottom:12px}
+    .ea-section{break-inside:avoid}
+    .ea-table{font-size:10pt}
+    @page{size:landscape;margin:12mm}
+  }
+</style>
+<main class="ea-print-wrap">
+  {% if show_actions %}
+  <div class="ea-actions">
+    {% if can_edit %}<a class="ea-button" href="{% url 'estate_accounting_edit' accounting.pk %}">Edit</a>{% endif %}
+    <a class="ea-button" href="{% url 'estate_accounting_list' %}">Back to list</a>
+    {% if can_print %}<a class="ea-button" href="{% url 'estate_accounting_print' accounting.pk %}" target="_blank">Print view</a>{% endif %}
+    {% if can_delete %}<a class="ea-button" href="{% url 'estate_accounting_delete' accounting.pk %}">Delete</a>{% endif %}
+  </div>
+  {% elif not view_only %}
+  <div class="ea-actions"><button class="ea-button" type="button" onclick="window.print()">Print</button></div>
+  {% endif %}
+  <section class="ea-panel">
+    <h1 class="ea-title">Estate Accounting</h1>
+    <div class="ea-meta">
+      <div><strong>Deceased</strong>{{ accounting.deceased_name }}</div>
+      <div><strong>Date of Death</strong>{{ accounting.date_of_death|date:"F j, Y"|default:"—" }}</div>
+      <div><strong>Personal Representative</strong>{{ accounting.personal_representative|default:"—" }}</div>
+      <div><strong>Accounting Period From</strong>{{ accounting.accounting_period_start|date:"F j, Y"|default:"—" }}</div>
+      <div><strong>Accounting Period To</strong>{{ accounting.accounting_period_end|date:"F j, Y"|default:"—" }}</div>
+    </div>
+  </section>
+
+  {% for section in sections %}
+  <section class="ea-section">
+    <h2>{{ section.title }}</h2>
+    <div class="ea-table-wrap">
+      <table class="ea-table">
+        <thead><tr><th>#</th>{% for field in section.fields %}<th>{{ field.label }}</th>{% endfor %}{% if section.key == "assets" %}<th>Net Amount</th>{% endif %}{% if section.key == "distributions" %}<th>Balance Remaining</th>{% endif %}</tr></thead>
+        <tbody>
+          {% for row in section.rows %}
+          <tr>
+            <td>{{ forloop.counter }}</td>
+            {% for field in section.fields %}
+            <td {% if field.type == "number" %}class="ea-number"{% endif %}>
+              {% with value=row.values|get_item:field.name %}
+                {% if field.type == "number" %}{% if value %}${{ value }}{% else %}—{% endif %}
+                {% else %}{{ value|default:"—" }}{% endif %}
+              {% endwith %}
+            </td>
+            {% endfor %}
+            {% if section.key == "assets" %}<td class="ea-number">{% if row.values.net_amount %}${{ row.values.net_amount }}{% else %}—{% endif %}</td>{% endif %}
+            {% if section.key == "distributions" %}<td class="ea-number">{% if row.values.balance_remaining %}${{ row.values.balance_remaining }}{% else %}—{% endif %}</td>{% endif %}
+          </tr>
+          {% endfor %}
+        </tbody>
+        {% if section.key == "assets" %}
+        <tfoot><tr><td colspan="3">TOTAL ASSETS</td><td class="ea-number">${{ totals.asset_date_value|floatformat:2 }}</td><td class="ea-number">${{ totals.assets_realized|floatformat:2 }}</td><td></td><td class="ea-number">${{ totals.asset_expenses|floatformat:2 }}</td><td class="ea-number">${{ totals.asset_net|floatformat:2 }}</td></tr></tfoot>
+        {% elif section.key == "expenses" %}
+        <tfoot><tr><td colspan="4">TOTAL EXPENSES</td><td class="ea-number">${{ totals.expenses|floatformat:2 }}</td><td colspan="2"></td></tr></tfoot>
+        {% elif section.key == "receipts" %}
+        <tfoot><tr><td colspan="4">TOTAL RECEIPTS</td><td class="ea-number">${{ totals.receipts|floatformat:2 }}</td><td></td></tr></tfoot>
+        {% elif section.key == "distributions" %}
+        <tfoot><tr><td colspan="4">TOTAL DISTRIBUTIONS</td><td class="ea-number">${{ totals.distributions|floatformat:2 }}</td><td></td></tr></tfoot>
+        {% endif %}
+      </table>
+    </div>
+    {% if section.key == "receipts" %}
+    <p class="ea-note">An estate may receive money after the date of death. Record post-death receipts above.</p>
+    {% endif %}
+  </section>
+  {% if section.key == "receipts" %}
+  <section class="ea-section">
+    <h2>4. Estate Reconciliation</h2>
+    <table class="ea-summary">
+      <tbody>
+        <tr><td>Total assets realized / cash received</td><td class="ea-number">${{ totals.assets_realized|floatformat:2 }}</td></tr>
+        <tr><td>Add: Estate income / other receipts</td><td class="ea-number">${{ totals.receipts|floatformat:2 }}</td></tr>
+        <tr class="ea-total"><td>Total funds available</td><td class="ea-number">${{ totals.funds_available|floatformat:2 }}</td></tr>
+        <tr><td>Less: Estate expenses paid</td><td class="ea-number">(${{ totals.expenses|floatformat:2 }})</td></tr>
+        <tr><td>Less: Amounts distributed to beneficiaries</td><td class="ea-number">(${{ totals.distributions|floatformat:2 }})</td></tr>
+        <tr class="ea-total"><td>Balance remaining in Estate Account</td><td class="ea-number">${{ totals.balance|floatformat:2 }}</td></tr>
+      </tbody>
+    </table>
+  </section>
+  {% endif %}
+  {% endfor %}
+</main>
+{% endblock %}

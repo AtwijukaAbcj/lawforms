@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Estate Accounting{% endblock %}
+{% block header %}Estate Accounting{% endblock %}
+{% block subheader %}Track estate assets, expenses, receipts, and distributions{% endblock %}
+{% block content %}
+<style>
+  .ea-wrap{max-width:1200px;margin:22px auto 56px;padding:0 14px}
+  .ea-head{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+  .ea-head p{margin:4px 0 0;color:#64748b;font-size:13px}
+  .ea-btn{display:inline-flex;align-items:center;padding:8px 14px;border-radius:7px;background:#1e293b;color:#fff;text-decoration:none;font-weight:600}
+  .ea-btn:hover{background:#334155;color:#fff;text-decoration:none}
+  .ea-card{background:#fff;border:1px solid #e2e8f0;border-radius:10px;overflow:auto}
+  .ea-table{width:100%;border-collapse:collapse;font-size:13px}
+  .ea-table th{padding:10px 14px;text-align:left;background:#f8fafc;color:#64748b;font-size:11px;text-transform:uppercase;border-bottom:1px solid #e2e8f0}
+  .ea-table td{padding:11px 14px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+  .ea-table tr:last-child td{border-bottom:0}
+  .ea-actions{display:flex;gap:6px;white-space:nowrap}
+  .ea-action{padding:5px 9px;border:1px solid #e2e8f0;border-radius:6px;color:#334155;text-decoration:none;font-weight:600}
+  .ea-action:hover{background:#f1f5f9;color:#0f172a;text-decoration:none}
+  .ea-empty{text-align:center;padding:36px;color:#64748b}
+</style>
+<div class="ea-wrap">
+  <div class="ea-head">
+    <div>
+      <h2>Estate Accountings</h2>
+      <p>Maintain a clear record of estate funds from date of death through distribution.</p>
+    </div>
+    <a class="ea-btn" href="{% url 'estate_accounting_create' %}">+ New Estate Accounting</a>
+  </div>
+  <div class="ea-card">
+    <table class="ea-table">
+      <thead>
+        <tr><th>Deceased</th><th>Date of Death</th><th>Personal Representative</th><th>Accounting Period</th><th>Updated</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for accounting in accountings %}
+        <tr>
+          <td>{{ accounting.deceased_name }}</td>
+          <td>{{ accounting.date_of_death|date:"M j, Y"|default:"—" }}</td>
+          <td>{{ accounting.personal_representative|default:"—" }}</td>
+          <td>{{ accounting.accounting_period_start|date:"M j, Y"|default:"—" }} – {{ accounting.accounting_period_end|date:"M j, Y"|default:"—" }}</td>
+          <td>{{ accounting.updated_at|date:"M j, Y" }}</td>
+          <td>
+            <div class="ea-actions">
+              <a class="ea-action" href="{% url 'estate_accounting_view' accounting.pk %}">View</a>
+              {% if accounting.can_edit %}<a class="ea-action" href="{% url 'estate_accounting_edit' accounting.pk %}">Edit</a>{% endif %}
+              {% if accounting.can_print %}<a class="ea-action" href="{% url 'estate_accounting_print' accounting.pk %}" target="_blank">Print</a>{% endif %}
+              {% if accounting.can_delete %}<a class="ea-action" href="{% url 'estate_accounting_delete' accounting.pk %}">Delete</a>{% endif %}
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" class="ea-empty">No estate accountings yet. Select “New Estate Accounting” to get started.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

@@ -38,6 +38,7 @@ from .models import (
     CertificateOfDivorce,
     DivorceOrder,
     DivorceOrderA25A,
+    EstateAccounting,
 )
 # from .models import AffidavitService
 
@@ -710,3 +711,28 @@ class ApplicationDivorce8APage6Form(BaseModelForm):
             "respondent_lawyer_certificate_date": forms.DateInput(attrs={"type": "date"}),
             "filing_date": forms.DateInput(attrs={"type": "date"}),
         }
+
+
+class EstateAccountingForm(BaseModelForm):
+    class Meta:
+        model = EstateAccounting
+        fields = [
+            "deceased_name",
+            "date_of_death",
+            "personal_representative",
+            "accounting_period_start",
+            "accounting_period_end",
+        ]
+        widgets = {
+            "date_of_death": forms.DateInput(attrs={"type": "date"}),
+            "accounting_period_start": forms.DateInput(attrs={"type": "date"}),
+            "accounting_period_end": forms.DateInput(attrs={"type": "date"}),
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        period_start = cleaned_data.get("accounting_period_start")
+        period_end = cleaned_data.get("accounting_period_end")
+        if period_start and period_end and period_end < period_start:
+            self.add_error("accounting_period_end", "The accounting period end must be on or after its start.")
+        return cleaned_data

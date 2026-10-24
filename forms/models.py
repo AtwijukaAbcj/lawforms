@@ -1424,6 +1424,7 @@ class PrintEvent(models.Model):
     """Track each print event for billing purposes."""
     FORM_TYPE_CHOICES = [
         ('financial_statement', 'Financial Statement (Form 13)'),
+        ('estate_accounting', 'Estate Accounting'),
         ('financial_statement_131', 'Financial Statement - Property & Support (Form 13.1)'),
         ('net_family_property_13b', 'Net Family Property (Form 13B)'),
         ('comparison_nfp', 'Comparison of Net Family Property (Form 13C)'),
@@ -1792,3 +1793,25 @@ class ApplicationDivorce8A(SoftDeleteMixin, models.Model):
 
     def __str__(self):
         return f"Form 8A - {self.applicant_name or 'Applicant'} v {self.respondent_name or 'Respondent'}"
+
+
+class EstateAccounting(SoftDeleteMixin, models.Model):
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="estate_accountings",
+    )
+    deceased_name = models.CharField(max_length=255)
+    date_of_death = models.DateField(blank=True, null=True)
+    personal_representative = models.CharField(max_length=255, blank=True)
+    accounting_period_start = models.DateField(blank=True, null=True)
+    accounting_period_end = models.DateField(blank=True, null=True)
+    schedules = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at", "-created_at"]
+
+    def __str__(self):
+        return f"Estate accounting: {self.deceased_name}"

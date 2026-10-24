@@ -1,8 +1,11 @@
 from decimal import Decimal
+from unittest.mock import patch
 
+from django.core.management import call_command
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from .models import CaseFile, FinancialStatement, NetFamilyPropertyStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty
+from .models import CaseFile, EstateAccounting, FinancialStatement, NetFamilyPropertyStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty, PrintEvent
+from users.models import Module, Role
 
 
 class CaseFileTests(TestCase):
@@ -84,6 +87,7 @@ class CaseFileTests(TestCase):
         self.assertEqual(comparison.court_name, self.case.court_name)
         self.assertEqual(comparison.applicant_name, self.case.applicant_name)
         self.assertEqual(comparison.respondent_name, self.case.respondent_name)
+
 
     def test_financial_statement_page6_renders_saved_debts(self):
         self.client.login(username='tester', password='pass')
@@ -367,3 +371,181 @@ class CaseFileTests(TestCase):
         resp = self.client.get(f'/forms/financial-statement/page7/{statement.pk}/')
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'Schedule A')
+
+
+class EstateAccountingTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_superuser(
+            username="estate-admin",
+            email="estate@example.com",
+            password="pass",
+        )
+        self.client.login(username="estate-admin", password="pass")
+
+    def test_module_setup_grants_estate_permissions_to_default_roles(self):
+        call_command("setup_modules", verbosity=0)
+        call_command("setup_modules", verbosity=0)
+        estate_module = Module.objects.get(code="estate_accounting")
+        expected = {
+            "Administrator": {"view", "create", "edit", "delete", "print", "export"},
+            "Staff": {"view", "create", "edit", "print", "export"},
+            "Viewer": {"view", "print"},
+        }
+        for role_name, permission_types in expected.items():
+            role = Role.objects.get(name=role_name)
+            actual = set(role.permissions.filter(module=estate_module).values_list("permission_type", flat=True))
+            self.assertEqual(actual, permission_types)
+
+    def test_create_form_and_dashboard_render(self):
+        response = self.client.get("/forms/estate-accounting/new/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "1. Estate Assets")
+        self.assertContains(response, "5. Beneficiary Distributions")
+
+        response = self.client.get("/forms/dashboard/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Estate Accounting")
+
+    def test_estate_accounting_saves_schedules_and_reconciles(self):
+        response = self.client.post("/forms/estate-accounting/new/", {
+            "deceased_name": "Alex Estate",
+            "date_of_death": "2025-01-15",
+            "personal_representative": "Jamie Executor",
+            "accounting_period_start": "2025-01-15",
+            "accounting_period_end": "2025-12-31",
+            "assets_count": "1",
+            "assets_0_description": "House",
+            "assets_0_proceeds": "100000.00",
+            "assets_0_expenses": "500.00",
+            "expenses_count": "1",
+            "expenses_0_description": "Funeral",
+            "expenses_0_amount": "2500.00",
+            "receipts_count": "1",
+            "receipts_0_description": "Bank interest",
+            "receipts_0_amount": "100.00",
+            "distributions_count": "1",
+            "distributions_0_beneficiary": "Taylor",
+            "distributions_0_entitlement": "50000.00",
+            "distributions_0_amount_paid": "20000.00",
+        })
+
+        self.assertEqual(response.status_code, 302)
+        accounting = EstateAccounting.objects.get()
+        self.assertEqual(accounting.created_by, self.user)
+        self.assertEqual(accounting.schedules["assets"][0]["proceeds"], "100000.00")
+        self.assertRedirects(response, f"/forms/estate-accounting/{accounting.pk}/view/")
+
+        response = self.client.get(f"/forms/estate-accounting/{accounting.pk}/view/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Balance remaining in Estate Account")
+        self.assertContains(response, "$77600.00")
+        self.assertContains(response, "$30000.00")
+        self.assertContains(response, "$99500.00")
+
+    def test_estate_accounting_rejects_invalid_amount_without_saving(self):
+        response = self.client.post("/forms/estate-accounting/new/", {
+            "deceased_name": "Alex Estate",
+            "assets_count": "1",
+            "assets_0_description": "House",
+            "assets_0_proceeds": "not-money",
+            "expenses_count": "0",
+            "receipts_count": "0",
+            "distributions_count": "0",
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(EstateAccounting.objects.count(), 0)
+        self.assertContains(response, "enter a valid amount")
+
+    def test_print_creates_billing_event(self):
+        accounting = EstateAccounting.objects.create(
+            created_by=self.user,
+            deceased_name="Alex Estate",
+            schedules={
+                "assets": [
+                    {
+                        "description": "Bank account",
+                        "institution": "Example Bank",
+                        "death_value": "15000.00",
+                        "proceeds": "15250.00",
+                        "date_received": "",
+                        "expenses": "0.00",
+                    }
+                ],
+                "expenses": [],
+                "receipts": [],
+                "distributions": [],
+            },
+        )
+        from .models import BillingSetting
+        BillingSetting.objects.create(
+            form_type="estate_accounting",
+            form_display_name="Estate Accounting",
+            price_per_print=Decimal("4.75"),
+        )
+        with patch("forms.views.send_form_printed_notification"):
+            response = self.client.get(f"/forms/estate-accounting/{accounting.pk}/print/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Estate Reconciliation")
+        self.assertContains(response, "Example Bank")
+        event = PrintEvent.objects.get(form_type="estate_accounting", form_id=accounting.pk)
+        self.assertEqual(event.user, self.user)
+        self.assertEqual(event.price_charged, Decimal("4.75"))
+
+        response = self.client.get("/forms/billing/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Estate Accounting")
+        self.assertContains(response, "$4.75")
+
+        self.user.is_staff = True
+        self.user.save(update_fields=["is_staff"])
+        response = self.client.get("/forms/billing/settings/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Estate Accounting")
+
+        response = self.client.get("/forms/billing/history/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Estate Accounting")
+        self.assertContains(response, f"/forms/billing/printed-copy/{event.pk}/")
+
+        response = self.client.get(f"/forms/billing/printed-copy/{event.pk}/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "View Only")
+        self.assertContains(response, "Example Bank")
+
+    def test_edit_and_soft_delete_estate_accounting(self):
+        accounting = EstateAccounting.objects.create(
+            created_by=self.user,
+            deceased_name="Original Name",
+        )
+        payload = {
+            "deceased_name": "Updated Name",
+            "assets_count": "0",
+            "expenses_count": "0",
+            "receipts_count": "0",
+            "distributions_count": "0",
+        }
+        response = self.client.post(f"/forms/estate-accounting/{accounting.pk}/edit/", payload)
+        self.assertRedirects(response, f"/forms/estate-accounting/{accounting.pk}/view/")
+        accounting.refresh_from_db()
+        self.assertEqual(accounting.deceased_name, "Updated Name")
+
+        response = self.client.post(f"/forms/estate-accounting/{accounting.pk}/delete/")
+        self.assertRedirects(response, "/forms/estate-accounting/")
+        self.assertFalse(EstateAccounting.objects.filter(pk=accounting.pk).exists())
+        self.assertTrue(EstateAccounting.all_objects.get(pk=accounting.pk).is_deleted)
+        response = self.client.get("/forms/recycle-bin/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Updated Name")
+
+        response = self.client.post(f"/forms/recycle-bin/restore/estate_accounting/{accounting.pk}/")
+        self.assertRedirects(response, "/forms/recycle-bin/")
+        accounting.refresh_from_db()
+        self.assertFalse(accounting.is_deleted)
+
+        accounting.soft_delete()
+        response = self.client.post(f"/forms/recycle-bin/permanent-delete/estate_accounting/{accounting.pk}/")
+        self.assertRedirects(response, "/forms/recycle-bin/")
+        self.assertFalse(EstateAccounting.all_objects.filter(pk=accounting.pk).exists())

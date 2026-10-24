@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}View Printed Estate Accounting{% endblock %}
+{% block content %}
+<style>
+  @media print { body { visibility: hidden !important; } }
+  .ea-screenshot-blocker {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.12);
+    z-index: 9999;
+    pointer-events: none;
+  }
+</style>
+<script>
+window.addEventListener('keydown', function(event) {
+  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') {
+    event.preventDefault();
+    alert('Printing is disabled for this view-only copy.');
+  }
+  if (event.key === 'PrintScreen') {
+    document.body.innerHTML = '';
+  }
+});
+window.addEventListener('beforeprint', function() {
+  document.body.innerHTML = '';
+});
+</script>
+<div class="ea-screenshot-blocker"></div>
+<div class="alert alert-warning" style="margin:24px 0;">
+  <strong>View Only:</strong> This is a secure, view-only copy. Printing and screenshots are disabled.
+  {% if print_event %}<span> Printed {{ print_event.printed_at|date:"M j, Y H:i" }}.</span>{% endif %}
+</div>
+{% include 'forms/estate_accounting_print.html' with show_actions=False view_only=True %}
+{% endblock %}

@@ -159,6 +159,7 @@
     .fb-13b { background: #fffbeb; color: #d97706; }
     .fb-13c { background: #f0fdf4; color: #16a34a; }
     .fb-131 { background: #f5f3ff; color: #7c3aed; }
+    .fb-estate { background: #fef3c7; color: #92400e; }
 
     .sb {
         display: inline-block;
@@ -281,7 +282,7 @@
                 <td style="white-space:nowrap; color:#64748b;">{{ print.printed_at|date:"M d, Y H:i" }}</td>
                 {% if showing_all %}<td><strong>{{ print.user.username }}</strong></td>{% endif %}
                 <td>
-                    <span class="fb {% if print.form_type == 'financial_statement' %}fb-13{% elif print.form_type == 'net_family_property_13b' %}fb-13b{% elif print.form_type == 'comparison_nfp' %}fb-13c{% else %}fb-131{% endif %}">
+                    <span class="fb {% if print.form_type == 'estate_accounting' %}fb-estate{% elif print.form_type == 'financial_statement' %}fb-13{% elif print.form_type == 'net_family_property_13b' %}fb-13b{% elif print.form_type == 'comparison_nfp' %}fb-13c{% else %}fb-131{% endif %}">
                         {{ print.get_form_type_display }}
                     </span>
                 </td>

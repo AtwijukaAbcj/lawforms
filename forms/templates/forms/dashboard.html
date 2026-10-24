@@ -300,6 +300,15 @@
       <p class="q-sub">Manage client/case master records</p>
     </div>
   </a>
+  {% if user_modules.estate_accounting or request.user.is_superuser %}
+  <a href="{% url 'estate_accounting_create' %}" class="q-card">
+    <div class="q-icon amber">📒</div>
+    <div>
+      <p class="q-title">Estate Accounting</p>
+      <p class="q-sub">Track estate assets and distributions</p>
+    </div>
+  </a>
+  {% endif %}
 {% if user_modules.application_divorce_8a or request.user.is_superuser %}
 <a href="{% url 'application_divorce_8a_create' %}" class="q-card">
   <div class="q-icon blue">
@@ -348,6 +357,41 @@
 </a>
 {% endif %}
 </div>
+
+{% if user_modules.estate_accounting or request.user.is_superuser %}
+<div class="form-section">
+  <div class="fs-head">
+    <div class="fs-head-left">
+      <div class="fs-icon amber">📒</div>
+      <span class="fs-title">Estate Accounting</span>
+      <span class="fs-count">{{ estate_accountings_count }}</span>
+    </div>
+    <div class="fs-actions">
+      <a href="{% url 'estate_accounting_create' %}" class="btn-create">+ New</a>
+      <a href="{% url 'estate_accounting_list' %}" class="btn-view-all">View All &rarr;</a>
+    </div>
+  </div>
+  {% if estate_accountings %}
+  <table class="dash-table">
+    <thead><tr><th>Deceased</th><th>Date of Death</th><th>Personal Representative</th><th>Updated</th><th>View</th><th>Print</th></tr></thead>
+    <tbody>
+      {% for accounting in estate_accountings %}
+      <tr>
+        <td>{{ accounting.deceased_name }}</td>
+        <td>{{ accounting.date_of_death|date:"M d, Y"|default:"—" }}</td>
+        <td>{{ accounting.personal_representative|default:"—" }}</td>
+        <td class="muted">{{ accounting.updated_at|date:"M d, Y" }}</td>
+        <td class="act-cell"><a href="{% url 'estate_accounting_view' accounting.pk %}" class="btn-tbl btn-tbl-edit">View</a></td>
+        <td class="act-cell"><a href="{% url 'estate_accounting_print' accounting.pk %}" class="btn-tbl btn-tbl-print" target="_blank">Print</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state"><h4>No estate accountings yet</h4><p><a href="{% url 'estate_accounting_create' %}">Create the first accounting</a></p></div>
+  {% endif %}
+</div>
+{% endif %}
 
 <!-- Financial Statements (Form 13) -->
 <div class="form-section">

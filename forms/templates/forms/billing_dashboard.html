@@ -87,6 +87,7 @@
   .print-row-icon.form131  { background: #f5f3ff; color: #7c3aed; }
   .print-row-icon.form13b  { background: #fffbeb; color: #d97706; }
   .print-row-icon.form13c  { background: #f0fdf4; color: #16a34a; }
+  .print-row-icon.estate   { background: #fef3c7; color: #92400e; }
   .print-row-info { flex: 1; min-width: 0; }
   .print-row-title { font-weight: 600; font-size: 13px; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .print-row-meta  { font-size: 12px; color: #94a3b8; margin-top: 1px; }
@@ -178,7 +179,7 @@
       {% if recent_prints %}
         {% for print in recent_prints %}
         <div class="print-row">
-          <div class="print-row-icon {% if print.form_type == 'financial_statement' %}form13{% elif print.form_type == 'financial_statement_131' %}form131{% elif print.form_type == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
+          <div class="print-row-icon {% if print.form_type == 'estate_accounting' %}estate{% elif print.form_type == 'financial_statement' %}form13{% elif print.form_type == 'financial_statement_131' %}form131{% elif print.form_type == 'net_family_property_13b' %}form13b{% else %}form13c{% endif %}">
             {% if print.form_type == 'financial_statement' or print.form_type == 'financial_statement_131' %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg>{% elif print.form_type == 'net_family_property_13b' %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>{% else %}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>{% endif %}
           </div>
           <div class="print-row-info">
@@ -229,7 +230,8 @@
           <div class="type-tile">
             <div class="tc">{{ item.count }}</div>
             <div class="tl">
-              {% if item.form_type == 'financial_statement' %}Form 13
+              {% if item.form_type == 'estate_accounting' %}Estate Accounting
+              {% elif item.form_type == 'financial_statement' %}Form 13
               {% elif item.form_type == 'financial_statement_131' %}Form 13.1
               {% elif item.form_type == 'net_family_property_13b' %}Form 13B
               {% else %}Form 13C{% endif %}

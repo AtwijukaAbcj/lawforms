@@ -19,6 +19,7 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse
 from datetime import date, datetime
 from decimal import Decimal
+from decimal import InvalidOperation
 
 # ...existing code...
 
@@ -29,7 +30,7 @@ from django.utils import timezone
 from functools import lru_cache
 from pathlib import Path
 from collections import OrderedDict
-from .models import AffidavitOfService, CaseFile, DivorceOrder, DivorceOrderA25A
+from .models import AffidavitOfService, CaseFile, DivorceOrder, DivorceOrderA25A, EstateAccounting
 from .forms import (
     AffidavitOfServiceForm,
     AffidavitServicePage1Form,
@@ -37,6 +38,7 @@ from .forms import (
     AffidavitServicePage3Form,
     DivorceOrderForm,
     DivorceOrderA25AForm,
+    EstateAccountingForm,
 )
 from .models import (
     # Base single-page models
@@ -499,6 +501,8 @@ def _user_has_permission_or_owner(user, module_code, permission_type, instance=N
 
     # If instance provided and links to a case_file with owner, allow owner
     if instance is not None:
+        if getattr(instance, 'created_by_id', None) == user.pk:
+            return True
         case = getattr(instance, 'case_file', None)
         if case and getattr(case, 'owner', None) == user:
             return True
@@ -823,6 +827,7 @@ def dashboard(request):
         ApplicationDivorce8A,
         CertificateOfDivorce,
         DivorceOrder,
+        EstateAccounting,
     )
 
     # =========================
@@ -865,6 +870,8 @@ def dashboard(request):
         DivorceOrder.objects.all()
         .order_by("-updated_at")
     )
+
+    estate_accountings = EstateAccounting.objects.all().order_by("-updated_at")
 
     # =========================
     # CONTEXT
@@ -921,6 +928,12 @@ def dashboard(request):
         "divorce_orders_count": divorce_orders.count(),
 
         # -------------------------
+        # Estate Accounting
+        # -------------------------
+        "estate_accountings": estate_accountings[:5],
+        "estate_accountings_count": estate_accountings.count(),
+
+        # -------------------------
         # Total Forms
         # -------------------------
         "total_forms": (
@@ -940,6 +953,8 @@ def dashboard(request):
             + certificates.count()
 
             + divorce_orders.count()
+
+            + estate_accountings.count()
 
         ),
     }
@@ -2919,11 +2934,13 @@ def recycle_bin(request):
     deleted_financial = FinancialStatement.deleted_objects.all().order_by('-deleted_at')
     deleted_13b = NetFamilyProperty13B.deleted_objects.all().order_by('-deleted_at')
     deleted_comparison = ComparisonNetFamilyProperty.deleted_objects.all().order_by('-deleted_at')
+    deleted_estate_accountings = EstateAccounting.deleted_objects.all().order_by('-deleted_at')
     
     return render(request, "forms/recycle_bin.html", {
         "deleted_financial": deleted_financial,
         "deleted_13b": deleted_13b,
         "deleted_comparison": deleted_comparison,
+        "deleted_estate_accountings": deleted_estate_accountings,
     })
 
 
@@ -2949,6 +2966,18 @@ def restore_form(request, form_type, pk):
         log_audit(request, 'update', 'comparison_nfp', pk, 
                   f"Comparison NFP #{pk}", "Restored from recycle bin")
         return redirect("recycle_bin")
+    elif form_type == "estate_accounting":
+        obj = get_object_or_404(EstateAccounting.deleted_objects, pk=pk)
+        obj.restore()
+        log_audit(
+            request,
+            "update",
+            "estate_accounting",
+            pk,
+            f"Estate Accounting #{pk}",
+            "Restored from recycle bin",
+        )
+        return redirect("recycle_bin")
     return redirect("recycle_bin")
 
 
@@ -2968,6 +2997,10 @@ def permanent_delete(request, form_type, pk):
         obj = get_object_or_404(ComparisonNetFamilyProperty.deleted_objects, pk=pk)
         object_name = f"Comparison of NFP #{obj.id}"
         module_name = 'comparison_nfp'
+    elif form_type == "estate_accounting":
+        obj = get_object_or_404(EstateAccounting.deleted_objects, pk=pk)
+        object_name = f"Estate Accounting for {obj.deceased_name}"
+        module_name = "estate_accounting"
     else:
         return redirect("recycle_bin")
     
@@ -2992,14 +3025,16 @@ def empty_recycle_bin(request):
     financial_count = FinancialStatement.deleted_objects.count()
     nfp13b_count = NetFamilyProperty13B.deleted_objects.count()
     comparison_count = ComparisonNetFamilyProperty.deleted_objects.count()
+    estate_count = EstateAccounting.deleted_objects.count()
     
     FinancialStatement.deleted_objects.all().delete()
     NetFamilyProperty13B.deleted_objects.all().delete()
     ComparisonNetFamilyProperty.deleted_objects.all().delete()
+    EstateAccounting.deleted_objects.all().delete()
     
     # Audit log for emptying recycle bin
     log_audit(request, 'delete', 'recycle_bin', '', 'Recycle Bin', 
-              f"Emptied recycle bin - Deleted: {financial_count} Form 13, {nfp13b_count} Form 13B, {comparison_count} Form 13C")
+              f"Emptied recycle bin - Deleted: {financial_count} Form 13, {nfp13b_count} Form 13B, {comparison_count} Form 13C, {estate_count} Estate Accounting records")
     
     return redirect("recycle_bin")
 
@@ -3970,6 +4005,17 @@ from datetime import datetime, timedelta
 from .models import BillingSetting
 
 
+def _ensure_billing_settings():
+    for form_type, display_name in PrintEvent.FORM_TYPE_CHOICES:
+        BillingSetting.objects.get_or_create(
+            form_type=form_type,
+            defaults={
+                "form_display_name": display_name,
+                "price_per_print": Decimal("1.00"),
+            },
+        )
+
+
 @login_required
 def billing_dashboard(request):
     """Dashboard showing print statistics and billing information."""
@@ -4032,7 +4078,7 @@ def billing_dashboard(request):
         total=Sum('price_charged')
     ).order_by('date')
     
-    # Get billing settings for price display
+    _ensure_billing_settings()
     billing_settings = BillingSetting.objects.filter(is_active=True)
     
 
@@ -4148,15 +4194,7 @@ def billing_settings_view(request):
             log_audit(request, action, 'billing_settings', form_type, 
                       f"Billing Setting - {setting.form_display_name}", details)
     
-    # Ensure all form types have billing settings (add any missing ones)
-    for form_type, display_name in PrintEvent.FORM_TYPE_CHOICES:
-        BillingSetting.objects.get_or_create(
-            form_type=form_type,
-            defaults={
-                'form_display_name': display_name,
-                'price_per_print': Decimal('1.00')
-            }
-        )
+    _ensure_billing_settings()
     settings = BillingSetting.objects.all()
     
     context = {
@@ -4578,7 +4616,7 @@ def email_settings_view(request):
     return render(request, 'forms/email_settings.html', context)
 
 from django.contrib.auth.decorators import login_required
-from .models import ApplicationDivorce8A, AffidavitOfService, PrintEvent, FinancialStatement, Form131FinancialStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty
+from .models import ApplicationDivorce8A, AffidavitOfService, PrintEvent, FinancialStatement, Form131FinancialStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty, EstateAccounting
 
 @login_required
 def view_printed_copy(request, print_event_id):
@@ -4693,6 +4731,16 @@ def view_printed_copy(request, print_event_id):
         template = 'forms/affidavit_service_print_view.html'
         context = {
             'affidavit': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
+    elif print_event.form_type == 'estate_accounting':
+        form_obj = EstateAccounting.all_objects.filter(pk=print_event.form_id).first()
+        template = 'forms/estate_accounting_printed_view.html'
+        context = {
+            'accounting': form_obj,
+            'sections': _estate_rows_for_render(form_obj.schedules) if form_obj else [],
+            'totals': _estate_accounting_totals(form_obj) if form_obj else {},
             'print_event': print_event,
             'view_only': True,
         }
@@ -6019,4 +6067,333 @@ def application_divorce_8a_delete(request, pk):
         "object": item,
         "object_label": "Form 8A Divorce Application",
         "cancel_url": "application_divorce_8a_list",
+    })
+
+
+ESTATE_ACCOUNTING_SECTIONS = [
+    {
+        "key": "assets",
+        "title": "1. Estate Assets",
+        "defaults": [
+            {"description": "House – [address]"},
+            {"description": "House – [address]"},
+            {"description": "Bank Account"},
+            {"description": "Investment Account"},
+            {"description": "Vehicle"},
+            {"description": "Personal Property"},
+            {"description": "Other"},
+        ],
+        "fields": [
+            {"name": "description", "label": "Asset / Description", "type": "text"},
+            {"name": "institution", "label": "Institution / Location", "type": "text"},
+            {"name": "death_value", "label": "Date of Death Value", "type": "number"},
+            {"name": "proceeds", "label": "Current Value / Sale Proceeds", "type": "number"},
+            {"name": "date_received", "label": "Date Received / Sold", "type": "date"},
+            {"name": "expenses", "label": "Expenses Related to Asset", "type": "number"},
+        ],
+    },
+    {
+        "key": "expenses",
+        "title": "2. Estate Expenses",
+        "defaults": [
+            {"description": "Funeral expenses", "category": "Funeral"},
+            {"description": "Legal fees", "category": "Professional"},
+            {"description": "Accounting fees", "category": "Professional"},
+            {"description": "Probate / Estate Administration Tax", "category": "Taxes"},
+            {"description": "Property taxes", "category": "Property"},
+            {"description": "Utilities", "category": "Property"},
+            {"description": "Insurance", "category": "Property"},
+            {"description": "Repairs / maintenance", "category": "Property"},
+            {"description": "Real estate commission", "category": "Sale costs"},
+            {"description": "Other", "category": "Other"},
+        ],
+        "fields": [
+            {"name": "date", "label": "Date", "type": "date"},
+            {"name": "description", "label": "Expense / Description", "type": "text"},
+            {"name": "paid_to", "label": "Paid To", "type": "text"},
+            {"name": "amount", "label": "Amount", "type": "number"},
+            {"name": "reference", "label": "Cheque / Payment Ref.", "type": "text"},
+            {"name": "category", "label": "Category", "type": "text"},
+        ],
+    },
+    {
+        "key": "receipts",
+        "title": "3. Estate Income / Receipts",
+        "defaults": [
+            {"description": "Sale of property", "deposited_to": "Estate Account"},
+            {"description": "Bank interest", "deposited_to": "Estate Account"},
+            {"description": "Investment income", "deposited_to": "Estate Account"},
+            {"description": "Tax refund", "deposited_to": "Estate Account"},
+            {"description": "Other", "deposited_to": "Estate Account"},
+        ],
+        "fields": [
+            {"name": "date", "label": "Date", "type": "date"},
+            {"name": "description", "label": "Description", "type": "text"},
+            {"name": "received_from", "label": "Received From", "type": "text"},
+            {"name": "amount", "label": "Amount", "type": "number"},
+            {"name": "deposited_to", "label": "Deposited To", "type": "text"},
+        ],
+    },
+    {
+        "key": "distributions",
+        "title": "5. Beneficiary Distributions",
+        "defaults": [{}, {}, {}],
+        "fields": [
+            {"name": "beneficiary", "label": "Beneficiary", "type": "text"},
+            {"name": "entitlement", "label": "Entitlement", "type": "number"},
+            {"name": "date_paid", "label": "Date Paid", "type": "date"},
+            {"name": "amount_paid", "label": "Amount Paid", "type": "number"},
+        ],
+    },
+]
+
+ESTATE_MONEY_FIELDS = {
+    "assets": {"death_value", "proceeds", "expenses"},
+    "expenses": {"amount"},
+    "receipts": {"amount"},
+    "distributions": {"entitlement", "amount_paid"},
+}
+
+
+def _estate_rows_for_render(schedules=None):
+    schedules = schedules or {}
+    sections = []
+    for section in ESTATE_ACCOUNTING_SECTIONS:
+        values = schedules.get(section["key"])
+        if section["key"] in schedules and isinstance(values, list):
+            rows = values or [{}]
+        else:
+            rows = section["defaults"]
+        rendered_rows = []
+        for index, row in enumerate(rows):
+            if not isinstance(row, dict):
+                row = {}
+            row_values = dict(row)
+            if section["key"] == "assets":
+                try:
+                    net_amount = Decimal(str(row.get("proceeds") or "0")) - Decimal(str(row.get("expenses") or "0"))
+                    row_values["net_amount"] = format(net_amount, ".2f")
+                except InvalidOperation:
+                    row_values["net_amount"] = ""
+            elif section["key"] == "distributions":
+                try:
+                    balance_remaining = Decimal(str(row.get("entitlement") or "0")) - Decimal(str(row.get("amount_paid") or "0"))
+                    row_values["balance_remaining"] = format(balance_remaining, ".2f")
+                except InvalidOperation:
+                    row_values["balance_remaining"] = ""
+            rendered_rows.append({"index": index, "values": row_values})
+        sections.append({**section, "rows": rendered_rows})
+    return sections
+
+
+def _read_estate_schedules(post_data):
+    schedules = {}
+    errors = []
+    for section in ESTATE_ACCOUNTING_SECTIONS:
+        key = section["key"]
+        try:
+            count = int(post_data.get(f"{key}_count", len(section["defaults"])))
+        except (TypeError, ValueError):
+            errors.append(f"{section['title']}: invalid row count.")
+            count = len(section["defaults"])
+        if count < 0 or count > 100:
+            errors.append(f"{section['title']}: include between 0 and 100 rows.")
+            count = min(max(count, 0), 100)
+
+        rows = []
+        for index in range(count):
+            row = {}
+            for field in section["fields"]:
+                name = field["name"]
+                value = post_data.get(f"{key}_{index}_{name}", "").strip()
+                if name in ESTATE_MONEY_FIELDS[key] and value:
+                    try:
+                        amount = Decimal(value)
+                        if not amount.is_finite():
+                            raise InvalidOperation
+                        value = format(amount.quantize(Decimal("0.01")), ".2f")
+                    except (InvalidOperation, ValueError):
+                        errors.append(f"{section['title']}, row {index + 1}: enter a valid amount for {field['label'].lower()}.")
+                elif field["type"] == "date" and value:
+                    try:
+                        date.fromisoformat(value)
+                    except ValueError:
+                        errors.append(f"{section['title']}, row {index + 1}: enter a valid date for {field['label'].lower()}.")
+                row[name] = value
+            if any(row.values()):
+                rows.append(row)
+        schedules[key] = rows
+    return schedules, errors
+
+
+def _estate_accounting_totals(accounting):
+    schedules = accounting.schedules or {}
+
+    def amount(section, field):
+        return sum(
+            (Decimal(str(row.get(field) or "0")) for row in schedules.get(section, [])),
+            Decimal("0.00"),
+        )
+
+    assets_realized = amount("assets", "proceeds")
+    asset_date_value = amount("assets", "death_value")
+    asset_expenses = amount("assets", "expenses")
+    receipts = amount("receipts", "amount")
+    expenses = amount("expenses", "amount")
+    distributions = amount("distributions", "amount_paid")
+    return {
+        "assets_realized": assets_realized,
+        "asset_date_value": asset_date_value,
+        "asset_expenses": asset_expenses,
+        "asset_net": assets_realized - asset_expenses,
+        "receipts": receipts,
+        "funds_available": assets_realized + receipts,
+        "expenses": expenses,
+        "distributions": distributions,
+        "balance": assets_realized + receipts - expenses - distributions,
+    }
+
+
+def _estate_accounting_access(request, accounting, permission):
+    if _user_has_permission_or_owner(
+        request.user,
+        "estate_accounting",
+        permission,
+        instance=accounting,
+    ):
+        return True
+    messages.error(request, f"You don't have permission to {permission} this Estate Accounting.")
+    return False
+
+
+@login_required
+def estate_accounting_list(request):
+    if not _user_has_permission_or_owner(request.user, "estate_accounting", "view"):
+        messages.error(request, "You don't have permission to view Estate Accounting.")
+        return redirect("dashboard")
+    accountings = EstateAccounting.objects.select_related("created_by").order_by("-updated_at")
+    perms = user_permissions(request).get("user_permissions", {}).get("estate_accounting", {})
+    for accounting in accountings:
+        accounting.can_edit = request.user.is_superuser or perms.get("edit", False) or accounting.created_by_id == request.user.pk
+        accounting.can_print = request.user.is_superuser or perms.get("print", False) or accounting.created_by_id == request.user.pk
+        accounting.can_delete = request.user.is_superuser or perms.get("delete", False) or accounting.created_by_id == request.user.pk
+    return render(request, "forms/estate_accounting_list.html", {"accountings": accountings})
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def estate_accounting_form(request, pk=None):
+    accounting = get_object_or_404(EstateAccounting, pk=pk) if pk else None
+    permission = "edit" if accounting else "create"
+    if accounting and not _estate_accounting_access(request, accounting, permission):
+        return redirect("estate_accounting_list")
+    if not accounting and not _user_has_permission_or_owner(request.user, "estate_accounting", permission):
+        messages.error(request, "You don't have permission to create Estate Accounting.")
+        return redirect("estate_accounting_list")
+
+    form = EstateAccountingForm(request.POST or None, instance=accounting)
+    schedules = accounting.schedules if accounting else {}
+    schedule_errors = []
+    if request.method == "POST":
+        schedules, schedule_errors = _read_estate_schedules(request.POST)
+        if form.is_valid() and not schedule_errors:
+            accounting = form.save(commit=False)
+            if accounting.pk is None:
+                accounting.created_by = request.user
+            accounting.schedules = schedules
+            accounting.save()
+            action = "update" if pk else "create"
+            log_audit(
+                request,
+                action,
+                "estate_accounting",
+                accounting.pk,
+                f"Estate Accounting #{accounting.pk}",
+                f"{accounting.deceased_name}",
+            )
+            messages.success(request, "Estate Accounting saved successfully.")
+            return redirect("estate_accounting_view", pk=accounting.pk)
+        if schedule_errors:
+            messages.error(request, "Please correct the schedule errors below.")
+
+    return render(request, "forms/estate_accounting_form.html", {
+        "form": form,
+        "accounting": accounting,
+        "sections": _estate_rows_for_render(schedules),
+        "schedule_errors": schedule_errors,
+    })
+
+
+@login_required
+def estate_accounting_view(request, pk):
+    accounting = get_object_or_404(EstateAccounting, pk=pk)
+    if not _estate_accounting_access(request, accounting, "view"):
+        return redirect("estate_accounting_list")
+    permissions = user_permissions(request).get("user_permissions", {}).get("estate_accounting", {})
+    return render(request, "forms/estate_accounting_print.html", {
+        "accounting": accounting,
+        "sections": _estate_rows_for_render(accounting.schedules),
+        "totals": _estate_accounting_totals(accounting),
+        "show_actions": True,
+        "can_edit": request.user.is_superuser or permissions.get("edit", False) or accounting.created_by_id == request.user.pk,
+        "can_print": request.user.is_superuser or permissions.get("print", False) or accounting.created_by_id == request.user.pk,
+        "can_delete": request.user.is_superuser or permissions.get("delete", False) or accounting.created_by_id == request.user.pk,
+    })
+
+
+@login_required
+def estate_accounting_print(request, pk):
+    accounting = get_object_or_404(EstateAccounting, pk=pk)
+    if not _estate_accounting_access(request, accounting, "print"):
+        return redirect("estate_accounting_view", pk=pk)
+    print_event = PrintEvent.log_print(
+        user=request.user,
+        form_type="estate_accounting",
+        form_id=pk,
+        form_identifier=accounting.deceased_name,
+    )
+    log_audit(
+        request,
+        "export",
+        "estate_accounting",
+        pk,
+        f"Estate Accounting #{pk}",
+        f"Printed - Price: ${print_event.price_charged}",
+    )
+    send_form_printed_notification(
+        "estate_accounting",
+        accounting,
+        request.user,
+        print_event.price_charged,
+    )
+    return render(request, "forms/estate_accounting_print.html", {
+        "accounting": accounting,
+        "sections": _estate_rows_for_render(accounting.schedules),
+        "totals": _estate_accounting_totals(accounting),
+        "print_event": print_event,
+    })
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def estate_accounting_delete(request, pk):
+    accounting = get_object_or_404(EstateAccounting.all_objects, pk=pk)
+    if not _estate_accounting_access(request, accounting, "delete"):
+        return redirect("estate_accounting_list")
+    if request.method == "POST":
+        accounting.soft_delete()
+        log_audit(
+            request,
+            "delete",
+            "estate_accounting",
+            pk,
+            f"Estate Accounting #{pk}",
+            f"Moved to recycle bin - {accounting.deceased_name}",
+        )
+        messages.success(request, "Estate Accounting moved to the recycle bin.")
+        return redirect("estate_accounting_list")
+    return render(request, "forms/confirm_delete.html", {
+        "object": accounting,
+        "object_name": f"Estate Accounting for {accounting.deceased_name}",
+        "cancel_url": "estate_accounting_list",
     })

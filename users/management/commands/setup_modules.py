@@ -21,6 +21,12 @@ class Command(BaseCommand):
                 'icon': '📄',
             },
             {
+                'name': 'Estate Accounting',
+                'code': 'estate_accounting',
+                'description': 'Create, manage, and print estate asset, receipt, expense, and distribution accounts',
+                'icon': '📒',
+            },
+            {
                 'name': 'Financial Statement (Form 13.1)',
                 'code': 'financial_statement_131',
                 'description': 'Create and manage Financial Statement - Property and Support Claims (Form 13.1)',
@@ -90,6 +96,15 @@ class Command(BaseCommand):
             else:
                 self.stdout.write(f'Module already exists: {module.name}')
 
+        estate_module = Module.objects.get(code='estate_accounting')
+        estate_permissions = {
+            permission_type: Permission.objects.get_or_create(
+                module=estate_module,
+                permission_type=permission_type,
+            )[0]
+            for permission_type in permission_types
+        }
+
         # Create default roles
         roles_data = [
             {
@@ -128,5 +143,13 @@ class Command(BaseCommand):
                 self.stdout.write(f'  - Assigned {role.permissions.count()} permissions')
             else:
                 self.stdout.write(f'Role already exists: {role.name}')
+
+            if role_data['name'] == 'Administrator':
+                role.permissions.add(*estate_permissions.values())
+            else:
+                role.permissions.add(*[
+                    estate_permissions[permission_type]
+                    for permission_type in role_data['permissions']
+                ])
 
         self.stdout.write(self.style.SUCCESS('\nSetup complete!'))
