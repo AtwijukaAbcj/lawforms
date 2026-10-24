@@ -28,9 +28,10 @@
   .ea-note{font-size:12px;color:#475569;margin:12px 0 0}
   @media(max-width:700px){.ea-meta{grid-template-columns:1fr}}
   @media print{
+    html,body{width:100%!important;height:auto!important;min-height:0!important;margin:0!important}
     .sidebar,.topbar,.ea-actions,.footer,.messages{display:none!important}
-    .main-content,.content-wrapper{margin:0!important;padding:0!important}
-    .ea-print-wrap{max-width:none;margin:0;padding:0}
+    .main,.page-card,.main-content,.content-wrapper{width:100%!important;max-width:none!important;margin:0!important;padding:0!important;box-sizing:border-box!important}
+    .ea-print-wrap{display:block;width:100%!important;max-width:none;margin:0;padding:0;box-sizing:border-box}
     .ea-panel,.ea-section{border:0;border-radius:0;padding:6px 0;margin-bottom:12px}
     .ea-section{break-inside:avoid}
     .ea-table{font-size:10pt}

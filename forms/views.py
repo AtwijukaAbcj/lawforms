@@ -6236,14 +6236,18 @@ def _read_estate_schedules(post_data):
     return schedules, errors
 
 
-def _estate_accounting_totals(accounting):
-    schedules = accounting.schedules or {}
-
+def _estate_accounting_totals_from_schedules(schedules=None):
+    schedules = schedules or {}
     def amount(section, field):
-        return sum(
-            (Decimal(str(row.get(field) or "0")) for row in schedules.get(section, [])),
-            Decimal("0.00"),
-        )
+        total = Decimal("0.00")
+        for row in schedules.get(section, []):
+            try:
+                value = Decimal(str(row.get(field) or "0"))
+                if value.is_finite():
+                    total += value
+            except (InvalidOperation, ValueError):
+                continue
+        return total
 
     assets_realized = amount("assets", "proceeds")
     asset_date_value = amount("assets", "death_value")
@@ -6262,6 +6266,10 @@ def _estate_accounting_totals(accounting):
         "distributions": distributions,
         "balance": assets_realized + receipts - expenses - distributions,
     }
+
+
+def _estate_accounting_totals(accounting):
+    return _estate_accounting_totals_from_schedules(accounting.schedules)
 
 
 def _estate_accounting_access(request, permission):
@@ -6328,6 +6336,7 @@ def estate_accounting_form(request, pk=None):
         "form": form,
         "accounting": accounting,
         "sections": _estate_rows_for_render(schedules),
+        "totals": _estate_accounting_totals_from_schedules(schedules),
         "schedule_errors": schedule_errors,
     })
 

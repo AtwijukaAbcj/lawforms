@@ -21,6 +21,12 @@
   .ea-money-input{display:flex;min-width:125px;align-items:stretch}
   .ea-money-input span{display:flex;align-items:center;padding:0 8px;background:#f8fafc;border:1px solid #cbd5e1;border-right:0;border-radius:4px 0 0 4px;color:#475569}
   .ea-money-input input{flex:1;min-width:75px;border-radius:0 4px 4px 0}
+  .ea-calculated{min-width:125px;text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ea-live-summary{display:grid;grid-template-columns:repeat(3,minmax(180px,1fr));gap:10px}
+  .ea-live-summary div{padding:10px 12px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:7px}
+  .ea-live-summary span{display:block;font-size:11px;color:#64748b}
+  .ea-live-summary output{display:block;margin-top:3px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+  .ea-live-summary .ea-live-balance{background:#eff6ff;border-color:#bfdbfe}
   .ea-table input[type=date]{min-width:140px}
   .ea-index{width:34px;text-align:center;color:#475569}
   .ea-remove{border:0;background:#fee2e2;color:#991b1b;border-radius:4px;padding:6px 8px;cursor:pointer}
@@ -61,7 +67,7 @@
       <div class="ea-table-wrap">
         <table class="ea-table">
           <thead>
-            <tr><th class="ea-index">#</th>{% for field in section.fields %}<th>{{ field.label }}</th>{% endfor %}<th></th></tr>
+            <tr><th class="ea-index">#</th>{% for field in section.fields %}<th>{{ field.label }}</th>{% endfor %}{% if section.key == "assets" %}<th>Net Amount</th>{% elif section.key == "distributions" %}<th>Balance Remaining</th>{% endif %}<th></th></tr>
           </thead>
           <tbody class="ea-rows" data-section="{{ section.key }}">
             {% for row in section.rows %}
@@ -74,6 +80,7 @@
                 {% if field.type == "number" %}</div>{% endif %}
               </td>
               {% endfor %}
+              {% if section.key == "assets" %}<td class="ea-calculated" data-row-net>${{ row.values.net_amount|default:"0.00" }}</td>{% elif section.key == "distributions" %}<td class="ea-calculated" data-row-balance>${{ row.values.balance_remaining|default:"0.00" }}</td>{% endif %}
               <td><button type="button" class="ea-remove" aria-label="Remove row">Remove</button></td>
             </tr>
             {% endfor %}
@@ -84,38 +91,117 @@
       <button type="button" class="ea-add">+ Add row</button>
     </section>
     {% endfor %}
+    <section class="ea-card" aria-live="polite">
+      <h2>Estate Reconciliation</h2>
+      <div class="ea-live-summary">
+        <div><span>Total assets at date of death</span><output data-total="asset-date-value">${{ totals.asset_date_value|floatformat:2 }}</output></div>
+        <div><span>Total assets realized</span><output data-total="assets-realized">${{ totals.assets_realized|floatformat:2 }}</output></div>
+        <div><span>Asset-related expenses</span><output data-total="asset-expenses">${{ totals.asset_expenses|floatformat:2 }}</output></div>
+        <div><span>Net assets realized</span><output data-total="asset-net">${{ totals.asset_net|floatformat:2 }}</output></div>
+        <div><span>Estate income / receipts</span><output data-total="receipts">${{ totals.receipts|floatformat:2 }}</output></div>
+        <div><span>Total funds available</span><output data-total="funds-available">${{ totals.funds_available|floatformat:2 }}</output></div>
+        <div><span>Estate expenses</span><output data-total="expenses">${{ totals.expenses|floatformat:2 }}</output></div>
+        <div><span>Beneficiary distributions</span><output data-total="distributions">${{ totals.distributions|floatformat:2 }}</output></div>
+        <div class="ea-live-balance"><span>Balance remaining in estate</span><output data-total="balance">${{ totals.balance|floatformat:2 }}</output></div>
+      </div>
+      <p class="ea-help">Totals update as you enter or change amounts. All amounts are in Canadian dollars (CAD).</p>
+    </section>
     <button class="ea-save" type="submit">Save Estate Accounting</button>
     <a class="ea-cancel" href="{% url 'estate_accounting_list' %}">Cancel</a>
   </form>
 </div>
 <script>
-document.querySelectorAll('.ea-rows').forEach(function(body) {
+const estateForm = document.querySelector('.ea-wrap form');
+function estateCents(value) {
+  const amount = Number(value);
+  return Number.isFinite(amount) ? Math.round(amount * 100) : 0;
+}
+function estateMoney(value) {
+  return '$' + (value / 100).toLocaleString('en-CA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+function estateSum(section, field) {
+  const rows = estateForm.querySelectorAll('.ea-rows[data-section="' + section + '"] [data-row]');
+  return Array.from(rows).reduce(function(total, row) {
+    const input = row.querySelector('[name$="_' + field + '"]');
+    return total + (input ? estateCents(input.value) : 0);
+  }, 0);
+}
+function updateEstateCalculations() {
+  estateForm.querySelectorAll('.ea-rows[data-section="assets"] [data-row]').forEach(function(row) {
+    const proceeds = row.querySelector('[name$="_proceeds"]');
+    const expenses = row.querySelector('[name$="_expenses"]');
+    row.querySelector('[data-row-net]').textContent = estateMoney(
+      estateCents(proceeds.value) - estateCents(expenses.value)
+    );
+  });
+  estateForm.querySelectorAll('.ea-rows[data-section="distributions"] [data-row]').forEach(function(row) {
+    const entitlement = row.querySelector('[name$="_entitlement"]');
+    const paid = row.querySelector('[name$="_amount_paid"]');
+    row.querySelector('[data-row-balance]').textContent = estateMoney(
+      estateCents(entitlement.value) - estateCents(paid.value)
+    );
+  });
+
+  const assetDateValue = estateSum('assets', 'death_value');
+  const assetsRealized = estateSum('assets', 'proceeds');
+  const assetExpenses = estateSum('assets', 'expenses');
+  const receipts = estateSum('receipts', 'amount');
+  const expenses = estateSum('expenses', 'amount');
+  const distributions = estateSum('distributions', 'amount_paid');
+  const totals = {
+    'asset-date-value': assetDateValue,
+    'assets-realized': assetsRealized,
+    'asset-expenses': assetExpenses,
+    'asset-net': assetsRealized - assetExpenses,
+    receipts: receipts,
+    'funds-available': assetsRealized + receipts,
+    expenses: expenses,
+    distributions: distributions,
+    balance: assetsRealized + receipts - expenses - distributions
+  };
+  Object.keys(totals).forEach(function(key) {
+    const output = estateForm.querySelector('[data-total="' + key + '"]');
+    output.textContent = estateMoney(totals[key]);
+  });
+}
+estateForm.addEventListener('input', updateEstateCalculations);
+estateForm.addEventListener('click', function(event) {
+  if (event.target.classList.contains('ea-remove')) {
+    const body = event.target.closest('.ea-rows');
+    if (body.querySelectorAll('[data-row]').length > 1) {
+      event.target.closest('[data-row]').remove();
+      syncEstateRows(body);
+      updateEstateCalculations();
+    }
+  }
+});
+function syncEstateRows(body) {
   const section = body.dataset.section;
   const count = body.closest('section').querySelector('[data-count]');
-  function syncRows() {
-    body.querySelectorAll('[data-row]').forEach(function(row, index) {
-      row.querySelector('.ea-index').textContent = index + 1;
-      row.querySelectorAll('input').forEach(function(input) {
-        input.name = input.name.replace(new RegExp(section + '_\\d+_'), section + '_' + index + '_');
-      });
+  body.querySelectorAll('[data-row]').forEach(function(row, index) {
+    row.querySelector('.ea-index').textContent = index + 1;
+    row.querySelectorAll('input').forEach(function(input) {
+      input.name = input.name.replace(new RegExp(section + '_\\d+_'), section + '_' + index + '_');
+      input.setAttribute('aria-label', input.getAttribute('aria-label').replace(/row \d+$/, 'row ' + (index + 1)));
     });
-    count.value = body.querySelectorAll('[data-row]').length;
-  }
-  body.addEventListener('click', function(event) {
-    if (event.target.classList.contains('ea-remove')) {
-      if (body.querySelectorAll('[data-row]').length > 1) {
-        event.target.closest('[data-row]').remove();
-        syncRows();
-      }
-    }
   });
+  count.value = body.querySelectorAll('[data-row]').length;
+}
+estateForm.querySelectorAll('.ea-rows').forEach(function(body) {
   body.closest('section').querySelector('.ea-add').addEventListener('click', function() {
     const row = body.querySelector('[data-row]').cloneNode(true);
     row.querySelectorAll('input').forEach(function(input) { input.value = ''; });
+    const calculated = row.querySelector('[data-row-net], [data-row-balance]');
+    if (calculated) calculated.textContent = '$0.00';
     body.appendChild(row);
-    syncRows();
+    syncEstateRows(body);
+    updateEstateCalculations();
   });
-  syncRows();
+  syncEstateRows(body);
 });
+updateEstateCalculations();
 </script>
 {% endblock %}

@@ -466,12 +466,24 @@ class EstateAccountingTests(TestCase):
             created_by=self.user,
             deceased_name="Test Estate",
             schedules={
+                "assets": [{
+                    "description": "Estate property",
+                    "death_value": "1000.00",
+                    "proceeds": "1200.00",
+                    "expenses": "100.00",
+                }],
                 "expenses": [{
                     "description": "Funeral expenses",
                     "paid_to": "None",
                     "amount": "250.00",
                     "reference": " None ",
                     "category": "Funeral",
+                }],
+                "receipts": [{"description": "Interest", "amount": "50.00"}],
+                "distributions": [{
+                    "beneficiary": "Beneficiary",
+                    "entitlement": "500.00",
+                    "amount_paid": "200.00",
                 }],
             },
         )
@@ -484,6 +496,11 @@ class EstateAccountingTests(TestCase):
         self.assertContains(response, 'name="expenses_0_reference" value=""')
         self.assertContains(response, '<span aria-hidden="true">$</span>')
         self.assertContains(response, 'name="expenses_0_amount" value="250.00"')
+        self.assertContains(response, 'data-total="assets-realized">$1200.00</output>')
+        self.assertContains(response, 'data-total="balance">$800.00</output>')
+        self.assertContains(response, 'data-row-net>$1100.00</td>')
+        self.assertContains(response, 'data-row-balance>$300.00</td>')
+        self.assertContains(response, "updateEstateCalculations")
 
     def test_estate_accounting_saves_schedules_and_reconciles(self):
         response = self.client.post("/forms/estate-accounting/new/", {
@@ -517,6 +534,8 @@ class EstateAccountingTests(TestCase):
         response = self.client.get(f"/forms/estate-accounting/{accounting.pk}/view/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Balance remaining in Estate Account")
+        self.assertContains(response, "html,body{width:100%!important")
+        self.assertContains(response, ".main,.page-card,.main-content,.content-wrapper{width:100%!important")
         self.assertContains(response, "$77600.00")
         self.assertContains(response, "$30000.00")
         self.assertContains(response, "$99500.00")
