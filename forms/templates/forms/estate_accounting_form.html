@@ -18,6 +18,9 @@
   .ea-table td{padding:4px;border:1px solid #cbd5e1}
   .ea-table input{width:100%;min-width:90px;height:35px;border:1px solid #cbd5e1;border-radius:4px;padding:5px}
   .ea-table input[type=number]{min-width:105px}
+  .ea-money-input{display:flex;min-width:125px;align-items:stretch}
+  .ea-money-input span{display:flex;align-items:center;padding:0 8px;background:#f8fafc;border:1px solid #cbd5e1;border-right:0;border-radius:4px 0 0 4px;color:#475569}
+  .ea-money-input input{flex:1;min-width:75px;border-radius:0 4px 4px 0}
   .ea-table input[type=date]{min-width:140px}
   .ea-index{width:34px;text-align:center;color:#475569}
   .ea-remove{border:0;background:#fee2e2;color:#991b1b;border-radius:4px;padding:6px 8px;cursor:pointer}
@@ -65,7 +68,11 @@
             <tr data-row>
               <td class="ea-index">{{ forloop.counter }}</td>
               {% for field in section.fields %}
-              <td><input type="{{ field.type }}" {% if field.type == "number" %}step="0.01"{% endif %} name="{{ section.key }}_{{ row.index }}_{{ field.name }}" value="{{ row.values|get_item:field.name }}" aria-label="{{ field.label }} row {{ forloop.parentloop.counter }}"></td>
+              <td>
+                {% if field.type == "number" %}<div class="ea-money-input"><span aria-hidden="true">$</span>{% endif %}
+                <input type="{{ field.type }}" {% if field.type == "number" %}step="0.01"{% endif %} name="{{ section.key }}_{{ row.index }}_{{ field.name }}" value="{{ row.values|get_item:field.name|default_if_none:'' }}" aria-label="{{ field.label }} row {{ forloop.parentloop.counter }}">
+                {% if field.type == "number" %}</div>{% endif %}
+              </td>
               {% endfor %}
               <td><button type="button" class="ea-remove" aria-label="Remove row">Remove</button></td>
             </tr>

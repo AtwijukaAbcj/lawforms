@@ -6168,16 +6168,24 @@ def _estate_rows_for_render(schedules=None):
         for index, row in enumerate(rows):
             if not isinstance(row, dict):
                 row = {}
-            row_values = dict(row)
+            row_values = {
+                name: (
+                    ""
+                    if value is None
+                    or (isinstance(value, str) and value.strip().casefold() == "none")
+                    else value
+                )
+                for name, value in row.items()
+            }
             if section["key"] == "assets":
                 try:
-                    net_amount = Decimal(str(row.get("proceeds") or "0")) - Decimal(str(row.get("expenses") or "0"))
+                    net_amount = Decimal(str(row_values.get("proceeds") or "0")) - Decimal(str(row_values.get("expenses") or "0"))
                     row_values["net_amount"] = format(net_amount, ".2f")
                 except InvalidOperation:
                     row_values["net_amount"] = ""
             elif section["key"] == "distributions":
                 try:
-                    balance_remaining = Decimal(str(row.get("entitlement") or "0")) - Decimal(str(row.get("amount_paid") or "0"))
+                    balance_remaining = Decimal(str(row_values.get("entitlement") or "0")) - Decimal(str(row_values.get("amount_paid") or "0"))
                     row_values["balance_remaining"] = format(balance_remaining, ".2f")
                 except InvalidOperation:
                     row_values["balance_remaining"] = ""
@@ -6206,6 +6214,8 @@ def _read_estate_schedules(post_data):
             for field in section["fields"]:
                 name = field["name"]
                 value = post_data.get(f"{key}_{index}_{name}", "").strip()
+                if value.casefold() == "none":
+                    value = ""
                 if name in ESTATE_MONEY_FIELDS[key] and value:
                     try:
                         amount = Decimal(value)

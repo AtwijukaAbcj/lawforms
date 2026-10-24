@@ -372,7 +372,6 @@ class CaseFileTests(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertContains(resp, 'Schedule A')
 
-
 class EstateAccountingTests(TestCase):
     def setUp(self):
         self.client = Client()
@@ -461,6 +460,30 @@ class EstateAccountingTests(TestCase):
         response = self.client.get("/forms/dashboard/")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Estate Accounting")
+
+    def test_estate_accounting_form_blanks_none_and_marks_currency_inputs(self):
+        accounting = EstateAccounting.objects.create(
+            created_by=self.user,
+            deceased_name="Test Estate",
+            schedules={
+                "expenses": [{
+                    "description": "Funeral expenses",
+                    "paid_to": "None",
+                    "amount": "250.00",
+                    "reference": " None ",
+                    "category": "Funeral",
+                }],
+            },
+        )
+
+        response = self.client.get(f"/forms/estate-accounting/{accounting.pk}/edit/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'value="None"')
+        self.assertContains(response, 'name="expenses_0_paid_to" value=""')
+        self.assertContains(response, 'name="expenses_0_reference" value=""')
+        self.assertContains(response, '<span aria-hidden="true">$</span>')
+        self.assertContains(response, 'name="expenses_0_amount" value="250.00"')
 
     def test_estate_accounting_saves_schedules_and_reconciles(self):
         response = self.client.post("/forms/estate-accounting/new/", {
