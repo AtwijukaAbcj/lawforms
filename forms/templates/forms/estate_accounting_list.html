@@ -25,7 +25,7 @@
       <h2>Estate Accountings</h2>
       <p>Maintain a clear record of estate funds from date of death through distribution.</p>
     </div>
-    <a class="ea-btn" href="{% url 'estate_accounting_create' %}">+ New Estate Accounting</a>
+    {% if user_permissions.estate_accounting.create or request.user.is_superuser %}<a class="ea-btn" href="{% url 'estate_accounting_create' %}">+ New Estate Accounting</a>{% endif %}
   </div>
   <div class="ea-card">
     <table class="ea-table">

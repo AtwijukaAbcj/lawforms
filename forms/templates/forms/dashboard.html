@@ -300,7 +300,7 @@
       <p class="q-sub">Manage client/case master records</p>
     </div>
   </a>
-  {% if user_modules.estate_accounting or request.user.is_superuser %}
+  {% if user_permissions.estate_accounting.create or request.user.is_superuser %}
   <a href="{% url 'estate_accounting_create' %}" class="q-card">
     <div class="q-icon amber">📒</div>
     <div>
@@ -358,7 +358,7 @@
 {% endif %}
 </div>
 
-{% if user_modules.estate_accounting or request.user.is_superuser %}
+{% if user_permissions.estate_accounting.view or request.user.is_superuser %}
 <div class="form-section">
   <div class="fs-head">
     <div class="fs-head-left">
@@ -367,7 +367,7 @@
       <span class="fs-count">{{ estate_accountings_count }}</span>
     </div>
     <div class="fs-actions">
-      <a href="{% url 'estate_accounting_create' %}" class="btn-create">+ New</a>
+      {% if user_permissions.estate_accounting.create or request.user.is_superuser %}<a href="{% url 'estate_accounting_create' %}" class="btn-create">+ New</a>{% endif %}
       <a href="{% url 'estate_accounting_list' %}" class="btn-view-all">View All &rarr;</a>
     </div>
   </div>
@@ -382,13 +382,13 @@
         <td>{{ accounting.personal_representative|default:"—" }}</td>
         <td class="muted">{{ accounting.updated_at|date:"M d, Y" }}</td>
         <td class="act-cell"><a href="{% url 'estate_accounting_view' accounting.pk %}" class="btn-tbl btn-tbl-edit">View</a></td>
-        <td class="act-cell"><a href="{% url 'estate_accounting_print' accounting.pk %}" class="btn-tbl btn-tbl-print" target="_blank">Print</a></td>
+        <td class="act-cell">{% if user_permissions.estate_accounting.print or request.user.is_superuser %}<a href="{% url 'estate_accounting_print' accounting.pk %}" class="btn-tbl btn-tbl-print" target="_blank">Print</a>{% endif %}</td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
   {% else %}
-  <div class="empty-state"><h4>No estate accountings yet</h4><p><a href="{% url 'estate_accounting_create' %}">Create the first accounting</a></p></div>
+  <div class="empty-state"><h4>No estate accountings yet</h4>{% if user_permissions.estate_accounting.create or request.user.is_superuser %}<p><a href="{% url 'estate_accounting_create' %}">Create the first accounting</a></p>{% endif %}</div>
   {% endif %}
 </div>
 {% endif %}

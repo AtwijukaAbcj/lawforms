@@ -6254,13 +6254,11 @@ def _estate_accounting_totals(accounting):
     }
 
 
-def _estate_accounting_access(request, accounting, permission):
-    if _user_has_permission_or_owner(
-        request.user,
-        "estate_accounting",
-        permission,
-        instance=accounting,
-    ):
+def _estate_accounting_access(request, permission):
+    permissions = user_permissions(request).get(
+        "user_permissions", {}
+    ).get("estate_accounting", {})
+    if request.user.is_superuser or permissions.get(permission, False):
         return True
     messages.error(request, f"You don't have permission to {permission} this Estate Accounting.")
     return False
@@ -6274,9 +6272,9 @@ def estate_accounting_list(request):
     accountings = EstateAccounting.objects.select_related("created_by").order_by("-updated_at")
     perms = user_permissions(request).get("user_permissions", {}).get("estate_accounting", {})
     for accounting in accountings:
-        accounting.can_edit = request.user.is_superuser or perms.get("edit", False) or accounting.created_by_id == request.user.pk
-        accounting.can_print = request.user.is_superuser or perms.get("print", False) or accounting.created_by_id == request.user.pk
-        accounting.can_delete = request.user.is_superuser or perms.get("delete", False) or accounting.created_by_id == request.user.pk
+        accounting.can_edit = request.user.is_superuser or perms.get("edit", False)
+        accounting.can_print = request.user.is_superuser or perms.get("print", False)
+        accounting.can_delete = request.user.is_superuser or perms.get("delete", False)
     return render(request, "forms/estate_accounting_list.html", {"accountings": accountings})
 
 
@@ -6285,7 +6283,7 @@ def estate_accounting_list(request):
 def estate_accounting_form(request, pk=None):
     accounting = get_object_or_404(EstateAccounting, pk=pk) if pk else None
     permission = "edit" if accounting else "create"
-    if accounting and not _estate_accounting_access(request, accounting, permission):
+    if accounting and not _estate_accounting_access(request, permission):
         return redirect("estate_accounting_list")
     if not accounting and not _user_has_permission_or_owner(request.user, "estate_accounting", permission):
         messages.error(request, "You don't have permission to create Estate Accounting.")
@@ -6327,7 +6325,7 @@ def estate_accounting_form(request, pk=None):
 @login_required
 def estate_accounting_view(request, pk):
     accounting = get_object_or_404(EstateAccounting, pk=pk)
-    if not _estate_accounting_access(request, accounting, "view"):
+    if not _estate_accounting_access(request, "view"):
         return redirect("estate_accounting_list")
     permissions = user_permissions(request).get("user_permissions", {}).get("estate_accounting", {})
     return render(request, "forms/estate_accounting_print.html", {
@@ -6335,16 +6333,16 @@ def estate_accounting_view(request, pk):
         "sections": _estate_rows_for_render(accounting.schedules),
         "totals": _estate_accounting_totals(accounting),
         "show_actions": True,
-        "can_edit": request.user.is_superuser or permissions.get("edit", False) or accounting.created_by_id == request.user.pk,
-        "can_print": request.user.is_superuser or permissions.get("print", False) or accounting.created_by_id == request.user.pk,
-        "can_delete": request.user.is_superuser or permissions.get("delete", False) or accounting.created_by_id == request.user.pk,
+        "can_edit": request.user.is_superuser or permissions.get("edit", False),
+        "can_print": request.user.is_superuser or permissions.get("print", False),
+        "can_delete": request.user.is_superuser or permissions.get("delete", False),
     })
 
 
 @login_required
 def estate_accounting_print(request, pk):
     accounting = get_object_or_404(EstateAccounting, pk=pk)
-    if not _estate_accounting_access(request, accounting, "print"):
+    if not _estate_accounting_access(request, "print"):
         return redirect("estate_accounting_view", pk=pk)
     print_event = PrintEvent.log_print(
         user=request.user,
@@ -6378,7 +6376,7 @@ def estate_accounting_print(request, pk):
 @require_http_methods(["GET", "POST"])
 def estate_accounting_delete(request, pk):
     accounting = get_object_or_404(EstateAccounting.all_objects, pk=pk)
-    if not _estate_accounting_access(request, accounting, "delete"):
+    if not _estate_accounting_access(request, "delete"):
         return redirect("estate_accounting_list")
     if request.method == "POST":
         accounting.soft_delete()

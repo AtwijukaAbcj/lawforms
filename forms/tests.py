@@ -5,7 +5,7 @@ from django.core.management import call_command
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from .models import CaseFile, EstateAccounting, FinancialStatement, NetFamilyPropertyStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty, PrintEvent
-from users.models import Module, Role
+from users.models import Module, Permission, Role, UserProfile
 
 
 class CaseFileTests(TestCase):
@@ -382,6 +382,61 @@ class EstateAccountingTests(TestCase):
             password="pass",
         )
         self.client.login(username="estate-admin", password="pass")
+
+    def test_estate_module_and_permissions_are_registered_for_role_access_control(self):
+        module = Module.objects.get(code="estate_accounting")
+        permission_types = set(module.permissions.values_list("permission_type", flat=True))
+        self.assertEqual(permission_types, {"view", "create", "edit", "delete", "print", "export"})
+
+        response = self.client.get("/user-management/roles/create/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Estate Accounting")
+        for permission in module.permissions.all():
+            self.assertRegex(
+                response.content.decode(),
+                rf'name="permissions"\s+value="{permission.pk}"',
+            )
+
+        selected_permission = module.permissions.get(permission_type="view")
+        response = self.client.post("/user-management/roles/create/", {
+            "name": "Estate Reviewer",
+            "description": "Can view estate accounting",
+            "is_active": "on",
+            "permissions": [str(selected_permission.pk)],
+        })
+        self.assertRedirects(response, "/user-management/roles/")
+        role = Role.objects.get(name="Estate Reviewer")
+        self.assertEqual(list(role.permissions.all()), [selected_permission])
+
+    def test_estate_actions_enforce_assigned_permissions_for_record_owner(self):
+        member = User.objects.create_user("estate-viewer", password="pass")
+        role = Role.objects.create(name="Estate Create and View")
+        role.permissions.set(Permission.objects.filter(
+            module__code="estate_accounting",
+            permission_type__in=["view", "create"],
+        ))
+        UserProfile.objects.create(user=member, role=role)
+        accounting = EstateAccounting.objects.create(
+            created_by=member,
+            deceased_name="Permission Test Estate",
+        )
+        client = Client()
+        client.force_login(member)
+
+        self.assertEqual(client.get("/forms/estate-accounting/").status_code, 200)
+        self.assertEqual(client.get("/forms/estate-accounting/new/").status_code, 200)
+        self.assertRedirects(
+            client.get(f"/forms/estate-accounting/{accounting.pk}/edit/"),
+            "/forms/estate-accounting/",
+        )
+        self.assertRedirects(
+            client.get(f"/forms/estate-accounting/{accounting.pk}/print/"),
+            f"/forms/estate-accounting/{accounting.pk}/view/",
+        )
+        self.assertRedirects(
+            client.get(f"/forms/estate-accounting/{accounting.pk}/delete/"),
+            "/forms/estate-accounting/",
+        )
 
     def test_module_setup_grants_estate_permissions_to_default_roles(self):
         call_command("setup_modules", verbosity=0)
