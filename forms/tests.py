@@ -35,6 +35,43 @@ class CaseFileTests(TestCase):
         new_case = CaseFile.objects.get(court_file_number='X')
         resp = self.client.get(f'/forms/cases/{new_case.pk}/')
         self.assertContains(resp, '?case_id=')
+        self.assertContains(resp, f'href="/forms/cases/{new_case.pk}/edit/"')
+
+    def test_case_details_can_be_edited_and_saved(self):
+        self.client.login(username='tester', password='pass')
+        response = self.client.get(f'/forms/cases/{self.case.pk}/edit/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'name="applicant_name"')
+        self.assertContains(response, 'value="A"')
+
+        response = self.client.post(f'/forms/cases/{self.case.pk}/edit/', {
+            'court_file_number': 'CF-UPDATED',
+            'court_name': 'Updated Court',
+            'court_office_address': '1 Main Street',
+            'valuation_date': '2026-10-24',
+            'applicant_name': 'Updated Applicant',
+            'applicant_address': 'Applicant Address',
+            'applicant_phone': '111-1111',
+            'applicant_email': 'applicant@example.com',
+            'applicant_lawyer_name': 'Applicant Counsel',
+            'applicant_lawyer_address': 'Counsel Address',
+            'applicant_lawyer_phone': '222-2222',
+            'applicant_lawyer_email': 'counsel@example.com',
+            'respondent_name': 'Updated Respondent',
+            'respondent_address': 'Respondent Address',
+            'respondent_phone': '333-3333',
+            'respondent_email': 'respondent@example.com',
+            'respondent_lawyer_name': 'Respondent Counsel',
+            'respondent_lawyer_address': 'Respondent Counsel Address',
+            'respondent_lawyer_phone': '444-4444',
+            'respondent_lawyer_email': 'respondent.counsel@example.com',
+        })
+        self.assertRedirects(response, f'/forms/cases/{self.case.pk}/')
+        self.case.refresh_from_db()
+        self.assertEqual(self.case.court_file_number, 'CF-UPDATED')
+        self.assertEqual(self.case.applicant_name, 'Updated Applicant')
+        self.assertEqual(self.case.respondent_name, 'Updated Respondent')
+        self.assertEqual(str(self.case.valuation_date), '2026-10-24')
 
     def test_push_case_updates_forms(self):
         self.client.login(username='tester', password='pass')

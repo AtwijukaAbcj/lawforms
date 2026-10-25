@@ -19,6 +19,7 @@
       <p style="color:#475569; margin-top:6px;"><strong>{{ case.applicant_name|default:'Applicant' }}</strong> vs <strong>{{ case.respondent_name|default:'Respondent' }}</strong></p>
 
       <div class="actions">
+        <a class="btn-modern btn-primary-modern" href="{% url 'case_edit' case.id %}">Edit Case Details</a>
         <a class="btn-modern btn-primary-modern" href="{% url 'net_family_property_13b_page1' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13B for case {{ case.id }}" tabindex="0">Create Form 13B</a>
         <a class="btn-modern btn-secondary-modern" href="{% url 'financial_statement_page1_new' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13 for case {{ case.id }}" tabindex="0">Create Form 13</a>
         <a class="btn-modern btn-secondary-modern" href="{% url 'financial_statement_131_page1_new' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13.1 for case {{ case.id }}" tabindex="0">Create Form 13.1</a>
