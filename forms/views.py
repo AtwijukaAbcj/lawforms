@@ -612,6 +612,43 @@ def case_detail(request, pk):
 
 
 @login_required
+@require_http_methods(["GET", "POST"])
+def case_delete(request, pk):
+    """Confirm and delete an owned CaseFile while preserving linked forms."""
+    case = get_object_or_404(CaseFile, pk=pk, owner=request.user)
+    if request.method == "POST":
+        case_name = f"Case #{case.pk} ({case.court_file_number or case.applicant_name or 'Case'})"
+        log_audit(
+            request,
+            "delete",
+            "case",
+            case.pk,
+            case_name,
+            "Deleted case record; linked forms were retained and unlinked.",
+        )
+        case.delete()
+        messages.success(request, "Case deleted. Its linked forms were kept and are no longer linked to this case.")
+        return redirect("case_list")
+
+    linked_form_count = sum([
+        case.financial_statements.count(),
+        case.net_family_property_statements.count(),
+        case.net_family_property_13b_forms.count(),
+        case.comparison_net_family_properties.count(),
+        case.affidavits_of_service.count(),
+        case.certificates_of_divorce.count(),
+        case.divorce_orders.count(),
+        case.divorce_order_a25as.count(),
+        case.form_131_financial_statements.count(),
+        case.application_divorce_8a_forms.count(),
+    ])
+    return render(request, "forms/confirm_case_delete.html", {
+        "case": case,
+        "linked_form_count": linked_form_count,
+    })
+
+
+@login_required
 @require_http_methods(["POST"])
 def case_push_to_forms(request, pk):
     """Push CaseFile top-level fields to all related forms (explicit action).

@@ -17,6 +17,7 @@ urlpatterns = [
     path('cases/<int:pk>/', views.case_detail, name='case_detail'),
     path('cases/<int:pk>/push/', views.case_push_to_forms, name='case_push_to_forms'),
     path("cases/<int:pk>/edit/", views.case_create, name="case_edit"),
+    path("cases/<int:pk>/delete/", views.case_delete, name="case_delete"),
     path('comparison-nfp/<int:pk>/', views.ComparisonNetFamilyPropertyDetailView.as_view(), name='comparison_nfp_detail'),
     path('comparison-nfp/delete/<int:pk>/', views.comparison_nfp_delete, name='comparison_nfp_delete'),
     path('comparison-nfp/new/', views.comparison_nfp_create, name='comparison_nfp_create'),

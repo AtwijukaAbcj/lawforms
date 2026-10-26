@@ -10,6 +10,7 @@
   .btn-modern{ border-radius:7px; padding:8px 14px; font-size:13px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:6px; white-space:nowrap; color:#fff; border:none; cursor:pointer; }
   .btn-primary-modern{ background:#1e293b; }
   .btn-secondary-modern{ background:#64748b; }
+  .btn-danger-modern{ background:#b91c1c; }
 </style>
 
 <div class="page-wrap">
@@ -20,6 +21,7 @@
 
       <div class="actions">
         <a class="btn-modern btn-primary-modern" href="{% url 'case_edit' case.id %}">Edit Case Details</a>
+        <a class="btn-modern btn-danger-modern" href="{% url 'case_delete' case.id %}">Delete Case</a>
         <a class="btn-modern btn-primary-modern" href="{% url 'net_family_property_13b_page1' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13B for case {{ case.id }}" tabindex="0">Create Form 13B</a>
         <a class="btn-modern btn-secondary-modern" href="{% url 'financial_statement_page1_new' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13 for case {{ case.id }}" tabindex="0">Create Form 13</a>
         <a class="btn-modern btn-secondary-modern" href="{% url 'financial_statement_131_page1_new' %}?case_id={{ case.id }}" role="button" aria-label="Create Form 13.1 for case {{ case.id }}" tabindex="0">Create Form 13.1</a>

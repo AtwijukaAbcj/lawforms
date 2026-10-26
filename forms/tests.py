@@ -73,6 +73,34 @@ class CaseFileTests(TestCase):
         self.assertEqual(self.case.respondent_name, 'Updated Respondent')
         self.assertEqual(str(self.case.valuation_date), '2026-10-24')
 
+    def test_case_can_be_deleted_without_deleting_linked_forms(self):
+        statement = FinancialStatement.objects.create(
+            case_file=self.case,
+            court_file_number=self.case.court_file_number,
+            applicant_name=self.case.applicant_name,
+            respondent_name=self.case.respondent_name,
+        )
+        self.client.login(username='tester', password='pass')
+
+        response = self.client.get(f'/forms/cases/{self.case.pk}/delete/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '1 linked form will be kept')
+        self.assertTrue(CaseFile.objects.filter(pk=self.case.pk).exists())
+
+        response = self.client.post(f'/forms/cases/{self.case.pk}/delete/')
+        self.assertRedirects(response, '/forms/cases/')
+        self.assertFalse(CaseFile.objects.filter(pk=self.case.pk).exists())
+        statement.refresh_from_db()
+        self.assertIsNone(statement.case_file)
+
+    def test_case_delete_is_restricted_to_owner(self):
+        self.client.login(username='other', password='pass')
+
+        response = self.client.get(f'/forms/cases/{self.case.pk}/delete/')
+
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(CaseFile.objects.filter(pk=self.case.pk).exists())
+
     def test_push_case_updates_forms(self):
         self.client.login(username='tester', password='pass')
         fs = FinancialStatement.objects.create(case_file=self.case, court_file_number='OLD', applicant_name='Old', respondent_name='Old')

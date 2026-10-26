@@ -32,6 +32,8 @@
 
   .btn-edit-modern{ background:#15803d; }
   .btn-edit-modern:hover{ background:#166534; color:#fff !important; }
+  .btn-delete-modern{ background:#b91c1c; }
+  .btn-delete-modern:hover{ background:#991b1b; color:#fff !important; }
 
   .action-buttons{
     display:flex;
@@ -88,6 +90,10 @@
                     <a class="btn-modern btn-edit-modern"
                        href="{% url 'case_edit' c.pk %}">
                       Edit
+                    </a>
+                    <a class="btn-modern btn-delete-modern"
+                       href="{% url 'case_delete' c.pk %}">
+                      Delete
                     </a>
                   </div>
                 </td>
