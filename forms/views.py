@@ -13,6 +13,7 @@ from django.db import transaction
 from django.contrib import messages
 from django.shortcuts import redirect
 from users.context_processors import user_permissions
+from users.models import UserProfile
 from django.contrib.auth.decorators import login_required, user_passes_test
 # Delete PrintEvent (admin/staff only)
 from django.shortcuts import get_object_or_404
@@ -4658,10 +4659,21 @@ from .models import ApplicationDivorce8A, AffidavitOfService, PrintEvent, Financ
 @login_required
 def view_printed_copy(request, print_event_id):
     """
-    Secure view-only page for a printed form. Blocks printing and screenshots.
-    Shows the form as it was at print time.
+    Render a previously logged print using current form data.
+    Viewing does not create a new print event.
     """
-    print_event = get_object_or_404(PrintEvent, pk=print_event_id)
+    user = request.user
+    can_view_all = user.is_staff or user.is_superuser
+    if not can_view_all:
+        try:
+            can_view_all = user.profile.has_module_permission('billing', 'view')
+        except UserProfile.DoesNotExist:
+            can_view_all = False
+
+    queryset = PrintEvent.objects.all()
+    if not can_view_all:
+        queryset = queryset.filter(user=user)
+    print_event = get_object_or_404(queryset, pk=print_event_id)
     # Map form_type to model
     form_obj = None
     if print_event.form_type == 'financial_statement':
@@ -4676,8 +4688,8 @@ def view_printed_copy(request, print_event_id):
         form_obj = Form131FinancialStatement.objects.filter(pk=print_event.form_id).first()
         template = 'forms/financial_statement_131_printed_view.html'
         # Build context as in print view
-        pages = form_obj.draft or {}
-        page1 = getattr(form_obj, 'draft', {}).get('page1', {})
+        pages = (form_obj.draft or {}) if form_obj else {}
+        page1 = pages.get('page1') or {}
         context = {
             'form': form_obj,
             'print_event': print_event,
@@ -4732,6 +4744,7 @@ def view_printed_copy(request, print_event_id):
             assets = debts = marriage_properties = marriage_debts = excluded_properties = []
             final_totals = None
             totals = {}
+            equalisation = None
         context = {
             'form': form_obj,
             'statement': form_obj,
@@ -4768,6 +4781,30 @@ def view_printed_copy(request, print_event_id):
         template = 'forms/affidavit_service_print_view.html'
         context = {
             'affidavit': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
+    elif print_event.form_type in ('divorce_order', 'divorce_order_onepage'):
+        form_obj = DivorceOrder.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/divorce_order_print_view.html'
+        context = {
+            'order': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
+    elif print_event.form_type == 'divorce_order_a25a':
+        form_obj = DivorceOrderA25A.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/divorce_order_a25a_print_view.html'
+        context = {
+            'order': form_obj,
+            'print_event': print_event,
+            'view_only': True,
+        }
+    elif print_event.form_type == 'certificate_of_divorce':
+        form_obj = CertificateOfDivorce.objects.filter(pk=print_event.form_id).first()
+        template = 'forms/certificate_of_divorce_print_view.html'
+        context = {
+            'certificate': form_obj,
             'print_event': print_event,
             'view_only': True,
         }
