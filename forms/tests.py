@@ -4,7 +4,7 @@ from unittest.mock import patch
 from django.core.management import call_command
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
-from .models import CaseFile, EstateAccounting, FinancialStatement, NetFamilyPropertyStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty, PrintEvent
+from .models import CaseFile, DivorceOrder, EstateAccounting, FinancialStatement, NetFamilyPropertyStatement, NetFamilyProperty13B, ComparisonNetFamilyProperty, PrintEvent
 from users.models import Module, Permission, Role, UserProfile
 
 
@@ -711,3 +711,47 @@ class EstateAccountingTests(TestCase):
         response = self.client.post(f"/forms/recycle-bin/permanent-delete/estate_accounting/{accounting.pk}/")
         self.assertRedirects(response, "/forms/recycle-bin/")
         self.assertFalse(EstateAccounting.all_objects.filter(pk=accounting.pk).exists())
+
+
+class DivorceOrderPrintedCopyTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser(
+            username="divorce-order-admin",
+            email="divorce-order@example.com",
+            password="pass",
+        )
+        self.client.login(username="divorce-order-admin", password="pass")
+
+    def test_previously_printed_copy_uses_form_layout_and_blocks_printing(self):
+        order = DivorceOrder.objects.create(
+            court_file_number="FC-25A-1",
+            applicant_name="Applicant Name",
+            respondent_name="Respondent Name",
+        )
+        event = PrintEvent.objects.create(
+            user=self.user,
+            form_type="divorce_order",
+            form_id=order.pk,
+        )
+        event_count = PrintEvent.objects.count()
+
+        response = self.client.get(f"/forms/billing/printed-copy/{event.pk}/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "View Only")
+        self.assertContains(response, "page-25a")
+        self.assertContains(response, "FC-25A-1")
+        self.assertContains(response, "Applicant Name")
+        self.assertNotContains(response, 'onclick="window.print()"')
+        self.assertContains(response, "Printing is disabled for this view-only copy.")
+        self.assertContains(response, "display: none !important;")
+        self.assertEqual(PrintEvent.objects.count(), event_count)
+
+    def test_regular_print_preview_keeps_print_action(self):
+        order = DivorceOrder.objects.create(court_file_number="FC-25A-2")
+
+        response = self.client.get(f"/forms/divorce-order/print-view/{order.pk}/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "page-25a")
+        self.assertContains(response, 'onclick="window.print()"')
